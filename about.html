@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lord Tsarcasm - About</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            background-color: #000;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .header:hover {
+            background-color: #333;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-family: 'Playfair Display', serif;
+            color: #e50914;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: logo-fade-in 2s ease-out forwards;
+        }
+
+        @keyframes logo-fade-in {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+            position: relative;
+        }
+
+        .nav-link {
+            color: #ffd700;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 700;
+            transition: color 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: #e50914;
+            left: 0;
+            bottom: -5px;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .hero {
+            background: url('images/about-bg.jpg') no-repeat center center/cover;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero:before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            left: 0;
+            top: 0;
+        }
+
+        .hero h1 {
+            font-size: 36px;
+            font-family: 'Playfair Display', serif;
+            margin: 0;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+            position: relative;
+            z-index: 2;
+            animation: hero-text-fade-in 2s ease-out forwards;
+        }
+
+        @keyframes hero-text-fade-in {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-section {
+            margin-bottom: 40px;
+        }
+
+        .content-section h2 {
+            font-size: 28px;
+            font-family: 'Playfair Display', serif;
+            color: #ffd700;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .content-section p {
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: bold;
+            background-color: #1f1f1f;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #333;
+        }
+
+        .footer {
+            background-color: #000;
+            padding: 20px 0;
+            text-align: center;
+            color: #7a7a7a;
+            margin-top: 30px;
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">Lord Tsarcasm</div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="music.html" class="nav-link">Music</a>
+                <a href="videos.html" class="nav-link">Videos</a>
+                <a href="poetry.html" class="nav-link">Poetry</a>
+                <a href="ai-art.html" class="nav-link">AI Art</a>
+                <a href="services.html" class="nav-link">Services</a>
+                <a href="merch.html" class="nav-link">Merch</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="collab-links.html" class="nav-link">Collaborations</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h1>About Lord Tsarcasm</h1>
+    </div>
+
+    <div class="container">
+        <div class="content-section">
+            <h2>My Journey</h2>
+            <p>Welcome to my creative corner of the internet, where AI-music, human music, AI and human art, and video production intersect to bring the world of R.O.D. (Remnants of Destruction) to life. Inspired by the incredible legacy of my late friend, Sean Trusty, R.O.D. is more than just a passion project—it's a world rich with lore, characters, and stories that I am committed to developing into a fully immersive video game. Maybe one day :)
+
+As the creative force behind this endeavor, I combine my talents with words with AI and human music composition, AI-driven artwork, and cinematic storytelling to expand and explore the universe Sean began. Alongside several collaborators, I am craft a narrative experience that honors Sean's vision while pushing the boundaries of what's possible in interactive media. What was once a journey of self-discovery has finally found focus in video games. So be it :)
+
+Here, you'll find my work, including the music of Lord Tsarcasm—a storyteller bard band that narrates the epic tales of R.O.D.—as well as AI-generated art and videos that breathe life into the characters and settings of this expansive world. Join me on this journey as we continue to build and share the world of R.O.D., one story at a time.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>What I'm working on</h2>
+            <p>From soulful melodies to hard-hitting beats, explore my musical creations. Watch creative video projects, and delve into my written works to experience the power of words. Discover the beauty of AI-generated artwork, and collaborate if you wish, from music production to custom art pieces. The dream was once my own, but the more people I meet the more magical the world becomes!</p>
+        </div>
+
+        <div class="content-section">
+            <h2>Join the Journey</h2>
+            <p>Thank you for being a part of my creative journey. I am always excited to connect with new people and explore new opportunities. Feel free to reach out if you have any questions, want to collaborate, or just want to share your thoughts. Discord is best, but facebook is fine too. Email just isn't working yet :P </p>
+            <a href="contact.html" class="btn">Get in Touch</a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 Lord Tsarcasm. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>
