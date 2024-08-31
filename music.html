@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lord Tsarcasm - Music</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .header {
+            background-color: #000;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        .header:hover {
+            background-color: #333;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .logo {
+            font-size: 32px;
+            font-family: 'Playfair Display', serif;
+            color: #e50914;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: logo-fade-in 2s ease-out forwards;
+        }
+        @keyframes logo-fade-in {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+            position: relative;
+        }
+        .nav-link {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 700;
+            transition: color 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: #e50914;
+            left: 0;
+            bottom: -5px;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+        .nav-link:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        .hero {
+            background: url('images/hero-bg.jpg') no-repeat center center/cover;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero:before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            left: 0;
+            top: 0;
+        }
+        .hero h1 {
+            font-size: 56px;
+            font-family: 'Playfair Display', serif;
+            margin: 0;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+            position: relative;
+            z-index: 2;
+            animation: hero-text-fade-in 2s ease-out forwards;
+        }
+        @keyframes hero-text-fade-in {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            position: relative;
+            z-index: 2;
+        }
+        .album-card {
+            background-color: #1f1f1f;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            z-index: 2;
+        }
+        .album-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }
+        .album-cover {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .album-card:hover .album-cover {
+            transform: scale(1.1);
+        }
+        .album-info {
+            padding: 20px;
+            text-align: center;
+            background-color: #2a2a2a;
+            transition: background-color 0.3s ease;
+        }
+        .album-card:hover .album-info {
+            background-color: #333;
+        }
+        .album-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ffd700;
+            position: relative;
+            z-index: 2;
+        }
+        .album-details {
+            color: #b3b3b3;
+            font-size: 16px;
+        }
+        .album-title::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background-color: #ffd700;
+            left: 0;
+            bottom: -5px;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+        .album-card:hover .album-title::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        .footer {
+            background-color: #000;
+            padding: 20px 0;
+            text-align: center;
+            color: #7a7a7a;
+            margin-top: 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.95);
+            padding-top: 60px;
+            animation: modal-fade-in 0.5s ease-out forwards;
+        }
+        @keyframes modal-fade-in {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .modal-content {
+            background-color: #1f1f1f;
+            margin: 5% auto;
+            padding: 40px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 1000px;
+            border-radius: 12px;
+            color: #fff;
+            animation: modal-content-fade-in 0.7s ease-out forwards;
+        }
+        @keyframes modal-content-fade-in {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-album-cover {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            animation: modal-album-cover-fade-in 1s ease-out forwards;
+        }
+        @keyframes modal-album-cover-fade-in {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .modal-album-title {
+            font-size: 32px;
+            margin-bottom: 10px;
+            animation: modal-album-title-fade-in 1.2s ease-out forwards;
+        }
+        @keyframes modal-album-title-fade-in {
+            0% { opacity: 0; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .modal-album-details {
+            font-size: 18px;
+            margin-bottom: 20px;
+            animation: modal-album-details-fade-in 1.4s ease-out forwards;
+        }
+        @keyframes modal-album-details-fade-in {
+            0% { opacity: 0; transform: translateX(20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .modal-song-list {
+            list-style-type: none;
+            padding: 0;
+            font-size: 18px;
+            animation: modal-song-list-fade-in 1.6s ease-out forwards;
+        }
+        @keyframes modal-song-list-fade-in {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .modal-song-list li {
+            margin-bottom: 12px;
+            position: relative;
+            padding-left: 20px;
+        }
+        .modal-song-list li::before {
+            content: '♪';
+            position: absolute;
+            left: 0;
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">Lord Tsarcasm</div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="music.html" class="nav-link">Music</a>
+                <a href="videos.html" class="nav-link">Videos</a>
+                <a href="poetry.html" class="nav-link">Poetry</a>
+                <a href="ai-art.html" class="nav-link">AI Art</a>
+                <a href="vape-juice.html" class="nav-link">Vape Juice</a>
+                <a href="services.html" class="nav-link">Services</a>
+                <a href="merch.html" class="nav-link">Merch</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+                <a href="collab-links.html" class="nav-link">Collaborations</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h1>Music</h1>
+    </div>
+
+    <div class="container">
+        <p>Explore the diverse musical creations of Lord Tsarcasm. From singles to full albums, dive into the unique sounds and stories behind each track.</p>
+
+        <div class="album-grid">
+            <!-- Success the Obsession -->
+            <div class="album-card" onclick="openModal('success-modal')">
+                <img src="images/Success the Obsession.png" alt="Success the Obsession" class="album-cover">
+                <div class="album-info">
+                    <div class="album-title">Success the Obsession (Concept Version)</div>
+                    <div class="album-details">Single - 2024 - 1 song</div>
+                </div>
+            </div>
+
+            <!-- DOT. Album -->
+            <div class="album-card" onclick="openModal('dot-modal')">
+                <img src="images/DOT..png" alt="DOT." class="album-cover">
+                <div class="album-info">
+                    <div class="album-title">DOT.</div>
+                    <div class="album-details">Album - 2024 - 17 songs</div>
+                </div>
+            </div>
+
+            <!-- Riddle Me -->
+            <div class="album-card" onclick="openModal('riddle-me-modal')">
+                <img src="images/Riddle Me.png" alt="Riddle Me" class="album-cover">
+                <div class="album-info">
+                    <div class="album-title">Riddle Me</div>
+                    <div class="album-details">Single - 2024 - 1 song</div>
+                </div>
+            </div>
+
+            <!-- Glad You're Mine -->
+            <div class="album-card" onclick="openModal('glad-mine-modal')">
+                <img src="images/Glad You're Mine.png" alt="Glad You're Mine" class="album-cover">
+                <div class="album-info">
+                    <div class="album-title">Glad You're Mine</div>
+                    <div class="album-details">Single - 2024 - 1 song</div>
+                </div>
+            </div>
+
+            <!-- Moral Compass -->
+            <div class="album-card" onclick="openModal('moral-compass-modal')">
+                <img src="images/Moral Compass.png" alt="Moral Compass" class="album-cover">
+                <div class="album-info">
+                    <div class="album-title">Moral Compass</div>
+                    <div class="album-details">Single - 2024 - 1 song</div>
+                </div>
+            </div>
+
+            <!-- It's Not About the Weather -->
+            <div class="album-card" onclick="openModal('not-weather-modal')">
+                <img src="images/Its Not About The Weather.jpg" alt="It's Not About the Weather" class="album-cover">
+                <div class="album-info">
+                    <div class="album-title">It's Not About the Weather</div>
+                    <div class="album-details">Single - 2024 - 1 song</div>
+                </div>
+            </div>
+
+            <!-- Shoot Me Down -->
+            <div class="album-card" onclick="openModal('shoot-me-down-modal')">
+                <img src="images/Shoot Me Down.jpg" alt="Shoot Me Down" class="album-cover">
+                <div class="album-info">
+                    <div class="album-title">Shoot Me Down</div>
+                    <div class="album-details">Single - 2023 - 1 song</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 Lord Tsarcasm. All rights reserved.</p>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('success-modal')">&times;</span>
+            <img src="images/Success the Obsession.png" alt="Success the Obsession" class="modal-album-cover">
+            <div class="modal-album-title">Success the Obsession (Concept Version)</div>
+            <div class="modal-album-details">Single - 2024 - 1 song</div>
+            <ul class="modal-song-list">
+                <li>Success the Obsession - 3:44</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- DOT. Modal -->
+    <div id="dot-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('dot-modal')">&times;</span>
+            <img src="images/DOT..png" alt="DOT." class="modal-album-cover">
+            <div class="modal-album-title">DOT.</div>
+            <div class="modal-album-details">Album - 2024 - 17 songs</div>
+            <ul class="modal-song-list">
+                <li>Harmonious Complexity. - 3:44</li>
+                <li>Behind the Mirror - 3:32</li>
+                <li>Creepy Thing - 3:52</li>
+                <li>Feel It In My Veins - 2:34</li>
+                <li>Carapace - 3:21</li>
+                <li>Hold On Tight. - 2:07</li>
+                <li>Watch Out. - 4:17</li>
+                <li>Zhilu Kala Sona - 3:04</li>
+                <li>98 Percent - 3:40</li>
+                <li>Sunken World. - 3:05</li>
+                <li>Routine - 3:35</li>
+                <li>Completely - 2:22</li>
+                <li>Princess and the Fool - 4:32</li>
+                <li>The Journey of Six Strings - 2:58</li>
+                <li>Fool's Mate - 2:54</li>
+                <li>Shred World - 2:58</li>
+                <li>Empty Little Soul - 3:34</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Riddle Me Modal -->
+    <div id="riddle-me-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('riddle-me-modal')">&times;</span>
+            <img src="images/Riddle Me.png" alt="Riddle Me" class="modal-album-cover">
+            <div class="modal-album-title">Riddle Me</div>
+            <div class="modal-album-details">Single - 2024 - 1 song</div>
+            <ul class="modal-song-list">
+                <li>Riddle Me - 3:58</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Glad You're Mine Modal -->
+    <div id="glad-mine-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('glad-mine-modal')">&times;</span>
+            <img src="images/Glad You're Mine.png" alt="Glad You're Mine" class="modal-album-cover">
+            <div class="modal-album-title">Glad You're Mine</div>
+            <div class="modal-album-details">Single - 2024 - 1 song</div>
+            <ul class="modal-song-list">
+                <li>Glad You're Mine - 2:04</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Moral Compass Modal -->
+    <div id="moral-compass-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('moral-compass-modal')">&times;</span>
+            <img src="images/Moral Compass.png" alt="Moral Compass" class="modal-album-cover">
+            <div class="modal-album-title">Moral Compass</div>
+            <div class="modal-album-details">Single - 2024 - 1 song</div>
+            <ul class="modal-song-list">
+                <li>Moral Compass - 3:54</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- It's Not About the Weather Modal -->
+    <div id="not-weather-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('not-weather-modal')">&times;</span>
+            <img src="images/Its Not About The Weather.jpg" alt="It's Not About the Weather" class="modal-album-cover">
+            <div class="modal-album-title">It's Not About the Weather</div>
+            <div class="modal-album-details">Single - 2024 - 1 song</div>
+            <ul class="modal-song-list">
+                <li>It's Not About the Weather - 3:02</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Shoot Me Down Modal -->
+    <div id="shoot-me-down-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('shoot-me-down-modal')">&times;</span>
+            <img src="images/Shoot Me Down.jpg" alt="Shoot Me Down" class="modal-album-cover">
+            <div class="modal-album-title">Shoot Me Down</div>
+            <div class="modal-album-details">Single - 2023 - 1 song</div>
+            <ul class="modal-song-list">
+                <li>Shoot Me Down - 3:38</li>
+            </ul>
+        </div>
+    </div>
+
+
+
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = "block";
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        // Close the modal when clicking outside of the modal content
+        window.onclick = function(event) {
+            const modals = document.getElementsByClassName('modal');
+            for (let i = 0; i < modals.length; i++) {
+                if (event.target == modals[i]) {
+                    modals[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+</body>
+</html>
