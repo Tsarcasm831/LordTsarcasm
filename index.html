@@ -59,32 +59,31 @@
             left: 0;
         }
 
-        header h1 {
+        header img {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 70px;
-            color: #fff;
-            text-shadow: 2px 2px 5px #000;
+            width: 300px; /* Adjust the size of the logo as needed */
+            height: auto;
             animation: pulse 2s infinite;
             z-index: 1;
         }
 
         @keyframes pulse {
             0%, 100% {
-                transform: scale(1);
+                transform: translate(-50%, -50%) scale(1);
             }
 
             50% {
-                transform: scale(1.1);
+                transform: translate(-50%, -50%) scale(1.1);
             }
         }
 
         .button-container {
             position: absolute;
             width: calc(960px - 170px);
-            top: calc(72% + 6px); /* Move the buttons up by 17px */
+            top: calc(72% + 6px);
             left: calc(85px + 15px);
             display: flex;
             justify-content: space-between;
@@ -92,8 +91,8 @@
         }
 
         .button-container a {
-            width: 122px; /* 20% smaller than the previous 152px */
-            height: 122px; /* Keep height and width equal for round shape */
+            width: 122px;
+            height: 122px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -101,7 +100,7 @@
             cursor: pointer;
             box-shadow: none;
             transition: transform 0.4s, box-shadow 0.4s;
-            font-size: 25px; /* Adjust font size to scale with the button */
+            font-size: 25px;
             text-align: center;
             color: transparent;
             background-color: transparent;
@@ -153,7 +152,7 @@
             background-color: #ff5733;
         }
 
-        #use-the-knife-com {
+        #rod {
             background-color: #111;
         }
 
@@ -182,7 +181,7 @@
 
 <body>
     <nav>
-        <a href="coming-soon.html">USE THE KNIFE . COM</a>
+        <a href="#rod">R.O.D.</a>
         <a href="about.html">ABOUT</a>
         <a href="music.html">MUSIC</a>
         <a href="#collaborators">COLLABORATORS</a>
@@ -192,25 +191,25 @@
             <source src="background.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
-        <h1>Lord Tsarcasm</h1>
+        <img src="ltlogo.png" alt="Lord Tsarcasm Logo">
         <div class="button-container">
-            <a href="coming-soon.html" class="button-red"></a>
+            <a href="#rod" class="button-red"></a>
             <a href="about.html" class="button-purple"></a>
             <a href="music.html" class="button-green"></a>
             <a href="#collaborators" class="button-blue"></a>
         </div>
     </header>
-    <section id="use-the-knife-com">
-        <a href="coming-soon.html">Use The Knife . Com</a>
-        <p>Welcome to Use The Knife . Com!</p>
+    <section id="rod">
+        <a href="rod.html">R.O.D.</a>
+        <p>Welcome to Lord Tsarcasm's realm!</p>
         <a href="#top" class="back-to-top">Back to the Top</a>
     </section>
     <section id="collaborators">
-        <a href="coming-soon.html">Collaborators</a>
+        <a href="collaborators.html">Collaborators</a>
         <p>Meet the creative forces behind the scenes.</p>
         <a href="#top" class="back-to-top">Back to the Top</a>
     </section>
-    <a href="coming-soon.html" class="easter-egg">Special Thanks</a>
+    <a href="https://yourwebsite.com/thanks" class="easter-egg">Special Thanks</a>
 </body>
 
 </html>
