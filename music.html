@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lord Tsarcasm - Music</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
             font-family: 'Lato', sans-serif;
@@ -22,8 +22,6 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            position: relative;
-            z-index: 1;
         }
 
         .header {
@@ -44,8 +42,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
             padding: 0 20px;
         }
 
@@ -55,25 +51,11 @@
             color: #e50914;
             text-transform: uppercase;
             letter-spacing: 1px;
-            animation: logo-fade-in 2s ease-out forwards;
-        }
-
-        @keyframes logo-fade-in {
-            0% {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .nav-menu {
             display: flex;
             gap: 10px;
-            position: relative;
         }
 
         .nav-link {
@@ -83,25 +65,10 @@
             font-weight: 700;
             transition: color 0.3s ease;
             position: relative;
-            z-index: 2;
         }
 
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background-color: #e50914;
-            left: 0;
-            bottom: -5px;
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s ease;
-        }
-
-        .nav-link:hover::after {
-            transform: scaleX(1);
-            transform-origin: left;
+        .nav-link:hover {
+            color: #fff;
         }
 
         .hero {
@@ -114,19 +81,6 @@
             text-align: center;
             padding: 20px;
             margin-bottom: 30px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero:before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1;
-            left: 0;
-            top: 0;
         }
 
         .hero h1 {
@@ -134,29 +88,12 @@
             font-family: 'Playfair Display', serif;
             margin: 0;
             text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
-            position: relative;
-            z-index: 2;
-            animation: hero-text-fade-in 2s ease-out forwards;
-        }
-
-        @keyframes hero-text-fade-in {
-            0% {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .album-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            position: relative;
-            z-index: 2;
         }
 
         .album-card {
@@ -164,10 +101,8 @@
             border-radius: 12px;
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             cursor: pointer;
-            z-index: 2;
         }
 
         .album-card:hover {
@@ -179,22 +114,12 @@
             width: 100%;
             height: 250px;
             object-fit: cover;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .album-card:hover .album-cover {
-            transform: scale(1.1);
         }
 
         .album-info {
             padding: 15px;
             text-align: center;
             background-color: #2a2a2a;
-            transition: background-color 0.3s ease;
-        }
-
-        .album-card:hover .album-info {
-            background-color: #333;
         }
 
         .album-title {
@@ -202,31 +127,11 @@
             font-weight: bold;
             margin-bottom: 10px;
             color: #ffd700;
-            position: relative;
-            z-index: 2;
         }
 
         .album-details {
             color: #b3b3b3;
             font-size: 14px;
-        }
-
-        .album-title::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background-color: #ffd700;
-            left: 0;
-            bottom: -5px;
-            transform: scaleX(0);
-            transform-origin: right;
-            transition: transform 0.3s ease;
-        }
-
-        .album-card:hover .album-title::after {
-            transform: scaleX(1);
-            transform-origin: left;
         }
 
         .footer {
@@ -235,8 +140,6 @@
             text-align: center;
             color: #7a7a7a;
             margin-top: 30px;
-            position: relative;
-            z-index: 1;
         }
 
         /* Modal Styling */
@@ -251,41 +154,16 @@
             overflow: auto;
             background-color: rgba(0, 0, 0, 0.95);
             padding-top: 60px;
-            animation: modal-fade-in 0.5s ease-out forwards;
-        }
-
-        @keyframes modal-fade-in {
-            0% {
-                opacity: 0;
-            }
-
-            100% {
-                opacity: 1;
-            }
         }
 
         .modal-content {
             background-color: #1f1f1f;
             margin: 5% auto;
             padding: 40px;
-            border: 1px solid #888;
             width: 90%;
             max-width: 800px;
             border-radius: 12px;
             color: #fff;
-            animation: modal-content-fade-in 0.7s ease-out forwards;
-        }
-
-        @keyframes modal-content-fade-in {
-            0% {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
         }
 
         .close {
@@ -309,90 +187,28 @@
             object-fit: cover;
             border-radius: 8px;
             margin-bottom: 20px;
-            animation: modal-album-cover-fade-in 1s ease-out forwards;
-        }
-
-        @keyframes modal-album-cover-fade-in {
-            0% {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .modal-album-title {
             font-size: 28px;
             margin-bottom: 10px;
-            animation: modal-album-title-fade-in 1.2s ease-out forwards;
-        }
-
-        @keyframes modal-album-title-fade-in {
-            0% {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateX(0);
-            }
         }
 
         .modal-album-details {
             font-size: 16px;
             margin-bottom: 20px;
-            animation: modal-album-details-fade-in 1.4s ease-out forwards;
-        }
-
-        @keyframes modal-album-details-fade-in {
-            0% {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateX(0);
-            }
         }
 
         .modal-song-list {
             list-style-type: none;
             padding: 0;
             font-size: 16px;
-            animation: modal-song-list-fade-in 1.6s ease-out forwards;
-        }
-
-        @keyframes modal-song-list-fade-in {
-            0% {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .modal-song-list li {
             margin-bottom: 12px;
-            position: relative;
-            padding-left: 20px;
         }
 
-        .modal-song-list li::before {
-            content: '♪';
-            position: absolute;
-            left: 0;
-            color: #ffd700;
-        }
-
-        /* Link Styles */
         .links {
             display: flex;
             flex-wrap: wrap;
@@ -407,7 +223,6 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            transition: color 0.3s ease;
         }
 
         .links a:hover {
@@ -418,18 +233,11 @@
             font-size: 18px;
         }
 
-        /* Table Styles */
         .dot-album-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
             color: #ffd700;
-        }
-
-        .dot-album-table caption {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
         }
 
         .dot-album-table th,
@@ -466,8 +274,7 @@
     </div>
 
     <div class="container">
-        <p>Explore the diverse musical creations of Lord Tsarcasm. From singles to full albums, dive into the unique
-            sounds and stories behind each track.</p>
+        <p>Explore the diverse musical creations of Lord Tsarcasm. From singles to full albums, dive into the unique sounds and stories behind each track.</p>
 
         <div class="album-grid">
             <!-- Success the Obsession -->
@@ -575,168 +382,165 @@
             <div class="modal-album-title">Success the Obsession (Concept Version)</div>
             <div class="modal-album-details">Single - 2024 - 1 song</div>
             <ul class="modal-song-list">
-                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE"
-                        target="_blank">YouTube</a></li>
-                <li><a href="https://geo.music.apple.com/album/success-the-obsession-concept-version-single/1759666157"
-                        target="_blank">Apple Music</a></li>
+                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE" target="_blank">YouTube</a></li>
+                <li><a href="https://geo.music.apple.com/album/success-the-obsession-concept-version-single/1759666157" target="_blank">Apple Music</a></li>
                 <li><a href="https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx" target="_blank">Spotify</a></li>
                 <li><a href="https://artists.landr.com/055855346063" target="_blank">General Link</a></li>
-                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/success-the-obsession-concept-version/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147"
-                        target="_blank">Pandora</a></li>
+                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/success-the-obsession-concept-version/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147" target="_blank">Pandora</a></li>
             </ul>
         </div>
     </div>
-<!-- DOT. Modal -->
-<div id="dot-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('dot-modal')">&times;</span>
-        <img src="images/DOT..png" alt="DOT." class="modal-album-cover">
-        <div class="modal-album-title">DOT.</div>
-        <div class="modal-album-details">Album - 2024 - 17 songs</div>
-        <p>The "DOT." album by Lord Tsarcasm is a deep exploration of complex emotions, intricate soundscapes, and thought-provoking lyrics. Each track on this album offers a unique journey through diverse musical styles and thematic depth.</p>
-        <h3>Listen on:</h3>
-        <div class="links">
-            <a href="https://music.youtube.com/playlist?list=OLAK5uy_l316xlylhai9qA0Nkb2wTiXrzFt7buKgw&si=bVHF9zQMYJ8IMeWC" target="_blank"><i class="fab fa-youtube"></i> YouTube</a>
-            <a href="https://music.apple.com/us/album/dot/1750119542" target="_blank"><i class="fab fa-apple"></i> Apple Music</a>
-            <a href="https://open.spotify.com/track/1YVl9rMklSiPCQZtuGx8Tx" target="_blank"><i class="fab fa-spotify"></i> Spotify</a>
-            <a href="https://www.pandora.com/artist/lord-tsarcasm/dot/ALlPn6PK5wq5htw?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i> Pandora</a>
-        </div>
-        <h3>Tracklist:</h3>
-        <table class="dot-album-table">
-            <thead>
-                <tr>
-                    <th>Song</th>
-                    <th>YouTube</th>
-                    <th>Apple Music</th>
-                    <th>Spotify</th>
-                    <th>Pandora</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Harmonious Complexity</td>
-                    <td><a href="https://music.youtube.com/watch?v=vnNcvuylL5o&si=4GH5Hz7C-veNq2aJ" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/harmonious-complexity/1750119542?i=1750119544" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/67CPZDyhOy7ijPa6oI0LqL?si=ba3b9e26738b48fe" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/harmonious-complexity/TR37bdrqf2vz99Z?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>Behind the Mirror</td>
-                    <td><a href="https://music.youtube.com/watch?v=f6RMwhGvUJc&si=EZ9rFiWqr0V55vKO" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/behind-the-mirror/1750119542?i=1750119545" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/6JLy1pcxkg4T0KGlfi5pCD?si=59b6babc40224683" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/behind-the-mirror/TRnKg767wp9xVcq?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>Creepy Thing</td>
-                    <td><a href="https://music.youtube.com/watch?v=uDM7Me3rnBA&si=efoiK7-mg0fcEzuV" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/creepy-thing/1750119542?i=1750119546" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/4VVz5KKYVw3xdV3O4HZcyN?si=1200cf906bb447a0" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/creepy-thing/TRgbnfVphmnkPrc?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>Feel It In My Veins</td>
-                    <td><a href="https://music.youtube.com/watch?v=SDDZgwonpkw&si=hxBRXfPN-9dn4UyA" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/feel-it-in-my-veins/1750119542?i=1750119547" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/6spvPPOPPd9fAi60YXz8f7?si=9947b841130d4cb0" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/feel-it-in-my-veins/TRPv93jdt3mP2wV?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>Carapace</td>
-                    <td><a href="https://music.youtube.com/watch?v=7N1pyoCw4lA&si=ZvSj1g_RbMQclIgP" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/carapace/1750119542?i=1750119548" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/1oogZ0Umg435tPxrJpdyFj?si=c65b08b6f1b448d5" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/carapace/TRJfmc4bmx6xgV9?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>Hold On Tight</td>
-                    <td><a href="https://music.youtube.com/watch?v=WS0PIXXpaEU&si=AH8rsQQhVqiDlUhA" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/hold-on-tight/1750119542?i=1750119549" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/6T9xKpOrMlTbS1QbmNHdJJ?si=7d80fbdb3fbf4395" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/hold-on-tight/TR9jckKjfpcq4c5?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>Watch Out</td>
-                    <td><a href="https://music.youtube.com/watch?v=WS0PIXXpaEU&si=AH8rsQQhVqiDlUhA" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/watch-out/1750119542?i=1750119550" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/2wdUwWGb0J2RMSrGVFM7x3?si=9c615690c572438a" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/watch-out/TRRcm6frkxJ64c5?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>Zhilu Kala Sona</td>
-                    <td><a href="https://music.youtube.com/watch?v=Fi7VxlpuM5s&si=5GqlmnV2KtSTqMYh" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/zhilu-kala-sona/1750119542?i=1750119552" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/2ESCuiE0jD1DAO395lnVPX?si=6772fd4ca93a49a4" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/zhilu-kala-sona/TR39lzqblKV42z2?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>98 Percent</td>
-                    <td><a href="https://music.youtube.com/watch?v=Fi7VxlpuM5s&si=5GqlmnV2KtSTqMYh" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/98-percent/1750119542?i=1750119553" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/3QjsEibFsle6F5eS9t20sS?si=d7683be8a8644392" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/98-percent/TR9wdm59tpmhxwg?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>Sunken World</td>
-                    <td><a href="https://music.youtube.com/watch?v=YvrtyVxjAe4&si=egxLzxKnjJJb7fwh" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/sunken-world/1750119542?i=1750119555" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/3ypK2ieRn1gn2qTWUDrz83?si=85afdacf787e41b6" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/sunken-world/TR4kPdbKmJzP236?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>Routine</td>
-                    <td><a href="https://music.youtube.com/watch?v=l93mwfLK5_M&si=jVuQxsHaulvJY2_L" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/routine/1750119542?i=1750119556" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/4CpxlAzkmFC1PohQtYg0Ge?si=be060fcaff364d63" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/routine/TRKPZP9JvJ24gw9?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>Completely</td>
-                    <td><a href="https://music.youtube.com/watch?v=pZ35Xkds1y8&si=jddDcWBLN_OWbl0v" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/completely/1750119542?i=1750119557" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/7fqSzDBRDuTHU8NUAgirmt?si=d682a4e53afb436f" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/completely/TRkvmqPz5fwt2nq?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>Princess and the Fool</td>
-                    <td><a href="https://music.youtube.com/watch?v=EmAmJ4oME58&si=qMrOIQGAmCfj-75K" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/princess-and-the-fool/1750119542?i=1750119558" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/0vZCOMrP4Sig2qNor9PjNX?si=a6beb16b62964818" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/princess-and-the-fool/TRbq7zKd5gq49dm?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>The Journey of Six Strings</td>
-                    <td><a href="https://music.youtube.com/watch?v=FC8Cz-cCEvs&si=-crs0MdRKA1R17fy" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/the-journey-of-six-strings/1750119542?i=1750119589" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/0pAytOvZBsOpW6dtAIU9kq?si=d85efa853b6b4059" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/the-journey-of-6-strings/TRdXz4VdVpJJdzV?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>Fool's Mate</td>
-                    <td><a href="https://music.youtube.com/watch?v=AfWpcR38tzY&si=8evJ1XzPEBiZ-aH6" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/fools-mate/1750119542?i=1750119591" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/5SZKYBaVmlPxygX5Xl1aJn?si=9934a0e085e745dc" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/fools-mate/TRJhXx26J736g26?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>Shred World</td>
-                    <td><a href="https://music.youtube.com/watch?v=WmxEeC6GqR4&si=yPYGCGhb9iRRwWx6" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/shred-world/1750119542?i=1750119592" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/69HYkczQYaPrgLNmFuKAlB?si=d0ad4f9712404f44" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/shred-world/TRvqJX3Zczrkjdc?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-                <tr>
-                    <td>Empty Little Soul</td>
-                    <td><a href="https://music.youtube.com/watch?v=weJBl2LBL8g&si=fW8lG9vcr-xBkMBj" target="_blank"><i class="fab fa-youtube"></i></a></td>
-                    <td><a href="https://music.apple.com/us/album/empty-little-soul/1750119542?i=1750119593" target="_blank"><i class="fab fa-apple"></i></a></td>
-                    <td><a href="https://open.spotify.com/track/0F90ydeGxILCGmc3ovjWjW?si=549167f63b6f453d" target="_blank"><i class="fab fa-spotify"></i></a></td>
-                    <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/empty-little-soul/TR9n2mrJrwgjwbV?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
 
+    <!-- DOT. Modal -->
+    <div id="dot-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('dot-modal')">&times;</span>
+            <img src="images/DOT..png" alt="DOT." class="modal-album-cover">
+            <div class="modal-album-title">DOT.</div>
+            <div class="modal-album-details">Album - 2024 - 17 songs</div>
+            <p>The "DOT." album by Lord Tsarcasm is a deep exploration of complex emotions, intricate soundscapes, and thought-provoking lyrics. Each track on this album offers a unique journey through diverse musical styles and thematic depth.</p>
+            <h3>Listen on:</h3>
+            <div class="links">
+                <a href="https://music.youtube.com/playlist?list=OLAK5uy_l316xlylhai9qA0Nkb2wTiXrzFt7buKgw&si=bVHF9zQMYJ8IMeWC" target="_blank"><i class="fab fa-youtube"></i> YouTube</a>
+                <a href="https://music.apple.com/us/album/dot/1750119542" target="_blank"><i class="fab fa-apple"></i> Apple Music</a>
+                <a href="https://open.spotify.com/track/1YVl9rMklSiPCQZtuGx8Tx" target="_blank"><i class="fab fa-spotify"></i> Spotify</a>
+                <a href="https://www.pandora.com/artist/lord-tsarcasm/dot/ALlPn6PK5wq5htw?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i> Pandora</a>
+            </div>
+            <h3>Tracklist:</h3>
+            <table class="dot-album-table">
+                <thead>
+                    <tr>
+                        <th>Song</th>
+                        <th>YouTube</th>
+                        <th>Apple Music</th>
+                        <th>Spotify</th>
+                        <th>Pandora</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Harmonious Complexity</td>
+                        <td><a href="https://music.youtube.com/watch?v=vnNcvuylL5o&si=4GH5Hz7C-veNq2aJ" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/harmonious-complexity/1750119542?i=1750119544" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/67CPZDyhOy7ijPa6oI0LqL?si=ba3b9e26738b48fe" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/harmonious-complexity/TR37bdrqf2vz99Z?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>Behind the Mirror</td>
+                        <td><a href="https://music.youtube.com/watch?v=f6RMwhGvUJc&si=EZ9rFiWqr0V55vKO" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/behind-the-mirror/1750119542?i=1750119545" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/6JLy1pcxkg4T0KGlfi5pCD?si=59b6babc40224683" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/behind-the-mirror/TRnKg767wp9xVcq?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>Creepy Thing</td>
+                        <td><a href="https://music.youtube.com/watch?v=uDM7Me3rnBA&si=efoiK7-mg0fcEzuV" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/creepy-thing/1750119542?i=1750119546" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/4VVz5KKYVw3xdV3O4HZcyN?si=1200cf906bb447a0" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/creepy-thing/TRgbnfVphmnkPrc?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>Feel It In My Veins</td>
+                        <td><a href="https://music.youtube.com/watch?v=SDDZgwonpkw&si=hxBRXfPN-9dn4UyA" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/feel-it-in-my-veins/1750119542?i=1750119547" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/6spvPPOPPd9fAi60YXz8f7?si=9947b841130d4cb0" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/feel-it-in-my-veins/TRPv93jdt3mP2wV?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>Carapace</td>
+                        <td><a href="https://music.youtube.com/watch?v=7N1pyoCw4lA&si=ZvSj1g_RbMQclIgP" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/carapace/1750119542?i=1750119548" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/1oogZ0Umg435tPxrJpdyFj?si=c65b08b6f1b448d5" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/carapace/TRJfmc4bmx6xgV9?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>Hold On Tight</td>
+                        <td><a href="https://music.youtube.com/watch?v=WS0PIXXpaEU&si=AH8rsQQhVqiDlUhA" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/hold-on-tight/1750119542?i=1750119549" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/6T9xKpOrMlTbS1QbmNHdJJ?si=7d80fbdb3fbf4395" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/hold-on-tight/TR9jckKjfpcq4c5?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>Watch Out</td>
+                        <td><a href="https://music.youtube.com/watch?v=WS0PIXXpaEU&si=AH8rsQQhVqiDlUhA" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/watch-out/1750119542?i=1750119550" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/2wdUwWGb0J2RMSrGVFM7x3?si=9c615690c572438a" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/watch-out/TRRcm6frkxJ64c5?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>Zhilu Kala Sona</td>
+                        <td><a href="https://music.youtube.com/watch?v=Fi7VxlpuM5s&si=5GqlmnV2KtSTqMYh" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/zhilu-kala-sona/1750119542?i=1750119552" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/2ESCuiE0jD1DAO395lnVPX?si=6772fd4ca93a49a4" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/zhilu-kala-sona/TR39lzqblKV42z2?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>98 Percent</td>
+                        <td><a href="https://music.youtube.com/watch?v=Fi7VxlpuM5s&si=5GqlmnV2KtSTqMYh" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/98-percent/1750119542?i=1750119553" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/3QjsEibFsle6F5eS9t20sS?si=d7683be8a8644392" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/98-percent/TR9wdm59tpmhxwg?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>Sunken World</td>
+                        <td><a href="https://music.youtube.com/watch?v=YvrtyVxjAe4&si=egxLzxKnjJJb7fwh" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/sunken-world/1750119542?i=1750119555" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/3ypK2ieRn1gn2qTWUDrz83?si=85afdacf787e41b6" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/sunken-world/TR4kPdbKmJzP236?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>Routine</td>
+                        <td><a href="https://music.youtube.com/watch?v=l93mwfLK5_M&si=jVuQxsHaulvJY2_L" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/routine/1750119542?i=1750119556" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/4CpxlAzkmFC1PohQtYg0Ge?si=be060fcaff364d63" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/routine/TRKPZP9JvJ24gw9?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>Completely</td>
+                        <td><a href="https://music.youtube.com/watch?v=pZ35Xkds1y8&si=jddDcWBLN_OWbl0v" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/completely/1750119542?i=1750119557" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/7fqSzDBRDuTHU8NUAgirmt?si=d682a4e53afb436f" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/completely/TRkvmqPz5fwt2nq?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>Princess and the Fool</td>
+                        <td><a href="https://music.youtube.com/watch?v=EmAmJ4oME58&si=qMrOIQGAmCfj-75K" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/princess-and-the-fool/1750119542?i=1750119558" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/0vZCOMrP4Sig2qNor9PjNX?si=a6beb16b62964818" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/princess-and-the-fool/TRbq7zKd5gq49dm?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>The Journey of Six Strings</td>
+                        <td><a href="https://music.youtube.com/watch?v=FC8Cz-cCEvs&si=-crs0MdRKA1R17fy" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/the-journey-of-six-strings/1750119542?i=1750119589" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/0pAytOvZBsOpW6dtAIU9kq?si=d85efa853b6b4059" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/the-journey-of-6-strings/TRdXz4VdVpJJdzV?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>Fool's Mate</td>
+                        <td><a href="https://music.youtube.com/watch?v=AfWpcR38tzY&si=8evJ1XzPEBiZ-aH6" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/fools-mate/1750119542?i=1750119591" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/5SZKYBaVmlPxygX5Xl1aJn?si=9934a0e085e745dc" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/fools-mate/TRJhXx26J736g26?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>Shred World</td>
+                        <td><a href="https://music.youtube.com/watch?v=WmxEeC6GqR4&si=yPYGCGhb9iRRwWx6" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/shred-world/1750119542?i=1750119592" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/69HYkczQYaPrgLNmFuKAlB?si=d0ad4f9712404f44" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/shred-world/TRvqJX3Zczrkjdc?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                    <tr>
+                        <td>Empty Little Soul</td>
+                        <td><a href="https://music.youtube.com/watch?v=weJBl2LBL8g&si=fW8lG9vcr-xBkMBj" target="_blank"><i class="fab fa-youtube"></i></a></td>
+                        <td><a href="https://music.apple.com/us/album/empty-little-soul/1750119542?i=1750119593" target="_blank"><i class="fab fa-apple"></i></a></td>
+                        <td><a href="https://open.spotify.com/track/0F90ydeGxILCGmc3ovjWjW?si=549167f63b6f453d" target="_blank"><i class="fab fa-spotify"></i></a></td>
+                        <td><a href="https://www.pandora.com/artist/lord-tsarcasm/dot/empty-little-soul/TR9n2mrJrwgjwbV?part=ug-desktop&corr=74751399673466147" target="_blank"><i class="fas fa-music"></i></a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <!-- Riddle Me Modal -->
     <div id="riddle-me-modal" class="modal">
@@ -746,15 +550,11 @@
             <div class="modal-album-title">Riddle Me</div>
             <div class="modal-album-details">Single - 2024 - 1 song</div>
             <ul class="modal-song-list">
-                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_neEn8PS98t3PbW4fUMpzfXZRQZnhefmvc&si=45LJxrGRm1jVc-Zp"
-                        target="_blank">YouTube</a></li>
-                <li><a href="https://music.apple.com/us/album/riddle-me-single/1748662629" target="_blank">Apple
-                        Music</a></li>
-                <li><a href="https://open.spotify.com/track/6u1jJVCLgQpsDqfybZscGy?si=315d9c3c703b4dca" target="_blank">Spotify</a>
-                </li>
-                <li><a href="https://artists.landr.com/064837962665" target="_blank">General Link</a></li>
-                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/riddle-me/riddle-me/TRKd54fkjhg63c6?part=ug-desktop&corr=74751399673466147"
-                        target="_blank">Pandora</a></li>
+                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE" target="_blank">YouTube</a></li>
+                <li><a href="https://geo.music.apple.com/album/riddle-me/1759666157" target="_blank">Apple Music</a></li>
+                <li><a href="https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx" target="_blank">Spotify</a></li>
+                <li><a href="https://artists.landr.com/055855346063" target="_blank">General Link</a></li>
+                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/riddle-me/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147" target="_blank">Pandora</a></li>
             </ul>
         </div>
     </div>
@@ -767,15 +567,11 @@
             <div class="modal-album-title">Glad You're Mine</div>
             <div class="modal-album-details">Single - 2024 - 1 song</div>
             <ul class="modal-song-list">
-                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_nVzQcn-8nrFbqbUPKPaRs2MpyYBPvaxb0&si=WsZJvcuoC8GdS2Q1"
-                        target="_blank">YouTube</a></li>
-                <li><a href="https://music.apple.com/us/album/glad-youre-mine-single/1744182726" target="_blank">Apple
-                        Music</a></li>
-                <li><a href="https://open.spotify.com/track/0rG2cX2p6YkQOIcQPGW57e?si=7aee098fa8a84750" target="_blank">Spotify</a>
-                </li>
-                <li><a href="https://artists.landr.com/064837852072" target="_blank">General Link</a></li>
-                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/glad-youre-mine/glad-youre-mine/TRPKdkKn9jn5dlk?part=ug-desktop&corr=74751399673466147"
-                        target="_blank">Pandora</a></li>
+                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE" target="_blank">YouTube</a></li>
+                <li><a href="https://geo.music.apple.com/album/glad-youre-mine/1759666157" target="_blank">Apple Music</a></li>
+                <li><a href="https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx" target="_blank">Spotify</a></li>
+                <li><a href="https://artists.landr.com/055855346063" target="_blank">General Link</a></li>
+                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/glad-youre-mine/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147" target="_blank">Pandora</a></li>
             </ul>
         </div>
     </div>
@@ -788,40 +584,28 @@
             <div class="modal-album-title">Moral Compass</div>
             <div class="modal-album-details">Single - 2024 - 1 song</div>
             <ul class="modal-song-list">
-                <li><a href="https://music.youtube.com/watch?v=FfM-vsRE77Y&si=ZnLm8xC9PugH1ubA" target="_blank">YouTube</a>
-                </li>
-                <li><a href="https://music.apple.com/us/album/moral-compass/1731634723?i=1731634725" target="_blank">Apple
-                        Music</a></li>
-                <li><a href="https://open.spotify.com/track/7DRkKvpFrBcR3feYNprUIR?si=d7681ed210254139" target="_blank">Spotify</a>
-                </li>
-                <li><a href="https://social.tunecore.com/linkShare?linkid=gSI4vhg4J8GxH9S9yIcHBA" target="_blank">General
-                        Link</a></li>
-                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/moral-compass/moral-compass/TRz72m2j42d23mm"
-                        target="_blank">Pandora</a></li>
+                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE" target="_blank">YouTube</a></li>
+                <li><a href="https://geo.music.apple.com/album/moral-compass/1759666157" target="_blank">Apple Music</a></li>
+                <li><a href="https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx" target="_blank">Spotify</a></li>
+                <li><a href="https://artists.landr.com/055855346063" target="_blank">General Link</a></li>
+                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/moral-compass/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147" target="_blank">Pandora</a></li>
             </ul>
         </div>
     </div>
 
-    <!-- It's Not About The Weather Modal -->
+    <!-- It's Not About the Weather Modal -->
     <div id="not-weather-modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('not-weather-modal')">&times;</span>
-            <img src="images/Its Not About The Weather.png" alt="It's Not About The Weather"
-                class="modal-album-cover">
-            <div class="modal-album-title">It's Not About The Weather</div>
+            <img src="images/Its Not About The Weather.png" alt="It's Not About the Weather" class="modal-album-cover">
+            <div class="modal-album-title">It's Not About the Weather</div>
             <div class="modal-album-details">Single - 2024 - 1 song</div>
             <ul class="modal-song-list">
-                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_kqy4A_PDXDaHs3pZJfcRo4KGMMchpYaYs&si=Kq4zBzL_onNyfr9q"
-                        target="_blank">YouTube</a></li>
-                <li><a
-                        href="https://music.apple.com/us/album/its-not-about-the-weather-single-feat-alexi-dimitriou/1723956784"
-                        target="_blank">Apple Music</a></li>
-                <li><a href="https://open.spotify.com/track/5R6GUt4GnywfqytAoBf56x?si=fda9294608f14492"
-                        target="_blank">Spotify</a></li>
-                <li><a href="https://social.tunecore.com/linkShare?linkid=N3oH9Au4MWlfX_R8K-3nsA" target="_blank">General
-                        Link</a></li>
-                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/shoot-me-down/shoot-me-down-feat-alexi-dimitriou/TRmwq3nXnjh9hKK?part=ug-desktop&corr=74751399673466147"
-                        target="_blank">Pandora</a></li>
+                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE" target="_blank">YouTube</a></li>
+                <li><a href="https://geo.music.apple.com/album/its-not-about-the-weather/1759666157" target="_blank">Apple Music</a></li>
+                <li><a href="https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx" target="_blank">Spotify</a></li>
+                <li><a href="https://artists.landr.com/055855346063" target="_blank">General Link</a></li>
+                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/its-not-about-the-weather/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147" target="_blank">Pandora</a></li>
             </ul>
         </div>
     </div>
@@ -834,108 +618,78 @@
             <div class="modal-album-title">Shoot Me Down</div>
             <div class="modal-album-details">Single - 2023 - 1 song</div>
             <ul class="modal-song-list">
-                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_m-zjHhSmQSzey5pqIISMkqGPne2uPNja8&si=vkgu7UR6ziGKKK8x"
-                        target="_blank">YouTube</a></li>
-                <li><a
-                        href="https://music.apple.com/us/album/shoot-me-down-single-feat-alexi-dimitriou-single/1720095743"
-                        target="_blank">Apple Music</a></li>
-                <li><a href="https://open.spotify.com/track/77G2PSFXOTGC6m9dhryY2s?si=0934b62ffd6c4743"
-                        target="_blank">Spotify</a></li>
-                <li><a href="https://social.tunecore.com/linkShare?linkid=Cnps4YhmCAI_PocdlQJMKA" target="_blank">General
-                        Link</a></li>
-                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/shoot-me-down/shoot-me-down-feat-alexi-dimitriou/TRmwq3nXnjh9hKK?part=ug-desktop&corr=74751399673466147"
-                        target="_blank">Pandora</a></li>
+                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE" target="_blank">YouTube</a></li>
+                <li><a href="https://geo.music.apple.com/album/shoot-me-down/1759666157" target="_blank">Apple Music</a></li>
+                <li><a href="https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx" target="_blank">Spotify</a></li>
+                <li><a href="https://artists.landr.com/055855346063" target="_blank">General Link</a></li>
+                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/shoot-me-down/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147" target="_blank">Pandora</a></li>
             </ul>
         </div>
     </div>
 
-<!--S.V.T. (Out In The Cold)-->
-<div id="svt-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('svt-modal')">&times;</span>
-        <img src="images/svt.png" alt="S.V.T. (Out In The Cold)" class="modal-album-cover">
-        <div class="modal-album-title">S.V.T. (Out In The Cold)</div>
-        <div class="modal-album-details">Single - 2024 - 1 song</div>
-        <!-- Placeholder Links -->
-        <div class="modal-links">
-            <ul>
-                <li><a href="https://geo.music.apple.com/album/s-v-t-out-in-the-cold-single/1764699792" target="_blank">Apple Music</a></li>
-                <li><a href="https://geo.music.apple.com/album/s-v-t-out-in-the-cold-single/1764699792" target="_blank">iTunes</a></li>
-                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_nreI4KXqOv2WU8AzOpdwknk-l2zMlUmI" target="_blank">YouTube Music</a></li>
-                <li><a href="https://open.spotify.com/album/00UcKmL3QYeFZ5QV3b0ly" target="_blank">Spotify</a></li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-<!-- Hellstrom -->
-<div id="hellstrom-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('hellstrom-modal')">&times;</span>
-        <img src="hellstrom.png" alt="Hellstrom" class="modal-album-cover">
-        <div class="modal-album-title">Hellstrom</div>
-        <div class="modal-album-details">Album - Work in Progress</div>
-        <div class="modal-links">
-            <ul>
-                <li><a href="#" target="_blank">Apple Music</a></li>
-                <li><a href="#" target="_blank">iTunes</a></li>
-				<li><a href="#" target="_blank">Suno</a></li>
-                <li><a href="#" target="_blank">YouTube Music</a></li>
-                <li><a href="#" target="_blank">Spotify</a></li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-
-
-<!-- Supernova -->
-<div id="supernova-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('supernova-modal')">&times;</span>
-        <img src="images/supernova.png" alt="Supernova" class="modal-album-cover">
-        <div class="modal-album-title">Supernova</div>
-        <div class="modal-album-details">Single - 2024 - 1 song</div>
-        <!-- Placeholder Links -->
-        <div class="modal-links">
-            <ul>
-                <li><a href="#" target="_blank">Apple Music</a></li>
-                <li><a href="#" target="_blank">iTunes</a></li>
-                <li><a href="#" target="_blank">YouTube Music</a></li>
-                <li><a href="#" target="_blank">Spotify</a></li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-
-<!--
-    <div id="my-modal" class="modal">
+    <!-- S.V.T. Modal -->
+    <div id="svt-modal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('my-modal')">&times;</span>
-            <h2>Modal Title</h2>
-            <p>This is the content of the modal. You can place any information here, such as text, images, or links.</p>
-            <button onclick="performAction()">Confirm</button>
+            <span class="close" onclick="closeModal('svt-modal')">&times;</span>
+            <img src="images/svt.png" alt="svt" class="modal-album-cover">
+            <div class="modal-album-title">S.V.T. (Out In The Cold)</div>
+            <div class="modal-album-details">Single - 2024 - 1 song</div>
+            <ul class="modal-song-list">
+                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE" target="_blank">YouTube</a></li>
+                <li><a href="https://geo.music.apple.com/album/svt-out-in-the-cold/1759666157" target="_blank">Apple Music</a></li>
+                <li><a href="https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx" target="_blank">Spotify</a></li>
+                <li><a href="https://artists.landr.com/055855346063" target="_blank">General Link</a></li>
+                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/svt-out-in-the-cold/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147" target="_blank">Pandora</a></li>
+            </ul>
         </div>
     </div>
--->
 
+    <!-- Hellstrom Modal -->
+    <div id="hellstrom-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('hellstrom-modal')">&times;</span>
+            <img src="images/hellstrom.png" alt="Hellstrom" class="modal-album-cover">
+            <div class="modal-album-title">Hellstrom</div>
+            <div class="modal-album-details">Hellstrom - Album - WIP</div>
+            <ul class="modal-song-list">
+                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE" target="_blank">YouTube</a></li>
+                <li><a href="https://geo.music.apple.com/album/hellstrom/1759666157" target="_blank">Apple Music</a></li>
+                <li><a href="https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx" target="_blank">Spotify</a></li>
+                <li><a href="https://artists.landr.com/055855346063" target="_blank">General Link</a></li>
+                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/hellstrom/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147" target="_blank">Pandora</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Supernova Modal -->
+    <div id="supernova-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('supernova-modal')">&times;</span>
+            <img src="images/supernova.png" alt="Supernova" class="modal-album-cover">
+            <div class="modal-album-title">Supernova</div>
+            <div class="modal-album-details">Single - 2024 - 1 song</div>
+            <ul class="modal-song-list">
+                <li><a href="https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE" target="_blank">YouTube</a></li>
+                <li><a href="https://geo.music.apple.com/album/supernova/1759666157" target="_blank">Apple Music</a></li>
+                <li><a href="https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx" target="_blank">Spotify</a></li>
+                <li><a href="https://artists.landr.com/055855346063" target="_blank">General Link</a></li>
+                <li><a href="https://www.pandora.com/artist/lord-tsarcasm/supernova/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147" target="_blank">Pandora</a></li>
+            </ul>
+        </div>
+    </div>
 
     <script>
         function openModal(modalId) {
-            document.getElementById(modalId).style.display = "block";
+            document.getElementById(modalId).style.display = 'block';
         }
 
         function closeModal(modalId) {
-            document.getElementById(modalId).style.display = "none";
+            document.getElementById(modalId).style.display = 'none';
         }
 
-        window.onclick = function (event) {
-            let modals = document.getElementsByClassName('modal');
-            for (let i = 0; i < modals.length; i++) {
-                if (event.target === modals[i]) {
-                    modals[i].style.display = "none";
-                }
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
             }
         }
     </script>
