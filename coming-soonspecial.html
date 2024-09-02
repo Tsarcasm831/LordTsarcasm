@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lord Tsarcasm - Coming Soon</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a1a1a; /* Black */
+            --secondary-color: #f39c12; /* Orange */
+            --background-color: #1e1e1e; /* Dark Grey */
+            --text-color: #f1f1f1; /* Light Grey */
+            --hover-color: #d35400; /* Dark Orange */
+            --highlight-color: #e74c3c; /* Red */
+            --border-color: #3e3e3e; /* Medium Grey */
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .coming-soon {
+            max-width: 600px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background-color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .coming-soon h1 {
+            font-size: 3em;
+            margin-bottom: 0.5em;
+            color: var(--secondary-color);
+            text-shadow: 2px 2px 5px var(--highlight-color);
+        }
+
+        .coming-soon p {
+            font-size: 1.5em;
+            margin-bottom: 1em;
+        }
+
+        .social-links {
+            margin-top: 2em;
+        }
+
+        .social-links p {
+            margin-bottom: 0.5em;
+            font-size: 1.2em;
+        }
+
+        .social-links a {
+            margin: 0 10px;
+            color: var(--text-color);
+            font-size: 1.5em;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--hover-color);
+        }
+
+        .back-button {
+            margin-top: 2em;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: var(--hover-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="coming-soon">
+        <h1>Coming Soon</h1>
+        <p>We are working hard to bring you the best experience. Stay tuned!</p>
+        <div class="social-links">
+            <p>Follow us on social media for updates:</p>
+            <a href="https://www.facebook.com/lordtsarcasm" target="_blank">
+                <i class="fab fa-facebook"></i> Facebook
+            </a>
+            <!-- Add more social links here -->
+        </div>
+        <a href="special_thanks2.html" class="back-button">Back</a>
+    </div>
+</body>
+</html>
