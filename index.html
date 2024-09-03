@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lord Tsarcasm</title>
+    <title>Lord Tsarcasm - Official Website</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
         body {
             margin: 0;
@@ -61,9 +62,9 @@
 
         header img {
             position: absolute;
-            top: 50px; /* Distance from the top */
-            left: 20px; /* Distance from the left */
-            width: 150px; /* Adjust the size of the logo as needed */
+            top: 50px;
+            left: 20px;
+            width: 150px;
             height: auto;
             animation: pulse 2s infinite;
             z-index: 1;
@@ -133,69 +134,87 @@
             color: #ff5733;
         }
 
-        .back-to-top {
+        footer {
+            background-color: #000;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .social-icons a {
+            color: #e0e0e0;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+
+        .social-icons a:hover {
+            color: #ff5733;
+        }
+
+        .easter-egg {
             position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 18px;
-            color: #fff;
-            text-decoration: none;
-            background-color: rgba(51, 51, 51, 0.7);
+            top: 40px;
+            right: 1050px;
+            background-color: #ffa500;
+            color: #000;
             padding: 10px 20px;
             border-radius: 5px;
-            transition: background-color 0.3s;
+            transition: opacity 0.3s;
+            text-decoration: none;
+            z-index: 1000;
+            opacity: 0;
         }
 
-        .back-to-top:hover {
-            background-color: #ff5733;
+        .easter-egg:hover {
+            opacity: 0;
         }
-
-
-.easter-egg {
-    position: absolute;
-    top: 40px; /* Fine-tune this value to position the button vertically */
-    right: 1050px; /* Fine-tune this value to position the button horizontally */
-    background-color: #ffa500;
-    color: #000;
-    padding: 10px 20px;
-    border-radius: 5px;
-    transition: opacity 0.3s;
-    text-decoration: none;
-    z-index: 1000; /* Ensure it appears above all other elements */
-    opacity: 0; /* Initial state */
-}
-
-.easter-egg:hover {
-    opacity: 1;
-}
-
-
-</style>
+    </style>
+</head>
 
 <body>
     <nav>
         <a href="coming-soon.html">R.O.D.</a>
         <a href="about.html">ABOUT</a>
         <a href="music.html">MUSIC</a>
-        <a href="coming-soon.html">FAQ</a> <!-- New FAQ section -->
+        <a href="coming-soon.html">FAQ</a>
         <a href="coming-soon.html">COLLABORATORS</a>
     </nav>
+
     <header>
         <video autoplay muted loop>
             <source src="background.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
-        <img src="images/ltlogo.png" alt="Lord Tsarcasm Logo">
+        <a href="special_thanks2.html">
+            <img src="images/ltlogo.png" alt="Lord Tsarcasm Logo">
+        </a>
         <div class="button-container">
             <a href="coming-soon.html" class="button-red"></a>
             <a href="about.html" class="button-purple"></a>
             <a href="music.html" class="button-green"></a>
-            <a href="coming-soon.html" class="button-blue"></a> <!-- Updated link to Collaborators -->
+            <a href="coming-soon.html" class="button-blue"></a>
         </div>
     </header>
-    <!-- Removed Collaborators section here -->
-    <a href="special_thanks2.html" class="easter-egg">Special Thanks</a>
+
+    <section>
+        <a href="special_thanks2.html" class="easter-egg">Special Thanks</a>
+    </section>
+
+    <footer class="bg-black py-6">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2023 Lord Tsarcasm. All rights reserved.</p>
+            <div class="mt-4 flex justify-center space-x-4">
+                <a href="https://spotify.com/lordtsarcasm" class="hover:text-red-400 transition">
+                    <!-- Spotify Icon -->
+                </a>
+                <a href="https://youtube.com/lordtsarcasm" class="hover:text-red-400 transition">
+                    <!-- YouTube Icon -->
+                </a>
+                <a href="https://instagram.com/lordtsarcasm" class="hover:text-red-400 transition">
+                    <!-- Instagram Icon -->
+                </a>
+            </div>
+        </div>
+    </footer>
 </body>
 
 </html>
