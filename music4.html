@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lord Tsarcasm - Music</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Hero section with scrolling background */
+        .hero {
+            position: relative;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            background-repeat: repeat-x;
+            animation: scrollBackground 40s linear infinite;
+            filter: blur(8px);
+        }
+
+        .hero-background img {
+            height: 100%;
+            flex-shrink: 0;
+            margin-right: 0;
+        }
+
+        @keyframes scrollBackground {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        .nav-link {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .nav-link:visited {
+            color: #999;
+        }
+
+        .nav-link:hover {
+            color: #333;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">Lord Tsarcasm</div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="music.html" class="nav-link">Music</a>
+                <a href="https://www.facebook.com/lordtsarcasm" class="nav-link">Poetry</a>
+                <a href="coming-soon.html" class="nav-link">AI Art</a>
+                <a href="https://www.youtube.com/@lordtsarcasm/videos" class="nav-link">Videos</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero">
+        <div class="hero-background" id="heroBackground">
+            <!-- Images will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <div class="container">
+        <p>Explore the diverse musical creations of Lord Tsarcasm. From singles to full albums, dive into the unique sounds and stories behind each track.</p>
+
+        <div class="album-grid" id="albumGrid">
+            <!-- Album cards will be dynamically added here -->
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2023 Lord Tsarcasm. All rights reserved.</p>
+    </footer>
+
+    <!-- Modals will be dynamically generated -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const imageFolder = 'images/'; // Folder where images are stored
+            const modalFolder = 'modals/'; // Folder where modal content files are stored
+
+            $(document).ready(function () {
+    const imageFolder = 'images/'; // Folder where images are stored
+    const apiEndpoint = '/api/albums'; // Endpoint to fetch album data
+
+    $.ajax({
+        url: apiEndpoint,
+        method: 'GET',
+        success: function (albumData) {
+            const heroBackground = $('#heroBackground');
+            const albumGrid = $('#albumGrid');
+            let imageSet = '';
+
+            albumData.forEach(album => {
+                const imgPath = imageFolder + album.image;
+                const imgElement = `<img src="${imgPath}" alt="${album.title}" class="album-cover">`;
+
+                imageSet += imgElement;
+                albumGrid.append(`
+                    <div class="album-card" onclick="openModal('${album.id}')">
+                        ${imgElement}
+                        <div class="album-info">
+                            <div class="album-title">${album.title}</div>
+                            <div class="album-details">${album.details}</div>
+                        </div>
+                    </div>
+                `);
+
+                // Append modals
+                $('body').append(`
+                    <div id="${album.id}" class="modal">
+                        <div class="modal-content">
+                            <span class="close" onclick="closeModal('${album.id}')">&times;</span>
+                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover">
+                            <div class="modal-album-title">${album.title}</div>
+                            <div class="modal-album-details">${album.details}</div>
+                            <div class="modal-song-list">
+                                <!-- Placeholder for song links or additional content -->
+                                Loading content...
+                            </div>
+                        </div>
+                    </div>
+                `);
+            });
+
+            // Duplicate imageSet to ensure seamless scroll
+            heroBackground.append(imageSet + imageSet);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.error('Error fetching album data:', errorThrown);
+        }
+    });
+});
+
+            const albumData = [
+                { id: 'success-modal', title: 'Success the Obsession (Concept Version)', image: 'Success the Obsession.png', details: 'Single - 2024 - 1 song' },
+                { id: 'dot-modal', title: 'DOT.', image: 'DOT..png', details: 'Album - 2024 - 17 songs' },
+                { id: 'riddle-me-modal', title: 'Riddle Me', image: 'Riddle Me.png', details: 'Single - 2024 - 1 song' },
+                { id: 'glad-mine-modal', title: 'Glad You\'re Mine', image: 'Glad You\'re Mine.png', details: 'Single - 2024 - 1 song' },
+                { id: 'moral-compass-modal', title: 'Moral Compass', image: 'Moral Compass.png', details: 'Single - 2024 - 1 song' },
+                { id: 'not-weather-modal', title: 'It\'s Not About the Weather', image: 'Its Not About The Weather.png', details: 'Single - 2024 - 1 song' },
+                { id: 'shoot-me-down-modal', title: 'Shoot Me Down', image: 'Shoot Me Down.png', details: 'Single - 2023 - 1 song' },
+                { id: 'svt-modal', title: 'S.V.T. (Out In The Cold)', image: 'svt.png', details: 'Single - 2024 - 1 song' },
+                { id: 'hellstrom-modal', title: 'Hellstrom', image: 'hellstrom.png', details: 'Hellstrom - Album - WIP' },
+                { id: 'supernova-modal', title: 'Supernova', image: 'supernova2.png', details: 'Single - 2024 - 1 song' }
+            ];
+
+            const heroBackground = $('#heroBackground');
+            const albumGrid = $('#albumGrid');
+            let imageSet = '';
+
+            albumData.forEach(album => {
+                const imgPath = imageFolder + album.image;
+                const imgElement = `<img src="${imgPath}" alt="${album.title}" class="album-cover">`;
+
+                imageSet += imgElement;
+                albumGrid.append(`
+                    <div class="album-card" onclick="openModal('${album.id}')">
+                        ${imgElement}
+                        <div class="album-info">
+                            <div class="album-title">${album.title}</div>
+                            <div class="album-details">${album.details}</div>
+                        </div>
+                    </div>
+                `);
+
+                // Append modals
+                $('body').append(`
+                    <div id="${album.id}" class="modal">
+                        <div class="modal-content">
+                            <span class="close" onclick="closeModal('${album.id}')">&times;</span>
+                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover">
+                            <div class="modal-album-title">${album.title}</div>
+                            <div class="modal-album-details">${album.details}</div>
+                            <div class="modal-song-list">
+                                <!-- Placeholder for song links or additional content -->
+                                Loading content...
+                            </div>
+                        </div>
+                    </div>
+                `);
+            });
+
+            // Duplicate imageSet to ensure seamless scroll
+            heroBackground.append(imageSet + imageSet);
+        });
+
+        function openModal(modalId) {
+            const modalDetails = $('#' + modalId + ' .modal-song-list');
+            const modalFilePath = `modals/${modalId}.html`;
+
+            $.ajax({
+                url: modalFilePath,
+                method: 'GET',
+                success: function (data) {
+                    modalDetails.html(data);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    modalDetails.html('No additional details available.');
+                }
+            });
+
+            $('#' + modalId).show();
+        }
+
+        function closeModal(modalId) {
+            $('#' + modalId).hide();
+        }
+
+        $(window).on('click', function (event) {
+            if ($(event.target).hasClass('modal')) {
+                $(event.target).hide();
+            }
+        });
+    </script>
+</body>
+
+</html>
