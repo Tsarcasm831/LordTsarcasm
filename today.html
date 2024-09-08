@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lord Tsarcasm - Music</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            max-width: 95%;
+            margin: auto;
+        }
+
+        /* Fixing the header */
+        header {
+            position: relative;
+            width: 100%;
+            background-color: #0D1B2A; /* Dark background to match site theme */
+            color: #fff;
+            z-index: 1000;
+            padding: 20px 0;
+            top: 0;
+            left: 0;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2%;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-family: 'Playfair Display', serif;
+            letter-spacing: 1px;
+            color: #82aaff; /* Matching the site's color scheme */
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: #fff;
+            font-family: 'Lato', sans-serif;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background-color: #82aaff; /* Highlight on hover */
+        }
+
+        /* Mobile view - make the navigation more accessible */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+                align-items: flex-start;
+                width: 100%;
+            }
+
+            .nav-link {
+                width: 100%;
+                padding: 15px;
+                text-align: left;
+            }
+        }
+
+        /* Hero section with scrolling background */
+        .hero {
+            position: relative;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            background-repeat: no-repeat;
+            animation: scrollBackground 40s linear infinite;
+        }
+
+        .hero-background img {
+            height: 100%;
+            max-width: none;
+            width: auto;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .hero-background:hover img {
+            transform: scale(1.1); /* Enlarge on hover */
+            animation-play-state: paused; /* Pause scrolling on hover */
+        }
+
+        @keyframes scrollBackground {
+            0% {
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        /* Darken and add title overlay when scroll pauses */
+        .darkened {
+            background-color: rgba(0, 0, 0, 0.5);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .hero-background:hover .darkened {
+            opacity: 1;
+        }
+
+        .overlay-content {
+            color: white;
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .modal-content img {
+            width: 100px;
+            height: auto;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+
+        .album-cover, .modal-album-cover {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        .album-card {
+            overflow: hidden;
+        }
+
+        .album-card:hover img {
+            transform: scale(1.1); /* Enlarge album image on hover */
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 80%;
+            margin: 5% auto;
+            padding: 20px;
+            background-color: #222;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            color: #fff;
+            overflow: auto;
+        }
+
+        @media only screen and (max-width: 768px) {
+            .spotify-embed {
+                left: 10px;
+                right: 10px;
+                top: auto;
+                bottom: 20px;
+                width: auto;
+                height: 70px;
+                padding: 5px;
+            }
+
+            .spotify-embed iframe {
+                height: 60px;
+            }
+        }
+
+        /* Modal design */
+        .modal-description {
+            padding: 15px;
+        }
+
+        .modal-icons a {
+            margin: 0 10px;
+            font-size: 24px;
+            color: white;
+        }
+
+        .modal-icons a:hover {
+            color: #ddd;
+        }
+
+        /* Song lyrics section in the modal */
+        .modal-lyrics {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            text-align: left;
+        }
+
+        .modal-lyrics h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+            font-family: 'Playfair Display', serif;
+        }
+
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">Lord Tsarcasm</div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="music.html" class="nav-link">Music</a>
+                <a href="https://www.facebook.com/lordtsarcasm" class="nav-link">Poetry</a>
+                <a href="coming-soon.html" class="nav-link">AI Art</a>
+                <a href="https://www.youtube.com/@lordtsarcasm/videos" class="nav-link">Videos</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="spotify-embed" id="spotifyEmbed">
+        <iframe src="https://open.spotify.com/embed/artist/0tIXtsoLoRKrNEMiwvIkdw?utm_source=generator" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    </div>
+
+    <div class="hero">
+        <div class="hero-background" id="heroBackground">
+            <!-- Images will be dynamically inserted here -->
+            <div class="darkened">
+                <div class="overlay-content" id="overlayText">Album Title <br> 2024</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <p>Explore the diverse musical creations of Lord Tsarcasm. From singles to full albums, dive into the unique sounds and stories behind each track.</p>
+
+        <div class="album-grid" id="albumGrid">
+            <!-- Album cards will be dynamically added here -->
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2023 Lord Tsarcasm. All rights reserved.</p>
+    </footer>
+
+    <!-- Modals will be dynamically generated -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const imageFolder = 'images/';
+            const modalFolder = 'modals/';
+            const heroBackground = $('#heroBackground');
+            const albumGrid = $('#albumGrid');
+            let imageSet = '';
+
+            const images = [
+                'Success the Obsession.png',
+                'DOT..png',
+                'Riddle Me.png',
+                'Glad You\'re Mine.png',
+                'Moral Compass.png',
+                'Its Not About The Weather.png',
+                'Shoot Me Down.png',
+                'svt.png',
+                'supernova2.png',
+                'hellstrom.png',
+                'Out Of The Darkness - Stronger Together.jpg',
+                'Atlas Alone.png',
+                'Bury It Twice.jpg',
+                'End of a Chapter 2048x2048.png'
+            ];
+
+            const albumData = {
+                "Success the Obsession.png": {
+                    title: "Success the Obsession",
+                    year: 2024,
+                    details: "Single - 2024 - 1 song",
+                    description: "A conceptual journey into the mind of an artist obsessed with success.",
+                    lyrics: "Lyrics for Success the Obsession...",
+                    links: {
+                        spotify: 'https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx',
+                        youtube: 'https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE',
+                        apple: 'https://geo.music.apple.com/album/success-the-obsession-concept-version-single/1759666157',
+                        pandora: 'https://www.pandora.com/artist/lord-tsarcasm/success-the-obsession-concept-version/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147',
+                        general: 'https://artists.landr.com/055855346063'
+                    }
+                },
+                "DOT..png": {
+                    title: "DOT.",
+                    year: 2024,
+                    details: "Album - 2024 - 17 songs",
+                    description: "An expansive album exploring themes of identity, technology, and the human experience.",
+                    lyrics: "Lyrics for DOT...",
+                    links: {
+                        spotify: 'https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx',
+                        youtube: 'https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE',
+                        apple: 'https://music.apple.com/us/album/harmonious-complexity/1750119542?i=1750119544',
+                        pandora: 'https://www.pandora.com/artist/lord-tsarcasm/dot/harmonious-complexity/TR37bdrqf2vz99Z?part=ug-desktop&corr=74751399673466147'
+                    }
+                },
+                "Riddle Me.png": {
+                    title: "Riddle Me",
+                    year: 2024,
+                    details: "Single - 2024 - 1 song",
+                    description: "A mind-bending single that challenges the listener with cryptic lyrics and intricate melodies.",
+                    lyrics: "Lyrics for Riddle Me...",
+                    links: {
+                        spotify: 'https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx',
+                        youtube: 'https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE',
+                        apple: 'https://geo.music.apple.com/album/riddle-me/1759666157',
+                        pandora: 'https://www.pandora.com/artist/lord-tsarcasm/riddle-me/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147',
+                        general: 'https://artists.landr.com/055855346063'
+                    }
+                },
+                "Glad You're Mine.png": {
+                    title: "Glad You're Mine",
+                    year: 2024,
+                    details: "Single - 2024 - 1 song",
+                    description: "A heartfelt ode to love and companionship, blending soft harmonies with powerful vocals.",
+                    lyrics: "Lyrics for Glad You're Mine...",
+                    links: {
+                        spotify: 'https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx',
+                        youtube: 'https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE',
+                        apple: 'https://geo.music.apple.com/album/glad-youre-mine/1759666157',
+                        pandora: 'https://www.pandora.com/artist/lord-tsarcasm/glad-youre-mine/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147',
+                        general: 'https://artists.landr.com/055855346063'
+                    }
+                },
+                "Moral Compass.png": {
+                    title: "Moral Compass",
+                    year: 2024,
+                    details: "Single - 2024 - 1 song",
+                    description: "A thought-provoking track that delves into the complexities of right and wrong.",
+                    lyrics: "Lyrics for Moral Compass...",
+                    links: {
+                        spotify: 'https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx',
+                        youtube: 'https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE',
+                        apple: 'https://geo.music.apple.com/album/moral-compass/1759666157',
+                        pandora: 'https://www.pandora.com/artist/lord-tsarcasm/moral-compass/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147',
+                        general: 'https://artists.landr.com/055855346063'
+                    }
+                },
+                "Its Not About The Weather.png": {
+                    title: "It's Not About The Weather",
+                    year: 2024,
+                    details: "Single - 2024 - 1 song",
+                    description: "A song that uses weather as a metaphor for life’s unpredictable changes.",
+                    lyrics: "Lyrics for It's Not About The Weather...",
+                    links: {
+                        spotify: 'https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx',
+                        youtube: 'https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE',
+                        apple: 'https://geo.music.apple.com/album/its-not-about-the-weather/1759666157',
+                        pandora: 'https://www.pandora.com/artist/lord-tsarcasm/its-not-about-the-weather/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147',
+                        general: 'https://artists.landr.com/055855346063'
+                    }
+                },
+                "Shoot Me Down.png": {
+                    title: "Shoot Me Down",
+                    year: 2023,
+                    details: "Single - 2023 - 1 song",
+                    description: "A powerful anthem about resilience and defiance in the face of adversity.",
+                    lyrics: "Lyrics for Shoot Me Down...",
+                    links: {
+                        spotify: 'https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx',
+                        youtube: 'https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE',
+                        apple: 'https://geo.music.apple.com/album/shoot-me-down/1759666157',
+                        pandora: 'https://www.pandora.com/artist/lord-tsarcasm/shoot-me-down/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147',
+                        general: 'https://artists.landr.com/055855346063'
+                    }
+                },
+                "svt.png": {
+                    title: "S.V.T. (Out In The Cold)",
+                    year: 2024,
+                    details: "Single - 2024 - 1 song",
+                    description: "A haunting tribute to lost friends, filled with emotion and reflective lyrics.",
+                    lyrics: "Lyrics for S.V.T....",
+                    links: {
+                        spotify: 'https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx',
+                        youtube: 'https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE',
+                        apple: 'https://geo.music.apple.com/album/svt-out-in-the-cold/1759666157',
+                        pandora: 'https://www.pandora.com/artist/lord-tsarcasm/svt-out-in-the-cold/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147',
+                        general: 'https://artists.landr.com/055855346063'
+                    }
+                },
+                "supernova2.png": {
+                    title: "Supernova",
+                    year: 2024,
+                    details: "Single - 2024 - 1 song",
+                    description: "A cosmic journey through sound, capturing the explosive energy of a supernova.",
+                    lyrics: "Lyrics for Supernova...",
+                    links: {
+                        spotify: 'https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx',
+                        youtube: 'https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE',
+                        apple: 'https://geo.music.apple.com/album/supernova/1759666157',
+                        pandora: 'https://www.pandora.com/artist/lord-tsarcasm/supernova/success-the-obsession-concept-version/TRvh2x4t4qVbxvc?part=ug-desktop&corr=74751399673466147',
+                        general: 'https://artists.landr.com/055855346063'
+                    }
+                },
+                "hellstrom.png": {
+                    title: "Hellstrom",
+                    year: 2024,
+                    details: "Hellstrom - Album - WIP",
+                    description: "An intense and raw album that pushes the boundaries of genre and sound.",
+                    lyrics: "Lyrics for Hellstrom...",
+                    links: {
+                        suno: 'https://suno.com/playlist/b08b1a1f-ef7d-4dd6-8b27-a14c0202559f'
+                    }
+                }
+            };
+
+            images.forEach(image => {
+                const imgPath = imageFolder + image;
+                const album = albumData[image];
+                if (album) {
+                    const imgElement = `<img src="${imgPath}" alt="${album.title}" class="album-cover">`;
+                    imageSet += imgElement;
+                    albumGrid.append(`
+                        <div class="album-card" onclick="openModal('${image}')">
+                            ${imgElement}
+                            <div class="album-info">
+                                <div class="album-title">${album.title}</div>
+                                <div class="album-details">${album.details}</div>
+                            </div>
+                        </div>
+                    `);
+
+                    $('body').append(`
+                        <div id="${image}" class="modal">
+                            <div class="modal-content">
+                                <span class="close" onclick="closeModal('${image}')">&times;</span>
+                                <img src="${imgPath}" alt="${album.title}" class="modal-album-cover">
+                                <div class="modal-album-title">${album.title}</div>
+                                <div class="album-details">${album.details}</div>
+                                <div class="modal-description">
+                                    <p>${album.description}</p>
+                                </div>
+                                <div class="modal-icons">
+                                    <a href="${album.links.spotify}" target="_blank"><i class="fab fa-spotify"></i> Spotify</a>
+                                    <a href="${album.links.youtube}" target="_blank"><i class="fab fa-youtube"></i> YouTube</a>
+                                    <a href="${album.links.apple}" target="_blank"><i class="fab fa-apple"></i> Apple Music</a>
+                                    <a href="${album.links.pandora}" target="_blank"><i class="fab fa-pandora"></i> Pandora</a>
+                                    <a href="${album.links.general}" target="_blank"><i class="fas fa-link"></i> General</a>
+                                </div>
+                                <div class="modal-lyrics">
+                                    <h3>Lyrics</h3>
+                                    <p>${album.lyrics}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                }
+            });
+
+            heroBackground.append(imageSet + imageSet);
+
+            function openModal(modalId) {
+                $('.modal').hide();
+                $('#' + modalId).show();
+            }
+
+            function closeModal(modalId) {
+                $('#' + modalId).hide();
+            }
+
+            $(window).on('click', function (event) {
+                if ($(event.target).hasClass('modal')) {
+                    $(event.target).hide();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

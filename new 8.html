@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Use The Knife - A Post-Apocalyptic Fantasy RPG</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
+
+        :root {
+            --primary-color: #c41e3a;
+            --secondary-color: #4a4a4a;
+            --accent-color: #FFA500;
+            --text-color: #e0e0e0;
+            --bg-color: #121212;
+            --card-bg-color: #1e1e1e;
+            --highlight-color: #ff5733;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            background-color: rgba(51, 51, 51, 0.9);
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+            z-index: 1000;
+            transition: background-color var(--transition-speed);
+        }
+
+        nav a {
+            color: #e0e0e0;
+            margin: 0 20px;
+            text-decoration: none;
+            font-size: 22px;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--highlight-color);
+            transform: scale(1.2);
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background-image: url('https://usetheknife.com/images/hero-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+
+        .hero-content {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        .game-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: #fff;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-20px);
+            }
+            60% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .section {
+            padding: 100px 20px;
+            background-color: var(--bg-color);
+            text-align: center;
+        }
+
+        .parallax {
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .about-section {
+            background-color: var(--secondary-color);
+        }
+
+        .features-section {
+            padding: 100px 20px;
+            background-color: var(--bg-color);
+            text-align: center;
+        }
+
+        .collaborators-section {
+            padding: 100px 20px;
+            background-color: var(--card-bg-color);
+        }
+
+        .media-section {
+            padding: 100px 20px;
+            background-color: #121212;
+        }
+
+        .faq-section {
+            padding: 100px 20px;
+            background-color: var(--bg-color);
+        }
+
+        .faq-question {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            background-color: var(--secondary-color);
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .faq-answer {
+            display: none;
+            color: var(--text-color);
+            margin-bottom: 2rem;
+        }
+
+        .faq-question:hover {
+            background-color: var(--primary-color);
+        }
+
+        .accordion.active + .faq-answer {
+            display: block;
+        }
+
+        .feature-item {
+            background-color: var(--card-bg-color);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .feature-item:hover {
+            transform: scale(1.05);
+        }
+
+        .media-content {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .media-item {
+            background-color: var(--card-bg-color);
+            padding: 10px;
+            border-radius: 10px;
+            width: 30%;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        /* Parallax Sections */
+        .parallax-about {
+            background-image: url('https://usetheknife.com/images/about-bg.jpg');
+        }
+
+        .parallax-features {
+            background-image: url('https://usetheknife.com/images/features-bg.jpg');
+        }
+
+        .parallax-collaborators {
+            background-image: url('https://usetheknife.com/images/collaborators-bg.jpg');
+        }
+
+        .testimonials-section {
+            padding: 100px 20px;
+            background-color: #1e1e1e;
+            text-align: center;
+        }
+
+        .testimonial-slider {
+            position: relative;
+            display: flex;
+            flex-wrap: nowrap;
+            overflow: hidden;
+            height: 300px;
+        }
+
+        .testimonial {
+            min-width: 100%;
+            transition: transform 0.5s ease;
+        }
+
+        .testimonial-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+
+        .blog-section {
+            padding: 100px 20px;
+            background-color: var(--bg-color);
+        }
+
+        footer {
+            background-color: var(--bg-color);
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .social-icons a {
+            color: #e0e0e0;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+
+        .social-icons a:hover {
+            color: var(--highlight-color);
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <a href="#about">ABOUT</a>
+        <a href="#music">MUSIC</a>
+        <a href="#features">FEATURES</a>
+        <a href="#collaborators">COLLABORATORS</a>
+        <a href="#media">MEDIA</a>
+        <a href="#testimonials">TESTIMONIALS</a>
+        <a href="#faq">FAQ</a>
+        <a href="#blog">BLOG</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <h1 class="game-title">Use The Knife</h1>
+            <p class="tagline">Forge Your Destiny in the Savage Wastes</p>
+            <div class="cta-buttons">
+                <a href="#features" class="btn btn-primary">Explore Features</a>
+                <a href="#about" class="btn btn-secondary">Learn More</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">&#8595;</div>
+    </header>
+
+    <!-- About Section (with Parallax) -->
+    <section id="about" class="about-section parallax parallax-about">
+        <div class="container">
+            <h2>About Use The Knife</h2>
+            <p>Use The Knife is a post-apocalyptic fantasy RPG that combines narrative-driven gameplay with an expansive world rich in history, danger, and mystical elements. Built with flexibility and creativity in mind, this game allows you to explore a world where survival is just the beginning.</p>
+            <p>Players can immerse themselves in a dynamic world, where every decision impacts the future of the desolate wastelands. The choices you make, the alliances you form, and the paths you take all shape the outcome of your story.</p>
+        </div>
+    </section>
+
+    <!-- Music Section -->
+    <section id="music" class="section">
+        <div class="container">
+            <h2>Official Soundtrack</h2>
+            <p>Immerse yourself in the dark, melodic tones of the official Use The Knife soundtrack, featuring exclusive tracks by Lord Tsarcasm.</p>
+            <div class="music-gallery">
+                <div class="music-item">
+                    <p>Track 1: Awakening the Blade</p>
+                </div>
+                <div class="music-item">
+                    <p>Track 2: Echoes of the Wasteland</p>
+                </div>
+                <div class="music-item">
+                    <p>Track 3: Lord Tsarcasm's Anthem</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section (with Parallax) -->
+    <section id="features" class="features-section parallax parallax-features">
+        <div class="container">
+            <h2>Core Features</h2>
+            <div class="feature-item">
+                <h3>Story-Driven Gameplay</h3>
+                <p>Immerse yourself in a narrative-focused experience where your choices shape the world around you.</p>
+            </div>
+            <div class="feature-item">
+                <h3>Flexible Rules System</h3>
+                <p>Enjoy a balanced blend of structure and creativity with our intuitive, adaptable ruleset.</p>
+            </div>
+            <div class="feature-item">
+                <h3>Expansive World</h3>
+                <p>Explore the vast, unforgiving Savage Wastes, a setting rich with history, danger, and opportunity.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Collaborators Section (with Parallax) -->
+    <section id="collaborators" class="collaborators-section parallax parallax-collaborators">
+        <div class="container">
+            <h2>Our Collaborators</h2>
+            <div class="collaborator-card">
+                <h3>Lord Tsarcasm</h3>
+                <p>Musical Genius and Composer</p>
+            </div>
+            <div class="collaborator-card">
+                <h3>R.O.D. Team</h3>
+                <p>World-Building and Storytelling Partners</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Media Section -->
+    <section id="media" class="media-section section">
+        <div class="container">
+            <h2>Media Gallery</h2>
+            <div class="media-content">
+                <div class="media-item">
+                    <h3>Teaser Trailer</h3>
+                    <video controls>
+                        <source src="media/teaser.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="media-item">
+                    <h3>Behind the Scenes</h3>
+                    <video controls>
+                        <source src="media/behind-the-scenes.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials-section section">
+        <div class="container">
+            <h2>What Players Are Saying</h2>
+            <div class="testimonial-slider">
+                <div class="testimonial">
+                    <img src="images/avatar1.jpg" alt="Player avatar" class="testimonial-avatar">
+                    <p>"Use The Knife is an immersive world where every decision matters."</p>
+                    <p><strong>— Sarah J.</strong></p>
+                </div>
+                <div class="testimonial">
+                    <img src="images/avatar2.jpg" alt="Player avatar" class="testimonial-avatar">
+                    <p>"The soundtrack by Lord Tsarcasm is a masterpiece."</p>
+                    <p><strong>— Mike R.</strong></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq-section section">
+        <div class="container">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-question accordion">How do I get started with Use The Knife?</div>
+            <div class="faq-answer">Simply head over to the Rulebook section to download your copy and begin creating your first character using our Character Creation tools.</div>
+            <div class="faq-question accordion">Is this game suitable for beginners?</div>
+            <div class="faq-answer">Yes! Use The Knife offers flexible rules, making it accessible to both beginners and veteran players alike.</div>
+            <div class="faq-question accordion">Can I play with friends online?</div>
+            <div class="faq-answer">Absolutely! You can play remotely using our online tools and community forum for game sessions.</div>
+        </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section id="blog" class="blog-section section">
+        <div class="container">
+            <h2>Latest Updates</h2>
+            <div class="blog-grid">
+                <div class="blog-post">
+                    <h3>Unveiling New Expansion</h3>
+                    <p>We’re excited to announce the upcoming expansion for Use The Knife...</p>
+                </div>
+                <div class="blog-post">
+                    <h3>Behind the Music</h3>
+                    <p>Get an insider's look at the creation of the Use The Knife soundtrack...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="social-icons">
+                <a href="https://spotify.com/lordtsarcasm">Spotify</a>
+                <a href="https://youtube.com/lordtsarcasm">YouTube</a>
+                <a href="https://instagram.com/lordtsarcasm">Instagram</a>
+            </div>
+            <p>&copy; 2024 Use The Knife & Lord Tsarcasm. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // FAQ Accordion
+        document.querySelectorAll('.accordion').forEach(button => {
+            button.addEventListener('click', () => {
+                button.classList.toggle('active');
+                const answer = button.nextElementSibling;
+                if (button.classList.contains('active')) {
+                    answer.style.display = 'block';
+                } else {
+                    answer.style.display = 'none';
+                }
+            });
+        });
+
+        // Testimonial Slider
+        let currentTestimonial = 0;
+        const testimonials = document.querySelectorAll('.testimonial');
+
+        function showNextTestimonial() {
+            testimonials[currentTestimonial].style.transform = `translateX(-100%)`;
+            currentTestimonial = (currentTestimonial + 1) % testimonials.length;
+            testimonials[currentTestimonial].style.transform = `translateX(0)`;
+        }
+
+        setInterval(showNextTestimonial, 5000);
+    </script>
+</body>
+
+</html>

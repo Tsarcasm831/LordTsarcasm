@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Lord Tsarcasm - Music</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"/>
+    <link href="styles.css" rel="stylesheet"/>
+    <style>
+        /* Hero section with scrolling background */
+        .hero {
+            position: relative;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            background-repeat: repeat-x;
+            animation: scrollBackground 40s linear infinite;
+            /* Removed blur effect */
+        }
+
+        .hero-background img {
+            height: 80%; 
+            max-width: none;
+            width: auto;
+        }
+
+        @keyframes scrollBackground {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        .nav-link {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .nav-link:visited {
+            color: #999;
+        }
+
+        .nav-link:hover {
+            color: #333;
+        }
+
+        .modal-content img {
+            width: 350px; 
+            height: 350px;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+
+        .album-cover, .modal-album-cover {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        .album-card {
+            overflow: hidden;
+        }
+
+        .modal-content {
+            max-width: 40%; 
+            max-height: 70%;
+            margin: 5% auto;
+            padding: 20px;
+            background-color: #222;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            color: #fff;
+            overflow: auto;
+        }
+
+        /* Spotify element inside header */
+        .spotify-embed {
+            position: fixed;
+            top: 20px; 
+            right: 20px; 
+            width: 300px;
+            z-index: 1000; 
+        }
+
+        .modal-album-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .modal-album-details {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .modal-description {
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .modal-song-list {
+            font-size: 14px;
+            text-align: left;
+            padding: 10px;
+        }
+
+        .modal-song-list a {
+            text-decoration: none;
+            color: #0073e6;
+            margin-right: 10px;
+        }
+
+        .modal-song-list a:hover {
+            text-decoration: underline;
+        }
+
+        .modal-icons {
+            margin-top: 20px;
+        }
+
+        .modal-icons a {
+            color: #fff;
+            margin-right: 20px;
+            font-size: 20px;
+            text-decoration: none;
+        }
+
+        .modal-icons a:hover {
+            color: #0073e6;
+        }
+
+        /* Album thumbnails */
+        .album-thumbnail {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+
+        .album-thumbnail img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .album-thumbnail p {
+            font-size: 14px;
+            color: #fff;
+        }
+
+        /* Media queries for mobile */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .spotify-embed {
+                top: 80px;
+                right: 10px;
+                width: 250px;
+            }
+
+            .album-grid {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .album-card {
+                width: 90%;
+                margin-bottom: 20px;
+            }
+
+            .modal-content {
+                max-width: 90%;
+                max-height: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="header-content">
+        <div class="logo">Lord Tsarcasm</div>
+        <nav class="nav-menu">
+            <a class="nav-link" href="coming-soon.html">Home</a>
+            <a class="nav-link" href="coming-soon.html">About</a>
+            <a class="nav-link" href="music.html">Music</a>
+            <a class="nav-link" href="https://www.facebook.com/lordtsarcasm">Poetry</a>
+            <a class="nav-link" href="coming-soon.html">AI Art</a>
+            <a class="nav-link" href="https://www.youtube.com/@lordtsarcasm/videos">Videos</a>
+        </nav>
+    </div>
+    <!-- Spotify embed with autoplay removed -->
+    <div class="spotify-embed">
+        <iframe allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture" allowfullscreen="" frameborder="0" height="352" loading="lazy" src="https://open.spotify.com/embed/artist/0tIXtsoLoRKrNEMiwvIkdw?utm_source=generator" style="border-radius:12px" width="100%"></iframe>
+    </div>
+</header>
+
+<div class="hero">
+    <div class="hero-background" id="heroBackground">
+    </div>
+</div>
+
+<div class="container">
+    <p>Explore the diverse musical creations of Lord Tsarcasm. From singles to full albums, dive into the unique sounds and stories behind each track.</p>
+    <div class="album-grid" id="albumGrid">
+        <!-- Album cards here -->
+        <div class="album-card" onclick="openModal('ootd-stronger-together')">
+            <img src="images/Out Of The Darkness - Stronger Together.jpg" alt="Out of the Darkness - Stronger Together" class="album-cover">
+            <div class="album-info">
+                <div class="album-title">Out of the Darkness - Stronger Together</div>
+                <div class="album-details">Album - 2024 - 12 songs</div>
+            </div>
+        </div>
+    </div>
+    <!-- Thumbnails for Out of the Darkness - Stronger Together album -->
+    <div class="album-thumbnail">
+        <img src="images/Bury It Twice.jpg" alt="Bury It Twice">
+        <p>Bury It Twice - A powerful track exploring themes of loss and renewal.</p>
+    </div>
+    <div class="album-thumbnail">
+        <img src="images/End of a Chapter 2048x2048.png" alt="End of a Chapter">
+        <p>End of a Chapter - Reflecting on transitions and personal growth.</p>
+    </div>
+    <div class="album-thumbnail">
+        <img src="images/It's Not About The Weather.jpg" alt="It's Not About the Weather">
+        <p>It's Not About The Weather - A song that uses weather as a metaphor for life’s unpredictable changes.</p>
+    </div>
+    <div class="album-thumbnail">
+        <img src="images/Moral Compass_1280x1280.png" alt="Moral Compass">
+        <p>Moral Compass - Delving into the complexities of morality and choice.</p>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>© 2023 Lord Tsarcasm. All rights reserved.</p>
+</footer>
+
+<!-- Modals will be dynamically generated -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const imageFolder = 'images/';
+        const heroBackground = $('#heroBackground');
+        let imageSet = '';
+
+        const albumData = [
+            { id: 'ootd-stronger-together', title: 'Out of the Darkness - Stronger Together', image: 'Out Of The Darkness - Stronger Together.jpg', details: 'Album - 2024 - 12 songs', description: 'An uplifting and unifying album that captures the strength found in togetherness and emerging from difficult times.' },
+            { id: 'success-modal', title: 'Success the Obsession (Concept Version)', image: 'Success the Obsession.png', details: 'Single - 2024 - 1 song', description: 'A conceptual journey into the mind of an artist obsessed with success.' },
+        ];
+
+        albumData.forEach(album => {
+            const imgPath = imageFolder + album.image;
+            const imgElement = `<img src="${imgPath}" alt="${album.title}" class="album-cover">`;
+
+            imageSet += imgElement;
+            $('#albumGrid').append(`
+                <div class="album-card" onclick="openModal('${album.id}')">
+                    ${imgElement}
+                    <div class="album-info">
+                        <div class="album-title">${album.title}</div>
+                        <div class="album-details">${album.details}</div>
+                    </div>
+                </div>
+            `);
+
+            // Append modals
+            $('body').append(`
+                <div id="${album.id}" class="modal">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeModal('${album.id}')">&times;</span>
+                        <img src="${imgPath}" alt="${album.title}" class="modal-album-cover">
+                        <div class="modal-album-title">${album.title}</div>
+                        <div class="modal-album-details">${album.details}</div>
+                        <div class="modal-description">
+                            <p>${album.description}</p>
+                        </div>
+                        <div class="modal-icons">
+                            <a href="https://open.spotify.com" target="_blank"><i class="fab fa-spotify"></i> Spotify</a>
+                        </div>
+                    </div>
+                </div>
+            `);
+        });
+
+        // Duplicate imageSet to ensure seamless scroll
+        heroBackground.append(imageSet + imageSet);
+    });
+
+    function openModal(modalId) {
+        $('.modal').hide();
+        $('#' + modalId).show();
+    }
+
+    function closeModal(modalId) {
+        $('#' + modalId).hide();
+    }
+
+    $(window).on('click', function (event) {
+        if ($(event.target).hasClass('modal')) {
+            $(event.target).hide();
+        }
+    });
+</script>
+</body>
+</html>
