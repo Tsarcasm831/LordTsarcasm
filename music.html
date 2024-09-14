@@ -50,18 +50,6 @@
             }
         }
 
-        .nav-link {
-            color: #666;
-            text-decoration: none;
-        }
-
-        .nav-link:visited {
-            color: #999;
-        }
-
-        .nav-link:hover {
-            color: #333;
-        }
 
         .modal-content img {
             width: 350px;
@@ -200,6 +188,69 @@
                 display: none;
             }
         }
+		.header {
+    background-color: #333;
+    padding: 10px 0;
+}
+
+		.header-content {
+			display: flex;
+			flex-wrap: wrap; /* Allow content to wrap to the next line */
+			align-items: center;
+			justify-content: space-between;
+			max-width: 1200px;
+			margin: 0 auto;
+			padding: 0 20px;
+		}
+
+		.logo {
+			color: #fff;
+			font-size: 24px;
+			font-family: 'Playfair Display', serif;
+		}
+
+		.nav-menu {
+			display: flex;
+			flex-wrap: wrap; /* Allow navigation items to wrap */
+			margin: 0;
+			padding: 0;
+			list-style: none;
+		}
+
+		.nav-link {
+    color: #fff; /* Use the color you prefer */
+    text-decoration: none;
+    margin-left: 20px;
+    white-space: nowrap; /* Prevent text from breaking in the middle */
+}
+
+.nav-link:first-child {
+    margin-left: 0;
+}
+
+.nav-link:visited {
+    color: #999; /* If you want to style visited links */
+}
+
+.nav-link:hover {
+    color: #333; /* Or keep it as #fff if you prefer */
+    text-decoration: underline;
+}
+
+
+		@media (max-width: 768px) {
+			.header-content {
+				flex-direction: column;
+				align-items: flex-start;
+			}
+			.nav-menu {
+				flex-direction: column;
+				align-items: flex-start;
+			}
+			.nav-link {
+				margin: 5px 0;
+			}
+		}
     </style>
 </head>
 
@@ -208,9 +259,9 @@
         <div class="header-content">
             <div class="logo">Lord Tsarcasm</div>
             <nav class="nav-menu">
-                <a href="coming-soon.html" class="nav-link">Home</a>
-                <a href="coming-soon.html" class="nav-link">About</a>
-                <a href="coming-soon.html" class="nav-link">Music</a>
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="music.html" class="nav-link">Music</a>
                 <a href="https://www.facebook.com/lordtsarcasm" class="nav-link">Poetry</a>
                 <a href="coming-soon.html" class="nav-link">AI Art</a>
                 <a href="https://www.youtube.com/@lordtsarcasm/videos" class="nav-link">Videos</a>
@@ -230,7 +281,7 @@
     </div>
 
     <div class="container">
-        <p>Explore the diverse musical creations of Lord Tsarcasm. From singles to full albums, dive into the unique sounds and stories behind each track.</p>
+        <p>Lord Tsarcasm is the enigmatic alter ego of Xris Hawkins, a solitary NPC psionicist within the world of ROD. Together, they embody both a masterful storyteller and a rare, god-like presence, seamlessly weaving intricate narratives and occasionally intervening in player campaigns with their formidable powers. As Lord Tsarcasm, Xris Hawkins guides adventurers through epic tales, shaping destinies and adding depth to the unfolding saga with each subtle yet impactful intervention.</p>
 
         <div class="album-grid" id="albumGrid">
             <!-- Album cards will be dynamically added here -->
@@ -271,10 +322,10 @@
     <h2>Artist's Current Obsession</h2>
     <div class="spotify-links">
         <iframe src="https://open.spotify.com/embed/album/1YVl9rMklSiPCQZtuGx8Tx" width="300" height="80"></iframe>
-        <iframe src="https://open.spotify.com/embed/album/2QJmrSgbdM35RfQZt9cC8g" width="300" height="80"></iframe>
-        <iframe src="https://open.spotify.com/embed/album/3zFzlLVu8kSVauqElCsrf8" width="300" height="80"></iframe>
-        <iframe src="https://open.spotify.com/embed/album/6mQzYE6MaM5PweT6kYxaoV" width="300" height="80"></iframe>
-        <iframe src="https://open.spotify.com/embed/album/7Jh1bpe76CNTCgdgAdBw4Z" width="300" height="80"></iframe>
+        <iframe src="https://open.spotify.com/embed/album/0oHclsVKO0voqIP0u2cifF" width="300" height="80"></iframe>
+        <iframe src="https://open.spotify.com/embed/album/3QOZgz6X3t3Asp84W9jjUx" width="300" height="80"></iframe>
+        <iframe src="https://open.spotify.com/embed/album/4gSvPV6y5DvASEpwhtA8RI" width="300" height="80"></iframe>
+        <iframe src="https://open.spotify.com/embed/album/22sxk4nS5F7RylIfSQ7PGi" width="300" height="80"></iframe>
     </div>
 </div>
 
@@ -300,18 +351,16 @@
         
 $(document).on('mouseover', '.album-cover', function() {
     $(this).css({
-        'transform': 'scale(1.3)',
         'filter': 'brightness(50%)'
     });
     const albumInfo = $(this).siblings('.album-info');
     albumInfo.show();
 }).on('mouseout', '.album-cover', function() {
     $(this).css({
-        'transform': 'scale(1)',
         'filter': 'brightness(100%)'
     });
     const albumInfo = $(this).siblings('.album-info');
-    albumInfo.hide();
+    
 });
 
 $(document).ready(function () {
@@ -486,14 +535,9 @@ $(document).ready(function () {
                     description: 'An intense and raw album that pushes the boundaries of genre and sound.', 
                     songList: `
                         <ul>
-                            <li>Track 1: <a href="https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx">Spotify</a></li>
-                            <li>Track 2: <a href="https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx">Spotify</a></li>
-                            <li>Track 3: <a href="https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx">Spotify</a></li>
+                            <li>Work In Progress: <a href="https://suno.com/playlist/b08b1a1f-ef7d-4dd6-8b27-a14c0202559f">Suno</a></li>
                             <!-- Repeat for all tracks -->
                         </ul>`,
-                    spotify: 'https://suno.com/playlist/b08b1a1f-ef7d-4dd6-8b27-a14c0202559f', 
-                    youtube: 'coming-soon.html', 
-                    apple: 'coming-soon.html'
                 },
                 { 
                     id: 'supernova-modal', 
@@ -553,6 +597,9 @@ $(document).ready(function () {
                     </div>
                 `);
             });
+				// Set all links inside modals to open in a new window
+				$('.modal a').attr('target', '_blank');
+
 
             heroBackground.append(imageSet + imageSet);
 
@@ -591,10 +638,7 @@ $(document).ready(function () {
         $(this).css('animation-play-state', 'running');
     });
 
-    // Ensure modal images don't resize on mouseover
-    $('.modal-content img').on('mouseover', function() {
-        $(this).css('transform', 'none');
-    });
+
 
     </script>
     

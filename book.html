@@ -1,0 +1,264 @@
+<html>
+<head>
+    <base href="https://example.com/">
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>The Grimoire of Shadows - Music Edition</title>
+        <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+        <style>
+            body {
+                margin: 0;
+                height: 100vh;
+                overflow: hidden;
+                background: linear-gradient(180deg, #141e30, #243b55);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-family: 'Cinzel', serif;
+                color: #f5f3f0;
+            }
+            .tome-container {
+                position: relative;
+                perspective: 1500px;
+            }
+            .tome {
+                position: relative;
+                width: 500px;
+                height: 650px;
+                transform-style: preserve-3d;
+                transition: transform 0.5s ease, filter 0.7s ease, box-shadow 0.7s ease;
+                pointer-events: auto;
+                cursor: pointer;
+            }
+            .tome:hover {
+                transform: rotateX(-8deg) rotateY(0deg);
+                filter: brightness(1.1);
+                box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+            }
+            .tome-cover, .tome-back, .page {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                border-radius: 12px;
+                border: 2px solid #8a6d3b;
+                backface-visibility: hidden;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
+                transform-origin: left;
+                transition: transform 0.5s ease, z-index 0s 0.5s;
+            }
+            .tome-cover {
+                background: #3f2c1d;
+                background-image: url('https://example.com/images/dark-fantasy-cover.jpg');
+                background-size: cover;
+                background-position: center;
+                z-index: 10;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: #f5f3f0;
+                padding: 20px;
+                box-sizing: border-box;
+                text-align: center;
+            }
+            .tome .title {
+                font-weight: bold;
+                font-size: 24px;
+                line-height: 1.4;
+            }
+            .tome .author {
+                font-size: 20px;
+                margin-top: 10px;
+                color: #ebebeb;
+            }
+            .tome-back {
+                background: #3f2c1d url('https://example.com/images/tome-back-high-res.jpg') no-repeat center / cover;
+                transform: rotateY(180deg);
+                z-index: 1;
+            }
+            .page {
+                background: rgba(255, 255, 250, 0.95);
+                transform: rotateY(160deg);
+                transition-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1.275);
+            }
+            .open .tome-cover {
+                transform: rotateY(-150deg);
+            }
+            .open .page {
+                transform: rotateY(0);
+                z-index: 5;
+            }   
+            .page-content {
+                position: relative;
+                padding: 40px 20px;
+                box-sizing: border-box;
+                height: 100%;
+            }
+            h2 {
+                margin: 0;
+                font-size: 28px;
+                color: #322e2b;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #8a6d3b;
+            }
+            p {
+                margin-top: 20px;
+                font-size: 16px;
+                line-height: 1.6;
+                color: #4a4744;
+            }
+            .song-image {
+                width: 100%;
+                height: auto;
+                max-height: 200px;
+                margin-top: 20px;
+                border-radius: 10px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            }
+            .button-container {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                display: flex;
+                gap: 10px;
+                z-index: 20;
+            }
+            .button-container button {
+                padding: 12px 20px;
+                font-weight: bold;
+                color: #f5f3f0;
+                background-color: rgba(255, 255, 255, 0.1);
+                border: none;
+                border-radius: 20px;
+                cursor: pointer;
+                transition: background 0.3s, color 0.3s;
+            }
+            .button-container button:hover {
+                background-color: rgba(255, 255, 255, 0.3);
+                color: #ffffff;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="tome-container">
+            <div class="tome">
+                <div class="tome-cover">
+                    <div class="title">Out of the Darkness;<br>Stronger Together</div>
+                    <div class="author">by Lord Tsarcasm</div>
+                </div>
+                <div class="page dedication-page">
+                    <div class="page-content">
+                        <h2>Dedication Page</h2>
+                        <p>This book is dedicated to all those who have helped us emerge from the darkness, together stronger than ever.</p>
+                    </div>
+                </div>
+                <div class="page page1">
+                    <div class="page-content">
+                        <h2>Song Title: Shoot Me Down</h2>
+                        <img src="https://example.com/images/shoot-me-down.jpg" alt="Shoot Me Down album cover" class="song-image">
+                        <p>"Lyrics of Shoot Me Down..."</p>
+                        <p>A powerful anthem of resilience and determination.</p>
+                    </div>
+                </div>
+                <div class="page page2">
+                    <div class="page-content">
+                        <h2>Song Title: Bury It Twice</h2>
+                        <img src="https://example.com/images/bury-it-twice.jpg" alt="Bury It Twice album cover" class="song-image">
+                        <p>"Lyrics of Bury It Twice..."</p>
+                        <p>An introspective piece that delves into overcoming past burdens.</p>
+                    </div>
+                </div>
+                <div class="page page3">
+                    <div class="page-content">
+                        <h2>Song Title: It's Not About The Weather</h2>
+                        <img src="https://example.com/images/not-about-weather.jpg" alt="It's Not About The Weather album cover" class="song-image">
+                        <p>"Lyrics of It's Not About The Weather..."</p>
+                        <p>An uplifting tune that reminds us it's the journey, not the conditions, that matter.</p>
+                    </div>
+                </div>
+                <div class="page page4">
+                    <div class="page-content">
+                        <h2>Song Title: Moral Compass</h2>
+                        <img src="https://example.com/images/moral-compass.jpg" alt="Moral Compass album cover" class="song-image">
+                        <p>"Lyrics of Moral Compass..."</p>
+                        <p>This track explores themes of inner guidance and ethical strength.</p>
+                    </div>
+                </div>
+                <div class="page page5">
+                    <div class="page-content">
+                        <h2>Song Title: End of a Chapter</h2>
+                        <img src="https://example.com/images/end-of-chapter.jpg" alt="End of a Chapter album cover" class="song-image">
+                        <p>"Lyrics of End of a Chapter..."</p>
+                        <p>A reflective piece marking both an end and a new beginning.</p>
+                    </div>
+                </div>
+                <div class="tome-back"></div>
+            </div>
+        </div>
+        
+        <div class="button-container">
+            <button id="toggle-sound">Toggle Sound</button>
+            <button id="next-page">Open Book</button>
+        </div>
+
+        <script>
+            const tome = document.querySelector('.tome');
+            const pages = document.querySelectorAll('.page');
+            const nextPageButton = document.getElementById('next-page');
+            let currentPage = 0;
+            let bookClosed = true;
+
+            function toggleSound() {
+                console.log('Toggling Sound');
+            }
+
+            function openBook() {
+                tome.classList.add('open');
+                setPageState(pages[currentPage], 0, 4);
+            }
+
+            function resetBook() {
+                currentPage = 0;
+                pages.forEach((page) => setPageState(page, 160, ''));
+                openBook();
+                bookClosed = false;
+                nextPageButton.textContent = 'Next Page';
+            }
+
+            function closeBook() {
+                tome.classList.remove('open');
+                pages.forEach((page, index) => setTimeout(() => setPageState(page, 160, ''), index * 100)); 
+                nextPageButton.textContent = 'Start Book from the Beginning';
+                bookClosed = true;
+            }
+
+            function setPageState(page, rotation, zIndex) {
+                if (page) {
+                    page.style.transform = `rotateY(${rotation}deg)`;
+                    page.style.zIndex = zIndex.toString();
+                }
+            }
+
+            nextPageButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (bookClosed) {
+                    resetBook();
+                } else {
+                    if (currentPage < pages.length - 1) {
+                        setPageState(pages[currentPage], 160, 2);
+                        currentPage += 1;
+                        setPageState(pages[currentPage], 0, 4);
+                        if (currentPage === pages.length - 1) {
+                            setTimeout(closeBook, 500); 
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('toggle-sound').addEventListener('click', toggleSound);
+
+        </script>
+    </body>
+</html>

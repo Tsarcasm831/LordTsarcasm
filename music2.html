@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lord Tsarcasm - Music</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Hero section with scrolling background */
+        .hero {
+            position: relative;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            background-repeat: repeat-x;
+            animation: scrollBackground 40s linear infinite;
+        }
+
+        .hero-background img {
+            height: 80%;
+            max-width: none;
+            width: auto;
+        }
+
+        @keyframes scrollBackground {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        .nav-link {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .nav-link:visited {
+            color: #999;
+        }
+
+        .nav-link:hover {
+            color: #333;
+        }
+
+        /* Book Element */
+        .tome-container {
+            position: relative;
+            perspective: 1500px;
+            margin: 20px;
+        }
+
+        .tome {
+            position: relative;
+            width: 500px;
+            height: 650px;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease, filter 0.7s ease, box-shadow 0.7s ease;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        .tome:hover {
+            transform: rotateX(-8deg) rotateY(0deg);
+            filter: brightness(1.1);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .tome-cover, .tome-back, .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            border: 2px solid #8a6d3b;
+            backface-visibility: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
+            transform-origin: left;
+            transition: transform 0.5s ease, z-index 0s 0.5s;
+        }
+
+        .tome-cover {
+            background: #3f2c1d;
+            background-size: cover;
+            background-position: center;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #f5f3f0;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .tome .title {
+            font-weight: bold;
+            font-size: 24px;
+            line-height: 1.4;
+        }
+
+        .tome .author {
+            font-size: 20px;
+            margin-top: 10px;
+            color: #ebebeb;
+        }
+
+        .tome-back {
+            background: #3f2c1d;
+            transform: rotateY(180deg);
+            z-index: 1;
+        }
+
+        .page {
+            background: rgba(255, 255, 250, 0.95);
+            transform: rotateY(160deg);
+            transition-timing-function: cubic-bezier(0.175, 0.885, 0.320, 1.275);
+        }
+
+        .open .tome-cover {
+            transform: rotateY(-150deg);
+        }
+
+        .open .page {
+            transform: rotateY(0);
+            z-index: 5;
+        }
+
+        .page-content {
+            position: relative;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            height: 100%;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 28px;
+            color: #322e2b;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #8a6d3b;
+        }
+
+        p {
+            margin-top: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #4a4744;
+        }
+
+        .song-image {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">Lord Tsarcasm</div>
+            <nav class="nav-menu">
+                <a href="coming-soon.html" class="nav-link">Home</a>
+                <a href="coming-soon.html" class="nav-link">About</a>
+                <a href="coming-soon.html" class="nav-link">Music</a>
+                <a href="https://www.facebook.com/lordtsarcasm" class="nav-link">Poetry</a>
+                <a href="coming-soon.html" class="nav-link">AI Art</a>
+                <a href="https://www.youtube.com/@lordtsarcasm/videos" class="nav-link">Videos</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="spotify-embed" id="spotifyEmbed">
+        <iframe src="https://open.spotify.com/embed/artist/0tIXtsoLoRKrNEMiwvIkdw?utm_source=generator" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    </div>
+
+    <div class="hero">
+        <div class="hero-background" id="heroBackground">
+            <!-- Images will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <div class="container">
+        <p>Explore the diverse musical creations of Lord Tsarcasm. From singles to full albums, dive into the unique sounds and stories behind each track.</p>
+
+        <!-- Book Grid with Album Data -->
+        <div class="container">
+            <!-- Album 1 - Success the Obsession -->
+            <div class="tome-container" onclick="loadAlbumContent('Success the Obsession')">
+                <div class="tome">
+                    <div class="tome-cover">
+                        <div class="title">Success the Obsession</div>
+                        <div class="author">by Lord Tsarcasm</div>
+                    </div>
+                    <div class="tome-back"></div>
+                </div>
+            </div>
+
+            <!-- Album 2 - SVT -->
+            <div class="tome-container" onclick="loadAlbumContent('SVT')">
+                <div class="tome">
+                    <div class="tome-cover">
+                        <div class="title">SVT</div>
+                        <div class="author">by Lord Tsarcasm</div>
+                    </div>
+                    <div class="tome-back"></div>
+                </div>
+            </div>
+
+            <!-- Album 3 - Hellstrom -->
+            <div class="tome-container" onclick="loadAlbumContent('Hellstrom')">
+                <div class="tome">
+                    <div class="title">Hellstrom</div>
+                    <div class="author">by Lord Tsarcasm</div>
+                </div>
+            </div>
+
+            <!-- Album 4 - Supernova -->
+            <div class="tome-container" onclick="loadAlbumContent('Supernova')">
+                <div class="tome">
+                    <div class="title">Supernova</div>
+                    <div class="author">by Lord Tsarcasm</div>
+                </div>
+            </div>
+
+            <!-- Album 5 - DOT -->
+            <div class="tome-container" onclick="loadAlbumContent('DOT')">
+                <div class="tome">
+                    <div class="title">DOT</div>
+                    <div class="author">by Lord Tsarcasm</div>
+                </div>
+            </div>
+
+            <!-- Album 6 - Riddle Me -->
+            <div class="tome-container" onclick="loadAlbumContent('Riddle Me')">
+                <div class="tome">
+                    <div class="title">Riddle Me</div>
+                    <div class="author">by Lord Tsarcasm</div>
+                </div>
+            </div>
+
+            <!-- Album 7 - Moral Compass -->
+            <div class="tome-container" onclick="loadAlbumContent('Moral Compass')">
+                <div class="tome">
+                    <div class="title">Moral Compass</div>
+                    <div class="author">by Lord Tsarcasm</div>
+                </div>
+            </div>
+
+            <!-- Album 8 - It's Not About the Weather -->
+            <div class="tome-container" onclick="loadAlbumContent('It\'s Not About the Weather')">
+                <div class="tome">
+                    <div class="title">It's Not About the Weather</div>
+                    <div class="author">by Lord Tsarcasm</div>
+                </div>
+            </div>
+
+            <!-- Album 9 - Shoot Me Down -->
+            <div class="tome-container" onclick="loadAlbumContent('Shoot Me Down')">
+                <div class="tome">
+                    <div class="title">Shoot Me Down</div>
+                    <div class="author">by Lord Tsarcasm</div>
+                </div>
+            </div>
+
+            <!-- Album 10 - Glad You're Mine -->
+            <div class="tome-container" onclick="loadAlbumContent('Glad You\'re Mine')">
+                <div class="tome">
+                    <div class="title">Glad You're Mine</div>
+                    <div class="author">by Lord Tsarcasm</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Placeholder for dynamically loaded album content -->
+    <div id="book-content"></div>
+
+    <footer class="footer">
+        <p>&copy; 2023 Lord Tsarcasm. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function loadAlbumContent(albumTitle) {
+            const albumData = {
+                'Success the Obsession': {
+                    title: 'Success the Obsession',
+                    description: 'A conceptual journey into the mind of an artist obsessed with success.',
+                    songList: '<ul><li>Track 1: Supernova</li><li>Track 2: Hold On Tight</li></ul>'
+                },
+                'SVT': {
+                    title: 'SVT',
+                    description: 'A haunting tribute to lost friends, filled with emotion and reflective lyrics.',
+                    songList: '<ul><li>Track 1: Out in the Cold</li><li>Track 2: Empty Little Soul</li></ul>'
+                },
+                'Hellstrom': {
+                    title: 'Hellstrom',
+                    description: 'An intense and raw album that pushes the boundaries of genre and sound.',
+                    songList: '<ul><li>Track 1: Hellfire</li><li>Track 2: Shredder</li></ul>'
+                },
+                'Supernova': {
+                    title: 'Supernova',
+                    description: 'A cosmic journey through sound, capturing the explosive energy of a supernova.',
+                    songList: '<ul><li>Track 1: Explosive</li><li>Track 2: Celestial Dance</li></ul>'
+                },
+                'DOT': {
+                    title: 'DOT',
+                    description: 'An expansive album exploring themes of identity, technology, and the human experience.',
+                    songList: '<ul><li>Track 1: Harmonious Complexity</li><li>Track 2: Behind the Mirror</li></ul>'
+                },
+                'Riddle Me': {
+                    title: 'Riddle Me',
+                    description: 'A mind-bending single that challenges the listener with cryptic lyrics and intricate melodies.',
+                    songList: '<ul><li>Track 1: The Puzzle</li><li>Track 2: Twist of Fate</li></ul>'
+                },
+                'Moral Compass': {
+                    title: 'Moral Compass',
+                    description: 'A thought-provoking track that delves into the complexities of right and wrong.',
+                    songList: '<ul><li>Track 1: Inner Voice</li><li>Track 2: True North</li></ul>'
+                },
+                'It\'s Not About the Weather': {
+                    title: 'It\'s Not About the Weather',
+                    description: 'A song that uses weather as a metaphor for life’s unpredictable changes.',
+                    songList: '<ul><li>Track 1: Changing Winds</li><li>Track 2: Calm Before the Storm</li></ul>'
+                },
+                'Shoot Me Down': {
+                    title: 'Shoot Me Down',
+                    description: 'A powerful anthem about resilience and defiance in the face of adversity.',
+                    songList: '<ul><li>Track 1: Defiance</li><li>Track 2: Rising Again</li></ul>'
+                },
+                'Glad You\'re Mine': {
+                    title: 'Glad You\'re Mine',
+                    description: 'A heartfelt ode to love and companionship, blending soft harmonies with powerful vocals.',
+                    songList: '<ul><li>Track 1: Love Story</li><li>Track 2: Together Forever</li></ul>'
+                }
+            };
+
+            const album = albumData[albumTitle];
+            const content = `
+                <div class="page-content">
+                    <h2>Album: ${album.title}</h2>
+                    <p>${album.description}</p>
+                    <h3>Track List:</h3>
+                    ${album.songList}
+                </div>
+            `;
+
+            document.getElementById('book-content').innerHTML = content;
+            document.getElementById('book-content').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+</html>
