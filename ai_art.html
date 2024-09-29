@@ -416,6 +416,21 @@
         cursor: pointer;
         z-index: 1000;
     }
+    .load-more {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        background-color: var(--metal-gray);
+        color: var(--dust-color);
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .load-more:hover {
+        background-color: var(--radiation-green);
+        color: var(--dark-bg);
+    }
 </style>
 </head>
 <body>
@@ -445,7 +460,7 @@
                 </div>
                 <div class="gallery">
                     <div class="item" data-type="image" data-status="completed" data-description="No description available." data-date="Completed - 2023">
-                        <img src="/ai-art/wasteland-city.jpg" alt="A desolate cityscape with crumbling skyscrapers and overgrown vegetation" width="280" height="280">
+                        <img src=""C:\Users\xris_\OneDrive\Website\7-27-24\Collab Group\Use the Knife\Alien Species\Dengar\Dengar Main\shal'rah dengar.webp"" alt="A desolate cityscape with crumbling skyscrapers and overgrown vegetation" width="280" height="280">
                         <div class="info">
                             <h3>Ruins of Tomorrow</h3>
                             <p>Completed - 2023</p>
@@ -473,6 +488,7 @@
                         </div>
                     </div>
                 </div>
+                <button class="load-more">Load More</button>
             </section>
             
             <section class="section">
@@ -512,6 +528,7 @@
                         </div>
                     </div>
                 </div>
+                <button class="load-more">Load More</button>
             </section>
         </main>
         <footer>
@@ -554,7 +571,7 @@
             const modalClose = document.querySelector('.modal-close');
 
             let currentItemIndex = 0;
-            const totalItems = 12; 
+            const totalItems = 12; // Set a fixed number of items
             const itemsPerPage = 8;
 
             function updateModal(item) {
@@ -667,20 +684,22 @@
 
             setupLazyLoading();
 
-            function showLoading() {
-                const loading = document.createElement('div');
-                loading.className = 'loading';
-                loading.textContent = 'Loading more items';
-                document.querySelector('.gallery').appendChild(loading);
-            }
+            const loadMoreButtons = document.querySelectorAll('.load-more');
+            loadMoreButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    loadMoreItems();
+                    if (document.querySelectorAll('.gallery .item').length >= totalItems) {
+                        button.style.display = 'none';
+                    }
+                });
+            });
 
             function loadMoreItems() {
-                showLoading();
                 const gallery = document.querySelector('.gallery');
                 const currentItems = gallery.querySelectorAll('.item').length;
 
                 if (currentItems >= totalItems) {
-                    return; 
+                    return; // Don't load more items if we've reached the limit
                 }
 
                 const fragment = document.createDocumentFragment();
@@ -689,50 +708,23 @@
                 for (let i = 0; i < itemsToLoad; i++) {
                     const newItem = document.createElement('div');
                     newItem.className = 'item';
-                    newItem.dataset.type = Math.random() > 0.5 ? 'image' : 'video';
-                    newItem.dataset.status = Math.random() > 0.5 ? 'completed' : 'work-in-progress';
-                    newItem.dataset.description = "A haunting vision of a post-apocalyptic world.";
-                    newItem.dataset.date = `${newItem.dataset.status === 'completed' ? 'Completed' : 'Work in Progress'} - ${new Date().getFullYear()}`;
-                    
-                    const mediaType = newItem.dataset.type === 'video' ? 'video' : 'img';
-                    const mediaSource = newItem.dataset.type === 'video' ? `/videos/generated-${currentItems + i + 1}.mp4` : `/ai-art/generated-${currentItems + i + 1}.jpg`;
-                    
                     newItem.innerHTML = `
-                        <${mediaType} src="${mediaSource}" alt="AI generated post-apocalyptic scene" width="280" height="280">
+                        <img src="/ai-art/generated-${currentItems + i + 1}.jpg" alt="AI generated post-apocalyptic scene">
                         <div class="info">
-                            <h3>Wasteland Vision ${currentItems + i + 1}</h3>
-                            <p>${newItem.dataset.date}</p>
+                            <h3>Wasteland Scene ${currentItems + i + 1}</h3>
+                            <p>Generated - ${new Date().getFullYear()}</p>
                         </div>
                     `;
                     fragment.appendChild(newItem);
                 }
                 gallery.appendChild(fragment);
                 setupLazyLoading();
-                document.querySelector('.loading').remove();
             }
-
-            window.addEventListener('scroll', () => {
-                if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
-                    loadMoreItems();
-                }
-            });
 
             const themeToggle = document.getElementById('theme-toggle');
             themeToggle.addEventListener('click', () => {
                 document.body.classList.toggle('light-theme');
                 themeToggle.textContent = document.body.classList.contains('light-theme') ? '🌙' : '☀️';
-            });
-
-            document.addEventListener('keydown', (e) => {
-                if (modal.classList.contains('active')) {
-                    if (e.key === 'ArrowLeft') {
-                        document.getElementById('modal-prev').click();
-                    } else if (e.key === 'ArrowRight') {
-                        document.getElementById('modal-next').click();
-                    } else if (e.key === 'Escape') {
-                        modal.classList.remove('active');
-                    }
-                }
             });
 
             let touchStartX = 0;
