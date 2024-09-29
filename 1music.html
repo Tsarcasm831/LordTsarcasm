@@ -62,23 +62,17 @@
         }
 
         .hero-caption {
-			position: absolute;
-			bottom: 0;
-			left: 0;
-			right: 0;
-			background-color: rgba(0,0,0,0.7);
-			color: #fff;
-			padding: 5px;
-			text-align: center;
-			opacity: 0;
-			transition: opacity 0.3s ease;
-		}
-
-		.hero-album-title {
-			font-size: 16px; /* Reduced font size */
-			font-weight: bold;
-			margin-bottom: 5px;
-		}
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0,0,0,0.7);
+            color: #fff;
+            padding: 5px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
 
         .hero-image:hover .hero-caption {
             opacity: 1;
@@ -306,6 +300,11 @@
         </div>
     </header>
 
+    <div class="spotify-embed" id="spotifyEmbed">
+        <div class="spotify-toggle" id="spotifyToggle">Minimize</div>
+        <iframe src="https://open.spotify.com/embed/artist/0tIXtsoLoRKrNEMiwvIkdw?utm_source=generator" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    </div>
+
     <div class="hero">
         <div class="hero-background" id="heroBackground">
             <!-- Images will be dynamically inserted here -->
@@ -326,21 +325,21 @@
         <div class="container top-picks">
             <h2>Artist's Top Picks</h2>
             <div class="album-grid">
-                <div class="album-card" onclick="openModal('success-modal')">
+                <div class="album-card">
                     <img src="images/Success the Obsession.png" alt="Success the Obsession" class="album-cover">
                     <div class="album-info">
                         <div class="album-title">Success the Obsession</div>
                         <div class="album-details">Single - 2024</div>
                     </div>
                 </div>
-                <div class="album-card" onclick="openModal('svt-modal')">
+                <div class="album-card">
                     <img src="images/svt.png" alt="SVT" class="album-cover">
                     <div class="album-info">
                         <div class="album-title">SVT</div>
                         <div class="album-details">Single - 2024</div>
                     </div>
                 </div>
-                <div class="album-card" onclick="openModal('hellstrom-modal')">
+                <div class="album-card">
                     <img src="images/hellstrom.png" alt="Hellstrom" class="album-cover">
                     <div class="album-info">
                         <div class="album-title">Hellstrom</div>
@@ -530,32 +529,16 @@
                     youtube: 'https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE', 
                     apple: 'https://geo.music.apple.com/album/svt-out-in-the-cold/1759666157'
                 },
-                {
-                    id: 'hellstrom-modal',
-                    title: 'Hellstrom',
-                    image: 'hellstrom.png',
-                    details: 'Hellstrom - Album - 18 songs', /* Changed from 22+ to 18 tracks */
-                    description: 'An intense and raw album that pushes the boundaries of genre and sound.',
-                    songList:
-                        `<ul>
+                { 
+                    id: 'hellstrom-modal', 
+                    title: 'Hellstrom', 
+                    image: 'hellstrom.png', 
+                    details: 'Hellstrom - Album - 22+ songs', 
+                    description: 'An intense and raw album that pushes the boundaries of genre and sound.', 
+                    songList: `
+                        <ul>
                             <li>Work In Progress: <a href="https://suno.com/playlist/b08b1a1f-ef7d-4dd6-8b27-a14c0202559f">Suno</a></li>
-                            <li>Track 2: <a href="#">Link</a></li>
-                            <li>Track 3: <a href="#">Link</a></li>
-                            <li>Track 4: <a href="#">Link</a></li>
-                            <li>Track 5: <a href="#">Link</a></li>
-                            <li>Track 6: <a href="#">Link</a></li>
-                            <li>Track 7: <a href="#">Link</a></li>
-                            <li>Track 8: <a href="#">Link</a></li>
-                            <li>Track 9: <a href="#">Link</a></li>
-                            <li>Track 10: <a href="#">Link</a></li>
-                            <li>Track 11: <a href="#">Link</a></li>
-                            <li>Track 12: <a href="#">Link</a></li>
-                            <li>Track 13: <a href="#">Link</a></li>
-                            <li>Track 14: <a href="#">Link</a></li>
-                            <li>Track 15: <a href="#">Link</a></li>
-                            <li>Track 16: <a href="#">Link</a></li>
-                            <li>Track 17: <a href="#">Link</a></li>
-                            <li>Track 18: <a href="#">Link</a></li>
+                            <!-- Repeat for all tracks -->
                         </ul>`,
                 },
                 { 
@@ -586,6 +569,7 @@
                         <img src="${imgPath}" alt="${album.title}" class="album-cover">
                         <div class="hero-caption">
                             <div class="hero-album-title">${album.title}</div>
+                            <div class="hero-album-details">${album.details}</div>
                         </div>
                     </div>
                 `;

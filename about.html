@@ -1,299 +1,365 @@
-<html><head><base href="https://www.lordtsarcasm.com/about">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lord Tsarcasm - About | R.O.D. Artist</title>
-<style>
-    body, html {
-        margin: 0;
-        padding: 0;
-        font-family: 'Cinzel', serif;
-        background-color: #000;
-        color: #c0c0c0;
-        line-height: 1.6;
-    }
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    header {
-        background-color: rgba(0, 0, 0, 0.8);
-        padding: 20px 0;
-        position: fixed;
-        width: 100%;
-        top: 0;
-        z-index: 1000;
-    }
-    nav ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-    }
-    nav ul li {
-        margin: 0 15px;
-    }
-    nav ul li a {
-        color: #c0c0c0;
-        text-decoration: none;
-        font-size: 18px;
-        transition: color 0.3s ease;
-    }
-    nav ul li a:hover {
-        color: #ff4500;
-    }
-    .hero {
-        background-image: url('dark-fantasy-landscape.jpg');
-        background-size: cover;
-        background-position: center;
-        height: 50vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-top: 80px;
-    }
-    .hero-content {
-        text-align: center;
-        color: #fff;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-    }
-    h1 {
-        font-size: 3.5em;
-        margin-bottom: 20px;
-    }
-    .content {
-        padding: 50px 0;
-    }
-    h2 {
-        color: #ff4500;
-        font-size: 2.5em;
-        margin-bottom: 20px;
-    }
-    p {
-        margin-bottom: 20px;
-    }
-    .timeline {
-        position: relative;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-    .timeline::after {
-        content: '';
-        position: absolute;
-        width: 6px;
-        background-color: #ff4500;
-        top: 0;
-        bottom: 0;
-        left: 50%;
-        margin-left: -3px;
-    }
-    .timeline-item {
-        padding: 10px 40px;
-        position: relative;
-        background-color: inherit;
-        width: 50%;
-    }
-    .timeline-item::after {
-        content: '';
-        position: absolute;
-        width: 25px;
-        height: 25px;
-        right: -17px;
-        background-color: #ff4500;
-        border: 4px solid #ff4500;
-        top: 15px;
-        border-radius: 50%;
-        z-index: 1;
-    }
-    .left {
-        left: 0;
-    }
-    .right {
-        left: 50%;
-    }
-    .left::before {
-        content: " ";
-        height: 0;
-        position: absolute;
-        top: 22px;
-        width: 0;
-        z-index: 1;
-        right: 30px;
-        border: medium solid #ff4500;
-        border-width: 10px 0 10px 10px;
-        border-color: transparent transparent transparent #ff4500;
-    }
-    .right::before {
-        content: " ";
-        height: 0;
-        position: absolute;
-        top: 22px;
-        width: 0;
-        z-index: 1;
-        left: 30px;
-        border: medium solid #ff4500;
-        border-width: 10px 10px 10px 0;
-        border-color: transparent #ff4500 transparent transparent;
-    }
-    .right::after {
-        left: -16px;
-    }
-    .timeline-content {
-        padding: 20px 30px;
-        background-color: #1a1a1a;
-        position: relative;
-        border-radius: 6px;
-    }
-</style>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="https://www.lordtsarcasm.com/about">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lord Tsarcasm - About | R.O.D. Artist</title>
+    <style>
+        /* Changed: Added CSS variables for better maintainability */
+        :root {
+            --background-color: #000;
+            --text-color: #c0c0c0;
+            --accent-color: #ff4500;
+            --header-bg: rgba(0, 0, 0, 0.9);
+            --container-padding: 20px;
+            --font-family: 'Cinzel', serif;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--container-padding);
+        }
+        header {
+            background-color: var(--header-bg); /* Changed: Increased opacity for better readability */
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5); /* Changed: Added shadow for depth */
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap; /* Changed: Improved responsiveness */
+        }
+        nav ul li {
+            margin: 0 15px;
+        }
+        nav ul li a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+        nav ul li a:hover,
+        nav ul li a:focus { /* Changed: Added focus state for accessibility */
+            color: var(--accent-color);
+            outline: none; /* Changed: Removed default outline */
+            border-bottom: 2px solid var(--accent-color); /* Changed: Added underline on hover/focus */
+        }
+        .hero {
+            background-image: url('dark-fantasy-landscape.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 80px;
+            position: relative;
+        }
+        .hero::after { /* Changed: Added overlay for better text readability */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1;
+        }
+        .hero-content {
+            text-align: center;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            position: relative;
+            z-index: 2;
+        }
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+        }
+        .content {
+            padding: 50px 0;
+        }
+        h2 {
+            color: var(--accent-color);
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--accent-color); /* Changed: Added underline for headings */
+            padding-bottom: 10px; /* Changed: Added padding for spacing */
+        }
+        p {
+            margin-bottom: 20px;
+            line-height: 1.8; /* Changed: Increased line height for better readability */
+        }
+        .timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 0; /* Changed: Added padding for spacing */
+        }
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 4px; /* Changed: Reduced width for a sleeker look */
+            background-color: var(--accent-color);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%); /* Changed: Centered the timeline */
+        }
+        .timeline-item {
+            padding: 20px 40px; /* Changed: Increased padding for better spacing */
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+            box-sizing: border-box; /* Changed: Ensured padding doesn't affect width */
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px; /* Changed: Adjusted size for consistency */
+            height: 20px;
+            background-color: var(--accent-color);
+            border: 3px solid var(--background-color); /* Changed: Improved contrast */
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .left {
+            left: 0;
+        }
+        .right {
+            left: 50%;
+        }
+        .left::before,
+        .right::before {
+            content: " ";
+            height: 0;
+            position: absolute;
+            top: 22px;
+            width: 0;
+            z-index: 1;
+            border: medium solid var(--accent-color);
+            border-width: 10px 10px 10px 0;
+            /* Changed: Unified arrow direction based on side */
+        }
+        .left::before {
+            right: 30px;
+            border-width: 10px 10px 10px 0;
+            border-color: transparent var(--accent-color) transparent transparent;
+        }
+        .right::before {
+            left: 30px;
+            border-width: 10px 0 10px 10px;
+            border-color: transparent transparent transparent var(--accent-color);
+        }
+        .right::after {
+            left: -10px; /* Changed: Adjusted position for alignment */
+        }
+        .timeline-content {
+            padding: 20px 30px;
+            background-color: #1a1a1a;
+            position: relative;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5); /* Changed: Added shadow for depth */
+        }
+        /* Changed: Responsive timeline */
+        @media screen and (max-width: 768px) {
+            .timeline::after {
+                left: 20px;
+            }
+            .timeline-item {
+                width: 100%;
+                padding-left: 60px;
+                padding-right: 25px;
+            }
+            .timeline-item::before {
+                left: 20px;
+                border: medium solid var(--accent-color);
+                border-width: 10px 10px 10px 0;
+                border-color: transparent var(--accent-color) transparent transparent;
+            }
+            .right, .left {
+                left: 0%;
+            }
+            .right::after, .left::after {
+                left: 15px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
-        <nav>
+        <nav aria-label="Main Navigation"> <!-- Changed: Added ARIA label for accessibility -->
             <ul>
                 <li><a href="https://www.lordtsarcasm.com/index.html">Home</a></li>
-                <li><a href="https://www.lordtsarcasm.com/about">About</a></li>
+                <li><a href="https://www.lordtsarcasm.com/about" aria-current="page">About</a></li> <!-- Changed: Added aria-current -->
                 <li><a href="https://www.lordtsarcasm.com/music">Music</a></li>
-                <li><a href="https://websim.ai/c/ID2e2HdizauiXf7Cp">Poetry</a></li>
+                <li><a href="https://www.facebook.com/lordtsarcasm">Poetry</a></li>
                 <li><a href="https://www.lordtsarcasm.com/ai-art">AI Art</a></li>
-                <li><a href="https://www.lordtsarcasm.com/videos">Videos</a></li>
-                <li><a href="https://www.lordtsarcasm.com/projects">Projects</a></li>
+                <li><a href="https://www.youtube.com/@lordtsarcasm/videos">Videos</a></li>
+                <li><a href="coming-soon.html">Projects</a></li>
             </ul>
         </nav>
     </header>
 
-    <div class="hero">
-        <div class="hero-content">
-            <h1>About Lord Tsarcasm</h1>
+    <main> <!-- Changed: Wrapped content in main tag for semantics -->
+        <section class="hero" role="banner"> <!-- Changed: Added role for accessibility -->
+            <div class="hero-content">
+                <h1>About Lord Tsarcasm</h1>
+            </div>
+        </section>
+
+        <div class="container content">
+            <section aria-labelledby="journey"> <!-- Changed: Added section and ARIA label -->
+                <h2 id="journey">My Journey</h2>
+                <p>Welcome to my creative corner of the internet, where AI-music, human music, AI and human art, and video production intersect to bring the world of R.O.D. (Remnants of Destruction) to life. Inspired by the incredible legacy of my late friend, Sean Trusty, R.O.D. is more than just a passion project—it's a world rich with lore, characters, and stories that I am committed to developing into a fully immersive video game.</p>
+                <p>As the creative force behind bringing this endeavor out of table-top and one day into a playable game, I combine my talents with words, AI and human music composition, AI-driven artwork, and cinematic storytelling to expand and explore the universe Sean began. Alongside several collaborators, I am crafting a narrative experience that honors Sean's vision while pushing the boundaries of what's possible in interactive storytelling.</p>
+            </section>
+            
+            <section aria-labelledby="foreword"> <!-- Changed: Added section and ARIA label -->
+                <h2 id="foreword">Trusty's Foreword:</h2>
+                <p>As a child and a young adult I enjoyed
+                role-playing very much. My friends and I
+                would get together on a Saturday afternoon
+                and play for hours. We would play
+                Dungeons & Dragons primarily with a
+                smattering of other games sprinkled in from
+                time-to-time to break up the monotony.</p>
+
+                <p>It was always fun, but in my mind at
+                least all the games available seemed to focus
+                more on stringent rules and mathematical
+                formulas than on the story being presented,
+                and the fun we were supposed to be having.
+                I've always felt role-playing should be an
+                escape from your problems for a few hours,
+                and not a math problem.</p>
+
+                <p>In the winter of 1992 I was a soldier in
+                the United States Army. I had met many other
+                soldiers who had interest in role-playing
+                games and shared my thoughts on the over
+                use of rules for rules sake and the arguments
+                that always ensued over each person's
+                interpretation of the rules.
+                I also took exception to people who
+                would run stories where their character was a
+                deity while yours was forever mediocre. I
+                believe the player characters should always
+                be the stars of the show and all NPCs should
+                be there to add dimension to the world and
+                flavor to the setting.
+                Another thing I have never agreed
+                with is the “Killer DM, or Killer Storyteller”
+                These folks who do everything they can to
+                harangue and kill the player characters as
+                quickly and as often as possible. I found it
+                hard to be invested in a story where my
+                character would most likely be dead within
+                three game sessions and I'd have to roll a new
+                one. That was frustrating and made me lose
+                interest. In my mind it's a poor storyteller
+                who kills off all of his characters in the first
+                chapter or for the sake of shock value, Mr.
+                George R.R. Martin.</p>
+
+                <p>So I decided to take matters into my own hands
+                and if I couldn't find a system I could get behind, I'd
+                simply have to make one.
+                In the beginning the system was very free-form
+                and had very few rules. This was alright, but soon
+                proved to be as frustrating as having too many rules.
+                Rolling dice for the sake of rolling dice gets old and
+                changing the rules and game mechanics every game
+                session got old fast.
+                So I sat down one day and hashed out rules that
+                make sense to me, and made the game work properly
+                without bogging down the story. Every rule in this
+                book is there to make the game flow and trust me it
+                does, I've spent twenty two years making sure of it
+                Even with that in mind, anyone playing this
+                game, using this system or running a story is free to
+                use any rules they choose and bend and break the ones
+                that hinder your playing style. Role-playing is
+                supposed to be fun, and if it isn't, why play?
+                In the following pages you'll find everything
+                you need to begin adventuring in the Savage Wastes. I
+                hope you enjoy the game and the system and will use it
+                for many years to come. It is as what I like to call roleplaying for grown-ups. It can be as dirty, gritty and
+                violent as you like, or tone it down and make it more
+                family friendly, the choice is yours. At any rate, have
+                fun, and enjoy the fruits of my labor.</p>
+                <p>-Sean V. Trusty.</p>
+            </section>
+
+            <section aria-labelledby="evolution"> <!-- Changed: Added section and ARIA label -->
+                <h2 id="evolution">The Evolution of R.O.D.</h2>
+                <div class="timeline">
+                    <div class="timeline-item left">
+                        <div class="timeline-content">
+                            <h3>1992</h3>
+                            <p>Sean Trusty begins conceptualizing the world of R.O.D. while serving for the United States Army. Dissatisfied by the current available systems, he began laying the foundation for a rich universe of characters and stories.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item right">
+                        <div class="timeline-content">
+                            <h3>2009</h3>
+                            <p>Anton meets Sean and becomes captivated by his vision for R.O.D. They begin playing before Anton's shift at IHOP and speak loosely on expanding the lore and musical landscape of the project one day.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item left">
+                        <div class="timeline-content">
+                            <h3>2010-2022</h3>
+                            <p>Hundreds of game sessions between Sean, Anton, Cliff, and varying other players.</p>
+                            <p>The dice-game evolves to a spreadsheet and even a tabletop simulator rendition.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item right">
+                        <div class="timeline-content">
+                            <h3>2022</h3>
+                            <p>Embracing AI technology, Anton begins experimenting with AI-generated music and artwork to complement human-created content for R.O.D. (Lord Tsarcasm is born).</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item left">
+                        <div class="timeline-content">
+                            <h3>August 21st, 2024</h3>
+                            <p>Sean's untimely passing leaves a void in the R.O.D. project. Anton makes a commitment to continue Sean's legacy and bring his vision to life. Even if he has to do it alone.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item right">
+                        <div class="timeline-content">
+                            <h3>Present</h3>
+                            <p>Ongoing development of R.O.D. focused on creating an immersive game experience that blends music, storytelling, and interactive elements.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section aria-labelledby="vision"> <!-- Changed: Added section and ARIA label -->
+                <h2 id="vision">Vision for the Future</h2>
+                <p>As Lord Tsarcasm, my goal is to create a seamless blend of human creativity and AI-assisted artistry, pushing the boundaries of what's possible in game development and interactive storytelling. The R.O.D. project is not just a game; it's a living, breathing world that continues to evolve with each piece of music, each poem, and each visual creation.</p>
+                <p>I invite you to join me on this journey, to explore the dark and fantastical realm of R.O.D., and to be a part of bringing Sean's vision to life. Whether you're a fellow artist, a gamer, or simply someone who appreciates the fusion of technology and creativity, there's a place for you in this ever-expanding universe.</p>
+            </section>
         </div>
-    </div>
-
-    <div class="container content">
-        <h2>My Journey</h2>
-        <p>Welcome to my creative corner of the internet, where AI-music, human music, AI and human art, and video production intersect to bring the world of R.O.D. (Remnants of Destruction) to life. Inspired by the incredible legacy of my late friend, Sean Trusty, R.O.D. is more than just a passion project—it's a world rich with lore, characters, and stories that I am committed to developing into a fully immersive video game.</p>
-        <p>As the creative force behind bringing this endeavor out of table-top and one day into a playable game, I combine my talents with words, AI and human music composition, AI-driven artwork, and cinematic storytelling to expand and explore the universe Sean began. Alongside several collaborators, I am crafting a narrative experience that honors Sean's vision while pushing the boundaries of what's possible in interactive storytelling.</p>
-		
-		<h2>Trusty's Foreword:</h2>
-		<p>As a child and a young adult I enjoyed
-		role-playing very much. My friends and I
-		would get together on a Saturday afternoon
-		and play for hours. We would play
-		Dungeons&Dragons primarily with a
-		smattering of other games sprinkled in from
-		time-to-time to break up the monotony.</p>
-
-		<p>It was always fun, but in my mind at
-		least all the games available seemed to focus
-		more on stringent rules and mathematical
-		formulas than on the story being presented,
-		and the fun we were supposed to be having.
-		I've always felt role-playing should be an
-		escape from your problems for a few hours,
-		and not a math problem.</p>
-
-		<p>In the winter of 1992 I was a soldier in
-		the United States Army. I had met many other
-		soldiers who had interest in role-playing
-		games and shared my thoughts on the over
-		use of rules for rules sake and the arguments
-		that always ensued over each person's
-		interpretation of the rules.
-		I also took exception to people who
-		would run stories where their character was a
-		deity while yours was forever mediocre. I
-		believe the player characters should always
-		be the stars of the show and all NPCs should
-		be there to add dimension to the world and
-		flavor to the setting.
-		Another thing I have never agreed
-		with is the “Killer DM, or Killer Storyteller”
-		These folks who do everything they can to
-		harangue and kill the player characters as
-		quickly and as often as possible. I found it
-		hard to be invested in a story where my
-		character would most likely be dead within
-		three game sessions and I'd have to roll a new
-		one. That was frustrating and made me lose
-		interest. In my mind it's a poor storyteller
-		who kills off all of his characters in the first
-		chapter or for the sake of shock value, Mr.
-		George R.R. Martin.</p>
-
-		<p>So I decided to take matters into my own hands
-		and if I couldn't find a system I could get behind, I'd
-		simply have to make one.
-		In the beginning the system was very free-form
-		and had very few rules. This was alright, but soon
-		proved to be as frustrating as having too many rules.
-		Rolling dice for the sake of rolling dice gets old and
-		changing the rules and game mechanics every game
-		session got old fast.
-		So I sat down one day and hashed out rules that
-		make sense to me, and made the game work properly
-		without bogging down the story. Every rule in this
-		book is there to make the game flow and trust me it
-		does, I've spent twenty two years making sure of it
-		Even with that in mind, anyone playing this
-		game, using this system or running a story is free to
-		use any rules they choose and bend and break the ones
-		that hinder your playing style. Role-playing is
-		supposed to be fun, and if it isn't, why play?
-		In the following pages you'll find everything
-		you need to begin adventuring in the Savage Wastes. I
-		hope you enjoy the game and the system and will use it
-		for many years to come. It is as what I like to call roleplaying for grown-ups. It can be as dirty, gritty and
-		violent as you like, or tone it down and make it more
-		family friendly, the choice is yours. At any rate, have
-		fun, and enjoy the fruits of my labor.</p>
-		<p>-Sean V. Trusty.</p>
-		
-
-        <h2>The Evolution of R.O.D.</h2>
-        <div class="timeline">
-            <div class="timeline-item left">
-                <div class="timeline-content">
-                    <h3>1992</h3>
-                    <p>Sean Trusty begins conceptualizing the world of R.O.D. while serving for the United States Army. Dissatisfied by the current available systems, he began laying the foundation for a rich universe of characters and stories.</p>
-                </div>
-            </div>
-            <div class="timeline-item right">
-                <div class="timeline-content">
-                    <h3>2009</h3>
-                    <p>Anton meets Sean and becomes captivated by his vision for R.O.D. They begin playing before Anton's shift at IHOP and speak loosely on expanding the lore and musical landscape of the project one day.</p>
-                </div>
-            </div>
-            <div class="timeline-item left">
-                <div class="timeline-content">
-                    <h3>2010-2022</h3>
-                    <p>Hundreds of game sessions between Sean, Anton, Cliff, and varying other players.</p>
-					<p>The dice-game evolves to a spreadsheet and even a tabletop simulator rendition</p>
-                </div>
-            </div>
-            <div class="timeline-item right">
-                <div class="timeline-content">
-                    <h3>2022</h3>
-                    <p>Embracing AI technology, Anton begins experimenting with AI-generated music and artwork to complement human-created content for R.O.D. (Lord Tsarcasm is born)</p>
-                </div>
-            </div>
-            <div class="timeline-item left">
-                <div class="timeline-content">
-                    <h3>August 21st, 2024</h3>
-                    <p>Sean's untimely passing leaves a void in the R.O.D. project. Anton makes a commitment to continue Sean's legacy and bring his vision to life. Even if he has to do it alone.</p>
-                </div>
-            </div>
-            <div class="timeline-item right">
-                <div class="timeline-content">
-                    <h3>Present</h3>
-                    <p>Ongoing development of R.O.D. focused on creating an immersive game experience that blends music, storytelling, and interactive elements.</p>
-                </div>
-            </div>
-        </div>
-
-        <h2>Vision for the Future</h2>
-        <p>As Lord Tsarcasm, my goal is to create a seamless blend of human creativity and AI-assisted artistry, pushing the boundaries of what's possible in game development and interactive storytelling. The R.O.D. project is not just a game; it's a living, breathing world that continues to evolve with each piece of music, each poem, and each visual creation.</p>
-        <p>I invite you to join me on this journey, to explore the dark and fantastical realm of R.O.D., and to be a part of bringing Sean's vision to life. Whether you're a fellow artist, a gamer, or simply someone who appreciates the fusion of technology and creativity, there's a place for you in this ever-expanding universe.</p>
-    </div>
+    </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
@@ -314,4 +380,5 @@
             });
         });
     </script>
-</body></html>
+</body>
+</html>
