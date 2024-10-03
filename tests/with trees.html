@@ -1,0 +1,1437 @@
+<html><head><base href="
+    ">
+    <title>Diablo 2 Style Game with Minimap and Roaming Enemies</title>
+    <style>
+        body, html { margin: 0; padding: 0; overflow: hidden; }
+        #gameCanvas { display: block; }
+        #inventory, #stats {
+            position: absolute;
+            width: 850px; /* Adjusted width for new inventory layout */
+            height: 650px; /* Adjusted height for new inventory layout */
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            display: none;
+            padding: 20px;
+            border: 2px solid #aaa;
+            z-index: 10;
+            overflow-y: auto; /* Allow scrolling if content overflows vertically */
+        }
+        #inventory { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        #stats {
+            position: absolute;
+            width: 400px;
+            height: auto;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            display: none;
+            padding: 20px;
+            border: 2px solid #aaa;
+            z-index: 10;
+            overflow-y: auto;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #stats button {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        #hotbar {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            z-index: 5;
+        }
+        .slot {
+            width: 64px;
+            height: 64px;
+            border: 2px solid #aaa;
+            margin: 2px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        #minimapContainer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20%;
+            height: 20%;
+            border: 2px solid #fff;
+            overflow: hidden;
+            z-index: 5;
+        }
+        #inventoryTabs {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .inventory-tab {
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        .inventory-tab.active {
+            background-color: #555;
+        }
+        .inventory-tab-content {
+            display: none;
+        }
+        .inventory-tab-content.active {
+            display: block;
+        }
+        .inventoryGrid {
+            display: grid;
+            grid-template-columns: repeat(7, 50px);
+            grid-auto-rows: 50px;
+            gap: 2px;
+            margin-top: 10px;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+        .inventory-slot {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        #npcPopup {
+            position: absolute;
+            width: 400px;
+            height: auto;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 20px;
+            border: 2px solid #aaa;
+            z-index: 10;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #lifeOrb {
+            position: absolute;
+            bottom: 80px; /* Adjusted to appear above the hotbar */
+            left: 10px;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at center, red, darkred);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 5;
+        }
+        #lifeValue {
+            text-align: center;
+        }
+        #energyOrb {
+            position: absolute;
+            bottom: 80px; /* Adjusted to appear above the hotbar */
+            right: 10px;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at center, blue, darkblue);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 5;
+        }
+        #energyValue {
+            text-align: center;
+        }
+        #teleportationBarContainer {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            width: 200px;
+            height: 20px;
+            border: 2px solid #fff;
+            transform: translate(-50%, 50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 10;
+            display: none;
+        }
+        #teleportationBar {
+            width: 0%;
+            height: 100%;
+            background-color: #00ff00;
+        }
+        #adminConsole {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            max-height: 90%;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 20px;
+            border: 2px solid #aaa;
+            z-index: 100;
+            overflow-y: auto;
+        }
+        #adminConsole input {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        #adminConsole button {
+            margin: 5px 0;
+        }
+        #lootBarContainer {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            width: 200px;
+            height: 20px;
+            border: 2px solid #fff;
+            transform: translate(-50%, 50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 10;
+            display: none;
+        }
+        #lootBar {
+            width: 0%;
+            height: 100%;
+            background-color: #ffff00;
+        }
+        #lootPopup {
+            position: absolute;
+            width: 400px;
+            height: auto;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 20px;
+            border: 2px solid #aaa;
+            z-index: 10;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="inventory">
+        <h2>Inventory</h2>
+        <p>Gold: <span id="goldAmount">0</span></p>
+        <div id="inventoryTabs">
+            <button class="inventory-tab" data-tab="tab1">Tab 1</button>
+            <button class="inventory-tab" data-tab="tab2">Tab 2</button>
+            <button class="inventory-tab" data-tab="tab3">Tab 3</button>
+            <button class="inventory-tab" data-tab="tab4">Tab 4</button>
+            <button class="inventory-tab" data-tab="tab5">Tab 5</button>
+            <button class="inventory-tab" data-tab="tab6">Tab 6</button>
+        </div>
+        <div id="inventoryTabsContent">
+            <div class="inventory-tab-content" id="tab1">
+                <div class="inventoryGrid" id="inventoryGridTab1"></div>
+            </div>
+            <div class="inventory-tab-content" id="tab2">
+                <div class="inventoryGrid" id="inventoryGridTab2"></div>
+            </div>
+            <div class="inventory-tab-content" id="tab3">
+                <div class="inventoryGrid" id="inventoryGridTab3"></div>
+            </div>
+            <div class="inventory-tab-content" id="tab4">
+                <div class="inventoryGrid" id="inventoryGridTab4"></div>
+            </div>
+            <div class="inventory-tab-content" id="tab5">
+                <div class="inventoryGrid" id="inventoryGridTab5"></div>
+            </div>
+            <div class="inventory-tab-content" id="tab6">
+                <div class="inventoryGrid" id="inventoryGridTab6"></div>
+            </div>
+        </div>
+    </div>
+    <div id="stats">
+        <h2>Character Stats</h2>
+        <p>Level: <span id="level">1</span></p>
+        <p>Experience: <span id="experience">0</span> / <span id="nextLevelExperience">100</span></p>
+        <p>Strength: <span id="strength">10</span></p>
+        <p>Dexterity: <span id="dexterity">10</span></p>
+        <p>Vitality: <span id="vitality">10</span></p>
+        <p>Energy: <span id="energy">10</span></p>
+        <p>Available Stat Points: <span id="statPoints">0</span></p>
+        <button onclick="increaseStat('strength')">Increase Strength</button>
+        <button onclick="increaseStat('dexterity')">Increase Dexterity</button>
+        <button onclick="increaseStat('vitality')">Increase Vitality</button>
+        <button onclick="increaseStat('energy')">Increase Energy</button>
+    </div>
+    <div id="hotbar">
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+    </div>
+    <div id="minimapContainer"></div>
+    <div id="npcPopup" style="display: none;">
+        <h2>Friendly NPC</h2>
+        <p>Hello, traveler! Stay awhile and listen...</p>
+        <button onclick="closeNpcPopup()">Close</button>
+    </div>
+    <div id="lifeOrb">
+        <div id="lifeValue">100/100</div>
+    </div>
+    <div id="energyOrb">
+        <div id="energyValue">1/1</div>
+    </div>
+    <div id="teleportationBarContainer">
+        <div id="teleportationBar"></div>
+    </div>
+    <div id="adminConsole" style="display: none;">
+        <div id="adminLogin">
+            <h2>Admin Console</h2>
+            <p>Please enter the admin password:</p>
+            <input type="password" id="adminPassword">
+            <button onclick="checkAdminPassword()">Submit</button>
+        </div>
+        <div id="adminControls" style="display: none;">
+            <h2>Admin Controls</h2>
+            <section>
+                <h3>Player Stats</h3>
+                <p>Health: <input type="number" id="playerHealthInput" value="100" step="1"></p>
+                <p>Gold: <input type="number" id="playerGoldInput" value="0" step="1"></p>
+                <p>Experience: <input type="number" id="playerExperienceInput" value="0" step="1"></p>
+                <button onclick="updatePlayerStats()">Update Player Stats</button>
+            </section>
+            <section>
+                <h3>Player Options</h3>
+                <p>
+                    <label>
+                        <input type="checkbox" id="invulnerabilityCheckbox"> Invulnerable
+                    </label>
+                </p>
+                <button onclick="updatePlayerOptions()">Update Player Options</button>
+            </section>
+            <section>
+                <h3>Spawn Options</h3>
+                <p>Entity Type:
+                    <select id="entityTypeSelect">
+                        <option value="enemy">Enemy</option>
+                        <option value="friendlyNPC">Friendly NPC</option>
+                        <option value="structure">Structure</option>
+                    </select>
+                </p>
+                <p>Quantity: <input type="number" id="entityQuantityInput" value="1" step="1" min="1"></p>
+                <button onclick="spawnEntities()">Spawn Entities</button>
+            </section>
+            <section>
+                <h3>Game Settings</h3>
+                <p>Enemy Speed: <input type="number" id="enemySpeedInput" value="0.7" step="0.1"></p>
+                <button onclick="updateGameSettings()">Update Game Settings</button>
+            </section>
+            <section>
+                <h3>Teleport Player</h3>
+                <p>X: <input type="number" id="teleportXInput" value="0" step="1"></p>
+                <p>Z: <input type="number" id="teleportZInput" value="0" step="1"></p>
+                <button onclick="teleportPlayer()">Teleport Player</button>
+            </section>
+            <button onclick="closeAdminConsole()">Close</button>
+        </div>
+    </div>
+    <div id="lootBarContainer">
+        <div id="lootBar"></div>
+    </div>
+    <div id="lootPopup">
+        <h2>Loot</h2>
+        <div id="lootItems"></div>
+        <button onclick="lootAllItems()">Loot All</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script>
+        const clock = new THREE.Clock();
+        let scene, camera, renderer;
+        let player, ground;
+        let inventoryOpen = false;
+        let statsOpen = false;
+        let destination = null;
+        let speed = 1.0;
+        let minimapCamera;
+        let enemies = [];
+        let gold = 0;
+        const townRadius = 200;
+        let walls = [];
+        let friendlies = [];
+        let isTeleporting = false;
+        let teleportProgress = 0;
+        let teleportationDuration = 3; // Duration in seconds
+        let previousPosition = null;
+        let cameraAngle = 0;
+        let adminConsoleOpen = false; // Add this variable for admin console
+        let enemyWalls = []; // Walls that affect only enemies
+        let npcPopupOpen = false; // Add this variable for NPC popup
+
+        // Global variable for enemy speed
+        let globalEnemySpeed = 0.7;
+
+        // Player health and energy
+        let playerHealth = 100;
+        const playerMaxHealth = 100;
+        let playerEnergy = 1;
+        const playerMaxEnergy = 1;
+
+        // Invulnerability variable
+        let playerInvulnerable = false;
+
+        // Looting variables
+        let isLooting = false;
+        let lootProgress = 0;
+        const lootDuration = 2; // Duration in seconds
+        let lootedItems = [];
+        let currentLootingEnemy = null;
+
+        // Initialize Character Stats
+        let characterStats = {
+            level: 1,
+            experience: 0,
+            nextLevelExperience: 100,
+            strength: 10,
+            dexterity: 10,
+            vitality: 10,
+            energy: 10,
+            statPoints: 0
+        };
+
+        function playAttackAnimation() {
+            player.isAttacking = true;
+            player.attackTime = 0;
+        }
+
+        // Add the updateGoldDisplay function
+        function updateGoldDisplay() {
+            document.getElementById('goldAmount').innerText = gold;
+        }
+
+        function updateHealthDisplay() {
+            document.getElementById('lifeValue').innerText = `${playerHealth}/${playerMaxHealth}`;
+        }
+
+        function updateEnergyDisplay() {
+            document.getElementById('energyValue').innerText = `${playerEnergy}/${playerMaxEnergy}`;
+        }
+
+        function addExperience(amount) {
+            characterStats.experience += amount;
+            if (characterStats.experience >= characterStats.nextLevelExperience) {
+                levelUp();
+            }
+            updateStatsDisplay();
+        }
+
+        function openNpcPopup() {
+            if (npcPopupOpen) {
+                closeNpcPopup();
+            } else {
+                document.getElementById('npcPopup').style.display = 'block';
+                npcPopupOpen = true;
+            }
+        }
+
+        function closeNpcPopup() {
+            document.getElementById('npcPopup').style.display = 'none';
+            npcPopupOpen = false;
+        }
+
+        function damagePlayer(amount) {
+            if (playerInvulnerable) return; // Player is invulnerable
+            playerHealth -= amount;
+            if (playerHealth <= 0) {
+                playerHealth = 0;
+                alert('You have been defeated!');
+                // Implement player defeat logic (e.g., reset game or reload)
+            }
+            updateHealthDisplay();
+        }
+
+        function startTeleportation() {
+            isTeleporting = true;
+            teleportProgress = 0;
+            document.getElementById('teleportationBarContainer').style.display = 'block';
+        }
+
+        function updateTeleportation(delta) {
+            if (isTeleporting) {
+                teleportProgress += delta;
+                const progressBar = document.getElementById('teleportationBar');
+                progressBar.style.width = (teleportProgress / teleportationDuration) * 100 + '%';
+                if (teleportProgress >= teleportationDuration) {
+                    isTeleporting = false;
+                    document.getElementById('teleportationBarContainer').style.display = 'none';
+                    progressBar.style.width = '0%';
+                    teleportToSafeZone();
+                }
+            }
+        }
+
+        function teleportToSafeZone() {
+            previousPosition = player.position.clone(); // Save current position
+            player.position.set(0, 0, 0); // Teleport to the center of the shrine
+            destination = null; // Stop any movement
+        }
+
+        function createHumanoid(color) {
+            const group = new THREE.Group();
+
+            // Body
+            const bodyGeometry = new THREE.BoxGeometry(5, 10, 2);
+            const bodyMaterial = new THREE.MeshLambertMaterial({ color });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 10;
+            group.add(body);
+
+            // Head
+            const headGeometry = new THREE.BoxGeometry(3, 3, 3);
+            const headMaterial = new THREE.MeshLambertMaterial({ color });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 17;
+            group.add(head);
+
+            // Arms
+            const armGeometry = new THREE.BoxGeometry(1, 8, 1);
+            const armMaterial = new THREE.MeshLambertMaterial({ color });
+            const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+            leftArm.position.set(-3.5, 10, 0);
+            group.add(leftArm);
+            const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+            rightArm.position.set(3.5, 10, 0);
+            group.add(rightArm);
+
+            // Legs
+            const legGeometry = new THREE.BoxGeometry(2, 10, 2);
+            const legMaterial = new THREE.MeshLambertMaterial({ color });
+            const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+            leftLeg.position.set(-1, 5, 0);
+            group.add(leftLeg);
+            const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+            rightLeg.position.set(1, 5, 0);
+            group.add(rightLeg);
+
+            // Store limb references
+            group.head = head;
+            group.body = body;
+            group.leftArm = leftArm;
+            group.rightArm = rightArm;
+            group.leftLeg = leftLeg;
+            group.rightLeg = rightLeg;
+
+            // Initialize animation properties
+            group.animationTime = 0;
+            group.animationSpeed = 10.0;
+            group.isMoving = false;
+            group.isAttacking = false;
+            group.attackTime = 0;
+
+            // Set default userData
+            group.userData = {
+                name: 'Friendly NPC',
+                weight: 1
+            };
+
+            return group;
+        }
+
+        function animateHumanoid(humanoid, delta) {
+            if (humanoid.isAttacking) {
+                humanoid.attackTime += delta * humanoid.animationSpeed;
+                const angle = Math.sin(humanoid.attackTime * 20) * (Math.PI / 4);
+
+                // Swing right arm
+                humanoid.rightArm.rotation.x = -angle;
+
+                if (humanoid.attackTime > 0.5) {
+                    // Reset attack animation
+                    humanoid.rightArm.rotation.x = 0;
+                    humanoid.isAttacking = false;
+                    humanoid.attackTime = 0;
+                }
+            } else if (humanoid.isMoving) {
+                humanoid.animationTime += delta * humanoid.animationSpeed;
+                const angle = Math.sin(humanoid.animationTime) * (Math.PI / 6);
+
+                humanoid.leftArm.rotation.x = angle;
+                humanoid.rightArm.rotation.x = -angle;
+                humanoid.leftLeg.rotation.x = -angle;
+                humanoid.rightLeg.rotation.x = angle;
+            } else {
+                // Reset limb rotations when not moving
+                humanoid.leftArm.rotation.x = 0;
+                humanoid.rightArm.rotation.x = 0;
+                humanoid.leftLeg.rotation.x = 0;
+                humanoid.rightLeg.rotation.x = 0;
+            }
+        }
+
+        function init() {
+            const canvas = document.getElementById('gameCanvas');
+            renderer = new THREE.WebGLRenderer({ canvas });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.autoClear = false;
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
+            minimapCamera = new THREE.OrthographicCamera(-200, 200, 200, -200, 0.1, 10000);
+            minimapCamera.position.set(0, 500, 0);
+            minimapCamera.up.set(0, 0, -1);
+            minimapCamera.lookAt(0, 0, 0);
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(0, 100, 0);
+            scene.add(directionalLight);
+            const groundGeometry = new THREE.PlaneGeometry(10000, 10000);
+            const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+            ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.name = 'ground';
+            scene.add(ground);
+
+            // Add safe zone ground
+            const safeZoneGroundGeometry = new THREE.PlaneGeometry(600, 600);
+            const safeZoneGroundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 }); // Different color for the safe zone
+            const safeZoneGround = new THREE.Mesh(safeZoneGroundGeometry, safeZoneGroundMaterial);
+            safeZoneGround.rotation.x = -Math.PI / 2;
+            safeZoneGround.position.y = 0.1; // Slightly above the main ground to prevent z-fighting
+            scene.add(safeZoneGround);
+
+            // Create invisible barrier to prevent enemies from entering the safe zone
+            const safeZoneBarrierGeometry = new THREE.BoxGeometry(600, 50, 600);
+            const safeZoneBarrierMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
+            const safeZoneBarrier = new THREE.Mesh(safeZoneBarrierGeometry, safeZoneBarrierMaterial);
+            safeZoneBarrier.position.set(0, 25, 0); // Centered over the safe zone
+            scene.add(safeZoneBarrier);
+            enemyWalls.push(safeZoneBarrier);
+
+            // Create settlement walls
+            createSettlementWalls();
+            
+            // Create teleportation shrine in safe zone
+            const shrineGroup = new THREE.Group();
+
+            // Floor
+            const floorGeometry = new THREE.CircleGeometry(20, 32);
+            const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.position.y = 0.1;
+            shrineGroup.add(floor);
+
+            // Teleport pad in the center
+            const teleportPadGeometry = new THREE.CircleGeometry(5, 32);
+            const teleportPadMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+            teleportPad = new THREE.Mesh(teleportPadGeometry, teleportPadMaterial);
+            teleportPad.rotation.x = -Math.PI / 2;
+            teleportPad.position.y = 0.11;
+            teleportPad.name = 'teleportPad';
+            shrineGroup.add(teleportPad);
+
+            // Position the shrine at the center of the safe zone
+            shrineGroup.position.set(0, 0, 0);
+            scene.add(shrineGroup);
+
+            // Add enemies to the scene
+            for (let i = 0; i < 10; i++) {
+                let position = getRandomPositionOutsideTown(300, 1000);
+                let enemy = createEnemy(position.x, 0, position.z);
+                enemies.push(enemy);
+                scene.add(enemy); // Ensure the enemy is added to the scene
+            }
+
+            // Positions for the structures within the safe zone
+            const structurePositions = [
+                { x: 150, z: 150 },
+                { x: -150, z: 150 },
+                { x: 150, z: -150 },
+                { x: -150, z: -150 },
+                { x: 0, z: 200 },
+            ];
+
+            structurePositions.forEach(pos => {
+                const structure = createStructure();
+                structure.position.set(pos.x, 0, pos.z);
+                scene.add(structure);
+                walls.push(...structure.userData.walls); // Add walls for collision detection
+
+                // Create a friendly NPC inside the structure
+                const npc = createFriendlyNPC();
+                npc.position.set(pos.x, 0, pos.z);
+                scene.add(npc);
+                friendlies.push(npc);
+            });
+
+            player = createHumanoid(0x0000ff);
+            player.position.y = 0; // Ensure feet are on the ground
+            scene.add(player);
+
+            window.addEventListener('resize', onWindowResize, false);
+            document.addEventListener('keydown', onDocumentKeyDown, false);
+            canvas.addEventListener('mousedown', onDocumentMouseDown, false);
+        }
+
+        function createSettlementWalls() {
+            const wallMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const wallHeight = 30;
+            const wallThickness = 2;
+            const wallLength = 600; // Adjust as necessary
+
+            // North Wall (with gate)
+            const northWallLeftGeometry = new THREE.BoxGeometry(wallLength / 2 - 50, wallHeight, wallThickness);
+            const northWallLeft = new THREE.Mesh(northWallLeftGeometry, wallMaterial);
+            northWallLeft.position.set(-wallLength / 4 - 25, wallHeight / 2, -300);
+            scene.add(northWallLeft);
+            walls.push(northWallLeft);
+
+            const northWallRight = new THREE.Mesh(northWallLeftGeometry, wallMaterial);
+            northWallRight.position.set(wallLength / 4 + 25, wallHeight / 2, -300);
+            scene.add(northWallRight);
+            walls.push(northWallRight);
+
+            // Gate barrier (invisible to player, blocks enemies)
+            const gateBarrierGeometry = new THREE.BoxGeometry(100, wallHeight, wallThickness);
+            const gateBarrierMaterial = new THREE.MeshLambertMaterial({ color: 0x000000, transparent: true, opacity: 0 });
+            const northGateBarrier = new THREE.Mesh(gateBarrierGeometry, gateBarrierMaterial);
+            northGateBarrier.position.set(0, wallHeight / 2, -300);
+            scene.add(northGateBarrier);
+            enemyWalls.push(northGateBarrier);
+
+            // South Wall (with gate)
+            const southWallLeft = northWallLeft.clone();
+            southWallLeft.position.set(-wallLength / 4 - 25, wallHeight / 2, 300);
+            scene.add(southWallLeft);
+            walls.push(southWallLeft);
+
+            const southWallRight = northWallRight.clone();
+            southWallRight.position.set(wallLength / 4 + 25, wallHeight / 2, 300);
+            scene.add(southWallRight);
+            walls.push(southWallRight);
+
+            const southGateBarrier = northGateBarrier.clone();
+            southGateBarrier.position.set(0, wallHeight / 2, 300);
+            scene.add(southGateBarrier);
+            enemyWalls.push(southGateBarrier);
+
+            // East Wall
+            const eastWallGeometry = new THREE.BoxGeometry(wallThickness, wallHeight, wallLength);
+            const eastWall = new THREE.Mesh(eastWallGeometry, wallMaterial);
+            eastWall.position.set(300, wallHeight / 2, 0);
+            scene.add(eastWall);
+            walls.push(eastWall);
+
+            // West Wall
+            const westWall = eastWall.clone();
+            westWall.position.set(-300, wallHeight / 2, 0);
+            scene.add(westWall);
+            walls.push(westWall);
+        }
+
+        function createStructure() {
+            const building = new THREE.Group();
+
+            // Define wall material and dimensions
+            const wallMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const wallThickness = 2;
+            const wallHeight = 30;
+            const wallLength = 50;
+
+            // Front Wall with Door Opening
+            const frontWallShape = new THREE.Shape();
+            frontWallShape.moveTo(-wallLength / 2, 0);
+            frontWallShape.lineTo(wallLength / 2, 0);
+            frontWallShape.lineTo(wallLength / 2, wallHeight);
+            frontWallShape.lineTo(-wallLength / 2, wallHeight);
+            frontWallShape.lineTo(-wallLength / 2, 0);
+
+            // Door dimensions
+            const doorWidth = 10;
+            const doorHeight = 20;
+            const doorX = -doorWidth / 2;
+            const doorY = 0;
+
+            // Cut out door
+            const doorHole = new THREE.Path();
+            doorHole.moveTo(doorX, doorY);
+            doorHole.lineTo(doorX + doorWidth, doorY);
+            doorHole.lineTo(doorX + doorWidth, doorY + doorHeight);
+            doorHole.lineTo(doorX, doorY + doorHeight);
+            doorHole.lineTo(doorX, doorY);
+            frontWallShape.holes.push(doorHole);
+
+            const frontWallGeometry = new THREE.ShapeGeometry(frontWallShape);
+            const frontWall = new THREE.Mesh(frontWallGeometry, wallMaterial);
+            frontWall.position.z = -wallLength / 2;
+            building.add(frontWall);
+
+            // Back Wall
+            const backWallGeometry = new THREE.BoxGeometry(wallLength, wallHeight, wallThickness);
+            const backWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+            backWall.position.z = wallLength / 2;
+            backWall.position.y = wallHeight / 2;
+            building.add(backWall);
+
+            // Left Wall
+            const leftWallGeometry = new THREE.BoxGeometry(wallThickness, wallHeight, wallLength);
+            const leftWall = new THREE.Mesh(leftWallGeometry, wallMaterial);
+            leftWall.position.x = -wallLength / 2;
+            leftWall.position.y = wallHeight / 2;
+            building.add(leftWall);
+
+            // Right Wall
+            const rightWallGeometry = new THREE.BoxGeometry(wallThickness, wallHeight, wallLength);
+            const rightWall = new THREE.Mesh(rightWallGeometry, wallMaterial);
+            rightWall.position.x = wallLength / 2;
+            rightWall.position.y = wallHeight / 2;
+            building.add(rightWall);
+
+            // Roof
+            const roofGeometry = new THREE.ConeGeometry(35, 15, 4);
+            const roofMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
+            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+            roof.rotation.y = Math.PI / 4;
+            roof.position.y = wallHeight + 7.5;
+            building.add(roof);
+
+            // Add walls to userData for collision detection
+            building.userData.walls = [frontWall, backWall, leftWall, rightWall];
+
+            return building;
+        }
+
+        function createFriendlyNPC() {
+            const npc = createHumanoid(0x00ff00); // Green color for friendly NPCs
+            npc.userData.type = 'friendly';
+            npc.name = 'friendlyNPC';
+            return npc;
+        }
+
+        function getRandomPositionOutsideTown(minDistance, maxDistance) {
+            let angle = Math.random() * 2 * Math.PI;
+            let distance = minDistance + Math.random() * (maxDistance - minDistance);
+            let x = Math.cos(angle) * distance;
+            let z = Math.sin(angle) * distance;
+            return { x: x, z: z };
+        }
+
+        function createEnemy(x, y, z) {
+            const enemy = createHumanoid(0xff0000);
+            enemy.position.set(x, 0, z); // Ensure feet are on the ground
+            enemy.userData.type = 'hostile';
+            enemy.userData.isDead = false; // Initialize isDead property
+            enemy.userData.direction = new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
+            enemy.isMoving = true; // Initialize isMoving
+            scene.add(enemy);
+            return enemy;
+        }
+
+        function attackEnemy(enemy) {
+            const attackRange = 20; // Define the attack range (adjust as needed)
+
+            // Calculate the distance between the player and the enemy
+            const distance = player.position.distanceTo(enemy.position);
+
+            if (distance <= attackRange) {
+                // Play attack animation (swing weapon or fist)
+                playAttackAnimation();
+
+                // Enemy takes damage and dies
+                setTimeout(() => {
+                    defeatEnemy(enemy);
+                }, 500); // Delay to sync with animation
+            } else {
+                alert('Enemy is too far away!');
+            }
+        }
+
+        function enemyAttackPlayer(enemy) {
+            const damageAmount = Math.floor(Math.random() * 5) + 1; // Random damage between 1 and 5
+            damagePlayer(damageAmount);
+        }
+
+        function moveEnemies(delta) {
+            enemies.forEach((enemy) => {
+                if (enemy.userData.isDead) return; // Skip dead enemies
+
+                const threatRange = 100; // Enemy detection range
+                const attackRange = 10;  // Enemy attack range
+                const enemySpeed = globalEnemySpeed;  // Update to use global speed
+
+                const directionToPlayer = new THREE.Vector3().subVectors(player.position, enemy.position);
+                const distanceToPlayer = directionToPlayer.length();
+
+                if (distanceToPlayer <= attackRange) {
+                    // Attack the player
+                    enemy.isMoving = false;
+
+                    // Implement enemy attack logic
+                    enemyAttackPlayer(enemy);
+                } else if (distanceToPlayer <= threatRange) {
+                    // Chase the player
+                    directionToPlayer.normalize();
+                    const oldPosition = enemy.position.clone();
+                    enemy.position.add(directionToPlayer.multiplyScalar(enemySpeed));
+
+                    // Check collision with walls
+                    let collided = false;
+                    for (let wall of walls) {
+                        const enemyBox = new THREE.Box3().setFromObject(enemy);
+                        const wallBox = new THREE.Box3().setFromObject(wall);
+                        if (enemyBox.intersectsBox(wallBox)) {
+                            collided = true;
+                            break;
+                        }
+                    }
+
+                    // Check collision with enemyWalls (gate barriers)
+                    for (let wall of enemyWalls) {
+                        const enemyBox = new THREE.Box3().setFromObject(enemy);
+                        const wallBox = new THREE.Box3().setFromObject(wall);
+                        if (enemyBox.intersectsBox(wallBox)) {
+                            collided = true;
+                            break;
+                        }
+                    }
+
+                    if (collided) {
+                        enemy.position.copy(oldPosition);
+                        enemy.isMoving = false;
+                    } else {
+                        enemy.isMoving = true;
+                    }
+                } else {
+                    // Enemy roaming logic (existing code)
+                    const oldPosition = enemy.position.clone();
+                    const moveVector = enemy.userData.direction.clone().multiplyScalar(0.5);
+                    enemy.position.add(moveVector);
+
+                    let collided = false;
+                    for (let wall of walls) {
+                        const enemyBox = new THREE.Box3().setFromObject(enemy);
+                        const wallBox = new THREE.Box3().setFromObject(wall);
+                        if (enemyBox.intersectsBox(wallBox)) {
+                            collided = true;
+                            break;
+                        }
+                    }
+
+                    if (collided) {
+                        enemy.position.copy(oldPosition);
+                        enemy.userData.direction = new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
+                        enemy.isMoving = false;
+                    } else {
+                        enemy.isMoving = true;
+                    }
+                }
+
+                // Animate the enemy
+                animateHumanoid(enemy, delta);
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+
+            if (destination) {
+                movePlayerTowardsDestination();
+            } else {
+                player.isMoving = false;
+            }
+
+            // Animate the player
+            animateHumanoid(player, delta);
+
+            // Move and animate enemies
+            moveEnemies(delta);
+
+            // Animate dead enemies
+            animateDeadEnemies(delta);
+
+            // Update teleportation progress
+            updateTeleportation(delta);
+
+            // Update looting progress
+            updateLooting(delta);
+
+            const cameraRadius = 100; // Distance from the player
+            const cameraHeight = 50;  // Height of the camera
+
+            const cameraOffset = new THREE.Vector3(
+                Math.sin(cameraAngle) * cameraRadius,
+                cameraHeight,
+                Math.cos(cameraAngle) * cameraRadius
+            );
+
+            camera.position.copy(player.position).add(cameraOffset);
+            camera.lookAt(player.position);
+            minimapCamera.position.x = player.position.x;
+            minimapCamera.position.z = player.position.z;
+            renderer.clear();
+            renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+            renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
+            renderer.setScissorTest(true);
+            renderer.render(scene, camera);
+            const minimapContainer = document.getElementById('minimapContainer');
+            const mapWidth = minimapContainer.clientWidth;
+            const mapHeight = minimapContainer.clientHeight;
+            renderer.setViewport(window.innerWidth - mapWidth - 10, 10, mapWidth, mapHeight);
+            renderer.setScissor(window.innerWidth - mapWidth - 10, 10, mapWidth, mapHeight);
+            renderer.setScissorTest(true);
+            renderer.render(scene, minimapCamera);
+        }
+
+        function animateDeadEnemies(delta) {
+            scene.children.forEach((object) => {
+                if (object.userData && object.userData.isDead) {
+                    // Animate the enemy falling over
+                    object.userData.deathTime += delta;
+                    if (object.userData.deathTime < 1) {
+                        object.rotation.x = -Math.PI / 2 * (object.userData.deathTime / 1); // Fall over in 1 second
+                    } else {
+                        object.rotation.x = -Math.PI / 2;
+
+                        // Create blood pool if not already created
+                        if (!object.userData.bloodPoolCreated) {
+                            createBloodPool(object.position);
+                            object.userData.bloodPoolCreated = true;
+                        }
+                    }
+                }
+            });
+        }
+
+        function createBloodPool(position) {
+            const geometry = new THREE.CircleGeometry(5, 32);
+            const material = new THREE.MeshBasicMaterial({ color: 0x8B0000 }); // Dark red color
+            const bloodPool = new THREE.Mesh(geometry, material);
+            bloodPool.rotation.x = -Math.PI / 2;
+            bloodPool.position.set(position.x, 0.05, position.z); // Slightly above ground
+            scene.add(bloodPool);
+        }
+
+        function movePlayerTowardsDestination() {
+            const direction = new THREE.Vector3().subVectors(destination, player.position);
+            const distance = direction.length();
+            if (distance > 0.1) {
+                direction.normalize();
+                const moveDistance = Math.min(speed, distance);
+                const oldPosition = player.position.clone();
+                player.position.add(direction.multiplyScalar(moveDistance));
+
+                // Check collision with walls
+                let collided = false;
+                for (let wall of walls) {
+                    const playerBox = new THREE.Box3().setFromObject(player);
+                    const wallBox = new THREE.Box3().setFromObject(wall);
+                    if (playerBox.intersectsBox(wallBox)) {
+                        collided = true;
+                        break;
+                    }
+                }
+
+                if (collided) {
+                    player.position.copy(oldPosition);
+                    destination = null;
+                    player.isMoving = false;
+                } else {
+                    player.isMoving = true;
+                }
+            } else {
+                player.position.copy(destination);
+                destination = null;
+                player.isMoving = false;
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            minimapCamera.left = -200;
+            minimapCamera.right = 200;
+            minimapCamera.top = 200;
+            minimapCamera.bottom = -200;
+            minimapCamera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onDocumentKeyDown(event) {
+            if (inventoryOpen || statsOpen || adminConsoleOpen || isTeleporting || isLooting) return;
+
+            if (event.key === '`') {
+                if (adminConsoleOpen) {
+                    closeAdminConsole();
+                } else {
+                    openAdminConsole();
+                }
+            }
+            if (!adminConsoleOpen) {
+                if (event.key.toLowerCase() === 'i' || event.key.toLowerCase() === 'b') {
+                    inventoryOpen = !inventoryOpen;
+                    document.getElementById('inventory').style.display = inventoryOpen ? 'block' : 'none';
+                }
+                if (event.key.toLowerCase() === 'c') {
+                    statsOpen = !statsOpen;
+                    document.getElementById('stats').style.display = statsOpen ? 'block' : 'none';
+                }
+                if (event.key.toLowerCase() === 't') {
+                    // Initiate teleportation
+                    if (!isTeleporting) {
+                        startTeleportation();
+                    }
+                }
+                if (event.key.toLowerCase() === 'a') {
+                    cameraAngle -= 0.05; // Adjust rotation speed as desired
+                }
+                if (event.key.toLowerCase() === 'd') {
+                    cameraAngle += 0.05;
+                }
+            }
+        }
+
+        function onDocumentMouseDown(event) {
+            if (inventoryOpen || statsOpen || adminConsoleOpen || isTeleporting || isLooting) return;
+
+            const rect = renderer.domElement.getBoundingClientRect();
+            const mouse = new THREE.Vector2(
+                ((event.clientX - rect.left) / rect.width) * 2 - 1,
+                -((event.clientY - rect.top) / rect.height) * 2 + 1
+            );
+
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+
+            const objects = [ground, teleportPad, ...enemies, ...friendlies];
+            const intersects = raycaster.intersectObjects(objects, true);
+
+            if (intersects.length > 0) {
+                const intersectedObject = intersects[0].object;
+                const parent = intersectedObject.parent;
+
+                if (intersectedObject === ground) {
+                    const point = intersects[0].point;
+                    destination = new THREE.Vector3(point.x, player.position.y, point.z);
+                } else if (intersectedObject === teleportPad) {
+                    // Teleport back to previous position
+                    if (previousPosition) {
+                        player.position.copy(previousPosition);
+                        destination = null;
+                        previousPosition = null;
+                        alert('Teleported back to your previous location.');
+                    } else {
+                        alert('No previous location to teleport to.');
+                    }
+                } else if (parent.userData && parent.userData.type === 'hostile') {
+                    if (parent.userData.isDead) {
+                        // Start looting the dead enemy
+                        lootEnemy(parent);
+                    } else {
+                        attackEnemy(parent);
+                    }
+                } else if (friendlies.includes(parent)) {
+                    openNpcPopup(parent);
+                }
+            }
+        }
+
+        function lootEnemy(enemy) {
+            isLooting = true;
+            lootProgress = 0;
+            currentLootingEnemy = enemy;
+            document.getElementById('lootBarContainer').style.display = 'block';
+        }
+
+        function updateLooting(delta) {
+            if (isLooting) {
+                lootProgress += delta;
+                const progressBar = document.getElementById('lootBar');
+                progressBar.style.width = (lootProgress / lootDuration) * 100 + '%';
+                if (lootProgress >= lootDuration) {
+                    isLooting = false;
+                    document.getElementById('lootBarContainer').style.display = 'none';
+                    progressBar.style.width = '0%';
+                    openLootPopup();
+                }
+            }
+        }
+
+        function openLootPopup() {
+            // Generate 2 random items
+            lootedItems = generateRandomItems(2);
+
+            const lootItemsDiv = document.getElementById('lootItems');
+            lootItemsDiv.innerHTML = '';
+            lootedItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.innerText = item.name;
+                lootItemsDiv.appendChild(itemDiv);
+            });
+
+            document.getElementById('lootPopup').style.display = 'block';
+        }
+
+        function lootAllItems() {
+            // Add lootedItems to player's inventory
+            addItemsToInventory(lootedItems);
+            // Clear looted items
+            lootedItems = [];
+            document.getElementById('lootPopup').style.display = 'none';
+            alert('Items looted and added to your inventory.');
+        }
+
+        function generateRandomItems(count) {
+            const items = [
+                { name: 'Small Health Potion' },
+                { name: 'Rusty Sword' },
+                { name: 'Old Shield' },
+                { name: 'Leather Boots' },
+                { name: 'Cloth Armor' },
+                { name: 'Mana Potion' },
+                { name: 'Iron Helmet' },
+                // Add more items as desired
+            ];
+            const randomItems = [];
+            for (let i = 0; i < count; i++) {
+                const randomIndex = Math.floor(Math.random() * items.length);
+                randomItems.push(items[randomIndex]);
+            }
+            return randomItems;
+        }
+
+        function addItemsToInventory(items) {
+            // For demonstration, log the items to the console
+            console.log('Items added to inventory:', items);
+            // Implement actual inventory addition logic here
+        }
+
+        function openAdminConsole() {
+            adminConsoleOpen = true;
+            document.getElementById('adminConsole').style.display = 'block';
+            document.getElementById('adminLogin').style.display = 'block';
+            document.getElementById('adminControls').style.display = 'none';
+        }
+
+        function closeAdminConsole() {
+            adminConsoleOpen = false;
+            document.getElementById('adminConsole').style.display = 'none';
+        }
+
+        function checkAdminPassword() {
+            const passwordInput = document.getElementById('adminPassword').value;
+            if (passwordInput === 'ltwelcome1') {
+                isAdminLoggedIn = true;
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminControls').style.display = 'block';
+
+                // Set current values in admin controls
+                document.getElementById('playerHealthInput').value = playerHealth;
+                document.getElementById('playerGoldInput').value = gold;
+                document.getElementById('playerExperienceInput').value = characterStats.experience;
+                document.getElementById('enemySpeedInput').value = globalEnemySpeed;
+                document.getElementById('invulnerabilityCheckbox').checked = playerInvulnerable; // Reflect current state
+            } else {
+                alert('Incorrect password!');
+            }
+        }
+
+        function updatePlayerOptions() {
+            playerInvulnerable = document.getElementById('invulnerabilityCheckbox').checked;
+            alert('Player options updated.');
+        }
+
+        // Update player stats function
+        function updatePlayerStats() {
+            const healthInput = parseInt(document.getElementById('playerHealthInput').value);
+            const goldInput = parseInt(document.getElementById('playerGoldInput').value);
+            const experienceInput = parseInt(document.getElementById('playerExperienceInput').value);
+
+            if (!isNaN(healthInput)) {
+                playerHealth = Math.min(healthInput, playerMaxHealth);
+                updateHealthDisplay();
+            }
+            if (!isNaN(goldInput)) {
+                gold = goldInput;
+                updateGoldDisplay();
+            }
+            if (!isNaN(experienceInput)) {
+                characterStats.experience = experienceInput;
+                if (characterStats.experience >= characterStats.nextLevelExperience) {
+                    levelUp();
+                }
+                updateStatsDisplay();
+            }
+            alert('Player stats updated.');
+        }
+
+        // Spawn entities function
+        function spawnEntities() {
+            const entityType = document.getElementById('entityTypeSelect').value;
+            const quantity = parseInt(document.getElementById('entityQuantityInput').value);
+
+            if (isNaN(quantity) || quantity <= 0) {
+                alert('Invalid quantity!');
+                return;
+            }
+
+            for (let i = 0; i < quantity; i++) {
+                // Spawn near the player with a random offset
+                const offsetX = Math.random() * 50 - 25;
+                const offsetZ = Math.random() * 50 - 25;
+                const spawnPosition = {
+                    x: player.position.x + offsetX,
+                    y: player.position.y,
+                    z: player.position.z + offsetZ
+                };
+
+                if (entityType === 'enemy') {
+                    const enemy = createEnemy(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+                    enemies.push(enemy);
+                    scene.add(enemy);
+                } else if (entityType === 'friendlyNPC') {
+                    const npc = createFriendlyNPC();
+                    npc.position.set(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+                    friendlies.push(npc);
+                    scene.add(npc);
+                } else if (entityType === 'structure') {
+                    const structure = createStructure();
+                    structure.position.set(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+                    scene.add(structure);
+                    walls.push(...structure.userData.walls);
+                }
+            }
+            alert(`${quantity} ${entityType}(s) spawned.`);
+        }
+
+        // Update game settings function
+        function updateGameSettings() {
+            const enemySpeedInput = parseFloat(document.getElementById('enemySpeedInput').value);
+
+            if (!isNaN(enemySpeedInput) && enemySpeedInput > 0) {
+                globalEnemySpeed = enemySpeedInput;
+                alert('Game settings updated.');
+            } else {
+                alert('Invalid enemy speed!');
+            }
+        }
+
+        // Teleport player function
+        function teleportPlayer() {
+            const x = parseFloat(document.getElementById('teleportXInput').value);
+            const z = parseFloat(document.getElementById('teleportZInput').value);
+
+            if (!isNaN(x) && !isNaN(z)) {
+                player.position.set(x, player.position.y, z);
+                destination = null;
+                alert(`Player teleported to (${x}, ${z}).`);
+            } else {
+                alert('Invalid coordinates!');
+            }
+        }
+
+        function levelUp() {
+            characterStats.level++;
+            characterStats.experience -= characterStats.nextLevelExperience;
+            characterStats.nextLevelExperience = Math.floor(characterStats.nextLevelExperience * 1.5);
+            characterStats.statPoints += 5;
+            alert('Level Up! You have reached level ' + characterStats.level);
+        }
+
+        function defeatEnemy(enemy) {
+            addExperience(20);
+            gold += 10;
+            updateGoldDisplay();
+            alert('Enemy defeated! You gained 20 experience and 10 gold.');
+
+            // Stop the enemy from moving
+            enemy.isMoving = false;
+
+            // Animate the enemy falling over
+            enemy.userData.isDead = true;
+            enemy.userData.deathTime = 0;
+
+            // Do not remove from enemies array
+        }
+
+        function increaseStat(stat) {
+            if (characterStats.statPoints > 0) {
+                characterStats[stat]++;
+                characterStats.statPoints--;
+                updateStatsDisplay();
+            } else {
+                alert('No available stat points!');
+            }
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('level').innerText = characterStats.level;
+            document.getElementById('experience').innerText = characterStats.experience;
+            document.getElementById('nextLevelExperience').innerText = characterStats.nextLevelExperience;
+            document.getElementById('strength').innerText = characterStats.strength;
+            document.getElementById('dexterity').innerText = characterStats.dexterity;
+            document.getElementById('vitality').innerText = characterStats.vitality;
+            document.getElementById('energy').innerText = characterStats.energy;
+            document.getElementById('statPoints').innerText = characterStats.statPoints;
+        }
+
+        function generateInventorySlots() {
+            for (let i = 1; i <= 6; i++) {
+                const grid = document.getElementById('inventoryGridTab' + i);
+                grid.innerHTML = ''; // Clear existing slots
+                for (let j = 0; j < 56; j++) { // 7 columns * 8 rows
+                    const slot = document.createElement('div');
+                    slot.classList.add('inventory-slot');
+                    grid.appendChild(slot);
+                }
+            }
+        }
+
+        function setupInventoryTabs() {
+            const tabs = document.querySelectorAll('.inventory-tab');
+            const tabContents = document.querySelectorAll('.inventory-tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(tc => tc.classList.remove('active'));
+
+                    // Add active class to the selected tab and corresponding content
+                    tab.classList.add('active');
+                    const activeTabContent = document.getElementById(tab.dataset.tab);
+                    activeTabContent.classList.add('active');
+                });
+            });
+
+            // Set the first tab as active by default
+            tabs[0].classList.add('active');
+            tabContents[0].classList.add('active');
+        }
+
+        // Call setupInventoryTabs after the DOM is ready
+        setupInventoryTabs();
+
+        init();
+        animate();
+        generateInventorySlots();
+        updateGoldDisplay();
+        updateHealthDisplay();
+        updateEnergyDisplay();
+        updateStatsDisplay();
+    </script>
+</body>
+</html>

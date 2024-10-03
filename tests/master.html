@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Diablo 2 Style Game with Minimap and Roaming Enemies</title>
+    <style>
+        body, html { margin: 0; padding: 0; overflow: hidden; }
+        #gameCanvas { display: block; }
+        #inventory, #stats {
+            position: absolute;
+            width: 850px; /* Adjusted width for new inventory layout */
+            height: 650px; /* Adjusted height for new inventory layout */
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            display: none;
+            padding: 20px;
+            border: 2px solid #aaa;
+            z-index: 10;
+            overflow-y: auto; /* Allow scrolling if content overflows vertically */
+        }
+        #inventory { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        #stats {
+            position: absolute;
+            width: 800px;
+            height: auto;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            display: none;
+            padding: 20px;
+            border: 2px solid #aaa;
+            z-index: 10;
+            overflow-y: auto;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #stats button {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        #hotbar {
+            position: absolute;
+            bottom: 10px; /* Adjusted position */
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            z-index: 5;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+        }
+        .slot {
+            width: 64px;
+            height: 64px;
+            border: 2px solid #555;
+            margin: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+            transition: background 0.2s;
+        }
+        .slot:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        #minimapContainer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 200px;
+            height: 200px;
+            border: 2px solid #fff;
+            overflow: hidden;
+            z-index: 5;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+        }
+        #inventoryTabs {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .inventory-tab {
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        .inventory-tab.active {
+            background-color: #555;
+        }
+        .inventory-tab-content {
+            display: none;
+        }
+        .inventory-tab-content.active {
+            display: block;
+        }
+        .inventoryGrid {
+            display: grid;
+            grid-template-columns: repeat(7, 50px);
+            grid-auto-rows: 50px;
+            gap: 2px;
+            margin-top: 10px;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+        .inventory-slot {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        #npcPopup {
+            position: absolute;
+            width: 400px;
+            height: auto;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 20px;
+            border: 2px solid #aaa;
+            z-index: 10;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+        #lifeOrb {
+            position: absolute;
+            bottom: 100px; /* Adjusted position */
+            left: 20px;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at center, #8B0000, #FF0000);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            overflow: hidden;
+            z-index: 5;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        #lifeFill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%; /* Dynamically adjusted via JavaScript */
+            background: linear-gradient(to top, #FF4500, #8B0000);
+            transition: height 0.3s ease-in-out;
+        }
+        #lifeValue {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+            transform: translateY(-50%);
+            z-index: 1;
+            text-shadow: 1px 1px 2px #000;
+        }
+        #energyOrb {
+            position: absolute;
+            bottom: 100px; /* Matched with health orb */
+            right: 20px;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at center, #00008B, #0000FF);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            overflow: hidden;
+            z-index: 5;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        #energyValue {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+            transform: translateY(-50%);
+            z-index: 1;
+            text-shadow: 1px 1px 2px #000;
+        }
+        #teleportationBarContainer {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            width: 200px;
+            height: 20px;
+            border: 2px solid #fff;
+            transform: translate(-50%, 50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 10;
+            display: none;
+        }
+        #teleportationBar {
+            width: 0%;
+            height: 100%;
+            background-color: #00ff00;
+        }
+        #adminConsole {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px; /* Increased width for better readability */
+            max-height: 90%;
+            background: rgba(30, 30, 30, 0.95); /* Darker background */
+            color: #fff;
+            padding: 20px;
+            border: 2px solid #aaa;
+            z-index: 100;
+            overflow-y: auto;
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7); /* Soft shadow */
+            display: none;
+        }
+
+        #adminConsole h3 {
+            margin-top: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #555; /* Underline section headers */
+            font-size: 16px;
+        }
+
+        #adminConsole section {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(50, 50, 50, 0.8); /* Section background */
+            border-radius: 5px;
+        }
+
+        #adminConsole input,
+        #adminConsole select,
+        #adminConsole button {
+            width: calc(100% - 20px);
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #777;
+            background: #222;
+            color: #fff;
+        }
+
+        #adminConsole button {
+            background: #444;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #adminConsole button:hover {
+            background: #555;
+        }
+
+        .collapsible {
+            background: #333;
+            color: white;
+            cursor: pointer;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+
+        .collapsible.active,
+        .collapsible:hover {
+            background: #444;
+        }
+
+        .content {
+            padding: 0 15px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: rgba(50, 50, 50, 0.9);
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        #lootBarContainer {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            width: 200px;
+            height: 20px;
+            border: 2px solid #fff;
+            transform: translate(-50%, 50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 10;
+            display: none;
+        }
+        #lootBar {
+            width: 0%;
+            height: 100%;
+            background-color: #ffff00;
+        }
+        #lootPopup {
+            position: absolute;
+            width: 400px;
+            height: auto;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 20px;
+            border: 2px solid #aaa;
+            z-index: 10;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+        #npcAdminPopup {
+            position: absolute;
+            width: 400px;
+            height: auto;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 20px;
+            border: 2px solid #aaa;
+            z-index: 100;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            overflow-y: auto;
+            display: none;
+        }
+        #npcAdminPopup input,
+        #npcAdminPopup textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 5px;
+        }
+        #npcAdminPopup button {
+            margin-right: 10px;
+        }
+        #chestPopup {
+            position: absolute;
+            width: 800px;
+            max-height: 90%;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 20px;
+            border: 2px solid #aaa;
+            z-index: 10;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            overflow-y: auto;
+            display: none;
+        }
+        #chestInventoryContainer {
+            display: flex;
+            gap: 20px;
+        }
+        #chestPopup .inventoryGrid {
+            max-height: 400px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(7, 50px); /* Adjust columns as needed */
+            grid-auto-rows: 50px;
+            gap: 2px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="inventory">
+        <h2>Inventory</h2>
+        <p>Gold: <span id="goldAmount">0</span></p>
+        <div id="inventoryTabs">
+            <button class="inventory-tab" data-tab="tab1">Tab 1</button>
+            <button class="inventory-tab" data-tab="tab2">Tab 2</button>
+            <button class="inventory-tab" data-tab="tab3">Tab 3</button>
+            <button class="inventory-tab" data-tab="tab4">Tab 4</button>
+            <button class="inventory-tab" data-tab="tab5">Tab 5</button>
+            <button class="inventory-tab" data-tab="tab6">Tab 6</button>
+        </div>
+        <div id="inventoryTabsContent">
+            <div class="inventory-tab-content" id="tab1">
+                <div class="inventoryGrid" id="inventoryGridTab1"></div>
+            </div>
+            <div class="inventory-tab-content" id="tab2">
+                <div class="inventoryGrid" id="inventoryGridTab2"></div>
+            </div>
+            <div class="inventory-tab-content" id="tab3">
+                <div class="inventoryGrid" id="inventoryGridTab3"></div>
+            </div>
+            <div class="inventory-tab-content" id="tab4">
+                <div class="inventoryGrid" id="inventoryGridTab4"></div>
+            </div>
+            <div class="inventory-tab-content" id="tab5">
+                <div class="inventoryGrid" id="inventoryGridTab5"></div>
+            </div>
+            <div class="inventory-tab-content" id="tab6">
+                <div class="inventoryGrid" id="inventoryGridTab6"></div>
+            </div>
+        </div>
+        <div id="playerOutlineContainer">
+            <canvas id="playerOutlineCanvas" width="200" height="500"></canvas>
+        </div>
+    </div>
+    <div id="stats">
+        <h2>Character Stats</h2>
+        <p>Level: <span id="level">1</span></p>
+        <p>Experience: <span id="experience">0</span> / <span id="nextLevelExperience">100</span></p>
+        <p>Strength: <span id="strength">10</span></p>
+        <p>Dexterity: <span id="dexterity">10</span></p>
+        <p>Vitality: <span id="vitality">10</span></p>
+        <p>Energy: <span id="energy">10</span></p>
+        <p>Available Stat Points: <span id="statPoints">0</span></p>
+        <button onclick="increaseStat('strength')">Increase Strength</button>
+        <button onclick="increaseStat('dexterity')">Increase Dexterity</button>
+        <button onclick="increaseStat('vitality')">Increase Vitality</button>
+        <button onclick="increaseStat('energy')">Increase Energy</button>
+    </div>
+    <div id="hotbar">
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+    </div>
+    <div id="minimapContainer"></div>
+    <div id="npcPopup">
+        <h2>Friendly NPC</h2>
+        <p>Hello, traveler! Stay awhile and listen...</p>
+        <button onclick="closeNpcPopup()">Close</button>
+    </div>
+    <div id="lifeOrb">
+        <div id="lifeFill"></div>
+        <div id="lifeValue">100/100</div>
+    </div>
+    <div id="energyOrb">
+        <div id="energyValue">1/1</div>
+    </div>
+    <div id="teleportationBarContainer">
+        <div id="teleportationBar"></div>
+    </div>
+    <div id="adminConsole">
+        <div id="adminLogin">
+            <h2>Admin Console</h2>
+            <p>Please enter the admin password:</p>
+            <input type="password" id="adminPassword">
+            <button onclick="checkAdminPassword()">Submit</button>
+        </div>
+        <div id="adminControls" style="display: none;">
+            <h2>Admin Controls</h2>
+            <section>
+                <h3>Player Stats</h3>
+                <p>Health: <input type="number" id="playerHealthInput" value="100" step="1"></p>
+                <p>Gold: <input type="number" id="playerGoldInput" value="0" step="1"></p>
+                <p>Experience: <input type="number" id="playerExperienceInput" value="0" step="1"></p>
+                <button onclick="updatePlayerStats()">Update Player Stats</button>
+            </section>
+            <section>
+                <h3>Weather Options</h3>
+                <p>Select Weather:</p>
+                <select id="weatherSelect">
+                    <option value="none">None</option>
+                    <option value="rain">Rain</option>
+                    <option value="snow">Snow</option>
+                    <option value="fog">Fog</option>
+                </select>
+                <button onclick="applyWeatherEffect()">Apply Weather</button>
+            </section>
+            <section>
+                <h3>Player Options</h3>
+                <p>
+                    <label>
+                        <input type="checkbox" id="invulnerabilityCheckbox"> Invulnerable
+                    </label>
+                </p>
+                <button onclick="updatePlayerOptions()">Update Player Options</button>
+            </section>
+            <section>
+                <h3>Spawn Options</h3>
+                <p>Entity Type:
+                    <select id="entityTypeSelect">
+                        <option value="enemy">Enemy</option>
+                        <option value="friendlyNPC">Friendly NPC</option>
+                        <option value="structure">Structure</option>
+                        <option value="treasureChest">Treasure Chest</option> 
+                    </select>
+                </p>
+                <p>Quantity: <input type="number" id="entityQuantityInput" value="1" step="1" min="1"></p>
+                <button onclick="spawnEntities()">Spawn Entities</button>
+            </section>
+            <section>
+                <h3>Game Settings</h3>
+                <p>Enemy Speed: <input type="number" id="enemySpeedInput" value="0.7" step="0.1"></p>
+                <button onclick="updateGameSettings()">Update Game Settings</button>
+            </section>
+            <section>
+                <h3>Teleport Player</h3>
+                <p>X: <input type="number" id="teleportXInput" value="0" step="1"></p>
+                <p>Z: <input type="number" id="teleportZInput" value="0" step="1"></p>
+                <button onclick="teleportPlayer()">Teleport Player</button>
+            </section>
+            <section>
+                <h3>NPC Admin</h3>
+                <p>
+                    <label>
+                        <input type="checkbox" id="npcAdminCheckbox"> Enable NPC Admin Mode
+                    </label>
+                </p>
+            </section>
+            <button onclick="closeAdminConsole()">Close</button>
+        </div>
+    </div>
+    <div id="lootBarContainer">
+        <div id="lootBar"></div>
+    </div>
+    <div id="lootPopup">
+        <h2>Loot</h2>
+        <div id="lootItems"></div>
+        <button onclick="lootAllItems()">Loot All</button>
+    </div>
+    <div id="npcAdminPopup">
+        <h2>NPC Admin</h2>
+        <p>Name: <input type="text" id="npcNameInput"></p>
+        <p>Health: <input type="number" id="npcHealthInput" step="1"></p>
+        <p>Dialogue:</p>
+        <textarea id="npcDialogueInput" rows="4" cols="50"></textarea>
+        <br>
+        <button onclick="saveNpcChanges()">Save Changes</button>
+        <button onclick="closeNpcAdminPopup()">Close</button>
+    </div>
+    <div id="chestPopup">
+        <h2>Chest Interaction</h2>
+        <div id="chestInventoryContainer">
+            <div>
+                <h3>Chest Inventory</h3>
+                <div id="chestInventoryGrid" class="inventoryGrid"></div>
+            </div>
+            <div>
+                <h3>Your Inventory</h3>
+                <div id="playerInventoryInChestGrid" class="inventoryGrid"></div>
+            </div>
+        </div>
+        <button onclick="closeChestPopup()">Close</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script>
+        const clock = new THREE.Clock();
+        let scene, camera, renderer;
+        let player, ground, safeZoneGround;
+        let inventoryOpen = false;
+        let statsOpen = false;
+        let destination = null;
+        let speed = 1.0;
+        let minimapCamera;
+        let enemies = [];
+        let gold = 0;
+        const townRadius = 200;
+        let walls = [];
+        let friendlies = [];
+        let isTeleporting = false;
+        let teleportProgress = 0;
+        let teleportationDuration = 3; // Duration in seconds
+        let previousPosition = null;
+        let cameraAngle = 0;
+        let adminConsoleOpen = false; // Add this variable for admin console
+        let enemyWalls = []; // Walls that affect only enemies
+        let npcPopupOpen = false; // Track NPC popup state
+        let npcAdminEnabled = false;
+        let currentNpc = null;
+        let currentOpenedChest = null; // Added to address the popup issue
+        let treasureChests = []; // Added to keep track of treasure chests
+
+        // Global variable for enemy speed
+        let globalEnemySpeed = 0.7;
+
+        // Player health and energy
+        let playerHealth = 100;
+        const playerMaxHealth = 100;
+        let playerEnergy = 1;
+        const playerMaxEnergy = 1;
+
+        // Expanded loot table with different item types and rarity levels
+        const lootTable = [
+            // Common items
+            { name: 'Rusty Sword', type: 'weapon', attack: 2, rarity: 'common', value: 5 },
+            { name: 'Old Shield', type: 'armor', defense: 1, rarity: 'common', value: 4 },
+            { name: 'Leather Boots', type: 'armor', defense: 1, rarity: 'common', value: 3 },
+            { name: 'Cloth Armor', type: 'armor', defense: 2, rarity: 'common', value: 5 },
+            { name: 'Small Health Potion', type: 'consumable', healthRestore: 10, rarity: 'common', value: 2 },
+            { name: 'Small Mana Potion', type: 'consumable', manaRestore: 10, rarity: 'common', value: 2 },
+
+            // Uncommon items
+            { name: 'Iron Sword', type: 'weapon', attack: 5, rarity: 'uncommon', value: 15 },
+            { name: 'Steel Shield', type: 'armor', defense: 3, rarity: 'uncommon', value: 12 },
+            { name: 'Chainmail Armor', type: 'armor', defense: 4, rarity: 'uncommon', value: 18 },
+            { name: 'Medium Health Potion', type: 'consumable', healthRestore: 25, rarity: 'uncommon', value: 6 },
+            { name: 'Medium Mana Potion', type: 'consumable', manaRestore: 25, rarity: 'uncommon', value: 6 },
+
+            // Rare items
+            { name: 'Silver Sword', type: 'weapon', attack: 10, rarity: 'rare', value: 40 },
+            { name: 'Golden Shield', type: 'armor', defense: 7, rarity: 'rare', value: 35 },
+            { name: 'Plate Armor', type: 'armor', defense: 8, rarity: 'rare', value: 50 },
+            { name: 'Large Health Potion', type: 'consumable', healthRestore: 50, rarity: 'rare', value: 15 },
+            { name: 'Large Mana Potion', type: 'consumable', manaRestore: 50, rarity: 'rare', value: 15 },
+
+            // Epic items
+            { name: 'Dragon Blade', type: 'weapon', attack: 20, rarity: 'epic', value: 100, specialEffect: 'fire damage' },
+            { name: 'Phoenix Shield', type: 'armor', defense: 12, rarity: 'epic', value: 90, specialEffect: 'reflect damage' },
+            { name: 'Mithril Armor', type: 'armor', defense: 15, rarity: 'epic', value: 120, specialEffect: 'speed boost' },
+            { name: 'Elixir of Life', type: 'consumable', healthRestore: 100, rarity: 'epic', value: 50, specialEffect: 'regeneration' },
+            { name: 'Elixir of Power', type: 'consumable', manaRestore: 100, rarity: 'epic', value: 50, specialEffect: 'mana regeneration' }
+        ];
+
+        // Invulnerability variable
+        let playerInvulnerable = false;
+
+        // Looting variables
+        let isLooting = false;
+        let lootProgress = 0;
+        const lootDuration = 2; // Duration in seconds
+        let lootedItems = [];
+        let currentLootingEnemy = null;
+
+        // Initialize Character Stats
+        let characterStats = {
+            level: 1,
+            experience: 0,
+            nextLevelExperience: 100,
+            strength: 10,
+            dexterity: 10,
+            vitality: 10,
+            energy: 10,
+            statPoints: 0
+        };
+
+        // Player inventory
+        let playerInventory = [[], [], [], [], [], []]; // Initialize with 6 tabs
+
+        function playAttackAnimation() {
+            player.isAttacking = true;
+            player.attackTime = 0;
+        }
+
+        function updateGoldDisplay() {
+            document.getElementById('goldAmount').innerText = gold;
+        }
+
+        function updateHealthDisplay() {
+            document.getElementById('lifeValue').innerText = `${playerHealth}/${playerMaxHealth}`;
+            let healthPercent = (playerHealth / playerMaxHealth) * 100;
+            document.getElementById('lifeFill').style.height = `${healthPercent}%`;
+        }
+
+        function updateEnergyDisplay() {
+            document.getElementById('energyValue').innerText = `${playerEnergy}/${playerMaxEnergy}`;
+            let energyPercent = (playerEnergy / playerMaxEnergy) * 100;
+            document.getElementById('energyOrb').style.clipPath = `inset(${100 - energyPercent}% 0 0 0)`;
+        }
+
+        // Function to get a random item from the loot table based on rarity
+        function getRandomLoot() {
+            const randomNumber = Math.random() * 100;
+
+            let filteredItems;
+            if (randomNumber < 60) {
+                filteredItems = lootTable.filter(item => item.rarity === 'common');
+            } else if (randomNumber < 85) {
+                filteredItems = lootTable.filter(item => item.rarity === 'uncommon');
+            } else if (randomNumber < 95) {
+                filteredItems = lootTable.filter(item => item.rarity === 'rare');
+            } else {
+                filteredItems = lootTable.filter(item => item.rarity === 'epic');
+            }
+
+            return filteredItems[Math.floor(Math.random() * filteredItems.length)];
+        }
+
+        function addExperience(amount) {
+            characterStats.experience += amount;
+            if (characterStats.experience >= characterStats.nextLevelExperience) {
+                levelUp();
+            }
+            updateStatsDisplay();
+        }
+
+        function openNpcPopup(npc) {
+            if (npcPopupOpen) {
+                closeNpcPopup();
+                return;
+            }
+            document.getElementById('npcPopup').querySelector('h2').innerText = npc.userData.name || 'Friendly NPC';
+            document.getElementById('npcPopup').querySelector('p').innerText = npc.userData.dialogue || 'Hello, traveler! Stay awhile and listen...';
+            document.getElementById('npcPopup').style.display = 'block';
+            npcPopupOpen = true;
+        }
+
+        function closeNpcPopup() {
+            document.getElementById('npcPopup').style.display = 'none';
+            npcPopupOpen = false;
+        }
+
+        function openNpcAdminPopup(npc) {
+            currentNpc = npc;
+            document.getElementById('npcNameInput').value = npc.userData.name || '';
+            document.getElementById('npcHealthInput').value = npc.userData.health || 100;
+            document.getElementById('npcDialogueInput').value = npc.userData.dialogue || '';
+            document.getElementById('npcAdminPopup').style.display = 'block';
+        }
+
+        function closeNpcAdminPopup() {
+            document.getElementById('npcAdminPopup').style.display = 'none';
+            currentNpc = null;
+        }
+
+        function saveNpcChanges() {
+            if (currentNpc) {
+                currentNpc.userData.name = document.getElementById('npcNameInput').value;
+                currentNpc.userData.health = parseInt(document.getElementById('npcHealthInput').value) || 100;
+                currentNpc.userData.dialogue = document.getElementById('npcDialogueInput').value;
+                alert('NPC changes saved.');
+                closeNpcAdminPopup();
+            }
+        }
+
+        function damagePlayer(amount) {
+            if (playerInvulnerable) return; // Player is invulnerable
+            playerHealth -= amount;
+            if (playerHealth <= 0) {
+                playerHealth = 0;
+                alert('You have been defeated!');
+            }
+            updateHealthDisplay();
+        }
+
+        function startTeleportation() {
+            isTeleporting = true;
+            teleportProgress = 0;
+            document.getElementById('teleportationBarContainer').style.display = 'block';
+        }
+
+        function updateTeleportation(delta) {
+            if (isTeleporting) {
+                teleportProgress += delta;
+                const progressBar = document.getElementById('teleportationBar');
+                progressBar.style.width = (teleportProgress / teleportationDuration) * 100 + '%';
+                if (teleportProgress >= teleportationDuration) {
+                    isTeleporting = false;
+                    document.getElementById('teleportationBarContainer').style.display = 'none';
+                    progressBar.style.width = '0%';
+                    teleportToSafeZone();
+                }
+            }
+        }
+
+        function teleportToSafeZone() {
+            previousPosition = player.position.clone(); // Save current position
+            player.position.set(0, 0, 0); // Teleport to the center of the shrine
+            destination = null; // Stop any movement
+        }
+
+        function createHumanoid(color) {
+            const group = new THREE.Group();
+
+            const bodyGeometry = new THREE.BoxGeometry(5, 10, 2);
+            const bodyMaterial = new THREE.MeshLambertMaterial({ color });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 10;
+            group.add(body);
+
+            const headGeometry = new THREE.BoxGeometry(3, 3, 3);
+            const headMaterial = new THREE.MeshLambertMaterial({ color });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 17;
+            group.add(head);
+
+            const armGeometry = new THREE.BoxGeometry(1, 8, 1);
+            const armMaterial = new THREE.MeshLambertMaterial({ color });
+            const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+            leftArm.position.set(-3.5, 10, 0);
+            group.add(leftArm);
+            const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+            rightArm.position.set(3.5, 10, 0);
+            group.add(rightArm);
+
+            const legGeometry = new THREE.BoxGeometry(2, 10, 2);
+            const legMaterial = new THREE.MeshLambertMaterial({ color });
+            const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+            leftLeg.position.set(-1, 5, 0);
+            group.add(leftLeg);
+            const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+            rightLeg.position.set(1, 5, 0);
+            group.add(rightLeg);
+
+            group.head = head;
+            group.body = body;
+            group.leftArm = leftArm;
+            group.rightArm = rightArm;
+            group.leftLeg = leftLeg;
+            group.rightLeg = rightLeg;
+
+            group.animationTime = 0;
+            group.animationSpeed = 10.0;
+            group.isMoving = false;
+            group.isAttacking = false;
+            group.attackTime = 0;
+
+            group.userData = {
+                name: 'Friendly NPC',
+                health: 100,
+                dialogue: 'Hello!',
+                weight: 1
+            };
+
+            return group;
+        }
+
+        function animateHumanoid(humanoid, delta) {
+            if (humanoid.isAttacking) {
+                humanoid.attackTime += delta * humanoid.animationSpeed;
+                const angle = Math.sin(humanoid.attackTime * 20) * (Math.PI / 4);
+
+                humanoid.rightArm.rotation.x = -angle;
+
+                if (humanoid.attackTime > 0.5) {
+                    humanoid.rightArm.rotation.x = 0;
+                    humanoid.isAttacking = false;
+                    humanoid.attackTime = 0;
+                }
+            } else if (humanoid.isMoving) {
+                humanoid.animationTime += delta * humanoid.animationSpeed;
+                const angle = Math.sin(humanoid.animationTime) * (Math.PI / 6);
+
+                humanoid.leftArm.rotation.x = angle;
+                humanoid.rightArm.rotation.x = -angle;
+                humanoid.leftLeg.rotation.x = -angle;
+                humanoid.rightLeg.rotation.x = angle;
+            } else {
+                humanoid.leftArm.rotation.x = 0;
+                humanoid.rightArm.rotation.x = 0;
+                humanoid.leftLeg.rotation.x = 0;
+                humanoid.rightLeg.rotation.x = 0;
+            }
+        }
+
+        // Function to refresh inventory display when opened or modified
+        function updateInventoryDisplay() {
+            // Refresh each tab's grid based on playerInventory data
+            for (let i = 1; i <= 6; i++) {
+                const grid = document.getElementById('inventoryGridTab' + i);
+                const tabInventory = playerInventory[i - 1] || [];
+                populateInventoryGrid(grid, tabInventory);
+            }
+        }
+
+        function createTreasureChest(x, y, z) {
+            const chestGeometry = new THREE.BoxGeometry(10, 10, 10);
+            const chestMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+            const chest = new THREE.Mesh(chestGeometry, chestMaterial);
+            chest.position.set(x, y + 5, z);
+
+            chest.userData = {
+                type: 'treasureChest',
+                items: generateRandomItems(3),
+                gold: Math.floor(Math.random() * 100) + 50
+           
