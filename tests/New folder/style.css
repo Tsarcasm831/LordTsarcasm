@@ -1,0 +1,286 @@
+/*
+Theme Name: LT Wordpress Theme
+Author: Lord Tsarcasm
+Description: Convert HTML to WordPress theme.
+Version: 1.0
+*/
+
+/* Hero section with scrolling background */
+        .hero {
+            position: relative;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        /* Adjusted to make the scrolling images scroll endlessly without jumping */
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            display: flex;
+            animation: scrollBackground 40s linear infinite;
+        }
+
+        .hero-background img {
+            height: 80%;
+            max-width: none;
+            width: auto;
+            flex: none;
+        }
+
+        /* Adjusted keyframes for seamless infinite scrolling */
+        @keyframes scrollBackground {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* Pause the animation on hover */
+        .hero-background:hover {
+            animation-play-state: paused;
+        }
+
+        /* Added to display captions on hover over images in the hero section */
+        .hero-image {
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-caption {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			background-color: rgba(0,0,0,0.7);
+			color: #fff;
+			padding: 5px;
+			text-align: center;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+		}
+
+		.hero-album-title {
+			font-size: 16px; /* Reduced font size */
+			font-weight: bold;
+			margin-bottom: 5px;
+		}
+
+        .hero-image:hover .hero-caption {
+            opacity: 1;
+        }
+
+        .modal-content img {
+            width: 350px;
+            height: 350px;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+
+        .album-cover, .modal-album-cover {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        .album-card {
+            overflow: hidden;
+        }
+
+        .modal-content {
+            max-width: 40%;
+            max-height: 70%;
+            margin: 5% auto;
+            padding: 20px;
+            background-color: #222;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            color: #fff;
+            overflow: auto;
+        }
+
+        /* Spotify element */
+        .spotify-embed {
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            width: 300px;
+            z-index: 1000;
+            background-color: #111;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .spotify-embed-minimized {
+            width: 50px;
+            height: 50px;
+            padding: 0;
+            overflow: hidden;
+            transition: width 0.3s ease, height 0.3s ease;
+            cursor: pointer;
+        }
+
+        .spotify-embed iframe {
+            border-radius: 12px;
+            width: 100%;
+            height: 352px;
+        }
+
+        .spotify-toggle {
+            text-align: right;
+            margin-bottom: 5px;
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .modal-album-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .modal-album-details {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .modal-description {
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .modal-song-list {
+            font-size: 14px;
+            text-align: left;
+            padding: 10px;
+        }
+
+        .modal-song-list a {
+            text-decoration: none;
+            color: #0073e6;
+            margin-right: 10px;
+        }
+
+        .modal-song-list a:hover {
+            text-decoration: underline;
+        }
+
+        .modal-song-list i {
+            margin-right: 5px;
+        }
+
+        .modal-icons {
+            margin-top: 20px;
+        }
+
+        .modal-icons a {
+            color: #fff;
+            margin-right: 20px;
+            font-size: 20px;
+            text-decoration: none;
+        }
+
+        .modal-icons a:hover {
+            color: #0073e6;
+        }
+
+        /* Adjusted to always show album titles */
+        .album-info {
+            display: block;
+        }
+
+        @media only screen and (max-width: 768px) {
+            .spotify-embed {
+                left: 10px;
+                right: 10px;
+                top: auto;
+                bottom: 20px;
+                width: auto;
+                height: 70px;
+                padding: 5px;
+            }
+
+            .spotify-embed iframe {
+                height: 60px;
+            }
+
+            .spotify-toggle {
+                display: none;
+            }
+        }
+        .header {
+            background-color: #333;
+            padding: 10px 0;
+        }
+
+        .header-content {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            color: #fff;
+            font-size: 24px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 20px;
+            white-space: nowrap;
+        }
+
+        .nav-link:first-child {
+            margin-left: 0;
+        }
+
+        .nav-link:visited {
+            color: #999;
+        }
+
+        .nav-link:hover {
+            color: #333;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .nav-menu {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .nav-link {
+                margin: 5px 0;
+            }
+        }
