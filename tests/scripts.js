@@ -1,664 +1,5 @@
-﻿<html><head><base href="
-    ">
-    <title>Remnants of Destructions</title>
-    <style>
-        body, html { margin: 0; padding: 0; overflow: hidden; }
-        #gameCanvas { display: block; }
-        #inventory, #stats {
-            position: absolute;
-            width: 850px; /* Adjusted width for new inventory layout */
-            height: 650px; /* Adjusted height for new inventory layout */
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            display: none;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 10;
-            overflow-y: auto; /* Allow scrolling if content overflows vertically */
-        }
-        #inventory { top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        #stats {
-            position: absolute;
-            width: 400px;
-            height: auto;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            display: none;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 10;
-            overflow-y: auto;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        #stats button {
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-        #hotbar {
-            position: absolute;
-            bottom: 10px; /* Adjusted position */
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            z-index: 5;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 5px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
-        }
-        .slot {
-            width: 64px;
-            height: 64px;
-            border: 2px solid #555;
-            margin: 2px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
-            transition: background 0.2s;
-        }
-        .slot:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        #minimapContainer {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 200px;
-            height: 200px;
-            border: 2px solid #fff;
-            overflow: hidden;
-            z-index: 5;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 10px;
-        }
-        #inventoryTabs {
-            display: flex;
-            gap: 5px;
-            margin-top: 10px;
-        }
-        .inventory-tab {
-            padding: 5px 10px;
-            background-color: #333;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
-        .inventory-tab.active {
-            background-color: #555;
-        }
-        .inventory-tab-content {
-            display: none;
-        }
-        .inventory-tab-content.active {
-            display: block;
-        }
-        .inventoryGrid {
-            display: grid;
-            grid-template-columns: repeat(7, 50px);
-            grid-auto-rows: 50px;
-            gap: 2px;
-            margin-top: 10px;
-            overflow-y: auto;
-            max-height: 500px;
-        }
-        .inventory-slot {
-            width: 50px;
-            height: 50px;
-            border: 1px solid #fff;
-            background: rgba(255, 255, 255, 0.1);
-        }
-        #npcPopup {
-            position: absolute;
-            width: 400px;
-            height: auto;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 10;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        #lifeOrb {
-            position: absolute;
-            bottom: 100px; /* Adjusted position */
-            left: 20px;
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle at center, #8B0000, #FF0000);
-            border: 2px solid #fff;
-            border-radius: 50%;
-            overflow: hidden;
-            z-index: 5;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        #lifeFill {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100%; /* Dynamically adjusted via JavaScript */
-            background: linear-gradient(to top, #FF4500, #8B0000);
-            transition: height 0.3s ease-in-out;
-        }
-        #lifeValue {
-            position: absolute;
-            top: 50%;
-            width: 100%;
-            text-align: center;
-            color: #fff;
-            font-weight: bold;
-            font-size: 16px;
-            transform: translateY(-50%);
-            z-index: 1;
-            text-shadow: 1px 1px 2px #000;
-        }
-        #energyOrb {
-            position: absolute;
-            bottom: 100px; /* Matched with health orb */
-            right: 20px;
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle at center, #00008B, #0000FF);
-            border: 2px solid #fff;
-            border-radius: 50%;
-            overflow: hidden;
-            z-index: 5;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        #energyValue {
-            position: absolute;
-            top: 50%;
-            width: 100%;
-            text-align: center;
-            color: #fff;
-            font-weight: bold;
-            font-size: 16px;
-            transform: translateY(-50%);
-            z-index: 1;
-            text-shadow: 1px 1px 2px #000;
-        }
-        #teleportationBarContainer {
-            position: absolute;
-            bottom: 50%;
-            left: 50%;
-            width: 200px;
-            height: 20px;
-            border: 2px solid #fff;
-            transform: translate(-50%, 50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 10;
-            display: none;
-        }
-        #teleportationBar {
-            width: 0%;
-            height: 100%;
-            background-color: #00ff00;
-        }
-        #adminConsole {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            max-height: 90%;
-            background: rgba(0, 0, 0, 0.9);
-            color: #fff;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 100;
-            overflow-y: auto;
-        }
-        #adminConsole input {
-            width: 100%;
-            padding: 5px;
-            margin-bottom: 10px;
-        }
-        #adminConsole button {
-            margin: 5px 0;
-        }
-        #lootBarContainer {
-            position: absolute;
-            bottom: 50%;
-            left: 50%;
-            width: 200px;
-            height: 20px;
-            border: 2px solid #fff;
-            transform: translate(-50%, 50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 10;
-            display: none;
-        }
-        #lootBar {
-            width: 0%;
-            height: 100%;
-            background-color: #ffff00;
-        }
-        #lootPopup {
-            position: absolute;
-            width: 400px;
-            height: auto;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 10;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
-        }
-        #npcAdminPopup {
-            position: absolute;
-            width: 400px;
-            height: auto;
-            background: rgba(0, 0, 0, 0.9);
-            color: #fff;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 100;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            overflow-y: auto;
-        }
-        #npcAdminPopup input,
-        #npcAdminPopup textarea {
-            width: 100%;
-            margin-bottom: 10px;
-            background-color: #333;
-            color: #fff;
-            border: 1px solid #555;
-            padding: 5px;
-        }
-        #npcAdminPopup button {
-            margin-right: 10px;
-        }
-        #chestPopup {
-            position: absolute;
-            width: 800px;
-            max-height: 90%;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 10;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            overflow-y: auto;
-            display: none;
-        }
-        #chestInventoryContainer {
-			display: flex;
-			gap: 20px;
-			flex-wrap: wrap; /* Allow wrapping if necessary */
-		}
-
-        #chestPopup .inventoryGrid {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        #chestPopup .inventoryGrid {
-            display: grid;
-            grid-template-columns: repeat(7, 50px); /* Adjust columns as needed */
-            grid-auto-rows: 50px;
-            gap: 2px;
-            margin-top: 10px;
-        }
-		#helpWindow {
-            position: absolute;
-            width: 600px;
-            max-height: 600px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            display: none;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 10;
-            overflow-y: auto;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        #fullscreenMap {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 200; /* Ensure it's above other elements */
-        }
-
-        #mapCanvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* Skill Tree Styles */
-        #skillTree {
-            position: absolute;
-            width: 600px;
-            height: 600px;
-            background: rgba(0, 0, 0, 0.9);
-            color: #fff;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 100;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
-            overflow-y: auto;
-            border-radius: 10px;
-        }
-
-        #skillTree h2 {
-            text-align: center;
-        }
-
-        #skillsContainer {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .skill {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            border: 1px solid #555;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .skill:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .skill.unavailable {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .skill.learned {
-            background: rgba(0, 255, 0, 0.5);
-            cursor: default;
-        }
-
-        /* Tooltip Styles */
-        .tooltip {
-            position: absolute;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 5px;
-            pointer-events: none;
-            font-size: 12px;
-            z-index: 1000; /* Ensure it's above other popups like skillTree */
-            display: none;
-            max-width: 200px;
-        }
-
-    </style>
-</head>
-<body>
-    <canvas id="gameCanvas"></canvas>
-    <div id="fullscreenMap" style="display: none;">
-        <canvas id="mapCanvas"></canvas>
-        <button onclick="closeFullscreenMap()" style="position: absolute; top: 10px; right: 10px; z-index: 201;">Close Map</button>
-    </div>
-
-    <!-- Skill Tree Popup -->
-    <div id="skillTree" style="display: none;">
-        <h2>Skill Tree</h2>
-        <div id="skillsContainer">
-            <!-- Skills will be dynamically added here -->
-        </div>
-        <button onclick="closeSkillTree()">Close Skill Tree</button>
-    </div>
-
-
-    <div id="inventory">
-        <h2>Inventory</h2>
-        <p>Gold: <span id="goldAmount">0</span></p>
-        <div id="inventoryTabs">
-            <button class="inventory-tab" data-tab="tab1">Tab 1</button>
-            <button class="inventory-tab" data-tab="tab2">Tab 2</button>
-            <button class="inventory-tab" data-tab="tab3">Tab 3</button>
-            <button class="inventory-tab" data-tab="tab4">Tab 4</button>
-            <button class="inventory-tab" data-tab="tab5">Tab 5</button>
-            <button class="inventory-tab" data-tab="tab6">Tab 6</button>
-        </div>
-        <div id="inventoryTabsContent">
-            <div class="inventory-tab-content" id="tab1">
-                <div class="inventoryGrid" id="inventoryGridTab1"></div>
-            </div>
-            <div class="inventory-tab-content" id="tab2">
-                <div class="inventoryGrid" id="inventoryGridTab2"></div>
-            </div>
-            <div class="inventory-tab-content" id="tab3">
-                <div class="inventoryGrid" id="inventoryGridTab3"></div>
-            </div>
-            <div class="inventory-tab-content" id="tab4">
-                <div class="inventoryGrid" id="inventoryGridTab4"></div>
-            </div>
-            <div class="inventory-tab-content" id="tab5">
-                <div class="inventoryGrid" id="inventoryGridTab5"></div>
-            </div>
-            <div class="inventory-tab-content" id="tab6">
-                <div class="inventoryGrid" id="inventoryGridTab6"></div>
-            </div>
-        </div>
-    </div>
-	<div id="bestiary" style="display: none;">
-		<h2>Bestiary</h2>
-		<div id="bestiaryContent"></div>
-		<button onclick="closeBestiary()">Close</button>
-	</div>
-    <div id="stats">
-        <h2>Character Stats</h2>
-        <p>Level: <span id="level">1</span></p>
-        <p>Experience: <span id="experience">0</span> / <span id="nextLevelExperience">100</span></p>
-        <p>Strength: <span id="strength">10</span></p>
-        <p>Dexterity: <span id="dexterity">10</span></p>
-        <p>Vitality: <span id="vitality">10</span></p>
-        <p>Energy: <span id="energy">10</span></p>
-        <p>Available Stat Points: <span id="statPoints">0</span></p>
-        <button onclick="increaseStat('strength')">Increase Strength</button>
-        <button onclick="increaseStat('dexterity')">Increase Dexterity</button>
-        <button onclick="increaseStat('vitality')">Increase Vitality</button>
-        <button onclick="increaseStat('energy')">Increase Energy</button>
-    </div>
-    <div id="hotbar">
-        <div class="slot" data-slot="1"></div>
-        <div class="slot" data-slot="2"></div>
-        <div class="slot" data-slot="3"></div>
-        <div class="slot" data-slot="4"></div>
-        <div class="slot" data-slot="5"></div>
-        <div class="slot" data-slot="6"></div>
-        <div class="slot" data-slot="7"></div>
-        <div class="slot" data-slot="8"></div>
-        <div class="slot" data-slot="9"></div>
-        <div class="slot" data-slot="0"></div> <!-- '0' represents the 10th slot -->
-    </div>
-
-    <div id="minimapContainer"></div>
-    <div id="npcPopup" style="display: none;">
-        <h2>Friendly NPC</h2>
-        <p>Hello, traveler! Stay awhile and listen...</p>
-        <button onclick="closeNpcPopup()">Close</button>
-    </div>
-    <div id="lifeOrb">
-        <div id="lifeFill"></div>
-        <div id="lifeValue">100/100</div>
-    </div>
-    <div id="energyOrb">
-        <div id="energyValue">1/1</div>
-    </div>
-    <div id="teleportationBarContainer">
-        <div id="teleportationBar"></div>
-    </div>
-    <div id="adminConsole" style="display: none;">
-        <div id="adminLogin">
-            <h2>Admin Console</h2>
-            <p>Please enter the admin password:</p>
-            <input type="password" id="adminPassword">
-            <button onclick="checkAdminPassword()">Submit</button>
-        </div>
-        <div id="adminControls" style="display: none;">
-            <h2>Admin Controls</h2>
-            <section>
-                <h3>Player Stats</h3>
-                <p>Health: <input type="number" id="playerHealthInput" value="100" step="1"></p>
-                <p>Gold: <input type="number" id="playerGoldInput" value="0" step="1"></p>
-                <p>Experience: <input type="number" id="playerExperienceInput" value="0" step="1"></p>
-                <button onclick="updatePlayerStats()">Update Player Stats</button>
-            </section>
-            <section>
-                <h3>Player Options</h3>
-                <p>
-                    <label>
-                        <input type="checkbox" id="invulnerabilityCheckbox"> Invulnerable
-                    </label>
-                </p>
-                <button onclick="updatePlayerOptions()">Update Player Options</button>
-            </section>
-            
-            <div id="fullscreenMap" style="display: none;">
-                <canvas id="mapCanvas"></canvas>
-                <button onclick="closeFullscreenMap()" style="position: absolute; top: 10px; right: 10px;">Close Map</button>
-            </div>
-
-
-            <section>
-                <h3>Spawn Options</h3>
-                <p>Entity Type:
-                    <select id="entityTypeSelect">
-                        <option value="enemy">Enemy</option>
-                        <option value="friendlyNPC">Friendly NPC</option>
-                        <option value="structure">Structure</option>
-                        <option value="treasureChest">Treasure Chest</option>
-						<option value="settlement">Settlement</option>
-						<option value="quadruped">Quadruped</option>
-                    </select>
-                </p>
-                <p>Quantity: <input type="number" id="entityQuantityInput" value="1" step="1" min="1"></p>
-                <button onclick="spawnEntities()">Spawn Entities</button>
-            </section>
-            <section>
-                <h3>Game Settings</h3>
-                <p>Enemy Speed: <input type="number" id="enemySpeedInput" value="0.7" step="0.1"></p>
-                <button onclick="updateGameSettings()">Update Game Settings</button>
-            </section>
-            <section>
-                <h3>Teleport Player</h3>
-                <p>X: <input type="number" id="teleportXInput" value="0" step="1"></p>
-                <p>Z: <input type="number" id="teleportZInput" value="0" step="1"></p>
-                <button onclick="teleportPlayer()">Teleport Player</button>
-            </section>
-            <section>
-                <h3>NPC Admin</h3>
-                <p>
-                    <label>
-                        <input type="checkbox" id="npcAdminCheckbox"> Enable NPC Admin Mode
-                    </label>
-                </p>
-            </section>
-            <button onclick="closeAdminConsole()">Close</button>
-        </div>
-    </div>
-    <div id="lootBarContainer">
-        <div id="lootBar"></div>
-    </div>
-    <div id="lootPopup">
-        <h2>Loot</h2>
-        <div id="lootItems"></div>
-        <button onclick="lootAllItems()">Loot All</button>
-    </div>
-    <div id="npcAdminPopup" style="display: none;">
-        <h2>NPC Admin</h2>
-        <p>Name: <input type="text" id="npcNameInput"></p>
-        <p>Health: <input type="number" id="npcHealthInput" step="1"></p>
-        <p>Dialogue:</p>
-		
-		<!-- Add color inputs for body parts -->
-		<p>Head Color: <input type="color" id="npcHeadColorInput"></p>
-		<p>Body Color: <input type="color" id="npcBodyColorInput"></p>
-		<p>Arm Color: <input type="color" id="npcArmColorInput"></p>
-		<p>Leg Color: <input type="color" id="npcLegColorInput"></p>
-
-        <textarea id="npcDialogueInput" rows="4" cols="50"></textarea>
-        <br>
-        <button onclick="saveNpcChanges()">Save Changes</button>
-        <button onclick="closeNpcAdminPopup()">Close</button>
-    </div>
-    <div id="chestPopup" style="display: none;">
-        <h2>Chest Interaction</h2>
-        <div id="chestInventoryContainer">
-            <div>
-                <h3>Chest Inventory</h3>
-                <div id="chestInventoryGrid" class="inventoryGrid"></div>
-            </div>
-            <div>
-                <h3>Your Inventory</h3>
-                <div id="playerInventoryInChestGrid" class="inventoryGrid"></div>
-            </div>
-        </div>
-        <button onclick="closeChestPopup()">Close</button>
-    </div>
-
-    <!-- Quest Log Popup -->
-    <div id="questLog" style="display: none;">
-        <h2>Quest Log</h2>
-        <ul id="questList">
-            <!-- Quests will be dynamically added here -->
-        </ul>
-        <button onclick="closeQuestLog()">Close Quest Log</button>
-    </div>
-
-    <!-- Tooltip Element -->
-    <div id="tooltip" class="tooltip"></div>
-	    <div id="helpWindow">
-        <h2>Game Help</h2>
-        <p>Welcome to the game!</p>
-        <p>Password is ltwelcome1</p>
-        <h3>Key Bindings:</h3>
-        <ul>
-            <li><strong>I</strong> or <strong>B</strong>: Open/Close Inventory</li>
-            <li><strong>C</strong>: Open/Close Character Stats</li>
-            <li><strong>Q</strong>: Open/Close Quest Log</li>
-            <li><strong>T</strong>: Start Teleportation</li>
-            <li><strong>A</strong>: Rotate Camera Left</li>
-            <li><strong>D</strong>: Rotate Camera Right</li>
-            <li><strong>`</strong>: Open/Close Admin Console</li>
-            <li><strong>H</strong>: Open/Close Help Window</li>
-            <li><strong>Y</strong>: Open/Close Bestiary</li> <!-- Added Bestiary Key Binding -->
-        </ul>
-        <h3>Features:</h3>
-        <p>- Explore the world and defeat enemies.</p>
-        <p>- Collect loot and manage your inventory.</p>
-        <p>- Level up and improve your character stats.</p>
-        <p>- Interact with friendly NPCs.</p>
-    </div>
-
-	<div id="structureAdminPopup" style="display: none;">
-		<h2>Structure Admin</h2>
-		<p>Scale: <input type="number" id="structureScaleInput" value="1" step="0.1"></p>
-		<p>Color: <input type="color" id="structureColorInput"></p>
-		<button onclick="saveStructureChanges()">Save Changes</button>
-		<button onclick="closeStructureAdminPopup()">Close</button>
-	</div>
-
-
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-    <script>
+// JavaScript source code
+<script>
         const clock = new THREE.Clock();
         let scene, camera, renderer;
         let player, ground, safeZoneGround;
@@ -697,6 +38,7 @@
         const cameraRotationSpeed = 0.05; // Adjust for smoother or faster rotation
         let rotateLeft = false;
         let rotateRight = false;
+        let environmentalCollisions = [];
 
 
 
@@ -875,6 +217,7 @@
 
             document.getElementById('bestiary').style.display = 'block';
         }
+
 
         function closeBestiary() {
             document.getElementById('bestiary').style.display = 'none';
@@ -1595,7 +938,7 @@
                 const elementTypes = [
                     {
                         // Tree
-						geometry: new THREE.ConeGeometry(20, 200, 20),
+                        geometry: new THREE.ConeGeometry(20, 200, 20),
                         material: new THREE.MeshLambertMaterial({ color: 0x228B22 }),
                         yOffset: 5,
                     },
@@ -1609,14 +952,14 @@
                         material: new THREE.MeshLambertMaterial({ color: 0x006400 }),
                         yOffset: 3,
                     },
-					{
-						//Large Bush
+                    {
+                        // Large Bush
                         geometry: new THREE.SphereGeometry(4, 12, 13),
                         material: new THREE.MeshLambertMaterial({ color: 0x006400 }),
                         yOffset: 3,
                     },
                     {
-						//Rock
+                        // Rock
                         geometry: new THREE.DodecahedronGeometry(3, 2),
                         material: new THREE.MeshLambertMaterial({ color: 0x808080 }),
                         yOffset: 3,
@@ -1641,8 +984,12 @@
                     element.position.set(x, elementTypes[typeIndex].yOffset, z);
                     element.rotation.y = Math.random() * Math.PI * 2; // Random rotation
                     scene.add(element);
+
+                    // Add to environmental collisions
+                    environmentalCollisions.push(element);
                 }
             }
+
 
             addPlantsToTerrain(); // Call the function to add plants and rocks
 
@@ -1984,6 +1331,7 @@
                     enemy.position.add(directionToPlayer.multiplyScalar(enemySpeed));
 
                     let collided = false;
+                    // Check collision with walls
                     for (let wall of walls) {
                         const enemyBox = new THREE.Box3().setFromObject(enemy);
                         const wallBox = new THREE.Box3().setFromObject(wall);
@@ -1993,36 +1341,27 @@
                         }
                     }
 
-                    for (let wall of enemyWalls) {
-                        const enemyBox = new THREE.Box3().setFromObject(enemy);
-                        const wallBox = new THREE.Box3().setFromObject(wall);
-                        if (enemyBox.intersectsBox(wallBox)) {
-                            collided = true;
-                            break;
+                    // Check collision with enemyWalls
+                    if (!collided) {
+                        for (let wall of enemyWalls) {
+                            const enemyBox = new THREE.Box3().setFromObject(enemy);
+                            const wallBox = new THREE.Box3().setFromObject(wall);
+                            if (enemyBox.intersectsBox(wallBox)) {
+                                collided = true;
+                                break;
+                            }
                         }
                     }
 
-                    if (collided) {
-                        enemy.position.copy(oldPosition);
-                        enemy.isMoving = false;
-                    } else {
-                        enemy.isMoving = true;
-                        // Rotate enemy to face player
-                        const angle = Math.atan2(directionToPlayer.x, directionToPlayer.z);
-                        enemy.rotation.y = angle;
-                    }
-                } else {
-                    const oldPosition = enemy.position.clone();
-                    const moveVector = enemy.userData.direction.clone().multiplyScalar(0.5);
-                    enemy.position.add(moveVector);
-
-                    let collided = false;
-                    for (let wall of walls) {
-                        const enemyBox = new THREE.Box3().setFromObject(enemy);
-                        const wallBox = new THREE.Box3().setFromObject(wall);
-                        if (enemyBox.intersectsBox(wallBox)) {
-                            collided = true;
-                            break;
+                    // Check collision with environmental objects
+                    if (!collided) {
+                        for (let env of environmentalCollisions) {
+                            const enemyBox = new THREE.Box3().setFromObject(enemy);
+                            const envBox = new THREE.Box3().setFromObject(env);
+                            if (enemyBox.intersectsBox(envBox)) {
+                                collided = true;
+                                break;
+                            }
                         }
                     }
 
@@ -2037,7 +1376,6 @@
                         enemy.rotation.y = angle;
                     }
                 }
-
                 animateHumanoid(enemy, delta);
             });
         }
@@ -2309,12 +1647,26 @@
                 player.position.add(direction.multiplyScalar(moveDistance));
 
                 let collided = false;
+
+                // Check collision with walls
                 for (let wall of walls) {
                     const playerBox = new THREE.Box3().setFromObject(player);
                     const wallBox = new THREE.Box3().setFromObject(wall);
                     if (playerBox.intersectsBox(wallBox)) {
                         collided = true;
                         break;
+                    }
+                }
+
+                // Check collision with environmental objects
+                if (!collided) {
+                    for (let env of environmentalCollisions) {
+                        const playerBox = new THREE.Box3().setFromObject(player);
+                        const envBox = new THREE.Box3().setFromObject(env);
+                        if (playerBox.intersectsBox(envBox)) {
+                            collided = true;
+                            break;
+                        }
                     }
                 }
 
@@ -2331,6 +1683,7 @@
                 player.isMoving = false;
             }
         }
+
 
         function createWhiteWall() {
             const wallGeometry = new THREE.BoxGeometry(10, 30, 2); // Adjust size as needed
@@ -3119,5 +2472,3 @@
         init();
         animate();
     </script>
-</body>
-</html>
