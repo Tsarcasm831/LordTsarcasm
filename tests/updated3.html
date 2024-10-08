@@ -1,414 +1,13 @@
-﻿<html><head><base href="
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="
     ">
-    <title>Remnants of Destructions</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remnants of Destruction</title>
     <link rel="stylesheet" type="text/css" href="rodstyles.css">
 </head>
-<style>
-        body, html { margin: 0; padding: 0; overflow: hidden; }
-        #gameCanvas { display: block; }
-        #inventory, #stats {
-            position: absolute;
-            width: 850px; /* Adjusted width for new inventory layout */
-            height: 650px; /* Adjusted height for new inventory layout */
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            display: none;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 10;
-            overflow-y: auto; /* Allow scrolling if content overflows vertically */
-        }
-        #inventory { top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        #stats {
-            position: absolute;
-            width: 400px;
-            height: auto;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            display: none;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 10;
-            overflow-y: auto;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        #stats button {
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-        #hotbar {
-            position: absolute;
-            bottom: 10px; /* Adjusted position */
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            z-index: 5;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 5px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
-        }
-        .slot {
-            width: 64px;
-            height: 64px;
-            border: 2px solid #555;
-            margin: 2px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
-            transition: background 0.2s;
-        }
-        .slot:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        #minimapContainer {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 200px;
-            height: 200px;
-            border: 2px solid #fff;
-            overflow: hidden;
-            z-index: 5;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 10px;
-        }
-        #inventoryTabs {
-            display: flex;
-            gap: 5px;
-            margin-top: 10px;
-        }
-        .inventory-tab {
-            padding: 5px 10px;
-            background-color: #333;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
-        .inventory-tab.active {
-            background-color: #555;
-        }
-        .inventory-tab-content {
-            display: none;
-        }
-        .inventory-tab-content.active {
-            display: block;
-        }
-        .inventoryGrid {
-            display: grid;
-            grid-template-columns: repeat(7, 50px);
-            grid-auto-rows: 50px;
-            gap: 2px;
-            margin-top: 10px;
-            overflow-y: auto;
-            max-height: 500px;
-        }
-        .inventory-slot {
-            width: 50px;
-            height: 50px;
-            border: 1px solid #fff;
-            background: rgba(255, 255, 255, 0.1);
-        }
-        #npcPopup {
-            position: absolute;
-            width: 400px;
-            height: auto;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 10;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        #lifeOrb {
-            position: absolute;
-            bottom: 100px; /* Adjusted position */
-            left: 20px;
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle at center, #8B0000, #FF0000);
-            border: 2px solid #fff;
-            border-radius: 50%;
-            overflow: hidden;
-            z-index: 5;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        #lifeFill {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100%; /* Dynamically adjusted via JavaScript */
-            background: linear-gradient(to top, #FF4500, #8B0000);
-            transition: height 0.3s ease-in-out;
-        }
-        #lifeValue {
-            position: absolute;
-            top: 50%;
-            width: 100%;
-            text-align: center;
-            color: #fff;
-            font-weight: bold;
-            font-size: 16px;
-            transform: translateY(-50%);
-            z-index: 1;
-            text-shadow: 1px 1px 2px #000;
-        }
-        #energyOrb {
-            position: absolute;
-            bottom: 100px; /* Matched with health orb */
-            right: 20px;
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle at center, #00008B, #0000FF);
-            border: 2px solid #fff;
-            border-radius: 50%;
-            overflow: hidden;
-            z-index: 5;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        #energyValue {
-            position: absolute;
-            top: 50%;
-            width: 100%;
-            text-align: center;
-            color: #fff;
-            font-weight: bold;
-            font-size: 16px;
-            transform: translateY(-50%);
-            z-index: 1;
-            text-shadow: 1px 1px 2px #000;
-        }
-        #teleportationBarContainer {
-            position: absolute;
-            bottom: 50%;
-            left: 50%;
-            width: 200px;
-            height: 20px;
-            border: 2px solid #fff;
-            transform: translate(-50%, 50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 10;
-            display: none;
-        }
-        #teleportationBar {
-            width: 0%;
-            height: 100%;
-            background-color: #00ff00;
-        }
-        #adminConsole {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            max-height: 90%;
-            background: rgba(0, 0, 0, 0.9);
-            color: #fff;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 100;
-            overflow-y: auto;
-        }
-        #adminConsole input {
-            width: 100%;
-            padding: 5px;
-            margin-bottom: 10px;
-        }
-        #adminConsole button {
-            margin: 5px 0;
-        }
-        #lootBarContainer {
-            position: absolute;
-            bottom: 50%;
-            left: 50%;
-            width: 200px;
-            height: 20px;
-            border: 2px solid #fff;
-            transform: translate(-50%, 50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 10;
-            display: none;
-        }
-        #lootBar {
-            width: 0%;
-            height: 100%;
-            background-color: #ffff00;
-        }
-        #lootPopup {
-            position: absolute;
-            width: 400px;
-            height: auto;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 10;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
-        }
-        #npcAdminPopup {
-            position: absolute;
-            width: 400px;
-            height: auto;
-            background: rgba(0, 0, 0, 0.9);
-            color: #fff;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 100;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            overflow-y: auto;
-        }
-        #npcAdminPopup input,
-        #npcAdminPopup textarea {
-            width: 100%;
-            margin-bottom: 10px;
-            background-color: #333;
-            color: #fff;
-            border: 1px solid #555;
-            padding: 5px;
-        }
-        #npcAdminPopup button {
-            margin-right: 10px;
-        }
-        #chestPopup {
-            position: absolute;
-            width: 800px;
-            max-height: 90%;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 10;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            overflow-y: auto;
-            display: none;
-        }
-        #chestInventoryContainer {
-			display: flex;
-			gap: 20px;
-			flex-wrap: wrap; /* Allow wrapping if necessary */
-		}
-
-        #chestPopup .inventoryGrid {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        #chestPopup .inventoryGrid {
-            display: grid;
-            grid-template-columns: repeat(7, 50px); /* Adjust columns as needed */
-            grid-auto-rows: 50px;
-            gap: 2px;
-            margin-top: 10px;
-        }
-		#helpWindow {
-            position: absolute;
-            width: 600px;
-            max-height: 600px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            display: none;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 10;
-            overflow-y: auto;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        #fullscreenMap {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 200; /* Ensure it's above other elements */
-        }
-
-        #mapCanvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* Skill Tree Styles */
-        #skillTree {
-            position: absolute;
-            width: 600px;
-            height: 600px;
-            background: rgba(0, 0, 0, 0.9);
-            color: #fff;
-            padding: 20px;
-            border: 2px solid #aaa;
-            z-index: 100;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
-            overflow-y: auto;
-            border-radius: 10px;
-        }
-
-        #skillTree h2 {
-            text-align: center;
-        }
-
-        #skillsContainer {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .skill {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            border: 1px solid #555;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .skill:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .skill.unavailable {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .skill.learned {
-            background: rgba(0, 255, 0, 0.5);
-            cursor: default;
-        }
-
-        /* Tooltip Styles */
-        .tooltip {
-            position: absolute;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 5px;
-            pointer-events: none;
-            font-size: 12px;
-            z-index: 1000; /* Ensure it's above other popups like skillTree */
-            display: none;
-            max-width: 200px;
-        }
-
-    </style>
 <body>
     <canvas id="gameCanvas"></canvas>
     <div id="fullscreenMap" style="display: none;">
@@ -660,730 +259,51 @@
 
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
     <script>
-        const clock = new THREE.Clock(); // Create a new Three.js clock
-        let mapScene, mapCamera, mapRenderer; // Create a new Three.js scene, camera, and renderer for the fullscreen map.
-        let scene, camera, renderer; // Create a new Three.js scene, camera, and renderer
-        let player, ground, safeZoneGround; // Player, ground, and safe zone
-        let inventoryOpen = false; // Inventory state
-        let statsOpen = false; // Character stats state
-        let destination = null; // Destination for teleportation
-        let speed = 1.0; // Player movement speed
-        let minimapCamera; // Minimap camera
-        let enemies = []; // List of enemies
-        let gold = 0; // Gold amount
-		let bestiary = {}; // Bestiary data
-        const townRadius = 200; // Radius of the town
-		let quadrupeds = []; // List of quadrupeds
-        let walls = []; // List of walls
-        let friendlies = []; // List of friendlies
+        const clock = new THREE.Clock();
+        let scene, camera, renderer;
+        let player, ground, safeZoneGround;
+        let inventoryOpen = false;
+        let statsOpen = false;
+        let destination = null;
+        let speed = 1.0;
+        let minimapCamera;
+        let enemies = [];
+        let gold = 0;
+		let bestiary = {};
+        const townRadius = 200;
+		let quadrupeds = [];
+        let walls = [];
+        let friendlies = [];
 		let helpWindowOpen = false; // Add this variable for help window
-        let isTeleporting = false; // Add this variable for teleportation
+        let isTeleporting = false;
         let adminConsoleOpen = false; // Add this variable for admin console
-        let teleportProgress = 0; // Add this variable for teleportation
+        let teleportProgress = 0;
         let teleportationDuration = 3; // Duration in seconds
-        let previousPosition = null; // Add this variable for teleportation
-		let structures = []; // Add this variable for structures
-        let cameraAngle = 0;    // Add this variable for camera angle
+        let previousPosition = null;
+		let structures = [];
+        let cameraAngle = 0;
         let enemyWalls = []; // Walls that affect only enemies
         let npcPopupOpen = false; // Track NPC popup state
-        let npcAdminEnabled = false; // Track NPC admin state
-        let currentNpc = null; // Track current NPC
+        let npcAdminEnabled = false;
+        let currentNpc = null;
         let currentOpenedChest = null; // Added to address the popup issue
         let treasureChests = []; // Added to keep track of treasure chests
-        let isAdminLoggedIn = false; // Add this variable for admin login
-        let questLogOpen = false; // Add this variable for quest log
-        let isMouseDown = false; // Add this variable for mouse down
-        let mouseDestination = null; // Add this variable for mouse down
-        let cameraTargetAngle = 0; // Add this variable for camera target angle
-        let currentCameraAngle = 0; // Add this variable for current camera angle
+        let isAdminLoggedIn = false;
+        let questLogOpen = false;
+        let isMouseDown = false;
+        let mouseDestination = null;
+        let cameraTargetAngle = 0;
+        let currentCameraAngle = 0;
         const cameraRotationSpeed = 0.05; // Adjust for smoother or faster rotation
-        let rotateLeft = false; // Add this variable for rotation
-		let currentStructure = null; // Implement Structure Admin Functions
-        let rotateRight = false; // Add this variable for rotation
-        let globalEnemySpeed = 0.7; // Global variable for enemy speed
-        let activeDamageIntervals = new Map(); // Keep track of active damage intervals
-        
-        
-        let playerInventory = []; // Player inventory
-        const npcData = [
-            { name: 'Elder Thoran', dialogue: 'Greetings, adventurer. May your journey be safe.' },
-            { name: 'Merchant Lila', dialogue: 'Looking to trade? I have wares you might like.' },
-            { name: 'Blacksmith Brom', dialogue: 'Need your weapons sharpened?' },
-            { name: 'Farmer Finn', dialogue: 'These crops won\'t tend themselves.' },
-            { name: 'Guard Greta', dialogue: 'Stay vigilant out there.' },
-            // Add more NPCs as desired
-        ];
-
-        // Player health and energy
-        let playerHealth = 100;
-        const playerMaxHealth = 100;
-        let playerEnergy = 1;
-        const playerMaxEnergy = 1;
-
-        // Invulnerability variable
-        let playerInvulnerable = false;
-
-        // Looting variables
-        let isLooting = false;
-        let lootProgress = 0;
-        const lootDuration = 2; // Duration in seconds
-        let lootedItems = [];
-        let currentLootingEnemy = null;
-
-        // Initialize Character Stats
-        let characterStats = {
-            level: 1,
-            experience: 0,
-            nextLevelExperience: 100,
-            strength: 10,
-            dexterity: 10,
-            vitality: 10,
-            energy: 10,
-            statPoints: 0
-        };
-		
+        let rotateLeft = false;
+        let rotateRight = false;
 
 
-        // Skill Tree Data Structure
-        let skillTreeData = {
-            strength: {
-                name: 'Strength Boost',
-                description: 'Increase your strength by 5.',
-                cost: 1,
-                learned: false
-            },
-            dexterity: {
-                name: 'Dexterity Boost',
-                description: 'Increase your dexterity by 5.',
-                cost: 1,
-                learned: false
-            },
-            vitality: {
-                name: 'Vitality Boost',
-                description: 'Increase your vitality by 5.',
-                cost: 1,
-                learned: false
-            },
-            energy: {
-                name: 'Energy Boost',
-                description: 'Increase your energy by 5.',
-                cost: 1,
-                learned: false
-            }
-            // Add more skills as needed
-        };
+
 
         // Tooltip Element
         const tooltip = document.getElementById('tooltip');
 
-        //--------------------------------------------Essential Functions------------------------------------------------------------------------------------------------------------------
-
-        function init() {
-            // Disable right-click context menu
-            document.addEventListener('contextmenu', function(event) {
-                event.preventDefault();
-            }, false);
-
-            const canvas = document.getElementById('gameCanvas');
-            renderer = new THREE.WebGLRenderer({ canvas });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.autoClear = false;
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
-            minimapCamera = new THREE.OrthographicCamera(-200, 200, 200, -200, 0.1, 10000);
-            minimapCamera.position.set(0, 500, 0);
-            minimapCamera.up.set(0, 0, -1);
-            minimapCamera.lookAt(0, 0, 0);
-            const ambientLight = new THREE.AmbientLight(0x404040);
-            scene.add(ambientLight);
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-            directionalLight.position.set(0, 100, 0);
-            scene.add(directionalLight);
-			addQuadrupeds();
-
-        
-
-            // Help Window Open on Start
-            helpWindowOpen = true;
-            document.getElementById('helpWindow').style.display = 'block';
-
-            // Populate Bestiary with NPCs
-            bestiary = {
-                goblin: {
-                    name: 'Goblin',
-                    description: 'A small, green creature known for its mischievous behavior.'
-                },
-                orc: {
-                    name: 'Orc',
-                    description: 'A large, brutish humanoid with immense strength.'
-                },
-                dragon: {
-                    name: 'Dragon',
-                    description: 'A massive, fire-breathing reptile that soars through the skies.'
-                },
-                troll: {
-                    name: 'Troll',
-                    description: 'A hulking beast with regenerative abilities and a fierce temper.'
-                },
-                elderThoran: {
-                    name: 'Elder Thoran',
-                    description: 'The wise elder of the village, offering guidance to travelers.'
-                },
-                merchantLila: {
-                    name: 'Merchant Lila',
-                    description: 'A traveling merchant with a variety of goods for sale.'
-                }
-                // Add more unique NPCs as needed
-            };
-
-
-            const groundShape = new THREE.Shape();
-            groundShape.moveTo(-5000, -5000);
-            groundShape.lineTo(5000, -5000);
-            groundShape.lineTo(5000, 5000);
-            groundShape.lineTo(-5000, 5000);
-            groundShape.lineTo(-5000, -5000);
-
-            const safeZoneSize = 300;
-            const holePath = new THREE.Path();
-            holePath.moveTo(-safeZoneSize, -safeZoneSize);
-            holePath.lineTo(-safeZoneSize, safeZoneSize);
-            holePath.lineTo(safeZoneSize, safeZoneSize);
-            holePath.lineTo(safeZoneSize, -safeZoneSize);
-            holePath.lineTo(-safeZoneSize, -safeZoneSize);
-            groundShape.holes.push(holePath);
-
-            const groundGeometry = new THREE.ShapeGeometry(groundShape);
-            const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
-            ground = new THREE.Mesh(groundGeometry, groundMaterial);
-            ground.rotation.x = -Math.PI / 2;
-            ground.name = 'ground';
-            scene.add(ground);
-
-            const safeZoneGroundGeometry = new THREE.PlaneGeometry(600, 600);
-            const safeZoneGroundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
-            safeZoneGround = new THREE.Mesh(safeZoneGroundGeometry, safeZoneGroundMaterial);
-            safeZoneGround.rotation.x = -Math.PI / 2;
-            safeZoneGround.position.y = 0.1;
-            scene.add(safeZoneGround);
-
-            const safeZoneBarrierGeometry = new THREE.BoxGeometry(600, 50, 600);
-            const safeZoneBarrierMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
-            const safeZoneBarrier = new THREE.Mesh(safeZoneBarrierGeometry, safeZoneBarrierMaterial);
-            safeZoneBarrier.position.set(0, 25, 0);
-            scene.add(safeZoneBarrier);
-            enemyWalls.push(safeZoneBarrier);
-
-            createSettlementWalls();
-            
-            const shrineGroup = new THREE.Group();
-
-            const floorGeometry = new THREE.CircleGeometry(20, 32);
-            const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
-            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-            floor.rotation.x = -Math.PI / 2;
-            floor.position.y = 0.1;
-            shrineGroup.add(floor);
-
-            const teleportPadGeometry = new THREE.CircleGeometry(5, 32);
-            const teleportPadMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff });
-            teleportPad = new THREE.Mesh(teleportPadGeometry, teleportPadMaterial);
-            teleportPad.rotation.x = -Math.PI / 2;
-            teleportPad.position.y = 0.11;
-            teleportPad.name = 'teleportPad';
-            shrineGroup.add(teleportPad);
-
-            shrineGroup.position.set(0, 0, 0);
-            scene.add(shrineGroup);
-
-            // Spawn Red Enemies (Regular)
-            for (let i = 0; i < 10; i++) {
-                let position = getRandomPositionOutsideTown(300, 1000);
-                let enemy = createEnemy(position.x, 0, position.z, 'red');
-                enemies.push(enemy);
-                scene.add(enemy);
-            }
-
-            // Spawn Blue Enemies
-            for (let i = 0; i < 3; i++) { // Adjust the number as desired
-                let position = getRandomPositionOutsideTown(300, 1000);
-                let blueEnemy = createEnemy(position.x, 0, position.z, 'blue');
-                enemies.push(blueEnemy);
-                scene.add(blueEnemy);
-            }
-
-            const structurePositions = [
-                { x: 150, z: 150 },
-                { x: -150, z: 150 },
-                { x: 150, z: -150 },
-                { x: -150, z: -150 },
-                { x: 0, z: 200 },
-            ];
-
-            structurePositions.forEach(pos => {
-                const structure = createStructure();
-                structure.position.set(pos.x, 0, pos.z);
-                scene.add(structure);
-                walls.push(...structure.userData.walls);
-				structures.push(structure);
-
-                // Select a random NPC from npcData
-                const npcInfo = npcData[Math.floor(Math.random() * npcData.length)];
-
-                // Create the NPC with the selected data
-                const npc = createFriendlyNPC(0x00ff00, npcInfo.name, npcInfo.dialogue);
-
-                // Position the NPC at the structure's position
-                npc.position.copy(structure.position);
-
-                // Add the NPC to the scene and friendlies array
-                scene.add(npc);
-                friendlies.push(npc);
-            });
-
-            player = createHumanoid(0x0000ff);
-            player.position.y = 0; 
-            scene.add(player);
-
-			function checkEnemiesInSafeZone() {
-				const safeZoneRadius = 300; // Radius of the safe zone
-
-				enemies.forEach((enemy) => {
-					if (enemy.userData.isDead) return;
-
-					const distanceFromCenter = Math.sqrt(
-						enemy.position.x * enemy.position.x + enemy.position.z * enemy.position.z
-					);
-
-					if (distanceFromCenter < safeZoneRadius) {
-						const angle = Math.random() * Math.PI * 2;
-						const teleportDistance = 1000;
-						enemy.position.x = Math.cos(angle) * teleportDistance;
-						enemy.position.z = Math.sin(angle) * teleportDistance;
-						enemy.position.y = 0; 
-					}
-				});
-			}
-
-			// Add a Purple Structure a Little Ways Away from Town
-            const purpleStructure = createPurpleStructure();
-            purpleStructure.position.set(800, 0, -800); // Adjust position as desired
-            scene.add(purpleStructure);
-
-            // Function to add diverse plants to the terrain
-            function addPlantsToTerrain() {
-                const numElements = 3000; // Total number of natural elements
-
-                const elementTypes = [
-                    {
-                        // Tree
-						geometry: new THREE.ConeGeometry(20, 200, 20),
-                        material: new THREE.MeshLambertMaterial({ color: 0x228B22 }),
-                        yOffset: 5,
-                    },
-                    {
-                        geometry: new THREE.CylinderGeometry(0.5, 0.5, 5, 8),
-                        material: new THREE.MeshLambertMaterial({ color: 0x8B4513 }),
-                        yOffset: 2.5,
-                    },
-                    {
-                        geometry: new THREE.SphereGeometry(3, 8, 8),
-                        material: new THREE.MeshLambertMaterial({ color: 0x006400 }),
-                        yOffset: 3,
-                    },
-					{
-						//Large Bush
-                        geometry: new THREE.SphereGeometry(4, 12, 13),
-                        material: new THREE.MeshLambertMaterial({ color: 0x006400 }),
-                        yOffset: 3,
-                    },
-                    {
-						//Rock
-                        geometry: new THREE.DodecahedronGeometry(3, 2),
-                        material: new THREE.MeshLambertMaterial({ color: 0x808080 }),
-                        yOffset: 3,
-                    },
-                ];
-
-                for (let i = 0; i < numElements; i++) {
-                    const typeIndex = Math.floor(Math.random() * elementTypes.length);
-                    const element = new THREE.Mesh(
-                        elementTypes[typeIndex].geometry,
-                        elementTypes[typeIndex].material
-                    );
-
-                    // Random position within the terrain bounds, avoiding the safe zone
-                    let x = Math.random() * 10000 - 5000;
-                    let z = Math.random() * 10000 - 5000;
-                    while (Math.sqrt(x * x + z * z) < 400) { // Ensure elements are not in the safe zone
-                        x = Math.random() * 10000 - 5000;
-                        z = Math.random() * 10000 - 5000;
-                    }
-
-                    element.position.set(x, elementTypes[typeIndex].yOffset, z);
-                    element.rotation.y = Math.random() * Math.PI * 2; // Random rotation
-                    scene.add(element);
-                }
-            }
-
-            addPlantsToTerrain(); // Call the function to add plants and rocks
-
-            window.addEventListener('resize', onWindowResize, false);
-            document.addEventListener('keydown', onDocumentKeyDown, false);
-            canvas.addEventListener('mousedown', onDocumentMouseDown, false);
-            canvas.addEventListener('mouseup', onDocumentMouseUp, false);
-
-        }
-
-        
-        function initMap() {
-            const mapCanvas = document.getElementById('mapCanvas');
-            mapRenderer = new THREE.WebGLRenderer({ canvas: mapCanvas, alpha: true });
-            mapRenderer.setSize(window.innerWidth, window.innerHeight);
-            mapScene = new THREE.Scene();
-
-            // Orthographic camera for 2D map
-            const aspect = window.innerWidth / window.innerHeight;
-            const d = 5000; // Adjust based on your game world's size
-            mapCamera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 10000);
-            mapCamera.position.set(0, 1000, 0); // High above the game world
-            mapCamera.up.set(0, 0, -1); // Adjust to match the game world's orientation
-            mapCamera.lookAt(new THREE.Vector3(0, 0, 0));
-
-            // Add similar lighting to the main scene
-            const ambientLight = new THREE.AmbientLight(0x404040);
-            mapScene.add(ambientLight);
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-            directionalLight.position.set(0, 100, 0);
-            mapScene.add(directionalLight);
-        }
-
-
-        function updateGoldDisplay() {
-            document.getElementById('goldAmount').innerText = gold;
-        }
-
-        function updateHealthDisplay() {
-            document.getElementById('lifeValue').innerText = `${playerHealth}/${playerMaxHealth}`;
-            let healthPercent = (playerHealth / playerMaxHealth) * 100;
-            document.getElementById('lifeFill').style.height = `${healthPercent}%`;
-        }
-
-        function updateEnergyDisplay() {
-            document.getElementById('energyValue').innerText = `${playerEnergy}/${playerMaxEnergy}`;
-            let energyPercent = (playerEnergy / playerMaxEnergy) * 100;
-            document.getElementById('energyOrb').style.clipPath = `inset(${100 - energyPercent}% 0 0 0)`;
-        }
-
-
-        function onDocumentMouseUp(event) {
-            isMouseDown = false;
-            mouseDestination = null;
-        }
-
-
-
-        function animate() {
-            requestAnimationFrame(animate);
-            const delta = clock.getDelta();
-
-            if (isMouseDown && mouseDestination) {
-                destination = mouseDestination.clone();
-            }
-
-            if (destination) {
-                movePlayerTowardsDestination();
-            } else {
-                player.isMoving = false;
-            }
-
-            // Maintain minimum of 50 enemies
-            maintainEnemyCount();
-
-            animateHumanoid(player, delta);
-            moveEnemies(delta);
-            animateDeadEnemies(delta);
-            moveQuadrupeds(delta); // Ensure quadrupeds are moving
-            updateTeleportation(delta);
-            updateLooting(delta);
-
-            // Animate quadrupeds
-            quadrupeds.forEach(quadruped => {
-                animateQuadruped(quadruped, delta);
-            });
-
-            // Handle camera rotation
-            if (rotateLeft) {
-                cameraTargetAngle -= cameraRotationSpeed;
-            }
-            if (rotateRight) {
-                cameraTargetAngle += cameraRotationSpeed;
-            }
-
-            // Smoothly interpolate current angle towards target angle
-            currentCameraAngle += (cameraTargetAngle - currentCameraAngle) * 0.1;
-
-
-            // Update camera position based on current angle
-            const cameraRadius = 100;
-            const cameraHeight = 50;
-
-            const cameraOffset = new THREE.Vector3(
-                Math.sin(currentCameraAngle) * cameraRadius,
-                cameraHeight,
-                Math.cos(currentCameraAngle) * cameraRadius
-            );
-
-            camera.position.copy(player.position).add(cameraOffset);
-            camera.lookAt(player.position);
-
-
-            // Render Main Scene
-            renderer.clear();
-            renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
-            renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
-            renderer.setScissorTest(false);
-            renderer.render(scene, camera);
-
-            // Render Minimap
-            minimapCamera.position.x = player.position.x;
-            minimapCamera.position.z = player.position.z;
-
-            const minimapContainer = document.getElementById('minimapContainer');
-            const mapWidth = minimapContainer.clientWidth;
-            const mapHeight = minimapContainer.clientHeight;
-            const minimapRect = minimapContainer.getBoundingClientRect();
-            const canvasRect = renderer.domElement.getBoundingClientRect();
-            const minimapX = minimapRect.left - canvasRect.left;
-            const minimapY = minimapRect.top - canvasRect.top;
-
-            renderer.setViewport(minimapX, canvasRect.height - minimapY - mapHeight, mapWidth, mapHeight);
-            renderer.setScissor(minimapX, canvasRect.height - minimapY - mapHeight, mapWidth, mapHeight);
-            renderer.setScissorTest(true);
-            renderer.render(scene, minimapCamera);
-
-            // Render Fullscreen Map if visible
-            const fullscreenMap = document.getElementById('fullscreenMap');
-            if (fullscreenMap.style.display === 'block') {
-                renderMap();
-            }
-        }
-
-        function onDocumentKeyDown(event) {
-            if (inventoryOpen || statsOpen || adminConsoleOpen) {
-                if (inventoryOpen && (event.key.toLowerCase() === 'i' || event.key.toLowerCase() === 'b')) {
-                    inventoryOpen = false;
-                    document.getElementById('inventory').style.display = 'none';
-                } else if (statsOpen && event.key.toLowerCase() === 'c') {
-                    statsOpen = false;
-                    document.getElementById('stats').style.display = 'none';
-                } else if (adminConsoleOpen && event.key === '`') {
-                    closeAdminConsole();
-                }
-                return;
-				
-            }
-			
-            if (event.key === 'Escape') { // Handle Esc key
-                closeAllMenus();
-                return;
-            }
-
-			if (event.key.toLowerCase() === 'y') {
-                openBestiary();
-                return;
-            }
-
-
-            if (event.key.toLowerCase() === 'i' || event.key.toLowerCase() === 'b') {
-                inventoryOpen = !inventoryOpen;
-                document.getElementById('inventory').style.display = inventoryOpen ? 'block' : 'none';
-                return;
-            }
-
-            if (event.key.toLowerCase() === 'c') {
-                statsOpen = !statsOpen;
-                document.getElementById('stats').style.display = statsOpen ? 'block' : 'none';
-                return;
-            }
-
-            if (event.key === '`') {
-                if (adminConsoleOpen) {
-                    closeAdminConsole();
-                } else {
-                    openAdminConsole();
-                }
-                return;
-            }
-
-
-			// Handle toggling of admin window
-            if (event.key === '`') {
-                if (!isAdminLoggedIn) {
-                    openAdminConsole();
-                } else {
-                    closeAdminConsole();
-                }
-                return;
-            }
-
-			// Handle toggling of help window
-            if (event.key.toLowerCase() === 'h') {
-                helpWindowOpen = !helpWindowOpen;
-                document.getElementById('helpWindow').style.display = helpWindowOpen ? 'block' : 'none';
-                return;
-            }
-
-            // Set rotation flags
-            if (event.key.toLowerCase() === 'a') {
-                rotateLeft = true;
-                return;
-            }
-            if (event.key.toLowerCase() === 'd') {
-                rotateRight = true;
-                return;
-            }
-
-            if (isTeleporting || isLooting) return;
-
-            if (event.key.toLowerCase() === 't') {
-                if (!isTeleporting) {
-                    startTeleportation();
-                }
-            }
-            
-            if (event.key.toLowerCase() === 'q') {
-                questLogOpen = !questLogOpen;
-                document.getElementById('questLog').style.display = questLogOpen ? 'block' : 'none';
-                return;
-            }
-
-
-            if (event.key.toLowerCase() === 'k') {
-                if (document.getElementById('skillTree').style.display === 'block') {
-                    closeSkillTree();
-                } else {
-                    openSkillTree();
-                }
-                return;
-            }
-        }
-
-        function onDocumentKeyUp(event) {
-            if (event.key.toLowerCase() === 'a') {
-                rotateLeft = false;
-                return;
-            }
-            if (event.key.toLowerCase() === 'd') {
-                rotateRight = false;
-                return;
-            }
-        }
-
-        // Add keyup event listener
-        document.addEventListener('keyup', onDocumentKeyUp, false);
-
-        function onDocumentMouseDown(event) {
-            // Set destination if clicking on ground
-            const rect = renderer.domElement.getBoundingClientRect();
-            const mouse = new THREE.Vector2(
-                ((event.clientX - rect.left) / rect.width) * 2 - 1,
-                -((event.clientY - rect.top) / rect.height) * 2 + 1
-            );
-
-            const raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera(mouse, camera);
-
-            const chestIntersects = raycaster.intersectObjects(treasureChests, true);
-            if (chestIntersects.length > 0) {
-                const chestObject = chestIntersects[0].object;
-                openChestPopup(chestObject);
-                return;
-            }
-
-            // If any popups are open or other conditions are met, don't process other keys
-            if (inventoryOpen || statsOpen || adminConsoleOpen || isTeleporting || isLooting || helpWindowOpen) return;
-
-            const objects = [ground, safeZoneGround, teleportPad, ...enemies, ...friendlies];
-            const intersects = raycaster.intersectObjects([ground, safeZoneGround, teleportPad, ...enemies, ...friendlies], true);
-
-            if (intersects.length > 0) {
-                const intersectedObject = intersects[0].object;
-                const parent = intersectedObject.parent;
-
-                if (intersectedObject === ground || intersectedObject === safeZoneGround) {
-                    const point = intersects[0].point;
-                    mouseDestination = new THREE.Vector3(point.x, player.position.y, point.z);
-                    destination = new THREE.Vector3(point.x, player.position.y, point.z);
-                } else if (intersectedObject === teleportPad) {
-                    if (previousPosition) {
-                        player.position.copy(previousPosition);
-                        destination = null;
-                        previousPosition = null;
-                        alert('Teleported back to your previous location.');
-                    } else {
-                        alert('No previous location to teleport to.');
-                    }
-                } else if (parent.userData && parent.userData.type === 'hostile') {
-                    if (parent.userData.isDead) {
-                        lootEnemy(parent);
-                    } else {
-                        attackEnemy(parent);
-                    }
-                } else if (friendlies.includes(parent)) {
-                    if (npcAdminEnabled) {
-                        openNpcAdminPopup(parent);
-                        return;
-                    }
-                    openNpcPopup(parent);
-                } else if (parent.userData && parent.userData.type === 'nonHostile') {
-					alert('You see a peaceful creature.');
-				} else if (npcAdminEnabled) {
-					if (structures.includes(parent)) {
-						openStructureAdminPopup(parent);
-						return;
-					}
-					if (settlementWalls.includes(intersectedObject)) {
-						openSettlementWallAdminPopup(intersectedObject);
-						return;
-					}
-				} else if (friendlies.includes(parent)) {
-                    if (npcAdminEnabled) {
-                        openNpcAdminPopup(parent);
-                        return;
-                    }
-                    openNpcPopup(parent);
-                }
-            }
-        }
-
-
-        function updateStatsDisplay() {
-            document.getElementById('level').innerText = characterStats.level;
-            document.getElementById('experience').innerText = characterStats.experience;
-            document.getElementById('nextLevelExperience').innerText = characterStats.nextLevelExperience;
-            document.getElementById('strength').innerText = characterStats.strength;
-            document.getElementById('dexterity').innerText = characterStats.dexterity;
-            document.getElementById('vitality').innerText = characterStats.vitality;
-            document.getElementById('energy').innerText = characterStats.energy;
-            document.getElementById('statPoints').innerText = characterStats.statPoints;
-        }
-
-        function generateInventorySlots() {
-            for (let i = 1; i <= 6; i++) {
-                const grid = document.getElementById('inventoryGridTab' + i);
-                grid.innerHTML = '';
-                for (let j = 0; j < 56; j++) {
-                    const slot = document.createElement('div');
-                    slot.classList.add('inventory-slot');
-                    grid.appendChild(slot);
-                }
-            }
-        }
-
-
-        //--------------------------------------------End Essential Functions------------------------------------------------------------------------------------------------------------------
         // Function to Populate Inventory Grid with Tooltips
         function populateInventoryGrid(gridElement, items) {
             const slots = gridElement.querySelectorAll('.inventory-slot');
@@ -1441,7 +361,34 @@
         }
 
 
-        
+        // Skill Tree Data Structure
+        let skillTreeData = {
+            strength: {
+                name: 'Strength Boost',
+                description: 'Increase your strength by 5.',
+                cost: 1,
+                learned: false
+            },
+            dexterity: {
+                name: 'Dexterity Boost',
+                description: 'Increase your dexterity by 5.',
+                cost: 1,
+                learned: false
+            },
+            vitality: {
+                name: 'Vitality Boost',
+                description: 'Increase your vitality by 5.',
+                cost: 1,
+                learned: false
+            },
+            energy: {
+                name: 'Energy Boost',
+                description: 'Increase your energy by 5.',
+                cost: 1,
+                learned: false
+            }
+            // Add more skills as needed
+        };
 
         function openQuestLog() {
             questLogOpen = true;
@@ -1509,7 +456,8 @@
             }
         }
 
-        
+        // Global variable for enemy speed
+        let globalEnemySpeed = 0.7;
 		
 		// Bestiary Functions:
 		function openBestiary() {
@@ -1532,7 +480,10 @@
             document.getElementById('bestiary').style.display = 'none';
         }
 
-		// Structure Functions:
+
+		
+		// Implement Structure Admin Functions
+		let currentStructure = null;
 		function openStructureAdminPopup(structure) {
 			currentStructure = structure;
 			document.getElementById('structureScaleInput').value = structure.scale.x;
@@ -1567,10 +518,32 @@
 			}
 		}
 		
-		
-        
+		// Create a new Three.js scene, camera, and renderer for the fullscreen map.
+        let mapScene, mapCamera, mapRenderer;
 
-        
+        function initMap() {
+            const mapCanvas = document.getElementById('mapCanvas');
+            mapRenderer = new THREE.WebGLRenderer({ canvas: mapCanvas, alpha: true });
+            mapRenderer.setSize(window.innerWidth, window.innerHeight);
+            mapScene = new THREE.Scene();
+
+            // Orthographic camera for 2D map
+            const aspect = window.innerWidth / window.innerHeight;
+            const d = 5000; // Adjust based on your game world's size
+            mapCamera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 10000);
+            mapCamera.position.set(0, 1000, 0); // High above the game world
+            mapCamera.up.set(0, 0, -1); // Adjust to match the game world's orientation
+            mapCamera.lookAt(new THREE.Vector3(0, 0, 0));
+
+            // Add similar lighting to the main scene
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            mapScene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(0, 100, 0);
+            mapScene.add(directionalLight);
+        }
+
+        initMap();
 
         // Implement Map Rendering:
         function renderMap() {
@@ -1609,6 +582,34 @@
 
 
 
+        // Player health and energy
+        let playerHealth = 100;
+        const playerMaxHealth = 100;
+        let playerEnergy = 1;
+        const playerMaxEnergy = 1;
+
+        // Invulnerability variable
+        let playerInvulnerable = false;
+
+        // Looting variables
+        let isLooting = false;
+        let lootProgress = 0;
+        const lootDuration = 2; // Duration in seconds
+        let lootedItems = [];
+        let currentLootingEnemy = null;
+
+        // Initialize Character Stats
+        let characterStats = {
+            level: 1,
+            experience: 0,
+            nextLevelExperience: 100,
+            strength: 10,
+            dexterity: 10,
+            vitality: 10,
+            energy: 10,
+            statPoints: 0
+        };
+		
 		// Function to Create Purple Structure
 		function createPurpleStructure() {
 			const building = new THREE.Group();
@@ -1664,15 +665,30 @@
 			return building;
 		}
 		
-        
-        
+        // Player inventory
+        let playerInventory = [];
 
         function playAttackAnimation() {
             player.isAttacking = true;
             player.attackTime = 0;
         }
 
-        
+        function updateGoldDisplay() {
+            document.getElementById('goldAmount').innerText = gold;
+        }
+
+        function updateHealthDisplay() {
+            document.getElementById('lifeValue').innerText = `${playerHealth}/${playerMaxHealth}`;
+            let healthPercent = (playerHealth / playerMaxHealth) * 100;
+            document.getElementById('lifeFill').style.height = `${healthPercent}%`;
+        }
+
+        function updateEnergyDisplay() {
+            document.getElementById('energyValue').innerText = `${playerEnergy}/${playerMaxEnergy}`;
+            let energyPercent = (playerEnergy / playerMaxEnergy) * 100;
+            document.getElementById('energyOrb').style.clipPath = `inset(${100 - energyPercent}% 0 0 0)`;
+        }
+
         function addExperience(amount) {
             characterStats.experience += amount;
             if (characterStats.experience >= characterStats.nextLevelExperience) {
@@ -1969,6 +985,277 @@
             return chest;
         }
 
+        const npcData = [
+            { name: 'Elder Thoran', dialogue: 'Greetings, adventurer. May your journey be safe.' },
+            { name: 'Merchant Lila', dialogue: 'Looking to trade? I have wares you might like.' },
+            { name: 'Blacksmith Brom', dialogue: 'Need your weapons sharpened?' },
+            { name: 'Farmer Finn', dialogue: 'These crops won\'t tend themselves.' },
+            { name: 'Guard Greta', dialogue: 'Stay vigilant out there.' },
+            // Add more NPCs as desired
+        ];
+
+
+        function init() {
+            // Disable right-click context menu
+            document.addEventListener('contextmenu', function(event) {
+                event.preventDefault();
+            }, false);
+
+            const canvas = document.getElementById('gameCanvas');
+            renderer = new THREE.WebGLRenderer({ canvas });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.autoClear = false;
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
+            minimapCamera = new THREE.OrthographicCamera(-200, 200, 200, -200, 0.1, 10000);
+            minimapCamera.position.set(0, 500, 0);
+            minimapCamera.up.set(0, 0, -1);
+            minimapCamera.lookAt(0, 0, 0);
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(0, 100, 0);
+            scene.add(directionalLight);
+			addQuadrupeds();
+
+        
+
+            // Help Window Open on Start
+            helpWindowOpen = true;
+            document.getElementById('helpWindow').style.display = 'block';
+
+            // Populate Bestiary with NPCs
+            bestiary = {
+                goblin: {
+                    name: 'Goblin',
+                    description: 'A small, green creature known for its mischievous behavior.'
+                },
+                orc: {
+                    name: 'Orc',
+                    description: 'A large, brutish humanoid with immense strength.'
+                },
+                dragon: {
+                    name: 'Dragon',
+                    description: 'A massive, fire-breathing reptile that soars through the skies.'
+                },
+                troll: {
+                    name: 'Troll',
+                    description: 'A hulking beast with regenerative abilities and a fierce temper.'
+                },
+                elderThoran: {
+                    name: 'Elder Thoran',
+                    description: 'The wise elder of the village, offering guidance to travelers.'
+                },
+                merchantLila: {
+                    name: 'Merchant Lila',
+                    description: 'A traveling merchant with a variety of goods for sale.'
+                }
+                // Add more unique NPCs as needed
+            };
+
+
+            const groundShape = new THREE.Shape();
+            groundShape.moveTo(-5000, -5000);
+            groundShape.lineTo(5000, -5000);
+            groundShape.lineTo(5000, 5000);
+            groundShape.lineTo(-5000, 5000);
+            groundShape.lineTo(-5000, -5000);
+
+            const safeZoneSize = 300;
+            const holePath = new THREE.Path();
+            holePath.moveTo(-safeZoneSize, -safeZoneSize);
+            holePath.lineTo(-safeZoneSize, safeZoneSize);
+            holePath.lineTo(safeZoneSize, safeZoneSize);
+            holePath.lineTo(safeZoneSize, -safeZoneSize);
+            holePath.lineTo(-safeZoneSize, -safeZoneSize);
+            groundShape.holes.push(holePath);
+
+            const groundGeometry = new THREE.ShapeGeometry(groundShape);
+            const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+            ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.name = 'ground';
+            scene.add(ground);
+
+            const safeZoneGroundGeometry = new THREE.PlaneGeometry(600, 600);
+            const safeZoneGroundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
+            safeZoneGround = new THREE.Mesh(safeZoneGroundGeometry, safeZoneGroundMaterial);
+            safeZoneGround.rotation.x = -Math.PI / 2;
+            safeZoneGround.position.y = 0.1;
+            scene.add(safeZoneGround);
+
+            const safeZoneBarrierGeometry = new THREE.BoxGeometry(600, 50, 600);
+            const safeZoneBarrierMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
+            const safeZoneBarrier = new THREE.Mesh(safeZoneBarrierGeometry, safeZoneBarrierMaterial);
+            safeZoneBarrier.position.set(0, 25, 0);
+            scene.add(safeZoneBarrier);
+            enemyWalls.push(safeZoneBarrier);
+
+            createSettlementWalls();
+            
+            const shrineGroup = new THREE.Group();
+
+            const floorGeometry = new THREE.CircleGeometry(20, 32);
+            const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.position.y = 0.1;
+            shrineGroup.add(floor);
+
+            const teleportPadGeometry = new THREE.CircleGeometry(5, 32);
+            const teleportPadMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+            teleportPad = new THREE.Mesh(teleportPadGeometry, teleportPadMaterial);
+            teleportPad.rotation.x = -Math.PI / 2;
+            teleportPad.position.y = 0.11;
+            teleportPad.name = 'teleportPad';
+            shrineGroup.add(teleportPad);
+
+            shrineGroup.position.set(0, 0, 0);
+            scene.add(shrineGroup);
+
+            // Spawn Red Enemies (Regular)
+            for (let i = 0; i < 10; i++) {
+                let position = getRandomPositionOutsideTown(300, 1000);
+                let enemy = createEnemy(position.x, 0, position.z, 'red');
+                enemies.push(enemy);
+                scene.add(enemy);
+            }
+
+            // Spawn Blue Enemies
+            for (let i = 0; i < 3; i++) { // Adjust the number as desired
+                let position = getRandomPositionOutsideTown(300, 1000);
+                let blueEnemy = createEnemy(position.x, 0, position.z, 'blue');
+                enemies.push(blueEnemy);
+                scene.add(blueEnemy);
+            }
+
+            const structurePositions = [
+                { x: 150, z: 150 },
+                { x: -150, z: 150 },
+                { x: 150, z: -150 },
+                { x: -150, z: -150 },
+                { x: 0, z: 200 },
+            ];
+
+            structurePositions.forEach(pos => {
+                const structure = createStructure();
+                structure.position.set(pos.x, 0, pos.z);
+                scene.add(structure);
+                walls.push(...structure.userData.walls);
+				structures.push(structure);
+
+                // Select a random NPC from npcData
+                const npcInfo = npcData[Math.floor(Math.random() * npcData.length)];
+
+                // Create the NPC with the selected data
+                const npc = createFriendlyNPC(0x00ff00, npcInfo.name, npcInfo.dialogue);
+
+                // Position the NPC at the structure's position
+                npc.position.copy(structure.position);
+
+                // Add the NPC to the scene and friendlies array
+                scene.add(npc);
+                friendlies.push(npc);
+            });
+
+            player = createHumanoid(0x0000ff);
+            player.position.y = 0; 
+            scene.add(player);
+
+			function checkEnemiesInSafeZone() {
+				const safeZoneRadius = 300; // Radius of the safe zone
+
+				enemies.forEach((enemy) => {
+					if (enemy.userData.isDead) return;
+
+					const distanceFromCenter = Math.sqrt(
+						enemy.position.x * enemy.position.x + enemy.position.z * enemy.position.z
+					);
+
+					if (distanceFromCenter < safeZoneRadius) {
+						const angle = Math.random() * Math.PI * 2;
+						const teleportDistance = 1000;
+						enemy.position.x = Math.cos(angle) * teleportDistance;
+						enemy.position.z = Math.sin(angle) * teleportDistance;
+						enemy.position.y = 0; 
+					}
+				});
+			}
+
+			// Add a Purple Structure a Little Ways Away from Town
+            const purpleStructure = createPurpleStructure();
+            purpleStructure.position.set(800, 0, -800); // Adjust position as desired
+            scene.add(purpleStructure);
+
+            // Function to add diverse plants to the terrain
+            function addPlantsToTerrain() {
+                const numElements = 3000; // Total number of natural elements
+
+                const elementTypes = [
+                    {
+                        // Tree
+						geometry: new THREE.ConeGeometry(20, 200, 20),
+                        material: new THREE.MeshLambertMaterial({ color: 0x228B22 }),
+                        yOffset: 5,
+                    },
+                    {
+                        geometry: new THREE.CylinderGeometry(0.5, 0.5, 5, 8),
+                        material: new THREE.MeshLambertMaterial({ color: 0x8B4513 }),
+                        yOffset: 2.5,
+                    },
+                    {
+                        geometry: new THREE.SphereGeometry(3, 8, 8),
+                        material: new THREE.MeshLambertMaterial({ color: 0x006400 }),
+                        yOffset: 3,
+                    },
+					{
+						//Large Bush
+                        geometry: new THREE.SphereGeometry(4, 12, 13),
+                        material: new THREE.MeshLambertMaterial({ color: 0x006400 }),
+                        yOffset: 3,
+                    },
+                    {
+						//Rock
+                        geometry: new THREE.DodecahedronGeometry(3, 2),
+                        material: new THREE.MeshLambertMaterial({ color: 0x808080 }),
+                        yOffset: 3,
+                    },
+                ];
+
+                for (let i = 0; i < numElements; i++) {
+                    const typeIndex = Math.floor(Math.random() * elementTypes.length);
+                    const element = new THREE.Mesh(
+                        elementTypes[typeIndex].geometry,
+                        elementTypes[typeIndex].material
+                    );
+
+                    // Random position within the terrain bounds, avoiding the safe zone
+                    let x = Math.random() * 10000 - 5000;
+                    let z = Math.random() * 10000 - 5000;
+                    while (Math.sqrt(x * x + z * z) < 400) { // Ensure elements are not in the safe zone
+                        x = Math.random() * 10000 - 5000;
+                        z = Math.random() * 10000 - 5000;
+                    }
+
+                    element.position.set(x, elementTypes[typeIndex].yOffset, z);
+                    element.rotation.y = Math.random() * Math.PI * 2; // Random rotation
+                    scene.add(element);
+                }
+            }
+
+            addPlantsToTerrain(); // Call the function to add plants and rocks
+
+            window.addEventListener('resize', onWindowResize, false);
+            document.addEventListener('keydown', onDocumentKeyDown, false);
+            canvas.addEventListener('mousedown', onDocumentMouseDown, false);
+            canvas.addEventListener('mouseup', onDocumentMouseUp, false);
+        }
+
+        function onDocumentMouseUp(event) {
+            isMouseDown = false;
+            mouseDestination = null;
+        }
 
 
 		function createSettlement(x, y, z) {
@@ -2197,7 +1484,9 @@
             }
         }
 
-        
+        // Keep track of active damage intervals
+        let activeDamageIntervals = new Map();
+
         function enemyAttackPlayer(enemy, delta) {
             if (enemy.userData.isDead || playerInvulnerable) return;
 
@@ -2352,8 +1641,210 @@
                 animateHumanoid(enemy, delta);
             });
         }
-        
-        
+
+
+        function saveGame() {
+            const gameState = {
+                player: {
+                    position: {
+                        x: player.position.x,
+                        y: player.position.y,
+                        z: player.position.z
+                    },
+                    health: playerHealth,
+                    energy: playerEnergy,
+                    inventory: playerInventory,
+                    stats: characterStats,
+                    gold: gold,
+                    invulnerable: playerInvulnerable
+                },
+                enemies: enemies.map(enemy => ({
+                    position: {
+                        x: enemy.position.x,
+                        y: enemy.position.y,
+                        z: enemy.position.z
+                    },
+                    isDead: enemy.userData.isDead,
+                    hasBeenLooted: enemy.userData.hasBeenLooted
+                    // Add more enemy properties as needed
+                })),
+                friendlies: friendlies.map(npc => ({
+                    position: {
+                        x: npc.position.x,
+                        y: npc.position.y,
+                        z: npc.position.z
+                    },
+                    name: npc.userData.name,
+                    health: npc.userData.health,
+                    dialogue: npc.userData.dialogue,
+                    // Add more NPC properties as needed
+                })),
+                quadrupeds: quadrupeds.map(quadruped => ({
+                    position: {
+                        x: quadruped.position.x,
+                        y: quadruped.position.y,
+                        z: quadruped.position.z
+                    },
+                    // Add more quadruped properties as needed
+                }))
+                // Add more game entities as needed
+            };
+
+            localStorage.setItem('remnantsOfDestructionsSave', JSON.stringify(gameState));
+            alert('Game saved successfully!');
+        }
+
+        function loadGame() {
+            const savedState = localStorage.getItem('remnantsOfDestructionsSave');
+            if (!savedState) {
+                alert('No saved game found!');
+                return;
+            }
+
+            const gameState = JSON.parse(savedState);
+
+            // Restore Player State
+            player.position.set(gameState.player.position.x, gameState.player.position.y, gameState.player.position.z);
+            playerHealth = gameState.player.health;
+            playerEnergy = gameState.player.energy;
+            playerInventory = gameState.player.inventory;
+            characterStats = gameState.player.stats;
+            gold = gameState.player.gold;
+            playerInvulnerable = gameState.player.invulnerable;
+
+            updateHealthDisplay();
+            updateEnergyDisplay();
+            updateInventoryDisplay();
+            updateStatsDisplay();
+            updateGoldDisplay();
+
+            // Restore Enemies
+            enemies.forEach((enemy, index) => {
+                if (gameState.enemies[index]) {
+                    enemy.position.set(gameState.enemies[index].position.x, gameState.enemies[index].position.y, gameState.enemies[index].position.z);
+                    enemy.userData.isDead = gameState.enemies[index].isDead;
+                    enemy.userData.hasBeenLooted = gameState.enemies[index].hasBeenLooted;
+
+                    // Change color if dead
+                    if (enemy.userData.isDead) {
+                        enemy.traverse(child => {
+                            if (child.isMesh) {
+                                child.material.color.set(0x000000); // Black color
+                            }
+                        });
+                    }
+                }
+            });
+
+            // Restore Friendlies
+            friendlies.forEach((npc, index) => {
+                if (gameState.friendlies[index]) {
+                    npc.position.set(gameState.friendlies[index].position.x, gameState.friendlies[index].position.y, gameState.friendlies[index].position.z);
+                    npc.userData.name = gameState.friendlies[index].name;
+                    npc.userData.health = gameState.friendlies[index].health;
+                    npc.userData.dialogue = gameState.friendlies[index].dialogue;
+
+                    // Update NPC popup content if needed
+                }
+            });
+
+            // Restore Quadrupeds
+            quadrupeds.forEach((quadruped, index) => {
+                if (gameState.quadrupeds[index]) {
+                    quadruped.position.set(gameState.quadrupeds[index].position.x, gameState.quadrupeds[index].position.y, gameState.quadrupeds[index].position.z);
+                    // Restore more quadruped properties if needed
+                }
+            });
+
+            alert('Game loaded successfully!');
+        }
+
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+
+            if (isMouseDown && mouseDestination) {
+                destination = mouseDestination.clone();
+            }
+
+            if (destination) {
+                movePlayerTowardsDestination();
+            } else {
+                player.isMoving = false;
+            }
+
+            // Maintain minimum of 50 enemies
+            maintainEnemyCount();
+
+            animateHumanoid(player, delta);
+            moveEnemies(delta);
+            animateDeadEnemies(delta);
+            moveQuadrupeds(delta); // Ensure quadrupeds are moving
+            updateTeleportation(delta);
+            updateLooting(delta);
+
+            // Animate quadrupeds
+            quadrupeds.forEach(quadruped => {
+                animateQuadruped(quadruped, delta);
+            });
+
+            // Handle camera rotation
+            if (rotateLeft) {
+                cameraTargetAngle -= cameraRotationSpeed;
+            }
+            if (rotateRight) {
+                cameraTargetAngle += cameraRotationSpeed;
+            }
+
+            // Smoothly interpolate current angle towards target angle
+            currentCameraAngle += (cameraTargetAngle - currentCameraAngle) * 0.1;
+
+            // Update camera position based on current angle
+            const cameraRadius = 100;
+            const cameraHeight = 50;
+
+            const cameraOffset = new THREE.Vector3(
+                Math.sin(currentCameraAngle) * cameraRadius,
+                cameraHeight,
+                Math.cos(currentCameraAngle) * cameraRadius
+            );
+
+            camera.position.copy(player.position).add(cameraOffset);
+            camera.lookAt(player.position);
+
+
+            // Render Main Scene
+            renderer.clear();
+            renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+            renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
+            renderer.setScissorTest(false);
+            renderer.render(scene, camera);
+
+            // Render Minimap
+            minimapCamera.position.x = player.position.x;
+            minimapCamera.position.z = player.position.z;
+
+            const minimapContainer = document.getElementById('minimapContainer');
+            const mapWidth = minimapContainer.clientWidth;
+            const mapHeight = minimapContainer.clientHeight;
+            const minimapRect = minimapContainer.getBoundingClientRect();
+            const canvasRect = renderer.domElement.getBoundingClientRect();
+            const minimapX = minimapRect.left - canvasRect.left;
+            const minimapY = minimapRect.top - canvasRect.top;
+
+            renderer.setViewport(minimapX, canvasRect.height - minimapY - mapHeight, mapWidth, mapHeight);
+            renderer.setScissor(minimapX, canvasRect.height - minimapY - mapHeight, mapWidth, mapHeight);
+            renderer.setScissorTest(true);
+            renderer.render(scene, minimapCamera);
+
+            // Render Fullscreen Map if visible
+            const fullscreenMap = document.getElementById('fullscreenMap');
+            if (fullscreenMap.style.display === 'block') {
+                renderMap();
+            }
+        }
+
 
         function toggleFullscreenMap() {
             const fullscreenMap = document.getElementById('fullscreenMap');
@@ -2433,8 +1924,6 @@
                     player.isMoving = false;
                 } else {
                     player.isMoving = true;
-                    // Rotate player to face the direction of movement
-                    player.rotation.y = Math.atan2(direction.x, direction.z);
                 }
             } else {
                 player.position.copy(destination);
@@ -2538,7 +2027,195 @@
             // Add more menus as needed
         }
 
-        
+
+        function onDocumentKeyDown(event) {
+            if (inventoryOpen || statsOpen || adminConsoleOpen) {
+                if (inventoryOpen && (event.key.toLowerCase() === 'i' || event.key.toLowerCase() === 'b')) {
+                    inventoryOpen = false;
+                    document.getElementById('inventory').style.display = 'none';
+                } else if (statsOpen && event.key.toLowerCase() === 'c') {
+                    statsOpen = false;
+                    document.getElementById('stats').style.display = 'none';
+                } else if (adminConsoleOpen && event.key === '`') {
+                    closeAdminConsole();
+                }
+                return;
+				
+            }
+			
+            if (event.key === 'Escape') { // Handle Esc key
+                closeAllMenus();
+                return;
+            }
+
+			if (event.key.toLowerCase() === 'y') {
+                openBestiary();
+                return;
+            }
+
+
+            if (event.key.toLowerCase() === 'i' || event.key.toLowerCase() === 'b') {
+                inventoryOpen = !inventoryOpen;
+                document.getElementById('inventory').style.display = inventoryOpen ? 'block' : 'none';
+                return;
+            }
+
+            if (event.key.toLowerCase() === 'c') {
+                statsOpen = !statsOpen;
+                document.getElementById('stats').style.display = statsOpen ? 'block' : 'none';
+                return;
+            }
+
+            if (event.key === '`') {
+                if (adminConsoleOpen) {
+                    closeAdminConsole();
+                } else {
+                    openAdminConsole();
+                }
+                return;
+            }
+
+
+			// Handle toggling of admin window
+            if (event.key === '`') {
+                if (!isAdminLoggedIn) {
+                    openAdminConsole();
+                } else {
+                    closeAdminConsole();
+                }
+                return;
+            }
+
+			// Handle toggling of help window
+            if (event.key.toLowerCase() === 'h') {
+                helpWindowOpen = !helpWindowOpen;
+                document.getElementById('helpWindow').style.display = helpWindowOpen ? 'block' : 'none';
+                return;
+            }
+
+            // Set rotation flags
+            if (event.key.toLowerCase() === 'a') {
+                rotateLeft = true;
+                return;
+            }
+            if (event.key.toLowerCase() === 'd') {
+                rotateRight = true;
+                return;
+            }
+
+            if (isTeleporting || isLooting) return;
+
+            if (event.key.toLowerCase() === 't') {
+                if (!isTeleporting) {
+                    startTeleportation();
+                }
+            }
+            
+            if (event.key.toLowerCase() === 'q') {
+                questLogOpen = !questLogOpen;
+                document.getElementById('questLog').style.display = questLogOpen ? 'block' : 'none';
+                return;
+            }
+
+
+            if (event.key.toLowerCase() === 'k') {
+                if (document.getElementById('skillTree').style.display === 'block') {
+                    closeSkillTree();
+                } else {
+                    openSkillTree();
+                }
+                return;
+            }
+        }
+
+        function onDocumentKeyUp(event) {
+            if (event.key.toLowerCase() === 'a') {
+                rotateLeft = false;
+                return;
+            }
+            if (event.key.toLowerCase() === 'd') {
+                rotateRight = false;
+                return;
+            }
+        }
+
+        // Add keyup event listener
+        document.addEventListener('keyup', onDocumentKeyUp, false);
+
+        function onDocumentMouseDown(event) {
+            // Set destination if clicking on ground
+            const rect = renderer.domElement.getBoundingClientRect();
+            const mouse = new THREE.Vector2(
+                ((event.clientX - rect.left) / rect.width) * 2 - 1,
+                -((event.clientY - rect.top) / rect.height) * 2 + 1
+            );
+
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+
+            const chestIntersects = raycaster.intersectObjects(treasureChests, true);
+            if (chestIntersects.length > 0) {
+                const chestObject = chestIntersects[0].object;
+                openChestPopup(chestObject);
+                return;
+            }
+
+            // If any popups are open or other conditions are met, don't process other keys
+            if (inventoryOpen || statsOpen || adminConsoleOpen || isTeleporting || isLooting || helpWindowOpen) return;
+
+            const objects = [ground, safeZoneGround, teleportPad, ...enemies, ...friendlies];
+            const intersects = raycaster.intersectObjects([ground, safeZoneGround, teleportPad, ...enemies, ...friendlies], true);
+
+            if (intersects.length > 0) {
+                const intersectedObject = intersects[0].object;
+                const parent = intersectedObject.parent;
+
+                if (intersectedObject === ground || intersectedObject === safeZoneGround) {
+                    const point = intersects[0].point;
+                    mouseDestination = new THREE.Vector3(point.x, player.position.y, point.z);
+                    destination = new THREE.Vector3(point.x, player.position.y, point.z);
+                } else if (intersectedObject === teleportPad) {
+                    if (previousPosition) {
+                        player.position.copy(previousPosition);
+                        destination = null;
+                        previousPosition = null;
+                        alert('Teleported back to your previous location.');
+                    } else {
+                        alert('No previous location to teleport to.');
+                    }
+                } else if (parent.userData && parent.userData.type === 'hostile') {
+                    if (parent.userData.isDead) {
+                        lootEnemy(parent);
+                    } else {
+                        attackEnemy(parent);
+                    }
+                } else if (friendlies.includes(parent)) {
+                    if (npcAdminEnabled) {
+                        openNpcAdminPopup(parent);
+                        return;
+                    }
+                    openNpcPopup(parent);
+                } else if (parent.userData && parent.userData.type === 'nonHostile') {
+					alert('You see a peaceful creature.');
+				} else if (npcAdminEnabled) {
+					if (structures.includes(parent)) {
+						openStructureAdminPopup(parent);
+						return;
+					}
+					if (settlementWalls.includes(intersectedObject)) {
+						openSettlementWallAdminPopup(intersectedObject);
+						return;
+					}
+				} else if (friendlies.includes(parent)) {
+                    if (npcAdminEnabled) {
+                        openNpcAdminPopup(parent);
+                        return;
+                    }
+                    openNpcPopup(parent);
+                }
+            }
+        }
+
         function lootEnemy(enemy) {
             if (enemy.userData.hasBeenLooted) {
                 alert('This enemy has already been looted.');
@@ -2822,7 +2499,29 @@
             }
         }
 
-        
+        function updateStatsDisplay() {
+            document.getElementById('level').innerText = characterStats.level;
+            document.getElementById('experience').innerText = characterStats.experience;
+            document.getElementById('nextLevelExperience').innerText = characterStats.nextLevelExperience;
+            document.getElementById('strength').innerText = characterStats.strength;
+            document.getElementById('dexterity').innerText = characterStats.dexterity;
+            document.getElementById('vitality').innerText = characterStats.vitality;
+            document.getElementById('energy').innerText = characterStats.energy;
+            document.getElementById('statPoints').innerText = characterStats.statPoints;
+        }
+
+        function generateInventorySlots() {
+            for (let i = 1; i <= 6; i++) {
+                const grid = document.getElementById('inventoryGridTab' + i);
+                grid.innerHTML = '';
+                for (let j = 0; j < 56; j++) {
+                    const slot = document.createElement('div');
+                    slot.classList.add('inventory-slot');
+                    grid.appendChild(slot);
+                }
+            }
+        }
+
         function addItemToInventory(item) {
             // Assuming item includes name and description
             playerInventory.push(item);
@@ -2866,9 +2565,7 @@
             tabContents[0].classList.add('active');
         }
 
-
-        
-        
+        setupInventoryTabs();
 
 		function generatePlayerInventoryGrid() {
 			const grid = document.getElementById('playerInventoryGrid');
@@ -3012,8 +2709,8 @@
         }
 
 
-        setupInventoryTabs();
-        initMap();
+
+
         generateInventorySlots();
         updateGoldDisplay();
         updateHealthDisplay();
