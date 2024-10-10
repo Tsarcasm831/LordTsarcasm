@@ -1,0 +1,737 @@
+// ui.js
+
+// Tooltip Element
+const tooltip = document.getElementById('tooltip');
+
+// Initialize UI Components
+function initializeUI() {
+    initializeInventoryUI();
+    initializeStatsUI();
+    initializeSkillTreeUI();
+    initializeBestiaryUI();
+    initializeQuestLogUI();
+    initializeHelpWindowUI();
+    initializeAdminConsoleUI();
+    initializeHotbarUI();
+    initializeLootPopupUI();
+    initializeNpcPopupUI();
+    initializeChestPopupUI();
+    initializeEnergyOrbUI();
+    initializeLifeOrbUI();
+    initializeTeleportationBarUI();
+}
+
+// --------------------------------------- Inventory UI ---------------------------------------
+
+let playerInventory = []; // Player inventory
+
+function initializeInventoryUI() {
+    generateInventorySlots();
+    setupInventoryTabs();
+    updateInventoryDisplay();
+}
+
+function generateInventorySlots() {
+    for (let i = 1; i <= 6; i++) {
+        const grid = document.getElementById('inventoryGridTab' + i);
+        grid.innerHTML = '';
+        for (let j = 0; j < 56; j++) {
+            const slot = document.createElement('div');
+            slot.classList.add('inventory-slot');
+            grid.appendChild(slot);
+        }
+    }
+}
+
+function populateInventoryGrid(gridElement, items) {
+    const slots = gridElement.querySelectorAll('.inventory-slot');
+    slots.forEach((slot, index) => {
+        slot.innerHTML = '';
+        if (items[index]) {
+            slot.innerText = items[index].name;
+
+            // Add data attributes for tooltip
+            slot.setAttribute('data-name', items[index].name);
+            slot.setAttribute('data-description', items[index].description || 'No description available.');
+
+            // Event listeners for tooltip
+            slot.addEventListener('mouseenter', showTooltip);
+            slot.addEventListener('mousemove', moveTooltip);
+            slot.addEventListener('mouseleave', hideTooltip);
+        }
+    });
+}
+
+// Function to Show Tooltip
+function showTooltip(event) {
+    const name = this.getAttribute('data-name');
+    const description = this.getAttribute('data-description');
+    tooltip.innerHTML = `<strong>${name}</strong><br>${description}`;
+    tooltip.style.display = 'block';
+}
+
+// Function to Move Tooltip with Mouse
+function moveTooltip(event) {
+    const tooltipWidth = tooltip.offsetWidth;
+    const tooltipHeight = tooltip.offsetHeight;
+    const pageWidth = window.innerWidth;
+    const pageHeight = window.innerHeight;
+
+    let x = event.clientX + 10;
+    let y = event.clientY + 10;
+
+    // Prevent tooltip from going off-screen
+    if (x + tooltipWidth > pageWidth) {
+        x = event.clientX - tooltipWidth - 10;
+    }
+    if (y + tooltipHeight > pageHeight) {
+        y = event.clientY - tooltipHeight - 10;
+    }
+
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y}px`;
+}
+
+// Function to Hide Tooltip
+function hideTooltip() {
+    tooltip.style.display = 'none';
+    tooltip.innerHTML = '';
+}
+
+function updateInventoryDisplay() {
+    // Loop through all inventory tabs and update their grids
+    for (let i = 1; i <= 6; i++) {
+        const grid = document.getElementById(`inventoryGridTab${i}`);
+        grid.innerHTML = ''; // Clear existing items
+        playerInventory.forEach((invItem, index) => {
+            if (index < 56) { // Assuming each tab has 56 slots
+                const slot = document.createElement('div');
+                slot.classList.add('inventory-slot');
+                slot.innerText = invItem.name;
+                grid.appendChild(slot);
+            }
+        });
+    }
+}
+
+function setupInventoryTabs() {
+    const tabs = document.querySelectorAll('.inventory-tab');
+    const tabContents = document.querySelectorAll('.inventory-tab-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(tc => tc.classList.remove('active'));
+
+            tab.classList.add('active');
+            const activeTabContent = document.getElementById(tab.dataset.tab);
+            activeTabContent.classList.add('active');
+        });
+    });
+
+    tabs[0].classList.add('active');
+    tabContents[0].classList.add('active');
+}
+
+function addItemToInventory(item) {
+    // Assuming item includes name and description
+    playerInventory.push(item);
+    updateInventoryDisplay();
+}
+
+// --------------------------------------- Stats UI ---------------------------------------
+
+let characterStats = {
+    level: 1,
+    experience: 0,
+    nextLevelExperience: 100,
+    strength: 10,
+    dexterity: 10,
+    vitality: 10,
+    energy: 10,
+    statPoints: 0
+};
+
+function initializeStatsUI() {
+    updateStatsDisplay();
+}
+
+function updateStatsDisplay() {
+    document.getElementById('level').innerText = characterStats.level;
+    document.getElementById('experience').innerText = characterStats.experience;
+    document.getElementById('nextLevelExperience').innerText = characterStats.nextLevelExperience;
+    document.getElementById('strength').innerText = characterStats.strength;
+    document.getElementById('dexterity').innerText = characterStats.dexterity;
+    document.getElementById('vitality').innerText = characterStats.vitality;
+    document.getElementById('energy').innerText = characterStats.energy;
+    document.getElementById('statPoints').innerText = characterStats.statPoints;
+}
+
+function increaseStat(stat) {
+    if (characterStats.statPoints > 0) {
+        characterStats[stat]++;
+        characterStats.statPoints--;
+        updateStatsDisplay();
+    } else {
+        alert('No available stat points!');
+    }
+}
+
+// --------------------------------------- Skill Tree UI ---------------------------------------
+
+let skillTreeData = {
+    strength: {
+        name: 'Strength Boost',
+        description: 'Increase your strength by 5.',
+        cost: 1,
+        learned: false
+    },
+    dexterity: {
+        name: 'Dexterity Boost',
+        description: 'Increase your dexterity by 5.',
+        cost: 1,
+        learned: false
+    },
+    vitality: {
+        name: 'Vitality Boost',
+        description: 'Increase your vitality by 5.',
+        cost: 1,
+        learned: false
+    },
+    energy: {
+        name: 'Energy Boost',
+        description: 'Increase your energy by 5.',
+        cost: 1,
+        learned: false
+    }
+    // Add more skills as needed
+};
+
+function initializeSkillTreeUI() {
+    // Skill Tree is initialized when opened
+}
+
+function openSkillTree() {
+    const skillTreeDiv = document.getElementById('skillTree');
+    skillTreeDiv.style.display = 'block';
+    populateSkillTree();
+}
+
+function closeSkillTree() {
+    const skillTreeDiv = document.getElementById('skillTree');
+    skillTreeDiv.style.display = 'none';
+}
+
+function populateSkillTree() {
+    const skillsContainer = document.getElementById('skillsContainer');
+    skillsContainer.innerHTML = ''; // Clear existing skills
+
+    for (const key in skillTreeData) {
+        if (skillTreeData.hasOwnProperty(key)) {
+            const skill = skillTreeData[key];
+            const skillDiv = document.createElement('div');
+            skillDiv.classList.add('skill');
+            if (skill.learned) {
+                skillDiv.classList.add('learned');
+            }
+            skillDiv.innerHTML = `<strong>${skill.name}</strong><br>${skill.description}<br>Cost: ${skill.cost} XP`;
+            
+            // Add click event to learn the skill
+            skillDiv.addEventListener('click', () => {
+                if (!skill.learned && characterStats.experience >= skill.cost * 100) { // Assuming 100 XP per cost unit
+                    characterStats.experience -= skill.cost * 100;
+                    characterStats[Object.keys(skillTreeData)[Object.keys(skillTreeData).indexOf(key)]] += 5; // Increase the relevant stat
+                    skill.learned = true;
+                    updateStatsDisplay();
+                    populateSkillTree(); // Refresh the skill tree
+                    alert(`You have learned ${skill.name}!`);
+                } else if (skill.learned) {
+                    alert('Skill already learned.');
+                } else {
+                    alert('Not enough experience to learn this skill.');
+                }
+            });
+
+            // Add CSS classes based on skill availability
+            if (!skill.learned && characterStats.experience < skill.cost * 100) {
+                skillDiv.classList.add('unavailable');
+            }
+
+            skillsContainer.appendChild(skillDiv);
+        }
+    }
+}
+
+// --------------------------------------- Bestiary UI ---------------------------------------
+
+function initializeBestiaryUI() {
+    // Bestiary initialization if needed
+}
+
+function openBestiary() {
+    const bestiaryModal = document.getElementById('bestiaryModal');
+    bestiaryModal.style.display = 'block';
+    renderBestiary();  // Ensure content is populated when opened
+}
+
+function closeBestiary() {
+    const bestiaryDiv = document.getElementById('bestiary');
+    bestiaryDiv.style.display = 'none';
+}
+
+function populateBestiary() {
+    const bestiaryContent = document.getElementById('bestiaryContent');
+    bestiaryContent.innerHTML = ''; // Clear existing content
+
+    enemies.forEach(enemy => {
+        if (!enemy.userData.isDead) {
+            const enemyInfo = document.createElement('div');
+            enemyInfo.innerHTML = `<strong>Enemy:</strong> ${enemy.userData.type}<br>`;
+            bestiaryContent.appendChild(enemyInfo);
+        }
+    });
+
+    // Add more details as needed
+}
+
+// --------------------------------------- Quest Log UI ---------------------------------------
+
+let quests = []; // Initialize the quest array
+
+function initializeQuestLogUI() {
+    // Quest Log is initialized when opened
+}
+
+function openQuestLog() {
+    questLogOpen = true;
+    document.getElementById('questLog').style.display = 'block';
+    populateQuestLog();
+}
+
+function closeQuestLog() {
+    questLogOpen = false;
+    document.getElementById('questLog').style.display = 'none';
+}
+
+function populateQuestLog() {
+    const questList = document.getElementById('questList');
+    questList.innerHTML = ''; // Clear existing quests
+
+    quests.forEach(quest => {
+        const questItem = document.createElement('li');
+        questItem.innerText = `${quest.name}: ${quest.description}`;
+        questList.appendChild(questItem);
+    });
+
+    // Add more quest details as needed
+}
+
+// --------------------------------------- Help Window UI ---------------------------------------
+
+let helpWindowOpen = false;
+
+function initializeHelpWindowUI() {
+    // Help Window is initialized when opened
+}
+
+function toggleHelpWindow() {
+    helpWindowOpen = !helpWindowOpen;
+    document.getElementById('helpWindow').style.display = helpWindowOpen ? 'block' : 'none';
+}
+
+// --------------------------------------- Admin Console UI ---------------------------------------
+
+let isAdminLoggedIn = false;
+
+function initializeAdminConsoleUI() {
+    // Admin Console is initialized when opened
+}
+
+function openAdminConsoleUI() {
+    const adminConsole = document.getElementById('adminConsole');
+    adminConsole.style.display = 'block';
+    if (isAdminLoggedIn) {
+        document.getElementById('adminLogin').style.display = 'none';
+        document.getElementById('adminControls').style.display = 'block';
+    } else {
+        document.getElementById('adminLogin').style.display = 'block';
+        document.getElementById('adminControls').style.display = 'none';
+    }
+}
+
+function closeAdminConsoleUI() {
+    const adminConsole = document.getElementById('adminConsole');
+    adminConsole.style.display = 'none';
+    isAdminLoggedIn = false;
+    document.getElementById('adminControls').style.display = 'none';
+    document.getElementById('adminLogin').style.display = 'block';
+}
+
+function checkAdminPasswordUI() {
+    const passwordInput = document.getElementById('adminPassword').value;
+    if (passwordInput === 'ltwelcome1') {
+        isAdminLoggedIn = true;
+        document.getElementById('adminLogin').style.display = 'none';
+        document.getElementById('adminControls').style.display = 'block';
+        document.getElementById('adminPassword').value = ''; // Clear password field
+
+        // Attach the change event listener only once
+        if (!document.getElementById('npcAdminCheckbox').hasAttribute('data-listener')) {
+            document.getElementById('npcAdminCheckbox').addEventListener('change', function() {
+                npcAdminEnabled = this.checked;
+                alert('NPC Admin Mode ' + (npcAdminEnabled ? 'Enabled' : 'Disabled'));
+            });
+            document.getElementById('npcAdminCheckbox').setAttribute('data-listener', 'true');
+        }
+    } else {
+        alert('Incorrect password!');
+    }
+}
+
+function updatePlayerOptionsUI() {
+    playerInvulnerable = document.getElementById('invulnerabilityCheckbox').checked;
+    alert('Player options updated.');
+}
+
+function updatePlayerStatsUI() {
+    const healthInput = parseInt(document.getElementById('playerHealthInput').value);
+    const goldInput = parseInt(document.getElementById('playerGoldInput').value);
+    const experienceInput = parseInt(document.getElementById('playerExperienceInput').value);
+
+    if (!isNaN(healthInput)) {
+        playerHealth = Math.min(healthInput, playerMaxHealth);
+        updateHealthDisplay();
+    }
+    if (!isNaN(goldInput)) {
+        gold = goldInput;
+        updateGoldDisplay();
+    }
+    if (!isNaN(experienceInput)) {
+        characterStats.experience = experienceInput;
+        if (characterStats.experience >= characterStats.nextLevelExperience) {
+            levelUp();
+        }
+        updateStatsDisplay();
+    }
+    alert('Player stats updated.');
+}
+
+function spawnEntitiesUI() {
+    const entityType = document.getElementById('entityTypeSelect').value;
+    const quantity = parseInt(document.getElementById('entityQuantityInput').value);
+
+    if (isNaN(quantity) || quantity <= 0) {
+        alert('Invalid quantity!');
+        return;
+    }
+
+    for (let i = 0; i < quantity; i++) {
+        const offsetX = Math.random() * 50 - 25;
+        const offsetZ = Math.random() * 50 - 25;
+        const spawnPosition = {
+            x: player.position.x + offsetX,
+            y: player.position.y,
+            z: player.position.z + offsetZ
+        };
+
+        if (entityType === 'enemy') {
+            const enemy = createEnemy(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            enemies.push(enemy);
+            scene.add(enemy);
+            enemy.userData.homePosition = enemy.position.clone();
+            enemy.userData.wanderRadius = 500; // Adjust as needed
+        } else if (entityType === 'friendlyNPC') {
+            const npc = createFriendlyNPC();
+            npc.position.set(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            friendlies.push(npc);
+            scene.add(npc);
+        } else if (entityType === 'structure') {
+            const structure = createStructure();
+            structure.position.set(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            scene.add(structure);
+            walls.push(...structure.userData.walls);
+        } else if (entityType === 'treasureChest') {
+            createTreasureChest(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            alert('Treasure Chest spawned.');
+        } else if (entityType === 'settlement') {
+            createSettlement(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            alert('Settlement spawned.');
+        } else if (entityType === 'quadruped') {
+            const quadruped = createQuadruped();
+            quadruped.position.set(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            quadrupeds.push(quadruped);
+            scene.add(quadruped);
+            alert('Quadruped spawned.');
+        }
+    }
+}
+
+function updateGameSettingsUI() {
+    const enemySpeedInput = parseFloat(document.getElementById('enemySpeedInput').value);
+
+    if (!isNaN(enemySpeedInput) && enemySpeedInput > 0) {
+        globalEnemySpeed = enemySpeedInput;
+        alert('Game settings updated.');
+    } else {
+        alert('Invalid enemy speed!');
+    }
+}
+
+function teleportPlayerUI() {
+    const x = parseFloat(document.getElementById('teleportXInput').value);
+    const z = parseFloat(document.getElementById('teleportZInput').value);
+
+    if (!isNaN(x) && !isNaN(z)) {
+        player.position.set(x, player.position.y, z);
+        destination = null;
+        isTeleporting = false; // Reset teleporting state
+        document.getElementById('teleportationBarContainer').style.display = 'none'; // Hide progress bar
+        document.getElementById('teleportationBar').style.width = '0%'; // Reset progress bar
+        alert(`Player teleported to (${x}, ${z}).`);
+    } else {
+        alert('Invalid coordinates!');
+    }
+}
+
+// --------------------------------------- Hotbar UI ---------------------------------------
+
+function initializeHotbarUI() {
+    const slots = document.querySelectorAll('.slot');
+    slots.forEach(slot => {
+        slot.addEventListener('click', () => {
+            const slotNumber = slot.getAttribute('data-slot');
+            handleHotbarSelection(slotNumber);
+        });
+    });
+}
+
+function handleHotbarSelection(slotNumber) {
+    const selectedSlot = document.querySelector(`.slot[data-slot="${slotNumber}"]`);
+    if (selectedSlot) {
+        // Add a visual indicator for selection (e.g., a border)
+        document.querySelectorAll('.slot').forEach(slot => slot.style.borderColor = '#555'); // Reset all borders
+        selectedSlot.style.borderColor = '#FFD700'; // Highlight selected slot with gold color
+
+        // Implement the action you want when a slot is selected
+        // For example, equip the item in the slot or activate its ability
+        console.log(`Hotbar slot ${slotNumber} selected.`);
+        // Add your custom action here
+    }
+}
+
+// --------------------------------------- Loot Popup UI ---------------------------------------
+
+function initializeLootPopupUI() {
+    // Loot Popup is initialized when opened
+}
+
+function openLootPopupUI() {
+    lootedItems = generateRandomItems(2);
+
+    const lootItemsDiv = document.getElementById('lootItems');
+    lootItemsDiv.innerHTML = '';
+    lootedItems.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.innerText = item.name;
+        lootItemsDiv.appendChild(itemDiv);
+    });
+
+    document.getElementById('lootPopup').style.display = 'block';
+}
+
+function lootAllItemsUI() {
+    lootedItems.forEach(item => {
+        addItemToInventory(item);
+    });
+    lootedItems = [];
+    document.getElementById('lootPopup').style.display = 'none';
+
+    if (currentLootingEnemy) {
+        // Change enemy color to black
+        currentLootingEnemy.traverse(child => {
+            if (child.isMesh) {
+                child.material.color.set(0x000000); // Black color
+            }
+        });
+
+        // Set the hasBeenLooted flag to true
+        currentLootingEnemy.userData.hasBeenLooted = true;
+
+        // Prevent further looting by disabling the enemy
+        // For now, we just mark it as looted
+
+        currentLootingEnemy = null;
+    }
+
+    isLooting = false;
+    document.getElementById('lootBarContainer').style.display = 'none';
+    document.getElementById('lootBar').style.width = '0%';
+    alert('Items looted and added to your inventory.');
+}
+
+// --------------------------------------- NPC Popup UI ---------------------------------------
+
+let npcPopupOpen = false;
+let currentNpc = null;
+
+function initializeNpcPopupUI() {
+    // NPC Popup is initialized when opened
+}
+
+function openNpcPopupUI(npc) {
+    if (npcPopupOpen) {
+        closeNpcPopupUI();
+        return;
+    }
+    document.getElementById('npcPopup').querySelector('h2').innerText = npc.userData.name || 'Friendly NPC';
+    document.getElementById('npcPopup').querySelector('p').innerText = npc.userData.dialogue || 'Hello, traveler! Stay awhile and listen...';
+    document.getElementById('npcPopup').style.display = 'block';
+    npcPopupOpen = true;
+}
+
+function closeNpcPopupUI() {
+    document.getElementById('npcPopup').style.display = 'none';
+    npcPopupOpen = false;
+}
+
+// --------------------------------------- Chest Popup UI ---------------------------------------
+
+let currentOpenedChest = null;
+
+function initializeChestPopupUI() {
+    // Chest Popup is initialized when opened
+}
+
+function openChestPopupUI(chest) {
+    currentOpenedChest = chest;
+    const chestPopup = document.getElementById('chestPopup');
+    chestPopup.style.display = 'block';
+
+    const chestInventoryGrid = document.getElementById('chestInventoryGrid');
+    const playerInventoryGrid = document.getElementById('playerInventoryInChestGrid');
+
+    const chestColumns = 7;
+    const chestRows = 4;
+    const playerColumns = 7;
+    const playerRows = 8;
+
+    generateInventoryGrid(chestInventoryGrid, chestColumns, chestRows);
+    generateInventoryGrid(playerInventoryGrid, playerColumns, playerRows);
+
+    // Ensure items arrays have correct length for chests but not for playerInventory
+    if (!chest.userData.items) chest.userData.items = [];
+    chest.userData.items.length = chestColumns * chestRows;
+
+
+    populateInventoryGridChest(chestInventoryGrid, chest.userData.items);
+    populateInventoryGridChest(playerInventoryGrid, playerInventory);
+
+    setupInventorySlotEventListeners(chestInventoryGrid, chest.userData.items, playerInventory, playerInventoryGrid);
+    setupInventorySlotEventListeners(playerInventoryGrid, playerInventory, chest.userData.items, chestInventoryGrid);
+}
+
+function generateInventoryGrid(gridElement, numColumns, numRows) {
+    gridElement.style.gridTemplateColumns = `repeat(${numColumns}, 50px)`;
+    gridElement.innerHTML = '';
+    for (let i = 0; i < numColumns * numRows; i++) {
+        const slot = document.createElement('div');
+        slot.classList.add('inventory-slot');
+        gridElement.appendChild(slot);
+    }
+}
+
+function populateInventoryGridChest(gridElement, items) {
+    gridElement.innerHTML = ''; // Clear existing items
+    items.forEach((item, index) => {
+        const slot = document.createElement('div');
+        slot.classList.add('inventory-slot');
+        slot.innerText = item ? item.name : '';
+
+        if (item) {
+            slot.setAttribute('data-name', item.name);
+            slot.setAttribute('data-description', item.description || 'No description available.');
+
+            // Event listeners for tooltip
+            slot.addEventListener('mouseenter', showTooltip);
+            slot.addEventListener('mousemove', moveTooltip);
+            slot.addEventListener('mouseleave', hideTooltip);
+        }
+
+        gridElement.appendChild(slot);
+    });
+}
+
+function setupInventorySlotEventListeners(sourceGrid, sourceItems, targetItems, targetGrid) {
+    const slots = sourceGrid.querySelectorAll('.inventory-slot');
+    slots.forEach((slot, index) => {
+        slot.addEventListener('click', () => {
+            if (sourceItems[index]) {
+                // Find first empty slot in targetItems
+                let emptyIndex = targetItems.findIndex(item => item == null);
+                if (emptyIndex === -1) {
+                    alert('No space in target inventory.');
+                    return;
+                }
+                // Transfer item
+                targetItems[emptyIndex] = sourceItems[index];
+                sourceItems[index] = null;
+
+                // Update grids
+                populateInventoryGrid(sourceGrid, sourceItems);
+                populateInventoryGrid(targetGrid, targetItems);
+            }
+        });
+    });
+}
+
+function closeChestPopupUI() {
+    document.getElementById('chestPopup').style.display = 'none';
+    currentOpenedChest = null;
+
+    // Update the main inventory display if it's open
+    if (inventoryOpen) {
+        populateInventoryGrid(document.getElementById('inventoryGridTab1'), playerInventory);
+    }
+}
+
+function takeAllChestItemsUI() {
+    const chest = currentOpenedChest;
+    chest.userData.items.forEach(item => {
+        addItemToInventory(item);
+    });
+    chest.userData.items = [];
+    gold += chest.userData.gold;
+    updateGoldDisplay();
+    chest.userData.gold = 0;
+
+    scene.remove(chest);
+
+    closeChestPopupUI();
+}
+
+// --------------------------------------- Additional UI Initializations ---------------------------------------
+
+function initializeEnergyOrbUI() {
+    updateEnergyDisplay();
+}
+
+function initializeLifeOrbUI() {
+    updateHealthDisplay();
+}
+
+function initializeTeleportationBarUI() {
+    // Teleportation Bar is handled in main.js
+}
+
+function initializeAllUI() {
+    initializeUI();
+    initializeHotbarUI();
+    initializeLootPopupUI();
+    initializeNpcPopupUI();
+    initializeChestPopupUI();
+}
+
+// Initialize all UI components
+document.addEventListener('DOMContentLoaded', () => {
+    initializeAllUI();
+});

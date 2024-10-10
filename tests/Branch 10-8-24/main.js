@@ -150,35 +150,6 @@ function init() {
 
     initializeQuestLog();
 
-    // Populate Bestiary with NPCs
-    bestiary = {
-        goblin: {
-            name: 'Goblin',
-            description: 'A small, green creature known for its mischievous behavior.'
-        },
-        orc: {
-            name: 'Orc',
-            description: 'A large, brutish humanoid with immense strength.'
-        },
-        dragon: {
-            name: 'Dragon',
-            description: 'A massive, fire-breathing reptile that soars through the skies.'
-        },
-        troll: {
-            name: 'Troll',
-            description: 'A hulking beast with regenerative abilities and a fierce temper.'
-        },
-        elderThoran: {
-            name: 'Elder Thoran',
-            description: 'The wise elder of the village, offering guidance to travelers.'
-        },
-        merchantLila: {
-            name: 'Merchant Lila',
-            description: 'A traveling merchant with a variety of goods for sale.'
-        }
-        // Add more unique NPCs as needed
-    };
-
 
     const groundShape = new THREE.Shape();
     groundShape.moveTo(-5000, -5000);
