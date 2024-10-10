@@ -118,28 +118,6 @@ const tooltip = document.getElementById('tooltip');
 
 //--------------------------------------------Essential Functions------------------------------------------------------------------------------------------------------------------
 
-
-function checkEnemiesInSafeZone() {
-	const safeZoneRadius = 300; // Radius of the safe zone
-
-	enemies.forEach((enemy) => {
-		if (enemy.userData.isDead) return;
-
-		const distanceFromCenter = Math.sqrt(
-			enemy.position.x * enemy.position.x + enemy.position.z * enemy.position.z
-		);
-
-		if (distanceFromCenter < safeZoneRadius) {
-			const angle = Math.random() * Math.PI * 2;
-			const teleportDistance = 1000;
-			enemy.position.x = Math.cos(angle) * teleportDistance;
-			enemy.position.z = Math.sin(angle) * teleportDistance;
-			enemy.position.y = 0; 
-		}
-	});
-}
-
-
 function init() {
     // Disable right-click context menu
     document.addEventListener('contextmenu', function(event) {
@@ -164,7 +142,7 @@ function init() {
     scene.add(directionalLight);
 	addQuadrupeds();
 
-    createSkySphere();
+        
 
     // Help Window Open on Start
     helpWindowOpen = true;
@@ -268,9 +246,6 @@ function init() {
         let enemy = createEnemy(position.x, 0, position.z, 'red');
         enemies.push(enemy);
         scene.add(enemy);
-        enemy.userData.homePosition = enemy.position.clone();
-        enemy.userData.wanderRadius = 500; // Adjust as needed
-
     }
 
     // Spawn Blue Enemies
@@ -279,8 +254,6 @@ function init() {
         let blueEnemy = createEnemy(position.x, 0, position.z, 'blue');
         enemies.push(blueEnemy);
         scene.add(blueEnemy);
-        blueEnemy.userData.homePosition = blueEnemy.position.clone();
-        blueEnemy.userData.wanderRadius = 500; // Adjust as needed
     }
 
     const structurePositions = [
@@ -316,6 +289,25 @@ function init() {
     player.position.y = 0; 
     scene.add(player);
 
+	function checkEnemiesInSafeZone() {
+		const safeZoneRadius = 300; // Radius of the safe zone
+
+		enemies.forEach((enemy) => {
+			if (enemy.userData.isDead) return;
+
+			const distanceFromCenter = Math.sqrt(
+				enemy.position.x * enemy.position.x + enemy.position.z * enemy.position.z
+			);
+
+			if (distanceFromCenter < safeZoneRadius) {
+				const angle = Math.random() * Math.PI * 2;
+				const teleportDistance = 1000;
+				enemy.position.x = Math.cos(angle) * teleportDistance;
+				enemy.position.z = Math.sin(angle) * teleportDistance;
+				enemy.position.y = 0; 
+			}
+		});
+	}
 
 	// Add a Purple Structure a Little Ways Away from Town
     const purpleStructure = createPurpleStructure();
@@ -433,15 +425,6 @@ function onDocumentMouseUp(event) {
     mouseDestination = null;
 }
 
-function createSkySphere() {
-    const geometry = new THREE.SphereGeometry(5000, 32, 32);
-    const material = new THREE.MeshBasicMaterial({
-        color: 0x87CEEB,
-        side: THREE.BackSide
-    });
-    const skySphere = new THREE.Mesh(geometry, material);
-    scene.add(skySphere);
-}
 
 
 function animate() {
@@ -457,8 +440,6 @@ function animate() {
     } else {
         player.isMoving = false;
     }
-    // Call the function to check for enemies in the safe zone
-    checkEnemiesInSafeZone();
 
     // Maintain minimum of 50 enemies
     maintainEnemyCount();
@@ -1547,8 +1528,6 @@ function createEnemy(x, y, z, type = 'red') {
     enemy.isMoving = true; 
     enemy.userData.damageRate = damageRate; // Assign damage rate
     scene.add(enemy);
-    enemy.userData.homePosition = enemy.position.clone();
-    enemy.userData.wanderRadius = 500; // Adjust as needed
     return enemy;
 }
 
@@ -1608,10 +1587,6 @@ function moveQuadrupeds(delta) {
             // Move in the set direction
             const moveDistance = globalEnemySpeed * delta * 10; // Adjust speed as needed
             quadruped.position.add(quadruped.userData.direction.clone().multiplyScalar(moveDistance));
-            // Clamp quadruped's position within -5000 to 5000 on both axes
-            quadruped.position.x = Math.max(-5000, Math.min(5000, quadruped.position.x));
-            quadruped.position.z = Math.max(-5000, Math.min(5000, quadruped.position.z));
-
 
             // Check for collisions with walls
             let collided = false;
@@ -1704,10 +1679,6 @@ function moveEnemies(delta) {
             const oldPosition = enemy.position.clone();
             const moveVector = enemy.userData.direction.clone().multiplyScalar(0.5);
             enemy.position.add(moveVector);
-            // Clamp enemy's position within -5000 to 5000 on both axes
-            enemy.position.x = Math.max(-5000, Math.min(5000, enemy.position.x));
-            enemy.position.z = Math.max(-5000, Math.min(5000, enemy.position.z));
-
 
             let collided = false;
             for (let wall of walls) {
@@ -1777,8 +1748,6 @@ function addQuadrupeds() {
 		quadruped.position.set(position.x, 0, position.z);
 		quadrupeds.push(quadruped);
 		scene.add(quadruped);
-        quadruped.userData.homePosition = quadruped.position.clone();
-        quadruped.userData.wanderRadius = 500; // Adjust as needed
 	}
 }
 
@@ -1822,10 +1791,6 @@ function movePlayerTowardsDestination() {
         }
     } else {
         player.position.copy(destination);
-        // Clamp player's position within -5000 to 5000 on both axes
-        player.position.x = Math.max(-5000, Math.min(5000, player.position.x));
-        player.position.z = Math.max(-5000, Math.min(5000, player.position.z));
-
         destination = null;
         player.isMoving = false;
     }
@@ -2126,8 +2091,6 @@ function spawnEntities() {
             const enemy = createEnemy(spawnPosition.x, spawnPosition.y, spawnPosition.z);
             enemies.push(enemy);
             scene.add(enemy);
-            enemy.userData.homePosition = enemy.position.clone();
-            enemy.userData.wanderRadius = 500; // Adjust as needed
         } else if (entityType === 'friendlyNPC') {
             const npc = createFriendlyNPC();
             npc.position.set(spawnPosition.x, spawnPosition.y, spawnPosition.z);
