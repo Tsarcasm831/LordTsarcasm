@@ -29,6 +29,24 @@ function updateInventoryDisplay() {
     }
 }
 
+function loadInventory() {
+    if (inventoryLoaded) {
+        toggleInventoryDisplay();
+        return;
+    }
+
+    fetch('inventory.html')
+        .then(response => response.text())
+        .then(html => {
+            const inventoryPlaceholder = document.getElementById('inventoryPlaceholder');
+            inventoryPlaceholder.innerHTML = html;
+            inventoryLoaded = true;
+            initializeInventory();
+            toggleInventoryDisplay();
+        })
+        .catch(error => console.error('Error loading inventory:', error));
+}
+
 function populateInventoryGrid(gridElement, items) {
     gridElement.innerHTML = '';
     for (let i = 0; i < 56; i++) {
@@ -133,6 +151,20 @@ function addItemToInventory(item) {
     playerInventory.push(item);
     updateInventoryDisplay();
 }
+
+function toggleInventoryDisplay() {
+    const inventory = document.getElementById('inventory');
+    if (inventory) {
+        inventory.style.display = inventory.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+// Load inventory when 'I' key is pressed
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'I' || event.key === 'i') {
+        loadInventory();
+    }
+});
 
 setupInventoryTabs();
 generateInventorySlots();

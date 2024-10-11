@@ -13,6 +13,43 @@ entityTooltip.style.fontSize = '14px';
 entityTooltip.style.display = 'none';
 document.body.appendChild(entityTooltip);
 
+// Function to Show Tooltip
+function showTooltip(event) {
+    const name = this.getAttribute('data-name');
+    const description = this.getAttribute('data-description');
+    tooltip.innerHTML = `<strong>${name}</strong><br>${description}`;
+    tooltip.style.display = 'block';
+}
+
+
+// Function to Move Tooltip with Mouse
+function moveTooltip(event) {
+    const tooltipWidth = tooltip.offsetWidth;
+    const tooltipHeight = tooltip.offsetHeight;
+    const pageWidth = window.innerWidth;
+    const pageHeight = window.innerHeight;
+
+    let x = event.clientX + 10;
+    let y = event.clientY + 10;
+
+    // Prevent tooltip from going off-screen
+    if (x + tooltipWidth > pageWidth) {
+        x = event.clientX - tooltipWidth - 10;
+    }
+    if (y + tooltipHeight > pageHeight) {
+        y = event.clientY - tooltipHeight - 10;
+    }
+
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y}px`;
+}
+
+// Function to Hide Tooltip
+function hideTooltip() {
+    tooltip.style.display = 'none';
+    tooltip.innerHTML = '';
+}
+
 // Function to handle mouse move and show tooltip
 function onMouseMove(event) {
     const rect = renderer.domElement.getBoundingClientRect();

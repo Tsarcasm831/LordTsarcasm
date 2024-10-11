@@ -284,15 +284,149 @@
 	    </div>
 
     
+        <script>
+            let inventoryLoaded = false;
+            const clock = new THREE.Clock(); // Create a new Three.js clock
+            let mapScene, mapCamera, mapRenderer; // Create a new Three.js scene, camera, and renderer for the fullscreen map.
+            let scene, camera, renderer; // Create a new Three.js scene, camera, and renderer
+            let player, ground, safeZoneGround; // Player, ground, and safe zone
+            let inventoryOpen = false; // Inventory state
+            let statsOpen = false; // Character stats state
+            let destination = null; // Destination for teleportation
+            let speed = 1.0; // Player movement speed
+            let minimapCamera; // Minimap camera
+            let enemies = []; // List of enemies
+            let gold = 0; // Gold amount
+            let bestiary = {}; // Bestiary data
+            const townRadius = 200; // Radius of the town
+            let quadrupeds = []; // List of quadrupeds
+            let walls = []; // List of walls
+            let friendlies = []; // List of friendlies
+            let helpWindowOpen = false; // Add this variable for help window
+            let isTeleporting = false; // Add this variable for teleportation
+            let adminConsoleOpen = false; // Add this variable for admin console
+            let teleportProgress = 0; // Add this variable for teleportation
+            let teleportationDuration = 3; // Duration in seconds
+            let previousPosition = null; // Add this variable for teleportation
+            let structures = []; // Add this variable for structures
+            let cameraAngle = 0;    // Add this variable for camera angle
+            let enemyWalls = []; // Walls that affect only enemies
+            let npcPopupOpen = false; // Track NPC popup state
+            let npcAdminEnabled = false; // Track NPC admin state
+            let currentNpc = null; // Track current NPC
+            let currentOpenedChest = null; // Added to address the popup issue
+            let treasureChests = []; // Added to keep track of treasure chests
+            let isAdminLoggedIn = false; // Add this variable for admin login
+            let quests = [];
+            let questLogOpen = false; // Add this variable for quest log
+            let isMouseDown = false; // Add this variable for mouse down
+            let mouseDestination = null; // Add this variable for mouse down
+            let cameraTargetAngle = 0; // Add this variable for camera target angle
+            let currentCameraAngle = 0; // Add this variable for current camera angle
+            const cameraRotationSpeed = 0.05; // Adjust for smoother or faster rotation
+            let rotateLeft = false; // Add this variable for rotation
+            let currentStructure = null; // Implement Structure Admin Functions
+            let rotateRight = false; // Add this variable for rotation
+            let globalEnemySpeed = 0.7; // Global variable for enemy speed
+            let activeDamageIntervals = new Map(); // Keep track of active damage intervals
+            const collidableTerrainObjects = [];       
+            let playerInventory = []; // Player inventory
 
+            const npcData = [
+                { name: 'Elder Thoran', dialogue: 'Greetings, adventurer. May your journey be safe.' },
+                { name: 'Merchant Lila', dialogue: 'Looking to trade? I have wares you might like.' },
+                { name: 'Blacksmith Brom', dialogue: 'Need your weapons sharpened?' },
+                { name: 'Farmer Finn', dialogue: 'These crops won\'t tend themselves.' },
+                { name: 'Guard Greta', dialogue: 'Stay vigilant out there.' },
+                // Add more NPCs as desired
+            ];
+
+            // Player health and energy
+            let playerHealth = 100;
+            const playerMaxHealth = 100;
+            let playerEnergy = 1;
+            const playerMaxEnergy = 1;
+
+            // Invulnerability variable
+            let playerInvulnerable = false;
+
+            // Looting variables
+            let isLooting = false;
+            let lootProgress = 0;
+            const lootDuration = 2; // Duration in seconds
+            let lootedItems = [];
+            let currentLootingEnemy = null;
+
+            // Initialize Character Stats
+            let characterStats = {
+                level: 1,
+                experience: 0,
+                nextLevelExperience: 100,
+                strength: 10,
+                dexterity: 10,
+                vitality: 10,
+                energy: 10,
+                statPoints: 0
+            };
+		
+            // Skill Tree Data Structure
+            let skillTreeData = {
+                strength: {
+                    name: 'Strength Boost',
+                    description: 'Increase your strength by 5.',
+                    cost: 1,
+                    learned: false
+                },
+                dexterity: {
+                    name: 'Dexterity Boost',
+                    description: 'Increase your dexterity by 5.',
+                    cost: 1,
+                    learned: false
+                },
+                vitality: {
+                    name: 'Vitality Boost',
+                    description: 'Increase your vitality by 5.',
+                    cost: 1,
+                    learned: false
+                },
+                energy: {
+                    name: 'Energy Boost',
+                    description: 'Increase your energy by 5.',
+                    cost: 1,
+                    learned: false
+                }
+                // Add more skills as needed
+            };
+
+            // Tooltip Element
+            const tooltip = document.getElementById('tooltip');
+            const npc = createHumanoid(color);
+        </script>
+        
         <script src="main.js"></script>
-        <script src="main2.js"></script>
+        <script src="npc.js"></script>
+        <script src="admin.js"></script>
+        <script src="purplestructure.js"></script>
         <script src="bestiary.js"></script>
         <script src="settlement.js"></script>
         <script src="inventory.js"></script>
         <script src="enemies.js"></script>
         <script src="ui.js"></script>
         <script src="spawnzone.js"></script>
+        <script src="updatedisplays.js"></script>
+        <script src="questLog.js"></script>
+        <script src="tooltips.js"></script>
+        <script src="teleport.js"></script>
+        <script src="skilltree.js"></script>
+        <script src="randomitems.js"></script>
+        <script src="chest.js"></script>
+        <script src="neutralanimals.js"></script>
+        <script src="hostilequadrupeds.js"></script>
+        <script src="settlement.js"></script>
+        
+        
+
+
         
     
 

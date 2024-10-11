@@ -1,11 +1,5 @@
 // questLog.js
 
-let quests = [];
-
-function initializeQuestLog() {
-    quests = []; // Initialize the quest array
-}
-
 function addQuest(quest) {
     quests.push(quest);
     updateQuestLogDisplay();
@@ -38,11 +32,14 @@ function updateQuestLogDisplay() {
 }
 
 function openQuestLog() {
+    questLogOpen = true;
     document.getElementById('questLog').style.display = 'block';
     updateQuestLogDisplay();
 }
 
 function closeQuestLog() {
+    questLogOpen = false;
     document.getElementById('questLog').style.display = 'none';
 }
 
+initializeQuestLog();

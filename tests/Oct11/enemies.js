@@ -1,6 +1,3 @@
-let enemies = []; // List of enemies
-let globalEnemySpeed = 0.7; // Global variable for enemy speed
-let enemyWalls = []; // Walls that affect only enemies
 
 function initEnemies() {
     // Spawn Red Enemies (Regular)
@@ -26,6 +23,54 @@ function getRandomPositionOutsideTown(minDistance, maxDistance) {
     let x = Math.cos(angle) * distance;
     let z = Math.sin(angle) * distance;
     return { x: x, z: z };
+}
+
+function spawnEntities() {
+    const entityType = document.getElementById('entityTypeSelect').value;
+    const quantity = parseInt(document.getElementById('entityQuantityInput').value);
+
+    if (isNaN(quantity) || quantity <= 0) {
+        alert('Invalid quantity!');
+        return;
+    }
+
+    for (let i = 0; i < quantity; i++) {
+        const offsetX = Math.random() * 50 - 25;
+        const offsetZ = Math.random() * 50 - 25;
+        const spawnPosition = {
+            x: player.position.x + offsetX,
+            y: player.position.y,
+            z: player.position.z + offsetZ
+        };
+
+        if (entityType === 'enemy') {
+            const enemy = createEnemy(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            enemies.push(enemy);
+            scene.add(enemy);
+        } else if (entityType === 'friendlyNPC') {
+            const npc = createFriendlyNPC();
+            npc.position.set(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            friendlies.push(npc);
+            scene.add(npc);
+        } else if (entityType === 'structure') {
+            const structure = createStructure();
+            structure.position.set(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            scene.add(structure);
+            walls.push(...structure.userData.walls);
+        } else if (entityType === 'treasureChest') {
+            createTreasureChest(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            alert('Treasure Chest spawned.');
+        } else if (entityType === 'settlement') {
+			createSettlement(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+			alert('Settlement spawned.');
+		} else if (entityType === 'quadruped') {
+			const quadruped = createQuadruped();
+			quadruped.position.set(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+			quadrupeds.push(quadruped);
+			scene.add(quadruped);
+			alert('Quadruped spawned.');
+		}
+    }
 }
 
 function createEnemy(x, y, z, type = 'red') {
@@ -147,6 +192,11 @@ function attackEnemy(enemy) {
     }
 }
 
+function playAttackAnimation() {
+    player.isAttacking = true;
+    player.attackTime = 0;
+}
+
 function enemyAttackPlayer(enemy, delta) {
     if (enemy.userData.isDead || playerInvulnerable) return;
 
@@ -233,4 +283,87 @@ function createBloodPool(position) {
     bloodPool.rotation.x = -Math.PI / 2;
     bloodPool.position.set(position.x, 0.05, position.z);
     scene.add(bloodPool);
+}
+
+function maintainEnemyCount() {
+    const activeEnemies = enemies.filter(enemy => !enemy.userData.isDead).length;
+    const enemiesToSpawn = 50 - activeEnemies;
+
+    for (let i = 0; i < enemiesToSpawn; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let type = Math.random() < 0.1 ? 'blue' : 'red'; // 10% chance to spawn a blue enemy
+        let enemy = createEnemy(position.x, 0, position.z, type);
+        enemies.push(enemy);
+        scene.add(enemy);
+    }
+}
+
+function lootEnemy(enemy) {
+    if (enemy.userData.hasBeenLooted) {
+        alert('This enemy has already been looted.');
+        return;
+    }
+
+    isLooting = true;
+    lootProgress = 0;
+    currentLootingEnemy = enemy;
+    document.getElementById('lootBarContainer').style.display = 'block';
+}
+
+function updateLooting(delta) {
+    if (isLooting) {
+        lootProgress += delta;
+        const progressBar = document.getElementById('lootBar');
+        progressBar.style.width = (lootProgress / lootDuration) * 100 + '%';
+        if (lootProgress >= lootDuration) {
+            isLooting = false;
+            document.getElementById('lootBarContainer').style.display = 'none';
+            openLootPopup();
+        }
+    }
+}
+
+function openLootPopup() {
+    lootedItems = generateRandomItems(2);
+
+    const lootItemsDiv = document.getElementById('lootItems');
+    lootItemsDiv.innerHTML = '';
+    lootedItems.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.innerText = item.name;
+        lootItemsDiv.appendChild(itemDiv);
+    });
+
+    document.getElementById('lootPopup').style.display = 'block';
+}
+
+function lootAllItems() {
+    lootedItems.forEach(item => {
+        addItemToInventory(item);
+    });
+    lootedItems = [];
+    document.getElementById('lootPopup').style.display = 'none';
+
+    if (currentLootingEnemy) {
+        // Change enemy color to black
+        currentLootingEnemy.traverse(child => {
+            if (child.isMesh) {
+                child.material.color.set(0x000000); // Black color
+            }
+        });
+
+        // Set the hasBeenLooted flag to true
+        currentLootingEnemy.userData.hasBeenLooted = true;
+
+        // Prevent further looting by disabling the enemy
+        // Optionally, you can remove the enemy from the scene or make it non-interactive
+        // For now, we just mark it as looted
+
+        currentLootingEnemy = null;
+    }
+
+    isLooting = false;
+    document.getElementById('lootBarContainer').style.display = 'none';
+    document.getElementById('lootBar').style.width = '0%';
+    alert('Items looted and added to your inventory.');
 }
