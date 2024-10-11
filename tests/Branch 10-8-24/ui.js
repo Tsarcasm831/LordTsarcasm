@@ -25,42 +25,7 @@ function initializeUI() {
 
 let playerInventory = []; // Player inventory
 
-function initializeInventoryUI() {
-    generateInventorySlots();
-    setupInventoryTabs();
-    updateInventoryDisplay();
-}
 
-function generateInventorySlots() {
-    for (let i = 1; i <= 6; i++) {
-        const grid = document.getElementById('inventoryGridTab' + i);
-        grid.innerHTML = '';
-        for (let j = 0; j < 56; j++) {
-            const slot = document.createElement('div');
-            slot.classList.add('inventory-slot');
-            grid.appendChild(slot);
-        }
-    }
-}
-
-function populateInventoryGrid(gridElement, items) {
-    const slots = gridElement.querySelectorAll('.inventory-slot');
-    slots.forEach((slot, index) => {
-        slot.innerHTML = '';
-        if (items[index]) {
-            slot.innerText = items[index].name;
-
-            // Add data attributes for tooltip
-            slot.setAttribute('data-name', items[index].name);
-            slot.setAttribute('data-description', items[index].description || 'No description available.');
-
-            // Event listeners for tooltip
-            slot.addEventListener('mouseenter', showTooltip);
-            slot.addEventListener('mousemove', moveTooltip);
-            slot.addEventListener('mouseleave', hideTooltip);
-        }
-    });
-}
 
 // Function to Show Tooltip
 function showTooltip(event) {
@@ -96,47 +61,6 @@ function moveTooltip(event) {
 function hideTooltip() {
     tooltip.style.display = 'none';
     tooltip.innerHTML = '';
-}
-
-function updateInventoryDisplay() {
-    // Loop through all inventory tabs and update their grids
-    for (let i = 1; i <= 6; i++) {
-        const grid = document.getElementById(`inventoryGridTab${i}`);
-        grid.innerHTML = ''; // Clear existing items
-        playerInventory.forEach((invItem, index) => {
-            if (index < 56) { // Assuming each tab has 56 slots
-                const slot = document.createElement('div');
-                slot.classList.add('inventory-slot');
-                slot.innerText = invItem.name;
-                grid.appendChild(slot);
-            }
-        });
-    }
-}
-
-function setupInventoryTabs() {
-    const tabs = document.querySelectorAll('.inventory-tab');
-    const tabContents = document.querySelectorAll('.inventory-tab-content');
-
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(tc => tc.classList.remove('active'));
-
-            tab.classList.add('active');
-            const activeTabContent = document.getElementById(tab.dataset.tab);
-            activeTabContent.classList.add('active');
-        });
-    });
-
-    tabs[0].classList.add('active');
-    tabContents[0].classList.add('active');
-}
-
-function addItemToInventory(item) {
-    // Assuming item includes name and description
-    playerInventory.push(item);
-    updateInventoryDisplay();
 }
 
 // --------------------------------------- Stats UI ---------------------------------------

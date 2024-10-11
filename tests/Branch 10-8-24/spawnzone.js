@@ -196,6 +196,7 @@ function createStructure() {
     const wallThickness = 2;
     const wallHeight = 30;
     const wallLength = 50;
+	const wallColor = 0x8B4513;
 
     const frontWallShape = new THREE.Shape();
     frontWallShape.moveTo(-wallLength / 2, 0);

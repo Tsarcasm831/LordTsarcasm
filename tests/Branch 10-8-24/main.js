@@ -280,10 +280,7 @@ function init() {
 		});
 	}
 
-	// Add a Purple Structure a Little Ways Away from Town
-    const purpleStructure = createPurpleStructure();
-    purpleStructure.position.set(800, 0, -800); // Adjust position as desired
-    scene.add(purpleStructure);
+	
 
     // Function to add diverse plants to the terrain
     function addPlantsToTerrain() {
@@ -597,6 +594,7 @@ function onDocumentKeyUp(event) {
 function initializeQuestLog() {
     quests = []; // Initialize the quest array
 }
+
 // Add keyup event listener
 document.addEventListener('keyup', onDocumentKeyUp, false);
 
@@ -700,25 +698,7 @@ function generateInventorySlots() {
 
 
 //--------------------------------------------End Essential Functions------------------------------------------------------------------------------------------------------------------
-// Function to Populate Inventory Grid with Tooltips
-function populateInventoryGrid(gridElement, items) {
-    const slots = gridElement.querySelectorAll('.inventory-slot');
-    slots.forEach((slot, index) => {
-        slot.innerHTML = '';
-        if (items[index]) {
-            slot.innerText = items[index].name;
 
-            // Add data attributes for tooltip
-            slot.setAttribute('data-name', items[index].name);
-            slot.setAttribute('data-description', items[index].description || 'No description available.');
-
-            // Event listeners for tooltip
-            slot.addEventListener('mouseenter', showTooltip);
-            slot.addEventListener('mousemove', moveTooltip);
-            slot.addEventListener('mouseleave', hideTooltip);
-        }
-    });
-}
 
 // Function to Show Tooltip
 function showTooltip(event) {
@@ -728,13 +708,6 @@ function showTooltip(event) {
     tooltip.style.display = 'block';
 }
 
-function initializeInventory() {
-    // Initialize inventory arrays and UI elements
-    playerInventory = [];
-    generateInventorySlots();
-    setupInventoryTabs();
-    updateInventoryDisplay();
-}
 
 // Function to Move Tooltip with Mouse
 function moveTooltip(event) {
@@ -933,60 +906,6 @@ function addMapMarkers() {
 
 
 
-// Function to Create Purple Structure
-function createPurpleStructure() {
-	const building = new THREE.Group();
-
-	// Define wall material and dimensions
-	const wallMaterial = new THREE.MeshLambertMaterial({ color: 0x800080 }); // Purple color
-	const wallThickness = 2;
-	const wallHeight = 30;
-	const wallLength = 50;
-
-	// Front Wall
-	const frontWallGeometry = new THREE.BoxGeometry(wallLength, wallHeight, wallThickness);
-	const frontWall = new THREE.Mesh(frontWallGeometry, wallMaterial);
-	frontWall.position.z = -wallLength / 2;
-	building.add(frontWall);
-
-	// Back Wall
-	const backWall = frontWall.clone();
-	backWall.position.z = wallLength / 2;
-	building.add(backWall);
-
-	// Left Wall
-	const leftWallGeometry = new THREE.BoxGeometry(wallThickness, wallHeight, wallLength);
-	const leftWall = new THREE.Mesh(leftWallGeometry, wallMaterial);
-	leftWall.position.x = -wallLength / 2;
-	leftWall.position.y = wallHeight / 2;
-	building.add(leftWall);
-
-	// Right Wall
-	const rightWall = leftWall.clone();
-	rightWall.position.x = wallLength / 2;
-	building.add(rightWall);
-
-	// Roof
-	const roofGeometry = new THREE.ConeGeometry(35, 15, 4);
-	const roofMaterial = new THREE.MeshLambertMaterial({ color: 0x800080 }); // Purple color
-	const roof = new THREE.Mesh(roofGeometry, roofMaterial);
-	roof.rotation.y = Math.PI / 4;
-	roof.position.y = wallHeight + 7.5;
-	building.add(roof);
-
-	// Add walls to userData for collision detection
-	building.userData.walls = [frontWall, backWall, leftWall, rightWall];
-
-	// Add a black floor
-	const floorGeometry = new THREE.PlaneGeometry(50, 50);
-	const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
-	const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-	floor.rotation.x = -Math.PI / 2;
-	floor.position.y = 0.1; // Slightly above ground to avoid z-fighting
-	building.add(floor);
-
-	return building;
-}
 		
         
         
@@ -1677,8 +1596,6 @@ function moveEnemies(delta) {
     });
 }
         
-        
-
 function toggleFullscreenMap() {
     const fullscreenMap = document.getElementById('fullscreenMap');
     if (fullscreenMap.style.display === 'none') {
@@ -1721,8 +1638,7 @@ function addQuadrupeds() {
 		scene.add(quadruped);
 	}
 }
-
-		
+	
 function createBloodPool(position) {
     const geometry = new THREE.CircleGeometry(5, 32);
     const material = new THREE.MeshBasicMaterial({ color: 0x8B0000 });
@@ -1775,7 +1691,6 @@ function createWhiteWall() {
     return whiteWall;
 }
 
-
 function maintainEnemyCount() {
     const activeEnemies = enemies.filter(enemy => !enemy.userData.isDead).length;
     const enemiesToSpawn = 50 - activeEnemies;
@@ -1788,7 +1703,6 @@ function maintainEnemyCount() {
         scene.add(enemy);
     }
 }
-
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -1861,8 +1775,7 @@ function closeAllMenus() {
 
     // Add more menus as needed
 }
-
-        
+    
 function lootEnemy(enemy) {
     if (enemy.userData.hasBeenLooted) {
         alert('This enemy has already been looted.');
@@ -1874,7 +1787,6 @@ function lootEnemy(enemy) {
     currentLootingEnemy = enemy;
     document.getElementById('lootBarContainer').style.display = 'block';
 }
-
 
 function updateLooting(delta) {
     if (isLooting) {
@@ -1934,7 +1846,6 @@ function lootAllItems() {
     alert('Items looted and added to your inventory.');
 }
 
-
 function generateRandomItems(count) {
     const items = [
         { name: 'Small Health Potion', description: 'Restores 50 health points.' },
@@ -1955,7 +1866,6 @@ function generateRandomItems(count) {
     return randomItems;
 }
 
-
 function addItemsToInventory(items) {
     console.log('Items added to inventory:', items);
     playerInventory.push(...items);
@@ -1974,8 +1884,6 @@ function openAdminConsole() {
     }
 }
 
-
-
 function closeAdminConsole() {
     document.getElementById('adminConsole').style.display = 'none';
     adminConsoleOpen = false;
@@ -1985,10 +1893,6 @@ function closeAdminConsole() {
     document.getElementById('adminControls').style.display = 'none';
     document.getElementById('adminLogin').style.display = 'block';
 }
-
-
-
-
 
 function checkAdminPassword() {
     const passwordInput = document.getElementById('adminPassword').value;
@@ -2010,7 +1914,6 @@ function checkAdminPassword() {
         alert('Incorrect password!');
     }
 }
-
 
 function updatePlayerOptions() {
     playerInvulnerable = document.getElementById('invulnerabilityCheckbox').checked;
@@ -2115,7 +2018,6 @@ function teleportPlayer() {
     }
 }
 
-
 function levelUp() {
     characterStats.level++;
     characterStats.experience -= characterStats.nextLevelExperience;
@@ -2146,68 +2048,6 @@ function increaseStat(stat) {
     }
 }
 
-        
-function addItemToInventory(item) {
-    // Assuming item includes name and description
-    playerInventory.push(item);
-    updateInventoryDisplay();
-}
-
-
-function updateInventoryDisplay() {
-    // Loop through all inventory tabs and update their grids
-    for (let i = 1; i <= 6; i++) {
-        const grid = document.getElementById(`inventoryGridTab${i}`);
-        grid.innerHTML = ''; // Clear existing items
-        playerInventory.forEach((invItem, index) => {
-            if (index < 56) { // Assuming each tab has 56 slots
-                const slot = document.createElement('div');
-                slot.classList.add('inventory-slot');
-                slot.innerText = invItem.name;
-                grid.appendChild(slot);
-            }
-        });
-    }
-}
-
-
-function setupInventoryTabs() {
-    const tabs = document.querySelectorAll('.inventory-tab');
-    const tabContents = document.querySelectorAll('.inventory-tab-content');
-
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(tc => tc.classList.remove('active'));
-
-            tab.classList.add('active');
-            const activeTabContent = document.getElementById(tab.dataset.tab);
-            activeTabContent.classList.add('active');
-        });
-    });
-
-    tabs[0].classList.add('active');
-    tabContents[0].classList.add('active');
-}
-
-
-        
-        
-
-function generatePlayerInventoryGrid() {
-	const grid = document.getElementById('playerInventoryGrid');
-	grid.innerHTML = '';
-	const numColumns = 7;
-	const numRows = Math.ceil(playerInventory.length / numColumns); // Adjust rows based on items
-	grid.style.gridTemplateColumns = `repeat(${numColumns}, 50px)`;
-	for (let i = 0; i < numColumns * numRows; i++) {
-		const slot = document.createElement('div');
-		slot.classList.add('inventory-slot');
-		grid.appendChild(slot);
-	}
-}
-
-
 function openChestPopup(chest) {
 	currentOpenedChest = chest;
 	const chestPopup = document.getElementById('chestPopup');
@@ -2235,65 +2075,6 @@ function openChestPopup(chest) {
 	setupInventorySlotEventListeners(chestInventoryGrid, chest.userData.items, playerInventory, playerInventoryGrid);
 	setupInventorySlotEventListeners(playerInventoryGrid, playerInventory, chest.userData.items, chestInventoryGrid);
 }
-
-
-function generateInventoryGrid(gridElement, numColumns, numRows) {
-    gridElement.style.gridTemplateColumns = `repeat(${numColumns}, 50px)`;
-    gridElement.innerHTML = '';
-    for (let i = 0; i < numColumns * numRows; i++) {
-        const slot = document.createElement('div');
-        slot.classList.add('inventory-slot');
-        gridElement.appendChild(slot);
-    }
-}
-
-function populateInventoryGridChest(gridElement, items) {
-    gridElement.innerHTML = ''; // Clear existing items
-    items.forEach((item, index) => {
-        const slot = document.createElement('div');
-        slot.classList.add('inventory-slot');
-        slot.innerText = item ? item.name : '';
-
-        if (item) {
-            slot.setAttribute('data-name', item.name);
-            slot.setAttribute('data-description', item.description || 'No description available.');
-
-            // Event listeners for tooltip
-            slot.addEventListener('mouseenter', showTooltip);
-            slot.addEventListener('mousemove', moveTooltip);
-            slot.addEventListener('mouseleave', hideTooltip);
-        }
-
-        gridElement.appendChild(slot);
-    });
-}
-
-
-
-
-function setupInventorySlotEventListeners(sourceGrid, sourceItems, targetItems, targetGrid) {
-    const slots = sourceGrid.querySelectorAll('.inventory-slot');
-    slots.forEach((slot, index) => {
-        slot.addEventListener('click', () => {
-            if (sourceItems[index]) {
-                // Find first empty slot in targetItems
-                let emptyIndex = targetItems.findIndex(item => item == null);
-                if (emptyIndex === -1) {
-                    alert('No space in target inventory.');
-                    return;
-                }
-                // Transfer item
-                targetItems[emptyIndex] = sourceItems[index];
-                sourceItems[index] = null;
-
-                // Update grids
-                populateInventoryGrid(sourceGrid, sourceItems);
-                populateInventoryGrid(targetGrid, targetItems);
-            }
-        });
-    });
-}
-
 
 function closeChestPopup() {
     document.getElementById('chestPopup').style.display = 'none';
@@ -2336,9 +2117,9 @@ function handleHotbarSelection(slotNumber) {
 }
 
 
-setupInventoryTabs();
+
 initMap();
-generateInventorySlots();
+
 updateGoldDisplay();
 updateHealthDisplay();
 updateEnergyDisplay();

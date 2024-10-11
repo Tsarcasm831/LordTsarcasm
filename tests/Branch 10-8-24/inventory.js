@@ -14,10 +14,18 @@ function addItemToInventory(item) {
 }
 
 function updateInventoryDisplay() {
+    // Loop through all inventory tabs and update their grids
     for (let i = 1; i <= 6; i++) {
         const grid = document.getElementById(`inventoryGridTab${i}`);
-        const itemsForTab = playerInventory.slice((i - 1) * 56, i * 56); // Assuming 56 slots per tab
-        populateInventoryGrid(grid, itemsForTab);
+        grid.innerHTML = ''; // Clear existing items
+        playerInventory.forEach((invItem, index) => {
+            if (index < 56) { // Assuming each tab has 56 slots
+                const slot = document.createElement('div');
+                slot.classList.add('inventory-slot');
+                slot.innerText = invItem.name;
+                grid.appendChild(slot);
+            }
+        });
     }
 }
 
@@ -62,5 +70,69 @@ function setupInventoryTabs() {
     tabContents[0].classList.add('active');
 }
 
-// Include functions showTooltip, moveTooltip, and hideTooltip if not already defined
+function generatePlayerInventoryGrid() {
+	const grid = document.getElementById('playerInventoryGrid');
+	grid.innerHTML = '';
+	const numColumns = 7;
+	const numRows = Math.ceil(playerInventory.length / numColumns); // Adjust rows based on items
+	grid.style.gridTemplateColumns = `repeat(${numColumns}, 50px)`;
+	for (let i = 0; i < numColumns * numRows; i++) {
+		const slot = document.createElement('div');
+		slot.classList.add('inventory-slot');
+		grid.appendChild(slot);
+	}
+}
 
+function generateInventoryGrid(gridElement, numColumns, numRows) {
+    gridElement.style.gridTemplateColumns = `repeat(${numColumns}, 50px)`;
+    gridElement.innerHTML = '';
+    for (let i = 0; i < numColumns * numRows; i++) {
+        const slot = document.createElement('div');
+        slot.classList.add('inventory-slot');
+        gridElement.appendChild(slot);
+    }
+}
+
+function generateInventorySlots() {
+    for (let i = 1; i <= 6; i++) {
+        const grid = document.getElementById('inventoryGridTab' + i);
+        grid.innerHTML = '';
+        for (let j = 0; j < 56; j++) {
+            const slot = document.createElement('div');
+            slot.classList.add('inventory-slot');
+            grid.appendChild(slot);
+        }
+    }
+}
+
+function setupInventorySlotEventListeners(sourceGrid, sourceItems, targetItems, targetGrid) {
+    const slots = sourceGrid.querySelectorAll('.inventory-slot');
+    slots.forEach((slot, index) => {
+        slot.addEventListener('click', () => {
+            if (sourceItems[index]) {
+                // Find first empty slot in targetItems
+                let emptyIndex = targetItems.findIndex(item => item == null);
+                if (emptyIndex === -1) {
+                    alert('No space in target inventory.');
+                    return;
+                }
+                // Transfer item
+                targetItems[emptyIndex] = sourceItems[index];
+                sourceItems[index] = null;
+
+                // Update grids
+                populateInventoryGrid(sourceGrid, sourceItems);
+                populateInventoryGrid(targetGrid, targetItems);
+            }
+        });
+    });
+}
+
+function addItemToInventory(item) {
+    // Assuming item includes name and description
+    playerInventory.push(item);
+    updateInventoryDisplay();
+}
+
+setupInventoryTabs();
+generateInventorySlots();
