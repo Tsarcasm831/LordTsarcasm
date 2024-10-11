@@ -42,9 +42,9 @@ let currentStructure = null; // Implement Structure Admin Functions
 let rotateRight = false; // Add this variable for rotation
 let globalEnemySpeed = 0.7; // Global variable for enemy speed
 let activeDamageIntervals = new Map(); // Keep track of active damage intervals
-const collidableTerrainObjects = [];
-        
+const collidableTerrainObjects = [];       
 let playerInventory = []; // Player inventory
+
 const npcData = [
     { name: 'Elder Thoran', dialogue: 'Greetings, adventurer. May your journey be safe.' },
     { name: 'Merchant Lila', dialogue: 'Looking to trade? I have wares you might like.' },
@@ -82,8 +82,6 @@ let characterStats = {
     statPoints: 0
 };
 		
-
-
 // Skill Tree Data Structure
 let skillTreeData = {
     strength: {
@@ -346,8 +344,7 @@ function init() {
     canvas.addEventListener('mouseup', onDocumentMouseUp, false);
 
 }
-
-        
+    
 function initMap() {
     const mapCanvas = document.getElementById('mapCanvas');
     mapRenderer = new THREE.WebGLRenderer({ canvas: mapCanvas, alpha: true });
@@ -370,7 +367,6 @@ function initMap() {
     mapScene.add(directionalLight);
 }
 
-
 function updateGoldDisplay() {
     document.getElementById('goldAmount').innerText = gold;
 }
@@ -387,13 +383,10 @@ function updateEnergyDisplay() {
     document.getElementById('energyOrb').style.clipPath = `inset(${100 - energyPercent}% 0 0 0)`;
 }
 
-
 function onDocumentMouseUp(event) {
     isMouseDown = false;
     mouseDestination = null;
 }
-
-
 
 function animate() {
     requestAnimationFrame(animate);
@@ -672,7 +665,6 @@ function onDocumentMouseDown(event) {
     }
 }
 
-
 function updateStatsDisplay() {
     document.getElementById('level').innerText = characterStats.level;
     document.getElementById('experience').innerText = characterStats.experience;
@@ -695,7 +687,6 @@ function generateInventorySlots() {
         }
     }
 }
-
 
 //--------------------------------------------End Essential Functions------------------------------------------------------------------------------------------------------------------
 
@@ -737,9 +728,6 @@ function hideTooltip() {
     tooltip.innerHTML = '';
 }
 
-
-        
-
 function openQuestLog() {
     questLogOpen = true;
     document.getElementById('questLog').style.display = 'block';
@@ -750,7 +738,6 @@ function closeQuestLog() {
     questLogOpen = false;
     document.getElementById('questLog').style.display = 'none';
 }
-
 
 // Function to Open Skill Tree
 function openSkillTree() {
@@ -805,8 +792,6 @@ function populateSkillTree() {
         }
     }
 }
-
-        
 		
 // Bestiary Functions:
 function openBestiary() {
@@ -863,11 +848,6 @@ function saveStructureChanges() {
 		closeStructureAdminPopup();
 	}
 }
-		
-		
-        
-
-        
 
 // Implement Map Rendering:
 function renderMap() {
@@ -904,18 +884,11 @@ function addMapMarkers() {
     // Add other markers as needed (e.g., friendly NPCs, settlements)
 }
 
-
-
-		
-        
-        
-
 function playAttackAnimation() {
     player.isAttacking = true;
     player.attackTime = 0;
 }
-
-        
+      
 function addExperience(amount) {
     characterStats.experience += amount;
     if (characterStats.experience >= characterStats.nextLevelExperience) {
@@ -934,7 +907,6 @@ function openNpcPopup(npc) {
     document.getElementById('npcPopup').style.display = 'block';
     npcPopupOpen = true;
 }
-
 
 function closeNpcPopup() {
     document.getElementById('npcPopup').style.display = 'none';
@@ -955,7 +927,6 @@ function openNpcAdminPopup(npc) {
 
 	document.getElementById('npcAdminPopup').style.display = 'block';
 }
-
 
 function closeNpcAdminPopup() {
     document.getElementById('npcAdminPopup').style.display = 'none';
@@ -986,7 +957,6 @@ function saveNpcChanges() {
 	}
 }
 
-
 function damagePlayer(amount) {
     if (playerInvulnerable) return; // Player is invulnerable
     const vitalityFactor = characterStats.vitality / 10; // Adjust as needed
@@ -999,8 +969,6 @@ function damagePlayer(amount) {
     }
     updateHealthDisplay();
 }
-
-
 
 function startTeleportation() {
     isTeleporting = true;
@@ -1088,9 +1056,6 @@ function createQuadruped(color = 0x996633) {
     return group;
 }
 
-
-
-
 function createHumanoid(color) {
     const group = new THREE.Group();
 
@@ -1165,8 +1130,6 @@ function animateQuadruped(quadruped, delta) {
     }
 }
 
-
-
 function animateHumanoid(humanoid, delta) {
     if (humanoid.isAttacking) {
         humanoid.attackTime += delta * humanoid.animationSpeed;
@@ -1212,8 +1175,6 @@ function createTreasureChest(x, y, z) {
     return chest;
 }
 
-
-
 function createSettlement(x, y, z) {
 	const settlementGroup = new THREE.Group();
 
@@ -1246,7 +1207,6 @@ function createSettlement(x, y, z) {
 
 	scene.add(settlementGroup);
 }
-
 
 function createSettlementWalls() {
     const wallMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
@@ -1310,7 +1270,6 @@ function createSettlementWalls() {
     // Add to walls array if enemies should collide
     walls.push(northGateWhiteWall);
     walls.push(southGateWhiteWall);
-
 }
 
 function createStructure() {
@@ -1385,9 +1344,6 @@ function createFriendlyNPC(color = 0x00ff00, name = 'Friendly NPC', dialogue = '
     return npc;
 }
 
-
-
-
 function getRandomPositionOutsideTown(minDistance, maxDistance) {
     let angle = Math.random() * 2 * Math.PI;
     let distance = minDistance + Math.random() * (maxDistance - minDistance);
@@ -1421,9 +1377,6 @@ function createEnemy(x, y, z, type = 'red') {
     return enemy;
 }
 
-
-
-
 function attackEnemy(enemy) {
     const attackRange = 20; 
 
@@ -1439,7 +1392,6 @@ function attackEnemy(enemy) {
         alert('Enemy is too far away!');
     }
 }
-
         
 function enemyAttackPlayer(enemy, delta) {
     if (enemy.userData.isDead || playerInvulnerable) return;
@@ -1456,7 +1408,6 @@ function enemyAttackPlayer(enemy, delta) {
     }
     updateHealthDisplay();
 }
-
 
 function moveQuadrupeds(delta) {
     quadrupeds.forEach((quadruped) => {
@@ -1515,8 +1466,6 @@ function moveQuadrupeds(delta) {
         animateQuadruped(quadruped, delta);
     });
 }
-
-
 
 function moveEnemies(delta) {
     enemies.forEach((enemy) => {
