@@ -48,7 +48,7 @@ function init() {
     document.getElementById('helpWindow').style.display = 'block';
 
     
-
+    
 
     const groundShape = new THREE.Shape();
     groundShape.moveTo(-5000, -5000);
