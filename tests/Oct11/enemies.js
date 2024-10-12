@@ -73,30 +73,38 @@ function spawnEntities() {
     }
 }
 
-function createEnemy(x, y, z, type = 'red') {
-    let color;
-    let damageRate; // Damage per second
+function createEnemy(x, y, z, type) {
+    const enemyTypes = {
+        'blue': { color: 0x0000ff, damageRate: 4 },
+        'green': { color: 0x00ff00, damageRate: 3 },
+        'yellow': { color: 0xffff00, damageRate: 2.5 },
+        'purple': { color: 0x800080, damageRate: 3.5 },
+        'orange': { color: 0xffa500, damageRate: 2.8 },
+        'cyan': { color: 0x00ffff, damageRate: 3 },
+        'magenta': { color: 0xff00ff, damageRate: 3.2 },
+        'lime': { color: 0x32cd32, damageRate: 2.6 }
+    };
 
-    if (type === 'blue') {
-        color = 0x0000ff; // Blue color
-        damageRate = 4; // 2x damage assuming base is 2
-    } else {
-        color = 0xff0000; // Red color
-        damageRate = 2; // Base damage per second
+    if (!enemyTypes[type]) {
+        const types = Object.keys(enemyTypes);
+        type = types[Math.floor(Math.random() * types.length)];
     }
+
+    const { color, damageRate } = enemyTypes[type];
 
     const enemy = createHumanoid(color);
     enemy.position.set(x, 0, z);
     enemy.userData.type = 'hostile';
     enemy.userData.isDead = false; 
-    enemy.userData.hasBeenLooted = false; // Initialize flag
-    enemy.userData.deathTime = 0; // Existing initialization
+    enemy.userData.hasBeenLooted = false;
+    enemy.userData.deathTime = 0;
     enemy.userData.direction = new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
     enemy.isMoving = true; 
-    enemy.userData.damageRate = damageRate; // Assign damage rate
+    enemy.userData.damageRate = damageRate;
     scene.add(enemy);
     return enemy;
 }
+
 
 function moveEnemies(delta) {
     enemies.forEach((enemy) => {

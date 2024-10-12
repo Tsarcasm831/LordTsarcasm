@@ -21,9 +21,16 @@ function initializeBestiaryUI() {
 function initializeBestiary() {
     window.bestiary = {}; // Initialize the bestiary object
 
+    const standardizedWidth = 128;
+    const standardizedHeight = 128;
+
     const speciesData = {
         humans: {
-            highResImage: 'images/high-res/humans.jpg',
+            highResImage: {
+                src: 'images/high-res/humans.jpg',
+                width: standardizedWidth,
+                height: standardizedHeight
+            },
             name: 'Humans',
             description: 'Humans, once masters of a thriving world, now traverse the remnants, their spirits unbroken. Their resilience and adaptability have become legendary.',
             extendedDescription: 'In the aftermath of cataclysmic events that shattered their civilization, humans have learned to adapt to the harshest of environments. They harness remnants of old technology and combine it with newfound survival techniques. Their cities lie in ruins, but from the ashes, they build shelters, forge alliances, and continue to dream of a better future. The human spirit is unyielding, and their creativity knows no bounds as they navigate the challenges of a changed world.',
@@ -44,7 +51,11 @@ function initializeBestiary() {
             }
         },
         tal_ehn: {
-            highResImage: 'images/high-res/tal_ehn.jpg',
+            highResImage: {
+                src: 'images/high-res/tal_ehn.jpg',
+                width: standardizedWidth,
+                height: standardizedHeight
+            },
             name: "Tal'ehn",
             description: "The Tal'ehn are a small species known for their advanced technology and space travel, constantly seeking knowledge beyond the stars.",
             extendedDescription: "Tal'ehn are pioneers in interstellar navigation, adapting their technologies to explore beyond their home worlds. Their thirst for knowledge is unquenchable, and they have been known to engage in exploratory missions to distant galaxies, always seeking to understand the universe around them.",
@@ -65,7 +76,11 @@ function initializeBestiary() {
             }
         },
         shal_rah_prime: {
-            highResImage: 'images/high-res/shal_rah_prime.jpg',
+            highResImage: {
+                src: 'images/high-res/shal_rah_prime.jpg',
+                width: standardizedWidth,
+                height: standardizedHeight
+            },
             name: "Shal'Rah Prime",
             description: "The Shal'Rah Prime are a hostile insectoid race known for their aggressive conquests of other worlds. Beware their cunning!",
             extendedDescription: "Cunning and ruthless, they dominate through fear and overwhelming tactics, seeking to expand their territories at all costs. Their hives are a manifestation of their hierarchical society, where strength reigns supreme.",
@@ -86,7 +101,11 @@ function initializeBestiary() {
             }
         },
         shal_rah_talorian: {
-            highResImage: 'images/high-res/shal_rah_talorian.jpg',
+            highResImage: {
+                src: 'images/high-res/shal_rah_talorian.jpg',
+                width: standardizedWidth,
+                height: standardizedHeight
+            },
             name: "Shal'Rah Talorian",
             description: "The Talorians excel in diplomacy, struggling against the encroaching invasions and fighting to maintain their culture.",
             extendedDescription: "A sophisticated people who value peace and mutual respect, Talorians engage in complex negotiations to secure their future against overwhelming odds. They are known for their artistry and traditions that reflect their rich history.",
@@ -107,7 +126,11 @@ function initializeBestiary() {
             }
         },
         shal_rah_t_ana_rhe: {
-            highResImage: 'images/high-res/shal_rah_t_ana_rhe.jpg',
+            highResImage: {
+                src: 'images/high-res/shal_rah_t_ana_rhe.jpg',
+                width: standardizedWidth,
+                height: standardizedHeight
+            },
             name: "Shal'Rah T'ana'Rhe",
             description: "The T'ana'Rhe are bird-like psions known for their healing abilities and facing oppression by their own leaders.",
             extendedDescription: "They are known for their powerful psionic abilities, which they harness for both healing and protection, often acting as mediators among species. Despite their talents, they strive for freedom from their oppressive rulers.",
@@ -128,7 +151,11 @@ function initializeBestiary() {
             }
         },
         shal_rah_dengar: {
-            highResImage: 'images/high-res/shal_rah_dengar.jpg',
+            highResImage: {
+                src: 'images/high-res/shal_rah_dengar.jpg',
+                width: standardizedWidth,
+                height: standardizedHeight
+            },
             name: "Shal'Rah Dengar",
             description: "The Dengar chose to ally with the Shal'Rah, proficient in brute strength and combat tactics throughout the galaxy.",
             extendedDescription: "Fierce warriors, they value strength and training above all else, often becoming the backbone of military campaigns in support of the Shal'Rah.",
@@ -149,7 +176,11 @@ function initializeBestiary() {
             }
         },
         custom: {
-            highResImage: 'images/high-res/custom.jpg',
+            highResImage: {
+                src: 'images/high-res/custom.jpg',
+                width: standardizedWidth,
+                height: standardizedHeight
+            },
             name: 'Custom',
             description: 'Create a unique race with tailored abilities to suit your individual play style. The possibilities are endless!',
             extendedDescription: 'The creation is limited only by imagination and resourcefulness, allowing players a vast array of options.',
@@ -173,6 +204,7 @@ function initializeBestiary() {
 
     window.bestiary = speciesData;
 }
+
 
 /**
  * Sets up event listeners for bestiary interactions.
