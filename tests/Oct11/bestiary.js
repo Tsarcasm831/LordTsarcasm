@@ -27,7 +27,7 @@ function initializeBestiary() {
     const speciesData = {
         humans: {
             highResImage: {
-                src: 'images/high-res/humans.jpg',
+                src: 'images/bestiary/humans.webp',
                 width: standardizedWidth,
                 height: standardizedHeight
             },
