@@ -14,7 +14,7 @@ entityTooltip.style.display = 'none';
 entityTooltip.style.zIndex = '1000'; // Ensure tooltip is above other elements
 document.body.appendChild(entityTooltip);
 
-// Function to handle mouse move and show tooltip
+// Function to handle mouse move and show tooltip for entities
 function onMouseMove(event) {
     const rect = renderer.domElement.getBoundingClientRect();
     const mouse = new THREE.Vector2(
@@ -25,38 +25,72 @@ function onMouseMove(event) {
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse, camera);
 
-    // List of entities to check for tooltips
-    const entities = [...enemies, ...friendlies, ...quadrupeds];
+    // Separate checks for different entity types
+    const enemyIntersects = raycaster.intersectObjects(enemies, true);
+    const friendlyIntersects = raycaster.intersectObjects(friendlies, true);
+    const quadrupedIntersects = raycaster.intersectObjects(quadrupeds, true);
 
-    const intersects = raycaster.intersectObjects(entities, true);
-
-    if (intersects.length > 0) {
-        const intersectedObject = intersects[0].object;
-        let parentEntity = intersectedObject;
-
-        // Traverse up to find the parent entity
-        while (parentEntity.parent && !entities.includes(parentEntity)) {
-            parentEntity = parentEntity.parent;
-        }
-
-        if (parentEntity && parentEntity.userData && parentEntity.userData.name) {
-            // Position the tooltip
-            entityTooltip.style.left = `${event.clientX + 10}px`;
-            entityTooltip.style.top = `${event.clientY + 10}px`;
-            entityTooltip.innerHTML = `<strong>${parentEntity.userData.name}</strong>`;
-            entityTooltip.style.display = 'block';
-        } else {
-            entityTooltip.style.display = 'none';
-        }
+    // Display tooltip based on the first intersected object
+    if (enemyIntersects.length > 0) {
+        const enemy = enemyIntersects[0].object;
+        entityTooltip.innerHTML = `<strong>${enemy.userData.name || 'Enemy'}</strong>`;
+        entityTooltip.style.left = `${event.clientX + 10}px`;
+        entityTooltip.style.top = `${event.clientY + 10}px`;
+        entityTooltip.style.display = 'block';
+    } else if (friendlyIntersects.length > 0) {
+        const friendly = friendlyIntersects[0].object;
+        entityTooltip.innerHTML = `<strong>${friendly.userData.name || 'Friendly NPC'}</strong>`;
+        entityTooltip.style.left = `${event.clientX + 10}px`;
+        entityTooltip.style.top = `${event.clientY + 10}px`;
+        entityTooltip.style.display = 'block';
+    } else if (quadrupedIntersects.length > 0) {
+        const quadruped = quadrupedIntersects[0].object;
+        entityTooltip.innerHTML = `<strong>${quadruped.userData.name || 'Creature'}</strong>`;
+        entityTooltip.style.left = `${event.clientX + 10}px`;
+        entityTooltip.style.top = `${event.clientY + 10}px`;
+        entityTooltip.style.display = 'block';
     } else {
         entityTooltip.style.display = 'none';
     }
 }
 
-// Add event listener for mouse move
-renderer.domElement.addEventListener('mousemove', onMouseMove, false);
+// Function to handle tooltips for inventory items
+function onInventoryItemHover(event) {
+    const itemSlot = event.target; // The inventory slot being hovered over
+    const itemName = itemSlot.getAttribute('data-name');
+    const itemDescription = itemSlot.getAttribute('data-description');
+    const itemStats = itemSlot.getAttribute('data-stats');
+    const itemRarity = itemSlot.getAttribute('data-rarity');
 
-// Hide tooltip when mouse leaves the canvas
+    if (itemName) {
+        entityTooltip.innerHTML = `
+            <strong>${itemName}</strong><br>
+            <em>${itemRarity || 'Common'}</em><br>
+            ${itemDescription || 'No description available.'}<br>
+            ${itemStats || 'No stats available.'}
+        `;
+        entityTooltip.style.left = `${event.clientX + 10}px`;
+        entityTooltip.style.top = `${event.clientY + 10}px`;
+        entityTooltip.style.display = 'block';
+    } else {
+        entityTooltip.style.display = 'none';
+    }
+}
+
+// Add event listener for mouse move on inventory items
+function setupInventoryTooltips() {
+    const inventorySlots = document.querySelectorAll('.inventory-slot');
+    inventorySlots.forEach(slot => {
+        slot.addEventListener('mouseenter', onInventoryItemHover);
+        slot.addEventListener('mousemove', onInventoryItemHover);
+        slot.addEventListener('mouseleave', () => {
+            entityTooltip.style.display = 'none';
+        });
+    });
+}
+
+// Add event listeners for mouse move in the game world
+renderer.domElement.addEventListener('mousemove', onMouseMove, false);
 renderer.domElement.addEventListener('mouseleave', () => {
     entityTooltip.style.display = 'none';
 }, false);

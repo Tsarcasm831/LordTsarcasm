@@ -57,7 +57,7 @@ function init() {
     groundShape.lineTo(-5000, 5000);
     groundShape.lineTo(-5000, -5000);
 
-    const safeZoneSize = 300;
+    const safeZoneSize = 600;
     const holePath = new THREE.Path();
     holePath.moveTo(-safeZoneSize, -safeZoneSize);
     holePath.lineTo(-safeZoneSize, safeZoneSize);
@@ -73,14 +73,14 @@ function init() {
     ground.name = 'ground';
     scene.add(ground);
 
-    const safeZoneGroundGeometry = new THREE.PlaneGeometry(600, 600);
+    const safeZoneGroundGeometry = new THREE.PlaneGeometry(1200, 1200);
     const safeZoneGroundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
     safeZoneGround = new THREE.Mesh(safeZoneGroundGeometry, safeZoneGroundMaterial);
     safeZoneGround.rotation.x = -Math.PI / 2;
     safeZoneGround.position.y = 0.1;
     scene.add(safeZoneGround);
 
-    const safeZoneBarrierGeometry = new THREE.BoxGeometry(600, 50, 600);
+    const safeZoneBarrierGeometry = new THREE.BoxGeometry(1200, 50, 1200);
     const safeZoneBarrierMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
     const safeZoneBarrier = new THREE.Mesh(safeZoneBarrierGeometry, safeZoneBarrierMaterial);
     safeZoneBarrier.position.set(0, 25, 0);
@@ -103,7 +103,7 @@ function init() {
     const teleportPadMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff });
     teleportPad = new THREE.Mesh(teleportPadGeometry, teleportPadMaterial);
     teleportPad.rotation.x = -Math.PI / 2;
-    teleportPad.position.y = 0.11;
+    teleportPad.position.y = 0.15;
     teleportPad.name = 'teleportPad';
     shrineGroup.add(teleportPad);
 
@@ -127,12 +127,16 @@ function init() {
     }
 
     const structurePositions = [
-        { x: 150, z: 150 },
-        { x: -150, z: 150 },
-        { x: 150, z: -150 },
-        { x: -150, z: -150 },
+        // Row 1 (z = 200)
+        { x: -200, z: 200 },
         { x: 0, z: 200 },
+        { x: 200, z: 200 },
+        // Row 2 (z = -200)
+        { x: -200, z: -200 },
+        { x: 0, z: -200 },
+        { x: 200, z: -200 },
     ];
+    
 
     structurePositions.forEach(pos => {
         const structure = createStructure();
@@ -160,7 +164,7 @@ function init() {
     scene.add(player);
 
 	function checkEnemiesInSafeZone() {
-		const safeZoneRadius = 300; // Radius of the safe zone
+		const safeZoneRadius = 600; // Radius of the safe zone
 
 		enemies.forEach((enemy) => {
 			if (enemy.userData.isDead) return;
@@ -226,7 +230,7 @@ function init() {
             // Random position within the terrain bounds, avoiding the safe zone
             let x = Math.random() * 10000 - 5000;
             let z = Math.random() * 10000 - 5000;
-            while (Math.sqrt(x * x + z * z) < 400) { // Ensure elements are not in the safe zone
+            while (Math.sqrt(x * x + z * z) < 800) { // Ensure elements are not in the safe zone
                 x = Math.random() * 10000 - 5000;
                 z = Math.random() * 10000 - 5000;
             }
