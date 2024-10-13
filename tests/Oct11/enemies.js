@@ -17,6 +17,26 @@ function initEnemies() {
     }
 }
 
+function checkEnemiesInSafeZone() {
+    const safeZoneRadius = 300; // Radius of the safe zone
+
+    enemies.forEach((enemy) => {
+        if (enemy.userData.isDead) return;
+
+        const distanceFromCenter = Math.sqrt(
+            enemy.position.x * enemy.position.x + enemy.position.z * enemy.position.z
+        );
+
+        if (distanceFromCenter < safeZoneRadius) {
+            const angle = Math.random() * Math.PI * 2;
+            const teleportDistance = 500;
+            enemy.position.x = Math.cos(angle) * teleportDistance;
+            enemy.position.z = Math.sin(angle) * teleportDistance;
+            enemy.position.y = 0; 
+        }
+    });
+}
+
 function getRandomPositionOutsideTown(minDistance, maxDistance) {
     let angle = Math.random() * 2 * Math.PI;
     let distance = minDistance + Math.random() * (maxDistance - minDistance);
@@ -73,27 +93,34 @@ function spawnEntities() {
     }
 }
 
-function createEnemy(x, y, z, type = 'red') {
-    let color;
-    let damageRate; // Damage per second
+function createEnemy(x, y, z, type) {
+    const enemyTypes = {
+        'blue': { color: 0x0000ff, damageRate: 4 },
+        'green': { color: 0x00ff00, damageRate: 3 },
+        'yellow': { color: 0xffff00, damageRate: 2.5 },
+        'purple': { color: 0x800080, damageRate: 3.5 },
+        'orange': { color: 0xffa500, damageRate: 2.8 },
+        'cyan': { color: 0x00ffff, damageRate: 3 },
+        'magenta': { color: 0xff00ff, damageRate: 3.2 },
+        'lime': { color: 0x32cd32, damageRate: 2.6 }
+    };
 
-    if (type === 'blue') {
-        color = 0x0000ff; // Blue color
-        damageRate = 4; // 2x damage assuming base is 2
-    } else {
-        color = 0xff0000; // Red color
-        damageRate = 2; // Base damage per second
+    if (!enemyTypes[type]) {
+        const types = Object.keys(enemyTypes);
+        type = types[Math.floor(Math.random() * types.length)];
     }
+
+    const { color, damageRate } = enemyTypes[type];
 
     const enemy = createHumanoid(color);
     enemy.position.set(x, 0, z);
     enemy.userData.type = 'hostile';
     enemy.userData.isDead = false; 
-    enemy.userData.hasBeenLooted = false; // Initialize flag
-    enemy.userData.deathTime = 0; // Existing initialization
+    enemy.userData.hasBeenLooted = false;
+    enemy.userData.deathTime = 0;
     enemy.userData.direction = new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
     enemy.isMoving = true; 
-    enemy.userData.damageRate = damageRate; // Assign damage rate
+    enemy.userData.damageRate = damageRate;
     scene.add(enemy);
     return enemy;
 }
@@ -106,17 +133,41 @@ function moveEnemies(delta) {
         const attackRange = 10;  
         const enemySpeed = globalEnemySpeed;
 
+        // Calculate direction and distance to the player
         const directionToPlayer = new THREE.Vector3().subVectors(player.position, enemy.position);
         const distanceToPlayer = directionToPlayer.length();
 
+        // Define Safe Zone Parameters
+        const safeZoneCenter = new THREE.Vector3(0, 0, 0); // Adjust if your town center is different
+        const safeZoneRadius = townRadius; // 200 units
+
+        // Check if the enemy is within attack range
         if (distanceToPlayer <= attackRange) {
             enemy.isMoving = false;
             enemyAttackPlayer(enemy, delta);
-        } else if (distanceToPlayer <= threatRange) {
+        } 
+        // Enemy is within threat range and should move towards the player
+        else if (distanceToPlayer <= threatRange) {
             directionToPlayer.normalize();
             const oldPosition = enemy.position.clone();
-            enemy.position.add(directionToPlayer.multiplyScalar(enemySpeed));
+            const newPosition = enemy.position.clone().add(directionToPlayer.clone().multiplyScalar(enemySpeed));
 
+            // **Safe Zone Check Before Moving**
+            const distanceToSafeZone = newPosition.distanceTo(safeZoneCenter);
+            if (distanceToSafeZone < safeZoneRadius) {
+                // Calculate the direction away from the safe zone center
+                const directionAway = new THREE.Vector3().subVectors(newPosition, safeZoneCenter).normalize();
+                // Position the enemy just outside the safe zone boundary
+                const adjustedPosition = safeZoneCenter.clone().add(directionAway.multiplyScalar(safeZoneRadius - 1)); // Slight buffer
+                enemy.position.copy(adjustedPosition);
+                enemy.isMoving = false; // Stop moving further
+                return; // Skip collision checks for this iteration
+            }
+
+            // Move the enemy to the new position
+            enemy.position.copy(newPosition);
+
+            // Collision Detection with Walls
             let collided = false;
             for (let wall of walls) {
                 const enemyBox = new THREE.Box3().setFromObject(enemy);
@@ -141,15 +192,33 @@ function moveEnemies(delta) {
                 enemy.isMoving = false;
             } else {
                 enemy.isMoving = true;
-                // Rotate enemy to face player
+                // Rotate enemy to face the player
                 const angle = Math.atan2(directionToPlayer.x, directionToPlayer.z);
                 enemy.rotation.y = angle;
             }
-        } else {
+        } 
+        // Enemy is outside threat range and should wander randomly
+        else {
             const oldPosition = enemy.position.clone();
             const moveVector = enemy.userData.direction.clone().multiplyScalar(0.5);
-            enemy.position.add(moveVector);
+            const newPosition = enemy.position.clone().add(moveVector);
 
+            // **Safe Zone Check Before Moving**
+            const distanceToSafeZone = newPosition.distanceTo(safeZoneCenter);
+            if (distanceToSafeZone < safeZoneRadius) {
+                // Calculate the direction away from the safe zone center
+                const directionAway = new THREE.Vector3().subVectors(newPosition, safeZoneCenter).normalize();
+                // Position the enemy just outside the safe zone boundary
+                const adjustedPosition = safeZoneCenter.clone().add(directionAway.multiplyScalar(safeZoneRadius - 1)); // Slight buffer
+                enemy.position.copy(adjustedPosition);
+                enemy.isMoving = false; // Stop moving further
+                return; // Skip collision checks for this iteration
+            }
+
+            // Move the enemy to the new position
+            enemy.position.copy(newPosition);
+
+            // Collision Detection with Walls
             let collided = false;
             for (let wall of walls) {
                 const enemyBox = new THREE.Box3().setFromObject(enemy);
@@ -162,19 +231,22 @@ function moveEnemies(delta) {
 
             if (collided) {
                 enemy.position.copy(oldPosition);
+                // Change direction randomly upon collision
                 enemy.userData.direction = new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
                 enemy.isMoving = false;
             } else {
                 enemy.isMoving = true;
-                // Rotate enemy to face movement direction
+                // Rotate enemy to face the movement direction
                 const angle = Math.atan2(moveVector.x, moveVector.z);
                 enemy.rotation.y = angle;
             }
         }
 
+        // Animate the enemy's movements (arms, legs, etc.)
         animateHumanoid(enemy, delta);
     });
 }
+
 
 function attackEnemy(enemy) {
     const attackRange = 20; 
@@ -195,6 +267,11 @@ function attackEnemy(enemy) {
 function playAttackAnimation() {
     player.isAttacking = true;
     player.attackTime = 0;
+}
+
+function enemyAttackPlayer(enemy) {
+    const damageAmount = Math.floor(Math.random() * 3) + 1; // Damage between 1 and 3
+    damagePlayer(damageAmount);
 }
 
 function enemyAttackPlayer(enemy, delta) {
@@ -233,7 +310,7 @@ function animateDeadEnemies(delta) {
 
 function maintainEnemyCount() {
     const activeEnemies = enemies.filter(enemy => !enemy.userData.isDead).length;
-    const enemiesToSpawn = 50 - activeEnemies;
+    const enemiesToSpawn = 100 - activeEnemies;
 
     for (let i = 0; i < enemiesToSpawn; i++) {
         let position = getRandomPositionOutsideTown(300, 1000);
