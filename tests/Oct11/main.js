@@ -562,6 +562,33 @@ function createSettlement(x, y, z) {
 	scene.add(settlementGroup);
 }
 
+// Function to increase a specific stat
+function increaseStat(stat) {
+    if (characterStats.statPoints > 0) {
+        characterStats[stat] += 1;
+        characterStats.statPoints -= 1;
+        updateDisplay();
+    } else {
+        alert('No available stat points!');
+    }
+}
+
+// Example function to handle leveling up
+function levelUp() {
+    if (characterStats.experience >= characterStats.nextLevelExperience) {
+        characterStats.level += 1;
+        characterStats.experience -= characterStats.nextLevelExperience;
+        characterStats.nextLevelExperience = Math.floor(characterStats.nextLevelExperience * 1.5);
+        characterStats.statPoints += 5; // Grant 5 stat points per level
+        alert(`Leveled up to ${characterStats.level}! You have ${characterStats.statPoints} stat points to distribute.`);
+        updateDisplay();
+        
+        // Open trait selection modal upon leveling up
+        openTraitSelection();
+    }
+}
+
+
 function createSettlementWalls() {
     const wallMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
     const wallHeight = 30;

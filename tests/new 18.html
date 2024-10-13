@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base href="https://explore.websim.ai/3d-terrain-survival/">
+    <title>3D Terrain Survival Game with Rain Clouds</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js"></script>
+    <script src="https://cdn.rawgit.com/mrdoob/three.js/r128/examples/js/utils/BufferGeometryUtils.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; }
+        canvas { width: 100%; height: 100%; }
+        #info {
+            position: absolute;
+            color: white;
+            background-color: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            top: 10px;
+            left: 10px;
+            z-index: 1;
+        }
+        #biome-info {
+            position: absolute;
+            top: 40px;
+            left: 10px;
+            color: white;
+            background-color: rgba(0,0,0,0.7);
+            padding: 5px;
+            border-radius: 5px;
+            z-index: 1;
+        }
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        #inventory {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+        }
+        #hotbar {
+            display: flex;
+            justify-content: center;
+        }
+        .inventory-slot {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid #fff;
+            margin: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: white;
+            position: relative;
+            cursor: pointer;
+        }
+        .inventory-slot.selected {
+            border-color: yellow;
+        }
+        .item-count {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 1px 3px;
+            border-radius: 3px;
+        }
+        #inventory-grid {
+            display: none;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 2px;
+            margin-top: 5px;
+        }
+        #crafting-menu {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 5px;
+            padding: 10px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+        #crafting-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        #crafting-result {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid #fff;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: white;
+            position: relative;
+        }
+        #craft-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #pause-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #pause-screen h1 {
+            color: white;
+            font-size: 48px;
+        }
+        #admin-console {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 2000;
+            text-align: left;
+            max-width: 600px;
+            width: 80%;
+            display: none;
+            flex-direction: column;
+        }
+        .tab-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab-button.active {
+            background-color: #555;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .admin-section {
+            margin-bottom: 20px;
+        }
+        .admin-section h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .admin-section .form-control {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+        .admin-section label {
+            margin-bottom: 5px;
+        }
+        .admin-section select,
+        .admin-section input,
+        .admin-section button {
+            width: 100%;
+            margin-top: 5px;
+            font-size: 16px;
+        }
+        .admin-section button {
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .admin-section hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #444;
+        }
+        /* New UI Elements for Attributes and Traits */
+        #character-info {
+            position: absolute;
+            top: 70px;
+            left: 10px;
+            color: white;
+            background-color: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 1;
+        }
+        #traits-menu {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            z-index: 2000;
+        }
+        #traits-menu h2 {
+            margin-top: 0;
+        }
+        #traits-menu .trait {
+            margin: 5px 0;
+        }
+        #close-traits {
+            background-color: #f44336;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">WASD to move, Space to jump, Mouse to look</div>
+    <div id="biome-info">Current Biome: Unknown</div>
+    <div id="character-info">
+        <div>Health: <span id="health-value">100</span></div>
+        <div>Hunger: <span id="hunger-value">100</span></div>
+        <div>Mana: <span id="mana-value">100</span></div>
+        <div>Karma: <span id="karma-value">0</span></div>
+        <div>Reputation: <span id="reputation-value">0</span></div>
+        <div>Fame: <span id="fame-value">0</span></div>
+    </div>
+    <div id="crosshair"></div>
+    <div id="inventory">
+        <div id="hotbar"></div>
+        <div id="inventory-grid"></div>
+    </div>
+    <div id="crafting-menu">
+        <div id="crafting-grid"></div>
+        <div id="crafting-result"></div>
+        <button id="craft-button">Craft</button>
+    </div>
+    <div id="player-hand-container">
+        <canvas id="player-hand-canvas"></canvas>
+    </div>
+    <div id="status-bars">
+        <div id="health-bar">
+            <div class="bar-fill" style="width: 100%; background-color: #2ecc71;"></div>
+        </div>
+        <div id="hunger-bar">
+            <div class="bar-fill" style="width: 100%; background-color: #f1c40f;"></div>
+        </div>
+        <div id="mana-bar">
+            <div class="bar-fill" style="width: 100%; background-color: #3498db;"></div>
+        </div>
+    </div>
+    <div id="pause-screen">
+        <h1>PAUSED</h1>
+    </div>
+    <div id="admin-console">
+        <h2>Admin Console</h2>
+        <div class="tab-buttons">
+            <button class="tab-button active" data-tab="spawn">Spawn Objects</button>
+            <button class="tab-button" data-tab="settings">Game Settings</button>
+            <button class="tab-button" data-tab="player-stats">Player Stats</button>
+            <button class="tab-button" data-tab="inventory">Inventory Management</button>
+            <button class="tab-button" data-tab="physics">Game Physics</button>
+            <button class="tab-button" data-tab="mobs">Mob Controls</button>
+        </div>
+        <div class="tab-content active" id="tab-spawn">
+            <div class="admin-section">
+                <h3>Spawn Objects</h3>
+                <div class="form-control">
+                    <label for="spawn-object-menu">Select Object to Spawn:</label>
+                    <select id="spawn-object-menu">
+                        <option value="tree">Tree</option>
+                        <option value="rock">Rock</option>
+                        <option value="boulder">Boulder</option>
+                        <option value="apple_tree">Apple Tree</option>
+                        <option value="cactus">Cactus</option>
+                        <option value="palm_tree">Palm Tree</option>
+                        <option value="spider_web">Spider Web</option>
+                        <option value="wooden_wall">Wooden Wall</option>
+                        <option value="wooden_floor">Wooden Floor</option>
+                        <option value="wooden_door">Wooden Door</option>
+                        <option value="stone_wall">Stone Wall</option>
+                        <option value="stone_floor">Stone Floor</option>
+                    </select>
+                </div>
+                <button id="spawn-button">Spawn</button>
+            </div>
+        </div>
+        <div class="tab-content" id="tab-settings">
+            <div class="admin-section">
+                <h3>Game Settings</h3>
+                <div class="form-control">
+                    <label for="time-of-day">Set Time of Day:</label>
+                    <select id="time-of-day">
+                        <option value="day">Day</option>
+                        <option value="sunset">Sunset</option>
+                        <option value="night">Night</option>
+                        <option value="sunrise">Sunrise</option>
+                    </select>
+                </div>
+                <button id="set-time-button">Set Time</button>
+                <div class="form-control">
+                    <label for="weather">Set Weather:</label>
+                    <select id="weather">
+                        <option value="clear">Clear</option>
+                        <option value="rain">Rain</option>
+                        <option value="snow">Snow</option>
+                    </select>
+                </div>
+                <button id="set-weather-button">Set Weather</button>
+            </div>
+        </div>
+        <div class="tab-content" id="tab-player-stats">
+            <div class="admin-section">
+                <h3>Player Stats</h3>
+                <div class="form-control">
+                    <label for="player-health">Health:</label>
+                    <input type="number" id="player-health" min="0" max="100" value="100">
+                </div>
+                <button id="set-health-button">Set Health</button>
+                <div class="form-control">
+                    <label for="player-hunger">Hunger:</label>
+                    <input type="number" id="player-hunger" min="0" max="100" value="100">
+                </div>
+                <button id="set-hunger-button">Set Hunger</button>
+                <div class="form-control">
+                    <label for="player-mana">Mana:</label>
+                    <input type="number" id="player-mana" min="0" max="100" value="100">
+                </div>
+                <button id="set-mana-button">Set Mana</button>
+                <div class="form-control">
+                    <label for="player-karma">Karma:</label>
+                    <input type="number" id="player-karma" min="-100" max="100" value="0">
+                </div>
+                <button id="set-karma-button">Set Karma</button>
+                <div class="form-control">
+                    <label for="player-reputation">Reputation:</label>
+                    <input type="number" id="player-reputation" min="0" max="100" value="0">
+                </div>
+                <button id="set-reputation-button">Set Reputation</button>
+                <div class="form-control">
+                    <label for="player-fame">Fame:</label>
+                    <input type="number" id="player-fame" min="0" max="100" value="0">
+                </div>
+                <button id="set-fame-button">Set Fame</button>
+            </div>
+        </div>
+        <div class="tab-content" id="tab-inventory">
+            <div class="admin-section">
+                <h3>Inventory Management</h3>
+                <div class="form-control">
+                    <label for="give-item">Give Item:</label>
+                    <select id="give-item">
+                        <option value="Apple">Apple</option>
+                        <option value="Stick">Stick</option>
+                        <option value="Stone">Stone</option>
+                        <option value="Coconut">Coconut</option>
+                        <option value="Hammer">Hammer</option>
+                        <option value="Wooden Wall">Wooden Wall</option>
+                        <option value="Wooden Floor">Wooden Floor</option>
+                        <option value="Wooden Door">Wooden Door</option>
+                        <option value="Stone Wall">Stone Wall</option>
+                        <option value="Stone Floor">Stone Floor</option>
+                        <!-- New Items -->
+                        <option value="Psi-Armor">Psi-Armor</option>
+                        <option value="Holo-Shield">Holo-Shield</option>
+                        <option value="Nano-Healer">Nano-Healer</option>
+                    </select>
+                </div>
+                <button id="give-item-button">Give Item</button>
+            </div>
+        </div>
+        <div class="tab-content" id="tab-physics">
+            <div class="admin-section">
+                <h3>Game Physics Settings</h3>
+                <div class="form-control">
+                    <label for="gravity">Gravity:</label>
+                    <input type="number" id="gravity" value="-9.8" step="0.1">
+                </div>
+                <button id="set-gravity-button">Set Gravity</button>
+                <div class="form-control">
+                    <label for="jump-force">Jump Force:</label>
+                    <input type="number" id="jump-force" value="7" step="0.1">
+                </div>
+                <button id="set-jump-force-button">Set Jump Force</button>
+            </div>
+        </div>
+        <div class="tab-content" id="tab-mobs">
+            <div class="admin-section">
+                <h3>Mob Controls</h3>
+                <button id="spawn-mob-button">Spawn Mob</button>
+                <button id="remove-mobs-button">Remove All Mobs</button>
+            </div>
+        </div>
+    </div>
+    <!-- Traits Menu -->
+    <div id="traits-menu">
+        <h2>Select Your Traits</h2>
+        <div class="trait">
+            <input type="checkbox" id="trait-strong" value="Strong">
+            <label for="trait-strong">Strong</label>
+        </div>
+        <div class="trait">
+            <input type="checkbox" id="trait-agile" value="Agile">
+            <label for="trait-agile">Agile</label>
+        </div>
+        <div class="trait">
+            <input type="checkbox" id="trait-lucky" value="Lucky">
+            <label for="trait-lucky">Lucky</label>
+        </div>
+        <div class="trait">
+            <input type="checkbox" id="trait-cold-hearted" value="Cold-Hearted">
+            <label for="trait-cold-hearted">Cold-Hearted</label>
+        </div>
+        <button id="close-traits">Close</button>
+    </div>
+    <!-- NPC Dialogues and Quest Interface -->
+    <div id="dialogue-box" style="display: none; position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); background-color: rgba(0,0,0,0.8); color: white; padding: 15px; border-radius: 5px; z-index: 3;">
+        <div id="dialogue-text">Dialogue text here...</div>
+        <div id="dialogue-options">
+            <!-- Options will be dynamically added here -->
+        </div>
+    </div>
+	<script>
+		// Constants and Initializations
+		const PARTICLE_POOL_SIZE = 15000;
+		const particlePool = [];
+
+		function initParticlePool() {
+			for (let i = 0; i < PARTICLE_POOL_SIZE; i++) {
+				particlePool.push(new THREE.Vector3());
+			}
+		}
+
+		function getParticle() {
+			return particlePool.pop() || new THREE.Vector3();
+		}
+
+		function releaseParticle(particle) {
+			particlePool.push(particle);
+		}
+
+		let scene, camera, renderer, player, water, breakingIndicator;
+		let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false, jump = false;
+		const velocity = new THREE.Vector3();
+		const direction = new THREE.Vector3();
+		let isLocked = false;
+		let raycaster, interactableObjects = [];
+		let canJump = true;
+		let breakingObject = null;
+		let isPaused = false;
+
+		// Expanded Settings
+		const settings = {
+			chunkSize: 400,
+			chunkResolution: 100,
+			terrainHeight: 25,
+			waterLevel: 0.02,
+			treeCount: 5,
+			renderDistance: 2,
+			gravity: -9.8,
+			jumpForce: 7,
+			swimForce: 3,
+			swimDrag: 0.9,
+			maxEncumbrance: 100, // New: Encumbrance limit
+			mana: 100,            // New: Mana attribute
+			manaRegenRate: 1,     // New: Mana regeneration rate per second
+			fame: 0,              // New: Fame attribute
+			reputation: 0,        // New: Reputation attribute
+			karma: 0              // New: Karma attribute
+		};
+
+		// Attributes and Traits
+		const playerAttributes = {
+			strength: 10,
+			dexterity: 10,
+			vitality: 10,
+			mana: settings.mana,
+			karma: settings.karma,
+			reputation: settings.reputation,
+			fame: settings.fame
+		};
+
+		const playerTraits = {
+			strong: false,
+			agile: false,
+			lucky: false,
+			coldHearted: false
+		};
+
+		// Classes for Enhanced Features
+
+		// Player Class
+		class Player {
+			constructor(object) {
+				this.object = object;
+				this.health = 100;
+				this.hunger = 100;
+				this.mana = playerAttributes.mana;
+				this.karma = playerAttributes.karma;
+				this.reputation = playerAttributes.reputation;
+				this.fame = playerAttributes.fame;
+				this.attributes = { ...playerAttributes };
+				this.traits = { ...playerTraits };
+				this.encumbrance = 0;
+				this.skills = {
+					tracking: 0,
+					fireBuilding: 0,
+					waterPurification: 0,
+					animalTraining: 0
+				};
+				this.equippedArmor = null;
+				this.equippedWeapon = null;
+			}
+
+			update(delta) {
+				// Mana Regeneration
+				this.mana = Math.min(playerAttributes.mana, this.mana + settings.manaRegenRate * delta);
+				// Update UI or other systems as needed
+			}
+
+			applyTrait(trait) {
+				if (this.traits.hasOwnProperty(trait)) {
+					this.traits[trait] = true;
+					// Apply trait effects
+					switch (trait) {
+						case 'strong':
+							this.attributes.strength += 2;
+							break;
+						case 'agile':
+							this.attributes.dexterity += 2;
+							break;
+						case 'lucky':
+							// Example: Increase chance of critical hits
+							break;
+						case 'coldHearted':
+							this.attributes.karma -= 5;
+							break;
+					}
+				}
+			}
+
+			addEncumbrance(weight) {
+				this.encumbrance += weight;
+				if (this.encumbrance > settings.maxEncumbrance) {
+					// Apply movement penalties or other effects
+					velocity.multiplyScalar(0.5);
+				}
+			}
+
+			removeEncumbrance(weight) {
+				this.encumbrance = Math.max(0, this.encumbrance - weight);
+			}
+
+			takeDamage(amount) {
+				this.health = Math.max(0, this.health - amount);
+				updateStatusBars();
+				if (this.health <= 0) {
+					handleGameOver();
+				}
+			}
+
+			heal(amount) {
+				this.health = Math.min(100, this.health + amount);
+				updateStatusBars();
+			}
+		}
+
+		// NPC Class
+		class NPC {
+			constructor(position, name, dialogues, quests) {
+				this.name = name;
+				this.dialogues = dialogues; // Array of dialogue objects
+				this.quests = quests;       // Array of Quest objects
+				this.currentDialogue = 0;
+				this.mesh = this.createMesh(position);
+				scene.add(this.mesh);
+			}
+
+			createMesh(position) {
+				const geometry = new THREE.CapsuleGeometry(1, 2, 4, 8);
+				const material = new THREE.MeshPhongMaterial({ color: 0xFFD700 });
+				const mesh = new THREE.Mesh(geometry, material);
+				mesh.position.copy(position);
+				mesh.castShadow = true;
+				mesh.receiveShadow = true;
+				return mesh;
+			}
+
+			interact() {
+				// Open dialogue UI
+				openDialogue(this.dialogues[this.currentDialogue]);
+			}
+
+			giveQuest(player) {
+				if (this.quests.length > 0) {
+					const quest = this.quests.shift();
+					player.activeQuests.push(quest);
+					console.log(`New Quest: ${quest.name}`);
+				}
+			}
+		}
+
+		// Quest Class
+		class Quest {
+			constructor(name, description, objectives, rewards) {
+				this.name = name;
+				this.description = description;
+				this.objectives = objectives; // Array of objectives
+				this.rewards = rewards;       // Rewards like items, experience, fame
+				this.completed = false;
+			}
+
+			checkCompletion(player) {
+				this.completed = this.objectives.every(obj => obj.isCompleted(player));
+				if (this.completed) {
+					this.grantRewards(player);
+				}
+			}
+
+			grantRewards(player) {
+				// Grant rewards to the player
+				this.rewards.forEach(reward => {
+					switch (reward.type) {
+						case 'item':
+							player.inventory.addItem(reward.value);
+							break;
+						case 'fame':
+							player.fame += reward.value;
+							updateStatusBars();
+							break;
+						case 'mana':
+							player.mana += reward.value;
+							break;
+						// Add more reward types as needed
+					}
+				});
+				console.log(`Quest Completed: ${this.name}`);
+			}
+		}
+
+		// Objective Class
+		class Objective {
+			constructor(description, checkFunction) {
+				this.description = description;
+				this.checkFunction = checkFunction;
+				this.completed = false;
+			}
+
+			isCompleted(player) {
+				this.completed = this.checkFunction(player);
+				return this.completed;
+			}
+		}
+
+		// Dialogue System
+		function openDialogue(dialogue) {
+			// Implement a UI to display dialogues
+			// For simplicity, using prompts
+			const playerChoice = prompt(`${dialogue.text}\nOptions: ${dialogue.options.map((opt, idx) => `${idx + 1}: ${opt}`).join(', ')}`);
+			const choiceIndex = parseInt(playerChoice) - 1;
+			if (choiceIndex >= 0 && choiceIndex < dialogue.options.length) {
+				const nextDialogue = dialogue.next[choiceIndex];
+				if (nextDialogue) {
+					openDialogue(nextDialogue);
+				}
+			}
+		}
+
+		// Initialize Player
+		let playerInstance;
+
+		function createPlayer() {
+			player = new THREE.Object3D();
+			player.add(camera);
+			camera.position.set(0, 2, 0);
+			player.position.set(0, getTerrainHeight(0, 0) + 2, 0);
+			scene.add(player);
+			playerInstance = new Player(player);
+		}
+
+		// Combat System Enhancements
+		function attack(target) {
+			const attackRoll = rollDice(20) + playerInstance.attributes.strength;
+			const defenseRoll = rollDice(20) + target.attributes.dexterity;
+			if (attackRoll > defenseRoll) {
+				const damage = playerInstance.attributes.strength;
+				target.takeDamage(damage);
+				console.log(`Hit! Dealt ${damage} damage.`);
+			} else {
+				console.log('Missed!');
+			}
+		}
+
+		function rollDice(sides) {
+			return Math.floor(Math.random() * sides) + 1;
+		}
+
+		// Reputation, Fame, and Karma Systems
+		function updateReputation(action) {
+			// Modify reputation based on player actions
+			switch (action) {
+				case 'help':
+					playerInstance.reputation += 5;
+					playerInstance.fame += 2;
+					playerInstance.karma += 5;
+					break;
+				case 'steal':
+					playerInstance.reputation -= 5;
+					playerInstance.karma -= 5;
+					break;
+				// Add more actions as needed
+			}
+			updateStatusBars();
+		}
+
+		// Magic and Mana Systems
+		const spells = {
+			fireball: {
+				cost: 20,
+				effect: (target) => {
+					target.takeDamage(30);
+					console.log('Fireball cast! Dealt 30 damage.');
+				}
+			},
+			heal: {
+				cost: 15,
+				effect: (target) => {
+					playerInstance.heal(25);
+					console.log('Heal cast! Restored 25 health.');
+				}
+			},
+			telekinesis: {
+				cost: 25,
+				effect: (target) => {
+					// Implement telekinesis effect
+					console.log('Telekinesis cast!');
+				}
+			}
+		};
+
+		function castSpell(spellName, target) {
+			const spell = spells[spellName];
+			if (spell && playerInstance.mana >= spell.cost) {
+				playerInstance.mana -= spell.cost;
+				spell.effect(target);
+				updateStatusBars();
+			} else {
+				console.log('Not enough mana or invalid spell.');
+			}
+		}
+
+		// Crafting and Inventory Enhancements
+		const craftingRecipes = [
+			{
+				ingredients: ['Stick', 'String', 'Stone', 'Stone'],
+				result: { name: 'Hammer', count: 1 }
+			},
+			{
+				ingredients: ['Mana Crystal', 'Stick', 'String'],
+				result: { name: 'Magic Staff', count: 1 }
+			}
+		];
+
+		function checkCrafting() {
+			crafting.checkRecipe();
+		}
+
+		function craftItem() {
+			crafting.craft();
+		}
+
+		// Survival Systems and Environmental Interaction
+		function useSkill(skillName) {
+			if (playerInstance.skills.hasOwnProperty(skillName)) {
+				playerInstance.skills[skillName] += 1;
+				console.log(`Used skill: ${skillName}. Level: ${playerInstance.skills[skillName]}`);
+			}
+		}
+
+		// Moral and Ethical Decisions
+		function makeMoralDecision(decision) {
+			switch (decision) {
+				case 'honor':
+					playerInstance.karma += 10;
+					updateReputation('help');
+					break;
+				case 'dishonor':
+					playerInstance.karma -= 10;
+					updateReputation('steal');
+					break;
+				// Add more decisions as needed
+			}
+		}
+
+		// Enhanced AI for Mobs
+		class EnhancedMob extends Mob {
+			constructor(position) {
+				super(position);
+				this.attributes = {
+					strength: 10,
+					dexterity: 10,
+					intelligence: 10,
+					mana: 50
+				};
+				this.spellCasting = false;
+			}
+
+			update(delta) {
+				super.update(delta);
+				// Enhanced AI behavior based on player reputation and karma
+				const distanceToPlayer = this.mesh.position.distanceTo(playerInstance.object.position);
+				if (distanceToPlayer < 20 && this.attributes.mana >= 10) {
+					this.castSpell('fireball');
+				}
+			}
+
+			castSpell(spellName) {
+				if (spells[spellName] && this.attributes.mana >= spells[spellName].cost) {
+					spells[spellName].effect(playerInstance);
+					this.attributes.mana -= spells[spellName].cost;
+					console.log(`${this.constructor.name} casts ${spellName}!`);
+				}
+			}
+		}
+
+		// Multiplayer and Social Interaction (Placeholder)
+		function initializeMultiplayer() {
+			// Implement multiplayer initialization using WebSockets or similar
+			console.log('Multiplayer initialized.');
+		}
+
+		// Existing Code Enhancements
+
+		// Existing Inventory Class Enhancements
+		const inventory = {
+			items: Array(36).fill(null),
+			selectedSlot: 0,
+
+			addItem: function(item) {
+				const existingSlot = this.items.findIndex(slot => slot && slot.name === item && slot.count < 10);
+				if (existingSlot !== -1) {
+					this.items[existingSlot].count++;
+				} else {
+					const emptySlot = this.items.findIndex(slot => slot === null);
+					if (emptySlot !== -1) {
+						this.items[emptySlot] = { name: item, count: 1 };
+					} else {
+						return false;
+					}
+				}
+				this.updateUI();
+				updateInHandDisplay();
+				return true;
+			},
+
+			removeItem: function(slot) {
+				if (this.items[slot] !== null) {
+					const item = this.items[slot].name;
+					this.items[slot].count--;
+					if (this.items[slot].count === 0) {
+						this.items[slot] = null;
+					}
+					this.updateUI();
+					updateInHandDisplay();
+					playerInstance.removeEncumbrance(getItemWeight(item));
+					return item;
+				}
+				return null;
+			},
+
+			updateUI: function() {
+				const hotbar = document.getElementById('hotbar');
+				const inventoryGrid = document.getElementById('inventory-grid');
+				
+				hotbar.innerHTML = '';
+				inventoryGrid.innerHTML = '';
+
+				for (let i = 0; i < 36; i++) {
+					const slot = document.createElement('div');
+					slot.className = 'inventory-slot';
+					slot.setAttribute('data-slot', i);
+					if (this.items[i]) {
+						slot.textContent = this.items[i].name;
+						const count = document.createElement('span');
+						count.className = 'item-count';
+						count.textContent = this.items[i].count;
+						slot.appendChild(count);
+					}
+					slot.addEventListener('click', () => this.selectSlot(i));
+					if (i === this.selectedSlot) slot.classList.add('selected');
+					
+					slot.draggable = true;
+					slot.addEventListener('dragstart', this.dragStart.bind(this));
+					slot.addEventListener('dragover', this.dragOver);
+					slot.addEventListener('drop', this.drop.bind(this));
+
+					if (i < 9) {
+						hotbar.appendChild(slot);
+					} else {
+						inventoryGrid.appendChild(slot);
+					}
+				}
+			},
+
+			selectSlot: function(slot) {
+				this.selectedSlot = slot;
+				this.updateUI();
+				updateInHandDisplay();
+			},
+
+			toggleInventoryAndCrafting: function() {
+				const inventoryGrid = document.getElementById('inventory-grid');
+				const craftingMenu = document.getElementById('crafting-menu');
+				if (inventoryGrid.style.display === 'none') {
+					inventoryGrid.style.display = 'grid';
+					craftingMenu.style.display = 'flex';
+					isPaused = true;
+					document.exitPointerLock();
+				} else {
+					inventoryGrid.style.display = 'none';
+					craftingMenu.style.display = 'none';
+					isPaused = false;
+					renderer.domElement.requestPointerLock();
+				}
+			},
+
+			dragStart: function(e) {
+				e.dataTransfer.setData('text/plain', e.target.getAttribute('data-slot'));
+			},
+
+			dragOver: function(e) {
+				e.preventDefault();
+			},
+
+			drop: function(e) {
+				e.preventDefault();
+				const fromSlot = parseInt(e.dataTransfer.getData('text'));
+				const toSlot = parseInt(e.target.getAttribute('data-slot'));
+				
+				if (fromSlot !== toSlot) {
+					const temp = this.items[fromSlot];
+					this.items[fromSlot] = this.items[toSlot];
+					this.items[toSlot] = temp;
+					this.updateUI();
+					updateInHandDisplay();
+				}
+			},
+			
+			createItemMesh: function(item) {
+				let geometry, material;
+				switch (item) {
+					case 'Stick':
+						geometry = new THREE.CylinderGeometry(0.05, 0.05, 1, 8);
+						material = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+						break;
+					case 'Cactus Spine':
+						geometry = new THREE.ConeGeometry(0.05, 0.5, 8);
+						material = new THREE.MeshPhongMaterial({ color: 0x2F4F4F });
+						break;
+					case 'Stone':
+						geometry = new THREE.DodecahedronGeometry(0.2, 0);
+						material = new THREE.MeshPhongMaterial({ color: 0x808080 });
+						break;
+					case 'Apple':
+						geometry = new THREE.SphereGeometry(0.2, 16, 16);
+						material = new THREE.MeshPhongMaterial({ color: 0xFF0000 });
+						const stem = new THREE.Mesh(
+							new THREE.CylinderGeometry(0.02, 0.02, 0.1, 8),
+							new THREE.MeshPhongMaterial({ color: 0x8B4513 })
+						);
+						stem.position.y = 0.2;
+						const apple = new THREE.Mesh(geometry, material);
+						apple.add(stem);
+						return apple;
+					case 'Hammer':
+						const hammerGroup = new THREE.Group();
+						const handleGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1, 8);
+						const handleMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+						const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+						handle.rotation.z = Math.PI / 2;
+						hammerGroup.add(handle);
+						const headGeometry = new THREE.BoxGeometry(0.3, 0.2, 0.15);
+						const headMaterial = new THREE.MeshPhongMaterial({ color: 0x808080 });
+						const head = new THREE.Mesh(headGeometry, headMaterial);
+						head.position.x = 0.5;
+						hammerGroup.add(head);
+						return hammerGroup;
+					case 'Magic Staff':
+						geometry = new THREE.CylinderGeometry(0.1, 0.1, 3, 8);
+						material = new THREE.MeshPhongMaterial({ color: 0x0000FF, emissive: 0x5555FF });
+						break;
+					case 'Coconut':
+						geometry = new THREE.SphereGeometry(0.2, 16, 16);
+						material = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+						break;
+					case 'Wooden Wall':
+						geometry = new THREE.BoxGeometry(5, 3, 0.5);
+						material = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+						break;
+					case 'Wooden Floor':
+						geometry = new THREE.PlaneGeometry(5, 5);
+						material = new THREE.MeshPhongMaterial({ color: 0xDEB887, side: THREE.DoubleSide });
+						break;
+					case 'Wooden Door':
+						const doorGroup = new THREE.Group();
+						const doorGeometry = new THREE.BoxGeometry(1, 2, 0.1);
+						const doorMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
+						const door = new THREE.Mesh(doorGeometry, doorMaterial);
+						door.position.y = 1;
+						doorGroup.add(door);
+						return doorGroup;
+					case 'Stone Wall':
+						geometry = new THREE.BoxGeometry(5, 3, 0.5);
+						material = new THREE.MeshPhongMaterial({ color: 0x808080 });
+						break;
+					case 'Stone Floor':
+						geometry = new THREE.PlaneGeometry(5, 5);
+						material = new THREE.MeshPhongMaterial({ color: 0xA9A9A9, side: THREE.DoubleSide });
+						break;
+					case 'Mana Crystal':
+						geometry = new THREE.OctahedronGeometry(0.3, 0);
+						material = new THREE.MeshPhongMaterial({ color: 0x00FFFF, emissive: 0x00FFFF });
+						break;
+					// Add more items as needed
+					default:
+						geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+						material = new THREE.MeshPhongMaterial({ color: 0xffffff });
+				}
+				return new THREE.Mesh(geometry, material);
+			}
+		};
+
+		// Crafting System Enhancements
+		const crafting = {
+			grid: Array(4).fill(null),
+			result: null,
+
+			updateUI: function() {
+				const craftingGrid = document.getElementById('crafting-grid');
+				const craftingResult = document.getElementById('crafting-result');
+				
+				craftingGrid.innerHTML = '';
+				for (let i = 0; i < 4; i++) {
+					const slot = document.createElement('div');
+					slot.className = 'inventory-slot';
+					slot.setAttribute('data-slot', i);
+					if (this.grid[i]) {
+						slot.textContent = this.grid[i].name;
+						const count = document.createElement('span');
+						count.className = 'item-count';
+						count.textContent = this.grid[i].count;
+						slot.appendChild(count);
+					}
+					slot.addEventListener('click', () => this.onSlotClick(i));
+					craftingGrid.appendChild(slot);
+				}
+
+				craftingResult.innerHTML = '';
+				if (this.result) {
+					craftingResult.textContent = this.result.name;
+					const count = document.createElement('span');
+					count.className = 'item-count';
+					count.textContent = this.result.count;
+					craftingResult.appendChild(count);
+				}
+			},
+
+			onSlotClick: function(slot) {
+				const selectedItem = inventory.items[inventory.selectedSlot];
+				if (selectedItem) {
+					if (this.grid[slot] && this.grid[slot].name === selectedItem.name) {
+						this.grid[slot].count++;
+					} else {
+						this.grid[slot] = { name: selectedItem.name, count: 1 };
+					}
+					inventory.removeItem(inventory.selectedSlot);
+				} else if (this.grid[slot]) {
+					inventory.addItem(this.grid[slot].name);
+					this.grid[slot] = null;
+				}
+				this.checkRecipe();
+				this.updateUI();
+				inventory.updateUI();
+			},
+
+			checkRecipe: function() {
+				this.result = null;
+				for (const recipe of craftingRecipes) {
+					const flatGrid = this.grid.filter(item => item !== null).map(item => item.name);
+					if (this.arraysEqual(flatGrid.sort(), recipe.ingredients.sort())) {
+						this.result = recipe.result;
+						break;
+					}
+				}
+			},
+
+			arraysEqual: function(a, b) {
+				if (a.length !== b.length) return false;
+				for (let i = 0; i < a.length; i++) {
+					if (a[i] !== b[i]) return false;
+				}
+				return true;
+			},
+
+			craft: function() {
+				if (this.result) {
+					inventory.addItem(this.result.name);
+					this.grid = Array(4).fill(null);
+					this.result = null;
+					this.updateUI();
+					inventory.updateUI();
+					updateInHandDisplay();
+					console.log(`Crafted: ${this.result.name}`);
+				}
+			}
+		};
+
+		// Initialize Status Bars
+		function updateStatusBars() {
+			document.querySelector('#health-bar .bar-fill').style.width = `${playerInstance.health}%`;
+			document.querySelector('#hunger-bar .bar-fill').style.width = `${playerInstance.hunger}%`;
+			// Add mana bar
+			let manaBar = document.getElementById('mana-bar');
+			if (!manaBar) {
+				manaBar = document.createElement('div');
+				manaBar.id = 'mana-bar';
+				manaBar.style.width = '100%';
+				manaBar.style.height = '20px';
+				manaBar.style.backgroundColor = '#333';
+				manaBar.style.marginBottom = '5px';
+				manaBar.style.borderRadius = '10px';
+				manaBar.style.overflow = 'hidden';
+				const barFill = document.createElement('div');
+				barFill.className = 'bar-fill';
+				barFill.style.backgroundColor = '#00FFFF';
+				barFill.style.width = '100%';
+				barFill.style.height = '100%';
+				barFill.style.transition = 'width 0.3s ease-in-out';
+				manaBar.appendChild(barFill);
+				document.getElementById('status-bars').appendChild(manaBar);
+			}
+			manaBar.querySelector('.bar-fill').style.width = `${playerInstance.mana}%`;
+			
+			// Add Fame and Reputation Bars
+			let fameBar = document.getElementById('fame-bar');
+			if (!fameBar) {
+				fameBar = document.createElement('div');
+				fameBar.id = 'fame-bar';
+				fameBar.style.width = '100%';
+				fameBar.style.height = '20px';
+				fameBar.style.backgroundColor = '#333';
+				fameBar.style.marginBottom = '5px';
+				fameBar.style.borderRadius = '10px';
+				fameBar.style.overflow = 'hidden';
+				const barFill = document.createElement('div');
+				barFill.className = 'bar-fill';
+				barFill.style.backgroundColor = '#FFD700';
+				barFill.style.width = '0%';
+				barFill.style.height = '100%';
+				barFill.style.transition = 'width 0.3s ease-in-out';
+				fameBar.appendChild(barFill);
+				document.getElementById('status-bars').appendChild(fameBar);
+			}
+			fameBar.querySelector('.bar-fill').style.width = `${Math.min(playerInstance.fame / 100, 100)}%`;
+			
+			let reputationBar = document.getElementById('reputation-bar');
+			if (!reputationBar) {
+				reputationBar = document.createElement('div');
+				reputationBar.id = 'reputation-bar';
+				reputationBar.style.width = '100%';
+				reputationBar.style.height = '20px';
+				reputationBar.style.backgroundColor = '#333';
+				reputationBar.style.marginBottom = '5px';
+				reputationBar.style.borderRadius = '10px';
+				reputationBar.style.overflow = 'hidden';
+				const barFill = document.createElement('div');
+				barFill.className = 'bar-fill';
+				barFill.style.backgroundColor = '#00FF00';
+				barFill.style.width = '0%';
+				barFill.style.height = '100%';
+				barFill.style.transition = 'width 0.3s ease-in-out';
+				reputationBar.appendChild(barFill);
+				document.getElementById('status-bars').appendChild(reputationBar);
+			}
+			reputationBar.querySelector('.bar-fill').style.width = `${(playerInstance.reputation + 100) / 2}%`; // Assuming reputation ranges from -100 to +100
+		}
+
+		// Handle Game Over
+		function handleGameOver() {
+			console.log("Game Over");
+			isPaused = true;
+			document.getElementById('pause-screen').style.display = 'flex';
+			document.exitPointerLock();
+			// Additional game over logic
+		}
+
+		// Inventory Item Weight (for Encumbrance)
+		function getItemWeight(item) {
+			const weights = {
+				'Apple': 1,
+				'Stick': 0.5,
+				'Stone': 2,
+				'Coconut': 1.5,
+				'Hammer': 5,
+				'Magic Staff': 4,
+				'Wooden Wall': 10,
+				'Wooden Floor': 8,
+				'Wooden Door': 12,
+				'Stone Wall': 15,
+				'Stone Floor': 10,
+				'Mana Crystal': 0.5,
+				// Add more items and their weights
+			};
+			return weights[item] || 1;
+		}
+
+		// Initialize Weather Effects (No changes)
+
+		// Initialize NPCs and Quests
+		const npcs = [];
+
+		function initializeNPCs() {
+			const npc1 = new NPC(
+				new THREE.Vector3(50, getTerrainHeight(50, 50) + 1, 50),
+				'Elder',
+				[
+					{
+						text: "Greetings, traveler. Can you help us fend off the raiders?",
+						options: ["Yes, I'll help.", "No, I'm busy."],
+						next: [
+							{
+								text: "Thank you! Here is a quest for you.",
+								options: ["Accept Quest", "Decline"],
+								next: [
+									{
+										text: "Great! Please collect 10 stones for us.",
+										options: [],
+										next: []
+									},
+									{
+										text: "Perhaps another time then.",
+										options: [],
+										next: []
+									}
+								]
+							},
+							{
+								text: "I understand. Safe travels.",
+								options: [],
+								next: []
+							}
+						]
+					}
+				],
+				[
+					new Quest(
+						"Collect Stones",
+						"Gather 10 stones and bring them back to the Elder.",
+						[
+							new Objective("Collect 10 Stones", (player) => player.inventory.items.filter(item => item && item.name === 'Stone').length >= 10)
+						],
+						[
+							{ type: 'fame', value: 10 },
+							{ type: 'mana', value: 20 },
+							{ type: 'item', value: 'Magic Staff' }
+						]
+					)
+				]
+			);
+
+			npcs.push(npc1);
+		}
+
+		function interactWithNPC(npc) {
+			npc.interact();
+			npc.giveQuest(playerInstance);
+		}
+
+		// Initialize Quests and Dialogues (Already integrated within NPC class)
+
+		// Existing functions and classes remain unchanged...
+
+		// Existing Initialization Enhancements
+		function init() {
+			initParticlePool();
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color(0x343434);
+			scene.fog = new THREE.Fog(0x343434, 50, 1000);
+			camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 3000);
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.shadowMap.enabled = true;
+			renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+			document.body.appendChild(renderer.domElement);
+
+			breakingIndicator = createBreakingIndicator();
+			const sun = createSun();
+
+			const light = new THREE.DirectionalLight(0xffffff, 0.5);
+			light.position.set(100, 100, 100);
+			light.castShadow = true;
+			light.shadow.mapSize.width = 2048;
+			light.shadow.mapSize.height = 2048;
+			light.shadow.camera.near = 0.5;
+			light.shadow.camera.far = 500;
+			scene.add(light);
+
+			scene.add(new THREE.AmbientLight(0x404040, 0.2));
+
+			createWater();
+			createPlayer();
+			spawnMobs(); // Replace with EnhancedMob if needed
+			initWeatherEffects();
+			createRainClouds();
+			initInventory();
+			initializeNPCs(); // Initialize NPCs with quests and dialogues
+
+			raycaster = new THREE.Raycaster();
+
+			renderer.domElement.addEventListener('click', lockPointer);
+			document.addEventListener('pointerlockchange', onPointerLockChange);
+			
+			document.addEventListener('mousedown', onMouseDown);
+			document.addEventListener('mouseup', onMouseUp);
+			document.addEventListener('keydown', (event) => {
+				handleKeyDown(event);
+			});
+			document.addEventListener('keyup', onKeyUp);
+			document.addEventListener('mousemove', onMouseMove);
+			window.addEventListener('resize', onWindowResize);
+
+			updateInHandDisplay();
+			updateStatusBars();
+			crafting.updateUI();
+
+			animate();
+		}
+
+		// Handle Key Down with Extended Functionality
+		function handleKeyDown(event) {
+			if (event.code === 'KeyE') {
+				inventory.toggleInventoryAndCrafting();
+			} else if (event.code >= 'Digit1' && event.code <= 'Digit9') {
+				inventory.selectSlot(parseInt(event.code.charAt(5)) - 1);
+				updateInHandDisplay();
+			} else if (event.code === 'KeyP') { 
+				togglePause();
+			} else if (event.code === 'Backquote') {
+				toggleAdminConsole();
+			}
+			switch (event.code) {
+				case 'KeyW': moveForward = true; break;
+				case 'KeyS': moveBackward = true; break;
+				case 'KeyA': moveLeft = true; break;
+				case 'KeyD': moveRight = true; break;
+				case 'Space': if (canJump) jump = true; break;
+				case 'KeyH': makeMoralDecision('honor'); break; // Example: Press H to make an honorable decision
+				case 'KeyD': makeMoralDecision('dishonor'); break; // Example: Press D to make a dishonorable decision
+				// Add more key bindings as needed
+			}
+		}
+
+		// Breaking Objects Function (Enhanced)
+		function breakObject(object) {
+			let itemToAdd;
+			let count = 1;
+			switch (object.type) {
+				case 'tree_branch':
+					itemToAdd = 'Stick';
+					break;
+				case 'cactus_spine':
+					itemToAdd = 'Cactus Spine';
+					break;
+				case 'rock':
+					itemToAdd = 'Stone';
+					break;
+				case 'boulder':
+					itemToAdd = 'Stone';
+					count = 3;
+					break;
+				case 'apple':
+					itemToAdd = 'Apple';
+					break;
+				case 'spider_web':
+					itemToAdd = 'String';
+					break;
+				case 'coconut':
+					itemToAdd = 'Coconut';
+					break;
+				case 'mob':
+					object.takeDamage(25);
+					if (object.health <= 0) {
+						scene.remove(object.mesh);
+						const index = interactableObjects.indexOf(object);
+						if (index > -1) {
+							interactableObjects.splice(index, 1);
+						}
+						const mobIndex = mobs.indexOf(object);
+						if (mobIndex > -1) {
+							mobs.splice(mobIndex, 1);
+						}
+					}
+					return;
+				case 'npc':
+					// Implement breaking NPC if applicable
+					return;
+				default:
+					console.warn('Unknown object type:', object.type);
+					return;
+			}
+
+			for (let i = 0; i < count; i++) {
+				if (!inventory.addItem(itemToAdd)) {
+					break;
+				} else {
+					playerInstance.addEncumbrance(getItemWeight(itemToAdd));
+				}
+			}
+
+			const index = interactableObjects.indexOf(object);
+			if (index > -1) {
+				interactableObjects.splice(index, 1);
+				object.mesh.parent.remove(object.mesh);
+			}
+			updateInHandDisplay();
+		}
+
+		// Mouse and Interaction Enhancements
+		function onMouseDown(event) {
+			if (isLocked) {
+				mouseDown = true;
+				mouseDownTime = Date.now();
+				
+				raycaster.setFromCamera(new THREE.Vector2(), camera);
+				const intersects = raycaster.intersectObjects(interactableObjects.map(obj => obj.mesh));
+				if (intersects.length > 0) {
+					const object = interactableObjects.find(obj => obj.mesh === intersects[0].object);
+					if (object) {
+						if (object.type === 'mob' || object.type === 'enhancedMob') {
+							attack(object);
+							return;
+						}
+						const selectedItem = inventory.items[inventory.selectedSlot];
+						if (object.type === 'boulder' && (!selectedItem || selectedItem.name !== 'Hammer')) {
+							console.log("You need a hammer to break this boulder!");
+							return;
+						}
+						breakingObject = object;
+						breakingIndicator.position.copy(intersects[0].point);
+						breakingIndicator.visible = true;
+					}
+				}
+
+				const selectedItem = inventory.items[inventory.selectedSlot];
+				if (selectedItem) {
+					switch (selectedItem.name) {
+						case 'Apple':
+							inventory.removeItem(inventory.selectedSlot);
+							playerInstance.hunger = Math.min(100, playerInstance.hunger + 20);  
+							updateStatusBars();
+							updateInHandDisplay();
+							break;
+						case 'Coconut':
+							inventory.removeItem(inventory.selectedSlot);
+							playerInstance.hunger = Math.min(100, playerInstance.hunger + 15);
+							updateStatusBars();
+							updateInHandDisplay();
+							break;
+						case 'Mana Crystal':
+							playerInstance.mana = Math.min(playerAttributes.mana, playerInstance.mana + 20);
+							inventory.removeItem(inventory.selectedSlot);
+							updateStatusBars();
+							updateInHandDisplay();
+							break;
+						// Add more consumable items as needed
+						default:
+							break;
+					}
+				}
+			}
+		}
+
+		// Dialogue Interaction Example (Triggering Interaction)
+		document.addEventListener('keydown', (event) => {
+			if (event.code === 'KeyI') { // Press 'I' to interact with nearest NPC
+				const nearestNPC = findNearestNPC();
+				if (nearestNPC) {
+					interactWithNPC(nearestNPC);
+				}
+			}
+		});
+
+		function findNearestNPC() {
+			let nearest = null;
+			let minDistance = Infinity;
+			for (let npc of npcs) {
+				const distance = npc.mesh.position.distanceTo(playerInstance.object.position);
+				if (distance < minDistance && distance < 5) { // Interaction range
+					minDistance = distance;
+					nearest = npc;
+				}
+			}
+			return nearest;
+		}
+
+		// Implement NPC Dialogue and Quest Updates in Game Loop
+		function animate() {
+			requestAnimationFrame(animate);
+
+			if (!isPaused) {
+				if (isLocked) {
+					const delta = Math.min(clock.getDelta(), 0.1);
+
+					velocity.x -= velocity.x * 10.0 * delta;
+					velocity.z -= velocity.z * 10.0 * delta;
+
+					direction.z = Number(moveForward) - Number(moveBackward);
+					direction.x = Number(moveRight) - Number(moveLeft);
+					direction.normalize();
+
+					if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+					if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+
+					const terrainHeight = getTerrainHeight(player.position.x, player.position.z);
+					const waterSurfaceHeight = settings.terrainHeight * settings.waterLevel - 10;
+
+					if (jump && canJump && player.position.y <= terrainHeight + 2) {
+						velocity.y = settings.jumpForce;
+						canJump = false;
+						setTimeout(() => { canJump = true; }, 500);
+					}
+
+					velocity.y += settings.gravity * delta;
+
+					if (player.position.y < waterSurfaceHeight) {
+						velocity.y *= settings.swimDrag;
+						if (jump) {
+							velocity.y += settings.swimForce * delta;
+						}
+					}
+
+					player.translateX(-velocity.x * delta);
+					player.translateZ(velocity.z * delta);
+					player.position.y += velocity.y * delta;
+
+					if (player.position.y < terrainHeight + 2) {
+						player.position.y = terrainHeight + 2;
+						velocity.y = 0;
+						canJump = true;
+					}
+
+					if (mouseDown && breakingObject) {
+						const progress = (Date.now() - mouseDownTime) / breakTime;
+						breakingIndicator.scale.set(progress, progress, 1);
+						breakingIndicator.material.opacity = 1 - progress;
+
+						if (progress >= 1) {
+							breakObject(breakingObject);
+							breakingObject = null;
+							breakingIndicator.visible = false;
+						}
+					}
+
+					water.position.x = camera.position.x;
+					water.position.z = camera.position.z;
+
+					camera.getWorldDirection(direction);
+					
+					decreaseHunger();  
+					playerInstance.update(delta); // Update player attributes and mana
+
+					for (let mob of mobs) {
+						mob.update(delta);
+					}
+
+					for (let npc of npcs) {
+						npc.quests.forEach(quest => {
+							quest.checkCompletion(playerInstance);
+						});
+					}
+
+					if (playerInstance.health <= 0) {
+						handleGameOver();
+					}
+				}
+
+				const sunRotationSpeed = 0.1;
+				const sun = scene.getObjectByName('sun');
+				if (sun) {
+					sun.position.x = 1000 * Math.cos(sunRotationSpeed * Date.now() / 1000);
+					sun.position.y = 500 * Math.sin(sunRotationSpeed * Date.now() / 1000) + 500;
+					sun.position.z = 1000 * Math.sin(sunRotationSpeed * Date.now() / 1000);
+				}
+
+				updateChunks();
+				updateWeather();
+				renderer.render(scene, camera);
+			}
+		}
+
+		// Initialize Inventory with Encumbrance Handling
+		function initInventory() {
+			for (let i = 0; i < 3; i++) {
+				inventory.addItem('Apple');
+			}
+			inventory.updateUI();
+			document.addEventListener('keydown', (event) => {
+				handleKeyDown(event);
+			});
+
+			document.getElementById('craft-button').addEventListener('click', () => craftItem());
+			document.getElementById('spawn-button').addEventListener('click', () => {
+				const selectedObject = document.getElementById('spawn-object-menu').value;
+				spawnObject(selectedObject);
+			});
+
+			document.getElementById('set-time-button').addEventListener('click', () => {
+				const timeOfDay = document.getElementById('time-of-day').value;
+				setTimeOfDay(timeOfDay);
+			});
+
+			document.getElementById('set-weather-button').addEventListener('click', () => {
+				const weather = document.getElementById('weather').value;
+				setWeather(weather);
+			});
+
+			document.getElementById('set-health-button').addEventListener('click', () => {
+				const newHealth = parseInt(document.getElementById('player-health').value);
+				playerInstance.health = Math.max(0, Math.min(100, newHealth));
+				updateStatusBars();
+			});
+
+			document.getElementById('set-hunger-button').addEventListener('click', () => {
+				const newHunger = parseInt(document.getElementById('player-hunger').value);
+				playerInstance.hunger = Math.max(0, Math.min(100, newHunger));
+				updateStatusBars();
+			});
+
+			document.getElementById('give-item-button').addEventListener('click', () => {
+				const selectedItem = document.getElementById('give-item').value;
+				if (!inventory.addItem(selectedItem)) {
+					console.log("Inventory is full or item cannot be added.");
+				} else {
+					playerInstance.addEncumbrance(getItemWeight(selectedItem));
+					console.log(`${selectedItem} added to inventory.`);
+				}
+			});
+
+			document.getElementById('set-gravity-button').addEventListener('click', () => {
+				const newGravity = parseFloat(document.getElementById('gravity').value);
+				settings.gravity = newGravity;
+				console.log(`Gravity set to ${newGravity}.`);
+			});
+
+			document.getElementById('set-jump-force-button').addEventListener('click', () => {
+				const newJumpForce = parseFloat(document.getElementById('jump-force').value);
+				settings.jumpForce = newJumpForce;
+				console.log(`Jump force set to ${newJumpForce}.`);
+			});
+
+			document.getElementById('spawn-mob-button').addEventListener('click', () => {
+				const x = player.position.x + (Math.random() - 0.5) * 20;
+				const z = player.position.z + (Math.random() - 0.5) * 20;
+				const y = getTerrainHeight(x, z) + 1;
+				const mob = new EnhancedMob(new THREE.Vector3(x, y, z));
+				mobs.push(mob);
+				console.log("Enhanced Mob spawned.");
+			});
+
+			document.getElementById('remove-mobs-button').addEventListener('click', () => {
+				for (let mob of mobs) {
+					scene.remove(mob.mesh);
+				}
+				mobs.length = 0;
+				console.log("All mobs removed.");
+			});
+
+			const tabButtons = document.querySelectorAll('.tab-button');
+			const tabContents = document.querySelectorAll('.tab-content');
+
+			tabButtons.forEach(button => {
+				button.addEventListener('click', () => {
+					tabButtons.forEach(btn => btn.classList.remove('active'));
+					tabContents.forEach(content => content.classList.remove('active'));
+					button.classList.add('active');
+					const tabId = 'tab-' + button.getAttribute('data-tab');
+					document.getElementById(tabId).classList.add('active');
+				});
+			});
+		}
+
+		// Additional Helper Functions
+
+		function decreaseHunger() {
+			if (isLocked && !isPaused) {  
+				playerInstance.hunger = Math.max(0, playerInstance.hunger - 0.01);  
+				if (playerInstance.hunger === 0) {
+					playerInstance.takeDamage(0.1);  
+				}
+				updateStatusBars();
+			}
+		}
+
+		function initWeatherEffects() {
+			const rainGeometry = new THREE.BufferGeometry();
+			const rainVertices = [];
+			for (let i = 0; i < PARTICLE_POOL_SIZE; i++) {
+				const x = Math.random() * 1000 - 500;
+				const y = Math.random() * 500;
+				const z = Math.random() * 1000 - 500;
+				rainVertices.push(x, y, z);
+			}
+			rainGeometry.setAttribute('position', new THREE.Float32BufferAttribute(rainVertices, 3));
+			const rainMaterial = new THREE.PointsMaterial({
+				color: 0xaaaaaa,
+				size: 0.1,
+				transparent: true
+			});
+			rainParticles = new THREE.Points(rainGeometry, rainMaterial);
+			scene.add(rainParticles);
+			rainParticles.visible = false;
+
+			const snowGeometry = new THREE.BufferGeometry();
+			const snowVertices = [];
+			for (let i = 0; i < PARTICLE_POOL_SIZE; i++) {
+				const x = Math.random() * 1000 - 500;
+				const y = Math.random() * 500;
+				const z = Math.random() * 1000 - 500;
+				snowVertices.push(x, y, z);
+			}
+			snowGeometry.setAttribute('position', new THREE.Float32BufferAttribute(snowVertices, 3));
+			const snowMaterial = new THREE.PointsMaterial({
+				color: 0xffffff,
+				size: 0.2,
+				transparent: true
+			});
+			snowParticles = new THREE.Points(snowGeometry, snowMaterial);
+			scene.add(snowParticles);
+			snowParticles.visible = false;
+		}
+
+		function createRainClouds() {
+			const cloudGeometry = new THREE.SphereGeometry(50, 32, 32);
+			const cloudMaterial = new THREE.MeshPhongMaterial({
+				color: 0x8a8a8a,
+				transparent: true,
+				opacity: 0.8
+			});
+
+			for (let i = 0; i < 5; i++) {
+				const cloud = new THREE.Mesh(cloudGeometry, cloudMaterial);
+				cloud.position.set(
+					Math.random() * 1000 - 500,
+					200 + Math.random() * 100,
+					Math.random() * 1000 - 500
+				);
+				cloud.scale.set(1 + Math.random() * 0.5, 0.5 + Math.random() * 0.3, 1 + Math.random() * 0.5);
+				scene.add(cloud);
+				rainClouds.push(cloud);
+			}
+		}
+
+		function toggleAdminConsole() {
+			const adminConsole = document.getElementById('admin-console');
+			if (adminConsole.style.display === 'none') {
+				adminConsole.style.display = 'block';
+				isPaused = true;
+				document.exitPointerLock();
+			} else {
+				adminConsole.style.display = 'none';
+				isPaused = false;
+				renderer.domElement.requestPointerLock();
+			}
+		}
+
+		// Additional Systems Implementations (Magic, Skills, etc.)
+
+		// Example: Using a Spell
+		document.getElementById('cast-fireball-button').addEventListener('click', () => {
+			const target = findTarget();
+			if (target) {
+				castSpell('fireball', target);
+			}
+		});
+
+		function findTarget() {
+			// Implement target finding logic, e.g., nearest enemy
+			const enemies = mobs.filter(mob => mob instanceof EnhancedMob);
+			if (enemies.length === 0) return null;
+			enemies.sort((a, b) => a.mesh.position.distanceTo(playerInstance.object.position) - b.mesh.position.distanceTo(playerInstance.object.position));
+			return enemies[0];
+		}
+
+		// Example: Learning a Skill
+		document.getElementById('learn-tracking-button').addEventListener('click', () => {
+			playerInstance.skills.tracking += 1;
+			console.log(`Tracking skill increased to ${playerInstance.skills.tracking}`);
+		});
+
+		// Example: Performing a Survival Action
+		document.getElementById('build-fire-button').addEventListener('click', () => {
+			if (playerInstance.skills.fireBuilding > 0) {
+				console.log('Fire built successfully!');
+				// Implement fire building logic
+			} else {
+				console.log('You need to learn Fire Building first.');
+			}
+		});
+
+		// Initialize Multiplayer (Placeholder)
+		function initializeMultiplayer() {
+			// Implement multiplayer initialization using WebSockets or similar
+			console.log('Multiplayer initialized.');
+		}
+
+		// Initialize all Systems
+		init();
+
+	</script>
+	</body>
+	</html>

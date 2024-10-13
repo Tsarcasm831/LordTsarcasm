@@ -11,44 +11,8 @@ entityTooltip.style.padding = '5px 10px';
 entityTooltip.style.borderRadius = '5px';
 entityTooltip.style.fontSize = '14px';
 entityTooltip.style.display = 'none';
+entityTooltip.style.zIndex = '1000'; // Ensure tooltip is above other elements
 document.body.appendChild(entityTooltip);
-
-// Function to Show Tooltip
-function showTooltip(event) {
-    const name = this.getAttribute('data-name');
-    const description = this.getAttribute('data-description');
-    tooltip.innerHTML = `<strong>${name}</strong><br>${description}`;
-    tooltip.style.display = 'block';
-}
-
-
-// Function to Move Tooltip with Mouse
-function moveTooltip(event) {
-    const tooltipWidth = tooltip.offsetWidth;
-    const tooltipHeight = tooltip.offsetHeight;
-    const pageWidth = window.innerWidth;
-    const pageHeight = window.innerHeight;
-
-    let x = event.clientX + 10;
-    let y = event.clientY + 10;
-
-    // Prevent tooltip from going off-screen
-    if (x + tooltipWidth > pageWidth) {
-        x = event.clientX - tooltipWidth - 10;
-    }
-    if (y + tooltipHeight > pageHeight) {
-        y = event.clientY - tooltipHeight - 10;
-    }
-
-    tooltip.style.left = `${x}px`;
-    tooltip.style.top = `${y}px`;
-}
-
-// Function to Hide Tooltip
-function hideTooltip() {
-    tooltip.style.display = 'none';
-    tooltip.innerHTML = '';
-}
 
 // Function to handle mouse move and show tooltip
 function onMouseMove(event) {
@@ -79,7 +43,7 @@ function onMouseMove(event) {
             // Position the tooltip
             entityTooltip.style.left = `${event.clientX + 10}px`;
             entityTooltip.style.top = `${event.clientY + 10}px`;
-            entityTooltip.innerText = parentEntity.userData.name;
+            entityTooltip.innerHTML = `<strong>${parentEntity.userData.name}</strong>`;
             entityTooltip.style.display = 'block';
         } else {
             entityTooltip.style.display = 'none';

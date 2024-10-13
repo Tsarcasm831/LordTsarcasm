@@ -11,6 +11,7 @@ function closeSkillTree() {
     skillTreeDiv.style.display = 'none';
 }
 
+
 // Function to Populate Skill Tree UI
 function populateSkillTree() {
     const skillsContainer = document.getElementById('skillsContainer');
@@ -24,30 +25,55 @@ function populateSkillTree() {
             if (skill.learned) {
                 skillDiv.classList.add('learned');
             }
-            skillDiv.innerHTML = `<strong>${skill.name}</strong><br>${skill.description}<br>Cost: ${skill.cost} XP`;
+            skillDiv.innerHTML = `<strong>${skill.name}</strong><br>${skill.description}<br>Cost: ${skill.cost} Stat Points`;
             
             // Add click event to learn the skill
             skillDiv.addEventListener('click', () => {
-                if (!skill.learned && characterStats.experience >= skill.cost * 100) { // Assuming 100 XP per cost unit
-                    characterStats.experience -= skill.cost * 100;
-                    characterStats[Object.keys(skillTreeData)[Object.keys(skillTreeData).indexOf(key)]] += 5; // Increase the relevant stat
+                if (!skill.learned && characterStats.statPoints >= skill.cost) {
+                    // Learn the skill
+                    characterStats.statPoints -= skill.cost;
                     skill.learned = true;
-                    updateStatsDisplay();
+                    applySkillEffects(key);
+                    updateDisplay();
                     populateSkillTree(); // Refresh the skill tree
                     alert(`You have learned ${skill.name}!`);
                 } else if (skill.learned) {
                     alert('Skill already learned.');
                 } else {
-                    alert('Not enough experience to learn this skill.');
+                    alert('Not enough stat points to learn this skill.');
                 }
             });
 
             // Add CSS classes based on skill availability
-            if (!skill.learned && characterStats.experience < skill.cost * 100) {
+            if (!skill.learned && characterStats.statPoints < skill.cost) {
                 skillDiv.classList.add('unavailable');
             }
 
             skillsContainer.appendChild(skillDiv);
         }
+    }
+}
+
+// Function to learn a skill
+function learnSkill(skillKey) {
+    const skill = skillTreeData[skillKey];
+    if (skill && !skill.learned && characterStats.statPoints >= skill.cost) {
+        skill.learned = true;
+        characterStats.statPoints -= skill.cost;
+        applySkillEffects(skillKey);
+        updateSkillTreeUI();
+        updateDisplay();
+    } else {
+        alert('Cannot learn this skill.');
+    }
+}
+
+// Function to apply skill effects
+function applySkillEffects(skillKey) {
+    const skill = skillTreeData[skillKey];
+    if (skill && skill.effects) {
+        Object.keys(skill.effects).forEach(stat => {
+            characterStats[stat] += skill.effects[stat];
+        });
     }
 }

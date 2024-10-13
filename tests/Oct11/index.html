@@ -88,11 +88,17 @@
             <p>Dexterity: <span id="dexterity">10</span></p>
             <p>Vitality: <span id="vitality">10</span></p>
             <p>Energy: <span id="energy">10</span></p>
+            <p>Mana: <span id="mana">50</span></p>
+            <p>Karma: <span id="karma">0</span></p> 
+            <p>Reputation: <span id="reputation">0</span></p> 
             <p>Available Stat Points: <span id="statPoints">0</span></p>
             <button onclick="increaseStat('strength')">Increase Strength</button>
             <button onclick="increaseStat('dexterity')">Increase Dexterity</button>
             <button onclick="increaseStat('vitality')">Increase Vitality</button>
             <button onclick="increaseStat('energy')">Increase Energy</button>
+            <button onclick="increaseStat('mana')">Increase Mana</button> <!-- New Button -->
+            <button onclick="increaseStat('karma')">Increase Karma</button> <!-- New Button -->
+            <button onclick="increaseStat('reputation')">Increase Reputation</button> <!-- New Button -->
         </div>
 
         <div id="hotbar">
@@ -127,79 +133,124 @@
         <div id="teleportationBarContainer">
             <div id="teleportationBar"></div>
         </div>
+        <!-- Add Loading Indicator HTML -->
+        <div id="adminLoading" class="loading-overlay" style="display: none;">
+            <div class="loading-spinner"></div>
+        </div>
 
-        <div id="adminConsole" style="display: none;">
-            <div id="adminLogin">
-                <h2>Admin Console</h2>
-                <p>Please enter the admin password:</p>
-                <input type="password" id="adminPassword">
-                <button onclick="checkAdminPassword()">Submit</button>
-            </div>
-            <div id="adminControls" style="display: none;">
-                <h2>Admin Controls</h2>
-                <section>
-                    <h3>Player Stats</h3>
-                    <p>Health: <input type="number" id="playerHealthInput" value="100" step="1"></p>
-                    <p>Gold: <input type="number" id="playerGoldInput" value="0" step="1"></p>
-                    <p>Experience: <input type="number" id="playerExperienceInput" value="0" step="1"></p>
-                    <button onclick="updatePlayerStats()">Update Player Stats</button>
-                </section>
-                <section>
-                    <h3>Player Options</h3>
-                    <p>
-                        <label>
-                            <input type="checkbox" id="invulnerabilityCheckbox"> Invulnerable
-                        </label>
-                    </p>
-                    <button onclick="updatePlayerOptions()">Update Player Options</button>
-                </section>
-            
-                <div id="fullscreenMap" style="display: none;">
-                    <canvas id="mapCanvas"></canvas>
-                    <button onclick="closeFullscreenMap()" style="position: absolute; top: 10px; right: 10px;">Close Map</button>
+        <!-- Admin Console Modal -->
+        <div id="adminConsole" class="modal" aria-hidden="true" role="dialog" aria-labelledby="adminConsoleTitle">
+            <div class="modal-content">
+                <button class="close-button" onclick="closeAdminConsole()" aria-label="Close Admin Console">&times;</button>
+                <h2 id="adminConsoleTitle">Admin Console</h2>
+                
+                <!-- Tab Navigation -->
+                <div class="admin-tabs">
+                    <button class="tab-button active" data-tab="adminLogin">Login</button>
+                    <button class="tab-button" data-tab="playerManagement">Player Management</button>
+                    <button class="tab-button" data-tab="gameSettings">Game Settings</button>
+                    <button class="tab-button" data-tab="spawnOptions">Spawn Options</button>
+                    <button class="tab-button" data-tab="teleportPlayer">Teleport Player</button>
+                    <button class="tab-button" data-tab="npcAdmin">NPC Admin</button>
                 </div>
-
-
-                <section>
-                    <h3>Spawn Options</h3>
-                    <p>Entity Type:
-                        <select id="entityTypeSelect">
-                            <option value="enemy">Enemy</option>
-                            <option value="friendlyNPC">Friendly NPC</option>
-                            <option value="structure">Structure</option>
-                            <option value="treasureChest">Treasure Chest</option>
-						    <option value="settlement">Settlement</option>
-						    <option value="quadruped">Quadruped</option>
-                        </select>
-                    </p>
-                    <p>Quantity: <input type="number" id="entityQuantityInput" value="1" step="1" min="1"></p>
-                    <button onclick="spawnEntities()">Spawn Entities</button>
-                </section>
-                <section>
+                
+                <!-- Tab Content -->
+                <div class="admin-tab-content active" id="adminLogin">
+                    <h3>Admin Login</h3>
+                    <p>Please enter the admin password:</p>
+                    <input type="password" id="adminPassword" placeholder="Enter Password">
+                    <button onclick="checkAdminPassword()">Submit</button>
+                </div>
+                
+                <div class="admin-tab-content" id="playerManagement">
+                    <h3>Player Management</h3>
+                    <section>
+                        <h4>Player Stats</h4>
+                        <p>Health: <input type="number" id="playerHealthInput" value="100" step="1" min="0"></p>
+                        <p>Gold: <input type="number" id="playerGoldInput" value="0" step="1" min="0"></p>
+                        <p>Experience: <input type="number" id="playerExperienceInput" value="0" step="1" min="0"></p>
+                        <button onclick="updatePlayerStats()">Update Player Stats</button>
+                    </section>
+                    <section>
+                        <h4>Player Options</h4>
+                        <p>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="invulnerabilityCheckbox"> Invulnerable
+                            </label>
+                        </p>
+                        <button onclick="updatePlayerOptions()">Update Player Options</button>
+                    </section>
+                </div>
+                
+                <div class="admin-tab-content" id="gameSettings">
                     <h3>Game Settings</h3>
-                    <p>Enemy Speed: <input type="number" id="enemySpeedInput" value="0.7" step="0.1"></p>
-                    <button onclick="updateGameSettings()">Update Game Settings</button>
-                </section>
-                <section>
+                    <section>
+                        <h4>Enemy Speed</h4>
+                        <p>Enemy Speed: <input type="number" id="enemySpeedInput" value="0.7" step="0.1" min="0"></p>
+                        <button onclick="updateGameSettings()">Update Game Settings</button>
+                    </section>
+                </div>
+                
+                <div class="admin-tab-content" id="spawnOptions">
+                    <h3>Spawn Options</h3>
+                    <section>
+                        <h4>Spawn Entities</h4>
+                        <p>Entity Type:
+                            <select id="entityTypeSelect">
+                                <option value="enemy">Enemy</option>
+                                <option value="friendlyNPC">Friendly NPC</option>
+                                <option value="structure">Structure</option>
+                                <option value="treasureChest">Treasure Chest</option>
+                                <option value="settlement">Settlement</option>
+                                <option value="quadruped">Quadruped</option>
+                            </select>
+                        </p>
+                        <p>Quantity: <input type="number" id="entityQuantityInput" value="1" step="1" min="1"></p>
+                        <button onclick="spawnEntities()">Spawn Entities</button>
+                    </section>
+                </div>
+                
+                <div class="admin-tab-content" id="teleportPlayer">
                     <h3>Teleport Player</h3>
-                    <p>X: <input type="number" id="teleportXInput" value="0" step="1"></p>
-                    <p>Z: <input type="number" id="teleportZInput" value="0" step="1"></p>
-                    <button onclick="teleportPlayer()">Teleport Player</button>
-                </section>
-                <section>
+                    <section>
+                        <h4>Set Player Coordinates</h4>
+                        <p>X: <input type="number" id="teleportXInput" value="0" step="1"></p>
+                        <p>Z: <input type="number" id="teleportZInput" value="0" step="1"></p>
+                        <button onclick="teleportPlayer()">Teleport Player</button>
+                    </section>
+                </div>
+                
+                <div class="admin-tab-content" id="npcAdmin">
                     <h3>NPC Admin</h3>
-                    <p>
-                        <label>
-                            <input type="checkbox" id="npcAdminCheckbox"> Enable NPC Admin Mode
-                        </label>
-                    </p>
-                </section>
-                <button onclick="closeAdminConsole()">Close</button>
+                    <section>
+                        <h4>Manage NPC Admin Mode</h4>
+                        <p>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="npcAdminCheckbox"> Enable NPC Admin Mode
+                            </label>
+                        </p>
+                    </section>
+                </div>
+                
             </div>
         </div>
 
+
+
+
         <div id="lootBarContainer">
             <div id="lootBar"></div>
+        </div>
+        <!-- Trait Selection Modal -->
+        <div id="traitSelectionModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="traitSelectionTitle">
+            <div class="modal-content">
+                <button class="close-trait-selection close-button" aria-label="Close Trait Selection">&times;</button>
+                <h2 id="traitSelectionTitle">Select Your Traits</h2>
+                <div id="traitOptions">
+                    <!-- Trait options will be dynamically added here -->
+                </div>
+                <button onclick="confirmTraitSelection()">Confirm Traits</button>
+            </div>
         </div>
 
         <div id="lootPopup">
@@ -357,7 +408,7 @@
             let lootedItems = [];
             let currentLootingEnemy = null;
 
-            // Initialize Character Stats
+            // Initialize Character Stats with Expanded Attributes
             let characterStats = {
                 level: 1,
                 experience: 0,
@@ -366,37 +417,67 @@
                 dexterity: 10,
                 vitality: 10,
                 energy: 10,
+                mana: 50,          // New Attribute
+                karma: 0,          // New Attribute
+                reputation: 0,     // New Attribute
                 statPoints: 0
             };
+
 		
-            // Skill Tree Data Structure
+            // Define skill tree data with new attributes
             let skillTreeData = {
                 strength: {
                     name: 'Strength Boost',
                     description: 'Increase your strength by 5.',
                     cost: 1,
-                    learned: false
+                    learned: false,
+                    effects: { strength: 5 }
                 },
                 dexterity: {
                     name: 'Dexterity Boost',
                     description: 'Increase your dexterity by 5.',
                     cost: 1,
-                    learned: false
+                    learned: false,
+                    effects: { dexterity: 5 }
                 },
                 vitality: {
                     name: 'Vitality Boost',
                     description: 'Increase your vitality by 5.',
                     cost: 1,
-                    learned: false
+                    learned: false,
+                    effects: { vitality: 5 }
                 },
                 energy: {
                     name: 'Energy Boost',
                     description: 'Increase your energy by 5.',
                     cost: 1,
-                    learned: false
+                    learned: false,
+                    effects: { energy: 5 }
+                },
+                mana: {
+                    name: 'Mana Pool',
+                    description: 'Increase your mana by 20.',
+                    cost: 2,
+                    learned: false,
+                    effects: { mana: 20 }
+                },
+                karmaInfluence: {
+                    name: 'Karma Influence',
+                    description: 'Increase your karma by 5.',
+                    cost: 2,
+                    learned: false,
+                    effects: { karma: 5 }
+                },
+                reputationBoost: {
+                    name: 'Reputation Boost',
+                    description: 'Increase your reputation by 10.',
+                    cost: 2,
+                    learned: false,
+                    effects: { reputation: 10 }
                 }
                 // Add more skills as needed
             };
+
 
             // Tooltip Element
             const tooltip = document.getElementById('tooltip');
@@ -415,7 +496,7 @@
         <script src="spawnzone.js"></script>
         <script src="updatedisplays.js"></script>
         <script src="questLog.js"></script>
-        <script src="tooltips.js"></script>
+        <!-- <script src="tooltips.js"></script> --> 
         <script src="teleport.js"></script>
         <script src="skilltree.js"></script>
         <script src="randomitems.js"></script>
@@ -423,6 +504,8 @@
         <script src="neutralanimals.js"></script>
         <script src="hostilequadrupeds.js"></script>
         <script src="settlement.js"></script>
+        <!-- <script src="characterCreation.js"></script> --> 
+        <!-- <script src="characterSprite.js"></script> --> 
         
         
 

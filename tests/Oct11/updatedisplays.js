@@ -25,7 +25,27 @@ function updateEnergyDisplay() {
     document.getElementById('energyOrb').style.clipPath = `inset(${100 - energyPercent}% 0 0 0)`;
 }
 
+function updateDisplay() {
+    document.getElementById('level').textContent = characterStats.level;
+    document.getElementById('experience').textContent = characterStats.experience;
+    document.getElementById('nextLevelExperience').textContent = characterStats.nextLevelExperience;
+    document.getElementById('strength').textContent = characterStats.strength;
+    document.getElementById('dexterity').textContent = characterStats.dexterity;
+    document.getElementById('vitality').textContent = characterStats.vitality;
+    document.getElementById('energy').textContent = characterStats.energy;
+    document.getElementById('mana').textContent = characterStats.mana;
+    document.getElementById('karma').textContent = characterStats.karma;
+    document.getElementById('reputation').textContent = characterStats.reputation;
+    document.getElementById('statPoints').textContent = characterStats.statPoints;
+    
+    applyAppearanceUpdates(); // Update character appearance based on new stats
+    renderCharacterSprite(); // Update the character sprite in the inventory
+}
+
+
+
 updateGoldDisplay();
 updateHealthDisplay();
 updateEnergyDisplay();
 updateStatsDisplay();
+updateDisplay();
