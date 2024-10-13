@@ -624,18 +624,67 @@ body, html {
 #helpWindow {
     position: absolute;
     width: 600px;
-    max-height: 600px;
+    height: 400px;
     background: rgba(0, 0, 0, 0.8);
     color: #fff;
     display: none;
     padding: 20px;
     border: 2px solid #aaa;
     z-index: 10;
-    overflow-y: auto;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    font-family: Arial, sans-serif;
+    border-radius: 10px;
+    box-sizing: border-box;
 }
+
+#closeHelp {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ff4c4c;
+    border: none;
+    color: white;
+    font-size: 16px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#closeHelp:hover {
+    background-color: #ff0000;
+}
+
+.content {
+    display: flex;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.left-column, .right-column {
+    width: 48%;
+    padding: 10px;
+}
+
+#helpWindow h2, #helpWindow h3 {
+    color: #ffd700; /* Optional: Gold color for headers */
+    margin-top: 0;
+}
+
+#helpWindow ul {
+    padding-left: 20px;
+    margin-bottom: 10px;
+}
+
+.updates, .keybindings, .features {
+    list-style-type: disc;
+}
+
+.updates li, .keybindings li, .features li {
+    margin-bottom: 5px;
+}
+
 
 /* Skill Tree Styles */
 #skillTree {

@@ -186,6 +186,11 @@ function onDocumentKeyDown(event) {
     }
 }
 
+document.getElementById('closeHelp').addEventListener('click', function() {
+    document.getElementById('helpWindow').style.display = 'none';
+});
+
+
 function onDocumentKeyUp(event) {
     if (event.key.toLowerCase() === 'a') {
         rotateLeft = false;

@@ -301,29 +301,49 @@
             <button onclick="closeQuestLog()">Close Quest Log</button>
         </div>
 
-        <!-- Tooltip Element -->
-        <div id="tooltip" class="tooltip"></div>
-	        <div id="helpWindow">
-            <h2>Game Help</h2>
-            <p>Welcome to the game!</p>
-            <p>Password is ltwelcome1</p>
-            <h3>Key Bindings:</h3>
-            <ul>
-                <li><strong>I</strong> or <strong>B</strong>: Open/Close Inventory</li>
-                <li><strong>C</strong>: Open/Close Character Stats</li>
-                <li><strong>Q</strong>: Open/Close Quest Log</li>
-                <li><strong>T</strong>: Start Teleportation</li>
-                <li><strong>A</strong>: Rotate Camera Left</li>
-                <li><strong>D</strong>: Rotate Camera Right</li>
-                <li><strong>`</strong>: Open/Close Admin Console</li>
-                <li><strong>H</strong>: Open/Close Help Window</li>
-                <li><strong>Y</strong>: Open/Close Bestiary</li> <!-- Added Bestiary Key Binding -->
-            </ul>
-            <h3>Features:</h3>
-            <p>- Explore the world and defeat enemies.</p>
-            <p>- Collect loot and manage your inventory.</p>
-            <p>- Level up and improve your character stats.</p>
-            <p>- Interact with friendly NPCs.</p>
+        <!-- Help Window -->
+        <div id="helpWindow">
+            <button id="closeHelp">X</button>
+            <div class="content">
+                <div class="left-column">
+                    <h2>Latest Updates</h2>
+                    <p><strong>Version 0.2.6</strong></p>
+                    <ul class="updates">
+                        <li>Fixed Bestiary</li>
+                        <li>Improved Admin Screen</li>
+                        <li>Fixed on-hover elements to show correct data</li>
+                        <li>Increased "safezone" size</li>
+                        <li>Smoothened camera rotation</li>
+                        <li>Disabled right-click</li>
+                    </ul>
+                    <h3><strong>Admin Info:</strong></h3>
+                    <p><strong>Admin Password:</strong> ltwelcome1</p>
+                </div>
+                <div class="right-column">
+                    <h3>Key Bindings:</h3>
+                    <ul class="keybindings">
+                        <li><strong>I</strong> or <strong>B</strong>: Open/Close Inventory</li>
+                        <li><strong>C</strong>: Open/Close Character Stats</li>
+                        <li><strong>Q</strong>: Open/Close Quest Log</li>
+                        <li><strong>T</strong>: Start Teleportation</li>
+                        <li><strong>A</strong>: Rotate Camera Left</li>
+                        <li><strong>D</strong>: Rotate Camera Right</li>
+                        <li><strong>`</strong>: Open/Close Admin Console</li>
+                        <li><strong>H</strong>: Open/Close Help Window</li>
+                        <li><strong>Y</strong>: Open/Close Bestiary</li>
+                    </ul>
+        
+                    <h3>Planned Fixes:</h3>
+                    <ul class="features">
+                        <li>Enemies allowed in safe zone</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        
+        
         </div>
 
 	    <div id="structureAdminPopup" style="display: none;">
