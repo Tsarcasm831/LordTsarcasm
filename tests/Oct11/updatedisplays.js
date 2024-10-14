@@ -49,4 +49,3 @@ updateHealthDisplay();
 updateEnergyDisplay();
 updateStatsDisplay();
 updateDisplay();
-setupInventoryTooltips();
