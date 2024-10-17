@@ -321,7 +321,7 @@
             <iframe src="https://open.spotify.com/embed/track/7jFyzgoUQ10PTYhuC5vXHA" width="300" height="80"></iframe>
             <iframe src="https://open.spotify.com/embed/track/3vxMfMNjD8k0ozmuVDu0Ai" width="300" height="80"></iframe>
             <iframe src="https://open.spotify.com/embed/album/4mLuzYF9sqsZ6AmZMu9tkx" width="300" height="80"></iframe>
-            <iframe src="https://open.spotify.com/embed/track/5IcpFfoUZLU3G7b8BtppFi" width="300" height="80"></iframe>
+            <iframe src="https://open.spotify.com/embed/album/59nyBhIhYXd2rVkSrmwVi5" width="300" height="80"></iframe>
             
             
             
@@ -384,6 +384,23 @@
             let imageSet = '';
 
             const albumData = [
+                { 
+                    id: 'atlas-modal', 
+                    title: 'Atlas Alone', 
+                    image: 'Atlas Alone.png', 
+                    details: 'Single - 2024 - 1 song', 
+                    description: 'A powerful exploration of inner strength and vulnerability, capturing the emotional weight of carrying the world alone. My heartfelt appreciation to my new friend and collaborator, Ricardo Abyssal!', 
+                    songList: `
+                        <ul>
+                            <audio controls>
+                                <source src="music/Atlas Alone.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <li><a href="https://open.spotify.com/track/3pQY0y3fzJd6WY8azPqaLf?si=69fed89524ae422a">Original Track</a></li>
+                            <li><a href="https://open.spotify.com/artist/47s2i6XVeEU4bk6nAcOwUb?si=qohHd1T9StC2jzlpjmf_Gg">Ricardo Abyssal Spotify</a></li>
+                        </ul>
+                        `,
+                },
                 { 
                     id: 'success-modal', 
                     title: 'Success the Obsession (Concept Version)', 
@@ -548,24 +565,7 @@
                     description: 'An intense and raw album that pushes the boundaries of genre and sound.',
                     songList:
                         `<ul>
-                            <li>Promolink: <a href="https://artists.landr.com/055855768841">LandR</a></li>
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
+                            <li>Promolink: <a href="https://artists.landr.com/055855768841">LandR</a></li>   
                         </ul>`,
                     spotify: 'https://open.spotify.com/album/59nyBhIhYXd2rVkSrmwVi5', 
                     youtube: 'https://music.youtube.com/x', 
@@ -588,7 +588,8 @@
                     spotify: 'https://open.spotify.com/album/1YVl9rMklSiPCQZtuGx8Tx', 
                     youtube: 'https://music.youtube.com/playlist?list=OLAK5uy_mk6j0Bh-kUWX7r76cKIH80cdmQDZ5mdZE', 
                     apple: 'https://geo.music.apple.com/album/supernova/1759666157'
-                }
+                },
+                
             ];
 
             albumData.forEach(album => {
@@ -636,7 +637,9 @@
                         </div>
                     </div>
                 `);
+                
             });
+
             // Set all links inside modals to open in a new window
             $('.modal a').attr('target', '_blank');
 
@@ -655,6 +658,48 @@
             });
         });
 
+        // Function to create modal-icons HTML
+        function createModalIcons(album) {
+                let iconsHTML = '';
+                if (album.spotify || album.youtube || album.apple) {
+                    iconsHTML += '<div class="modal-icons">';
+                    if (album.spotify) {
+                        iconsHTML += `<a href="${album.spotify}" target="_blank"><i class="fab fa-spotify"></i> Spotify</a>`;
+                    }
+                    if (album.youtube) {
+                        iconsHTML += `<a href="${album.youtube}" target="_blank"><i class="fab fa-youtube"></i> YouTube</a>`;
+                    }
+                    if (album.apple) {
+                        iconsHTML += `<a href="${album.apple}" target="_blank"><i class="fab fa-apple"></i> Apple Music</a>`;
+                    }
+                    iconsHTML += '</div>';
+                }
+                return iconsHTML;
+        }
+
+            // Function to create and append modals
+            function createModal(album) {
+                const imgPath = imageFolder + album.image;
+                const modalHTML = `
+                    <div id="${album.id}" class="modal" style="display: none;">
+                        <div class="modal-content">
+                            <span class="close" onclick="closeModal('${album.id}')">&times;</span>
+                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover">
+                            <div class="modal-album-title">${album.title}</div>
+                            <div class="modal-album-details">${album.details}</div>
+                            <div class="modal-description">
+                                <p>${album.description}</p>
+                            </div>
+                            <div class="modal-song-list">
+                                ${album.songList}
+                            </div>
+                            ${createModalIcons(album)}
+                        </div>
+                    </div>
+                `;
+                $('body').append(modalHTML);
+        }
+        
         function openModal(modalId) {
             $('.modal').hide();
             $('#' + modalId).show();
