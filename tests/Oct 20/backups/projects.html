@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="https://www.lordtsarcasm.com/">
+  <title>Lord Tsarcasm's Projects - Post-Apocalyptic Showcase</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Staatliches&amp;family=Roboto+Mono:wght@300;400;700&amp;display=swap" rel="stylesheet">
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-kkKNuFHa6HAW5nBMKkJj9mP8s54YmmnX5V0ZYzjaS7ZPVAfiGcDfYEeUYOJQLYxL" crossorigin="anonymous">
+  <!-- CSS Reset -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css" integrity="sha384-NhSC6BzahlenO2Nu3pyFp+6+rVl19ZK1j7wcJqaBd6YdZY1+fDj5i8Zk7jnx1Z7gKd" crossorigin="anonymous">
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Your existing CSS styles remain unchanged */
+    :root {
+      --bg-color: #0c0c0c;
+      --text-color: #d4d4d4;
+      --accent-color: #b22222;
+      --secondary-color: #222;
+      --font-main: 'Roboto Mono', monospace;
+      --font-title: 'Staatliches', cursive;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      margin: 0;
+      overflow-x: hidden;
+    }
+    header, footer {
+      background-color: var(--secondary-color);
+      text-align: center;
+      padding: 20px 0;
+      position: relative;
+    }
+    header::before {
+      content: '';
+      background: url('images/header-bg.svg') no-repeat center/cover;
+      opacity: 0.2;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      position: absolute;
+      z-index: -1;
+    }
+    header h1 {
+      margin: 0;
+      font-family: var(--font-title);
+      font-size: 3rem;
+      color: var(--accent-color);
+      text-shadow: 2px 2px 4px #000;
+      letter-spacing: 2px;
+    }
+    nav {
+      background-color: var(--bg-color);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    nav ul {
+      display: flex;
+      justify-content: center;
+      list-style: none;
+      margin: 0;
+      padding: 10px 0;
+    }
+    nav ul li {
+      margin: 0 15px;
+    }
+    nav ul li a {
+      color: var(--text-color);
+      text-decoration: none;
+      font-size: 1.2rem;
+      position: relative;
+    }
+    nav ul li a::after {
+      content: '';
+      width: 0%;
+      height: 2px;
+      background-color: var(--accent-color);
+      position: absolute;
+      left: 0;
+      bottom: -5px;
+      transition: width 0.3s;
+    }
+    nav ul li a:hover::after {
+      width: 100%;
+    }
+    main {
+      padding: 50px 20px;
+    }
+    section {
+      margin-bottom: 100px;
+      position: relative;
+    }
+    section h2 {
+      font-family: var(--font-title);
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      text-align: center;
+      color: var(--accent-color);
+      position: relative;
+    }
+    section h2::after {
+      content: '';
+      width: 50px;
+      height: 4px;
+      background-color: var(--accent-color);
+      position: absolute;
+      left: 50%;
+      bottom: -10px;
+      transform: translateX(-50%);
+    }
+    .gallery, .music-list, .games-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 30px;
+      align-items: stretch;
+    }
+    .gallery-item, .music-item, .game-item {
+      background-color: var(--secondary-color);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .gallery-item:hover, .music-item:hover, .game-item:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 20px rgba(0, 0, 0, 0.4);
+    }
+    .gallery-item img, .music-item img, .game-item img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .gallery-item .overlay, .music-item .overlay, .game-item .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      opacity: 0;
+      transition: opacity 0.3s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .gallery-item:hover .overlay, .music-item:hover .overlay, .game-item:hover .overlay {
+      opacity: 1;
+    }
+    .overlay i {
+      color: var(--accent-color);
+      font-size: 3rem;
+    }
+    .pagination {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .pagination button {
+      background-color: var(--secondary-color);
+      border: none;
+      color: var(--text-color);
+      padding: 10px 15px;
+      margin: 0 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .pagination button:hover {
+      background-color: var(--accent-color);
+    }
+    /* Popup styles */
+    #popup-overlay {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      background-color: rgba(0,0,0,0.9);
+    }
+    #popup-content {
+      background-color: var(--bg-color);
+      margin: 5% auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 800px;
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    #popup-content .close-btn {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      color: var(--text-color);
+      font-size: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+    #popup-content .close-btn:hover {
+      color: var(--accent-color);
+    }
+    #popup-content img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+    #popup-content .game-details {
+      margin-top: 15px;
+      color: var(--text-color);
+    }
+    #popup-content .game-details h2 {
+      font-family: var(--font-title);
+      color: var(--accent-color);
+    }
+    #popup-content .game-details p {
+      margin: 10px 0;
+    }
+    #popup-content .game-details a {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: var(--accent-color);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    #popup-content .game-details a:hover {
+      background-color: #a01e1e;
+    }
+    footer p {
+      margin: 0;
+      font-size: 1rem;
+    }
+    footer p a {
+      color: var(--accent-color);
+      text-decoration: none;
+    }
+    footer p a:hover {
+      text-decoration: underline;
+    }
+    /* Media Queries */
+    @media screen and (max-width: 768px) {
+      nav ul {
+        flex-direction: column;
+      }
+      nav ul li {
+        margin: 5px 0;
+      }
+      section h2 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Lord Tsarcasm's Projects</h1>
+  </header>
+
+  <!-- Navigation Menu -->
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="music.html">Music</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="projects.html">Projects</a></li>
+      <li><a href="book.html">Poetry</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+
+    <!-- Art Section -->
+    <section id="art">
+      <h2>Art</h2>
+      <div class="gallery" id="art-gallery">
+        <!-- Art Images will be inserted here via JavaScript -->
+      </div>
+      <div class="pagination" id="art-pagination">
+        <!-- Pagination Buttons -->
+      </div>
+    </section>
+
+    <!-- Games Section -->
+    <section id="games">
+      <h2>Games</h2>
+      <div class="games-gallery" id="games-gallery">
+        <!-- Game Items will be inserted here via JavaScript -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2023 <a href="index.html">Lord Tsarcasm</a>. All Rights Reserved.</p>
+  </footer>
+
+  <!-- Popup Overlay -->
+  <div id="popup-overlay">
+    <div id="popup-content">
+      <span class="close-btn" onclick="closePopup()">×</span>
+      <div id="popup-body">
+        <!-- Content will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Libraries -->
+  <!-- GSAP for Animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js" crossorigin="anonymous"></script>
+  <!-- GSAP ScrollTrigger Plugin -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/ScrollTrigger.min.js" crossorigin="anonymous"></script>
+  <!-- Custom JavaScript -->
+  <script>
+    /* Navigation Scroll Animation */
+    gsap.from('nav', { duration: 1, y: -100, ease: 'bounce' });
+    gsap.from('header h1', { duration: 1.5, opacity: 0, y: -50 });
+
+    /* Art Section Pagination */
+    const artImages = [
+      { src: "images/Atlas Alone.png", alt: "Surreal art of a desolate landscape", width: 300, height: 300 },
+      { src: "images/Bury It Twice.jpg", alt: "Sketch of an abandoned city", width: 300, height: 300 },
+      { src: "images/DOT..png", alt: "Digital art of a lone survivor", width: 300, height: 300 },
+      { src: "images/End of a Chapter 2048x2048.png", alt: "Painting of ruins overtaken by nature", width: 300, height: 300 },
+      { src: "images/Glad You're Mine.png", alt: "Concept art of futuristic wasteland vehicle", width: 300, height: 300 },
+      { src: "images/It's Not About The Weather.jpg", alt: "Illustration of a post-apocalyptic sunset", width: 300, height: 300 },
+      { src: "images/Its Not About The Weather.png", alt: "Collage depicting chaos and order", width: 300, height: 300 },
+      { src: "images/Lord Tsarcasm Logo.png", alt: "Monochrome image of deserted streets", width: 300, height: 300 },
+      { src: "images/Lord Tsarcasm ROD.webp", alt: "Graphic art of survivors around a fire", width: 300, height: 300 },
+      { src: "images/ltlogo.png", alt: "Photo manipulation of crumbling skyscrapers", width: 300, height: 300 },
+      { src: "images/Moral Compass.png", alt: "Graffiti style depiction of hope", width: 300, height: 300 },
+      { src: "images/Moral Compass_1280x1280.png", alt: "Abstract representation of time and decay", width: 300, height: 300 }
+    ];
+
+    const itemsPerPage = 6;
+    let currentPage = 1;
+
+    function displayArtPage(pageNumber) {
+      const gallery = document.getElementById('art-gallery');
+      gallery.innerHTML = '';
+      const startIndex = (pageNumber - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const pageImages = artImages.slice(startIndex, endIndex);
+
+      pageImages.forEach(image => {
+        const div = document.createElement('div');
+        div.classList.add('gallery-item');
+        div.innerHTML = `
+          <img src="${image.src}" alt="${image.alt}" width="${image.width}" height="${image.height}">
+          <div class="overlay">
+            <i class="fas fa-search-plus"></i>
+          </div>
+        `;
+        div.addEventListener('click', () => openArtPopup(image.src, image.alt));
+        gallery.appendChild(div);
+      });
+
+      updatePagination();
+    }
+
+    function updatePagination() {
+      const pagination = document.getElementById('art-pagination');
+      pagination.innerHTML = '';
+      const totalPages = Math.ceil(artImages.length / itemsPerPage);
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        if (i === currentPage) {
+          btn.style.backgroundColor = 'var(--accent-color)';
+        }
+        btn.addEventListener('click', () => {
+          currentPage = i;
+          displayArtPage(i);
+        });
+        pagination.appendChild(btn);
+      }
+    }
+
+    // Initialize Art Gallery
+    displayArtPage(currentPage);
+
+    // Open Art Popup
+    function openArtPopup(imageSrc, altText) {
+      const popupBody = document.getElementById('popup-body');
+      popupBody.innerHTML = `
+        <img src="${imageSrc}" alt="${altText}">
+        <p style="margin-top:15px; text-align:center;">${altText}</p>
+      `;
+      document.getElementById('popup-overlay').style.display = 'block';
+    }
+
+    /* Games Data */
+    const games = [
+      {
+        title: "Last Stand",
+        image: "images/Atlas Alone.png",
+        description: "A thrilling survival game set in a post-apocalyptic world where you must fend off hordes of enemies and build your base.",
+        link: "games/laststand.html" // Update the link path as necessary
+      },
+      {
+        title: "Ruin Runner",
+        image: "images/Bury It Twice.jpg",
+        description: "An endless runner game navigating through the ruins of a fallen civilization. Dodge obstacles and collect resources.",
+        link: "games/ruinrunner.html" // Update the link path as necessary
+      },
+      {
+        title: "Silent Shadows",
+        image: "images/DOT..png",
+        description: "A stealth-based game where you operate in the shadows to complete missions without being detected.",
+        link: "games/silentshadows.html" // Update the link path as necessary
+      }
+      // Add more games here if needed
+    ];
+
+    /* Generate Games Items */
+    const gamesGallery = document.getElementById('games-gallery');
+    games.forEach((game, index) => {
+      const gameDiv = document.createElement('div');
+      gameDiv.classList.add('game-item');
+      gameDiv.innerHTML = `
+        <img src="${game.image}" alt="Screenshot of game '${game.title}'" width="300" height="300">
+        <div class="overlay">
+          <i class="fas fa-gamepad"></i>
+        </div>
+      `;
+      gameDiv.addEventListener('click', () => openGamePopup(game));
+      gamesGallery.appendChild(gameDiv);
+    });
+
+    /* Open Game Popup */
+    function openGamePopup(game) {
+      const popupBody = document.getElementById('popup-body');
+      popupBody.innerHTML = `
+        <img src="${game.image}" alt="Image of game '${game.title}'">
+        <div class="game-details">
+          <h2>${game.title}</h2>
+          <p>${game.description}</p>
+          <a href="${game.link}" target="_blank">Play Now</a>
+        </div>
+      `;
+      document.getElementById('popup-overlay').style.display = 'block';
+    }
+
+    /* Close Popup */
+    function closePopup() {
+      document.getElementById('popup-overlay').style.display = 'none';
+      document.getElementById('popup-body').innerHTML = '';
+    }
+
+    // Close popup when clicking outside content
+    window.onclick = function(event) {
+      const popup = document.getElementById('popup-overlay');
+      if (event.target == popup) {
+        closePopup();
+      }
+    }
+
+    /* Scroll Animations */
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.from('#art', {
+      scrollTrigger: {
+        trigger: '#art',
+        start: 'top 80%',
+      },
+      opacity: 0,
+      y: 50,
+      duration: 1
+    });
+
+    gsap.from('#games', {
+      scrollTrigger: {
+        trigger: '#games',
+        start: 'top 80%',
+      },
+      opacity: 0,
+      x: 50,
+      duration: 1
+    });
+
+  </script>
+
+</body>
+</html>

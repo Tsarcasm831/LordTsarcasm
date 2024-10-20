@@ -1,0 +1,448 @@
+<html><head><base href="projects.html">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LordTsarcasm - Projects</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+    :root {
+        --primary-color: #1a1a1a;
+        --secondary-color: #4a4a4a;
+        --accent-color: #ff6b6b;
+        --text-color: #f0f0f0;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Orbitron', sans-serif;
+        background-color: var(--primary-color);
+        color: var(--text-color);
+        line-height: 1.6;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    header {
+        background-color: rgba(26, 26, 26, 0.8);
+        padding: 20px 0;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+    }
+
+    nav ul {
+        display: flex;
+        justify-content: space-around;
+        list-style-type: none;
+    }
+
+    nav ul li a {
+        color: var(--text-color);
+        text-decoration: none;
+        font-size: 1.2rem;
+        transition: color 0.3s ease;
+    }
+
+    nav ul li a:hover {
+        color: var(--accent-color);
+    }
+
+    .current-page {
+        color: var(--accent-color);
+        font-weight: bold;
+    }
+
+    .hero {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: url('https://example.com/post-apocalyptic-background.jpg') no-repeat center center/cover;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .hero-content {
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    h1 {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: var(--accent-color);
+        color: var(--text-color);
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .btn:hover {
+        background-color: #ff4f4f;
+        transform: translateY(-3px);
+    }
+
+    .games-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        padding: 50px 0;
+    }
+
+    .game-card {
+        background-color: var(--secondary-color);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+
+    .game-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .game-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .game-card-content {
+        padding: 20px;
+    }
+
+    .game-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-content {
+        background-color: var(--secondary-color);
+        margin: 5% auto;
+        padding: 20px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 800px;
+        position: relative;
+    }
+
+    .close {
+        color: var(--text-color);
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover {
+        color: var(--accent-color);
+    }
+
+    .modal-images {
+        display: flex;
+        overflow-x: auto;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .modal-images img {
+        width: 200px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+
+    .planned-features {
+        margin-top: 20px;
+    }
+
+    .planned-features h4 {
+        margin-bottom: 10px;
+    }
+
+    .planned-features ul {
+        list-style-type: none;
+        padding-left: 20px;
+    }
+
+    .planned-features li::before {
+        content: '➤';
+        color: var(--accent-color);
+        margin-right: 10px;
+    }
+
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 3rem;
+        }
+
+        .games-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .modal-content {
+            width: 95%;
+        }
+    }
+
+    #moving-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: url('https://example.com/post-apocalyptic-texture.jpg') repeat;
+        animation: moveBackground 60s linear infinite;
+    }
+
+    @keyframes moveBackground {
+        from {
+            background-position: 0 0;
+        }
+        to {
+            background-position: 100% 100%;
+        }
+    }
+</style>
+</head>
+<body>
+    <div id="moving-background"></div>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="music.html">Music</a></li>
+                <li><a href="projects.html" class="current-page">Projects</a></li>
+                <li><a href="https://www.facebook.com/lordtsarcasm">Poetry</a></li>
+                <li><a href="ai_art.html">AI Art</a></li>
+                <li><a href="https://www.youtube.com/@lordtsarcasm/videos">Videos</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Lord Tsarcasm Game Projects</h1>
+                <p>Explore the worlds I'm working on</p>
+                <a href="#games" class="btn">View Games</a>
+            </div>
+        </section>
+
+        <section id="games" class="games-grid container">
+            <div class="game-card" data-game="rod">
+                <img src="images/Rodv11.webp" alt="RoD (Remnants of Destruction) v0.11 thumbnail" width="300" height="200">
+                <div class="game-card-content">
+                    <h3>RoD (Remnants of Destruction) v0.11 (WIP)</h3>
+                    <p>Survive in a world torn apart by destruction</p>
+                </div>
+            </div>
+            <div class="game-card" data-game="rodb">
+                <img src="images/Roddata.webp" alt="RoDb thumbnail" width="300" height="200">
+                <div class="game-card-content">
+                    <h3>RoD Database(WIP)</h3>
+                    <p>Races and other game related things</p>
+                </div>
+            </div>
+            <div class="game-card" data-game="cake-mania">
+                <img src="images/cakemania-soon.webp" alt="Cake Mania Remake thumbnail" width="300" height="200">
+                <div class="game-card-content">
+                    <h3>Cake Mania Remake (WIP)</h3>
+                    <p>A post-apocalyptic twist on a classic game</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="rodModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>RoD (Remnants of Destruction) v0.11</h2>
+            <div class="modal-images">
+                <img src="images/GameArt/roda-screenshot1.png" alt="RoD gameplay screenshot 1" width="200" height="150">
+                <img src="images/GameArt/roda-screenshot2.png" alt="RoD gameplay screenshot 2" width="200" height="150">
+                <img src="images/GameArt/roda-screenshot3.png" alt="RoD gameplay screenshot 3" width="200" height="150">
+            </div>
+            <p>RoD is a post-apocalyptic survival game where players must navigate through the remnants of a destroyed world, scavenging for resources and building alliances to survive.</p>
+            <div class="planned-features">
+                <h4>Planned Features:</h4>
+                <ul>
+                    <li>Exploration/Growth Based</li>
+                    <li>Crafting and base building</li>
+                    <li>NPC factions, Relationships, and Story</li>
+                    <li>Mutant creatures</li>
+					
+                </ul>
+            </div>
+            <a href="tests/Oct11/index.html" class="btn" target="_blank">Play Now</a>
+        </div>
+    </div>
+
+    <div id="rodbModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>RoD Database</h2>
+            <div class="modal-images">
+                <img src="images/GameArt/rodb-screenshot1.png" alt="RoDb gameplay screenshot 1" width="200" height="150">
+                <img src="images/GameArt/rodb-screenshot2.png" alt="RoDb gameplay screenshot 2" width="200" height="150">
+                <img src="images/GameArt/rodb-screenshot3.png" alt="RoDb gameplay screenshot 3" width="200" height="150">
+            </div>
+            <p>RoD Database is kindof the WIP Database</p>
+            <div class="planned-features">
+                <h4>Planned Features:</h4>
+                <ul>
+                    <li>Races</li>
+                    <li>Classes</li>
+                    <li>More Coming Soon...</li>
+					
+                </ul>
+            </div>
+            <a href="rodb.html" class="btn" target="_blank">Play Now</a>
+        </div>
+    </div>
+
+
+
+    <div id="cakeManiaModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Cake Mania Remake</h2>
+            <div class="modal-images">
+                <img src="https://example.com/cake-mania-screenshot1.jpg" alt="Cake Mania Remake gameplay screenshot 1" width="200" height="150">
+                <img src="https://example.com/cake-mania-screenshot2.jpg" alt="Cake Mania Remake gameplay screenshot 2" width="200" height="150">
+                <img src="https://example.com/cake-mania-screenshot3.jpg" alt="Cake Mania Remake gameplay screenshot 3" width="200" height="150">
+            </div>
+            <p>This post-apocalyptic remake of the classic Cake Mania game challenges players to run a bakery in a world struggling to rebuild. Use mutant ingredients and scavenged tools to create unique pastries and bring joy to the wasteland.</p>
+            <div class="planned-features">
+                <h4>Planned Features:</h4>
+                <ul>
+                    <li>Mutant ingredient combinations</li>
+                    <li>Wasteland customer types with unique preferences</li>
+                    <li>Bakery fortification and defense mechanics</li>
+                    <li>Trading system with other survivor settlements</li>
+                </ul>
+            </div>
+            <a href="coming-soon.html" class="btn" target="_blank">Play Now</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gameCards = document.querySelectorAll('.game-card');
+            const modals = document.querySelectorAll('.modal');
+            const closeButtons = document.querySelectorAll('.close');
+
+            gameCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const gameId = card.getAttribute('data-game');
+                    const modal = document.getElementById(`${gameId}Modal`);
+                    modal.style.display = 'block';
+                });
+            });
+
+            closeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    button.closest('.modal').style.display = 'none';
+                });
+            });
+
+            window.addEventListener('click', (event) => {
+                modals.forEach(modal => {
+                    if (event.target == modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Parallax effect for moving background
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            document.getElementById('moving-background').style.backgroundPosition = `calc(50% + ${scrollY * 0.5}px) calc(50% + ${scrollY * 0.5}px)`;
+        });
+
+        // Responsive navigation
+        const navToggle = document.createElement('button');
+        navToggle.textContent = '☰';
+        navToggle.classList.add('nav-toggle');
+        document.querySelector('nav').prepend(navToggle);
+
+        navToggle.addEventListener('click', () => {
+            document.querySelector('nav ul').classList.toggle('show');
+        });
+
+        // Add this CSS to your existing styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .nav-toggle {
+                display: none;
+                background: none;
+                border: none;
+                color: var(--text-color);
+                font-size: 1.5rem;
+                cursor: pointer;
+            }
+
+            @media (max-width: 768px) {
+                .nav-toggle {
+                    display: block;
+                }
+
+                nav ul {
+                    display: none;
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                nav ul.show {
+                    display: flex;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body></html>

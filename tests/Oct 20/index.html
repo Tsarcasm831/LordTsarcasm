@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lord Tsarcasm - Official Website</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Garamond', serif;
+            overflow-x: hidden;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        nav {
+            background-color: rgba(139, 69, 19, 0.8);
+            padding: 10px;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        nav ul li {
+            margin: 5px 10px;
+        }
+
+        nav ul li a {
+            color: #C2B280;
+            text-decoration: none;
+            font-size: 1em;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #39FF14;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: #39FF14;
+            text-shadow: 0 0 10px #39FF14;
+            background-color: rgba(57, 255, 20, 0.1);
+        }
+
+        nav ul li a:hover::after {
+            transform: translateX(0);
+        }
+
+
+        header {
+            width: 960px;
+            height: 960px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        header video {
+            width: 960px;
+            height: 960px;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        header img {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+            width: 150px;
+            height: auto;
+            animation: pulse 2s infinite;
+            z-index: 1;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .button-container {
+            position: absolute;
+            width: calc(960px - 170px);
+            top: calc(72% + 6px);
+            left: calc(85px + 15px);
+            display: flex;
+            justify-content: space-between;
+            z-index: 2;
+        }
+
+        .button-container a {
+            width: 122px;
+            height: 122px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: none;
+            transition: transform 0.4s, box-shadow 0.4s;
+            font-size: 25px;
+            text-align: center;
+            color: transparent;
+            background-color: transparent;
+            text-decoration: none;
+        }
+
+        .button-container a:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 15px #fff;
+        }
+
+        section {
+            width: 100%;
+            padding: 60px 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        section a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 36px;
+            display: block;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: color 0.3s;
+        }
+
+        section a:hover {
+            color: #ff5733;
+        }
+
+        footer {
+            background-color: #000;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .social-icons a {
+            color: #e0e0e0;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+
+        .social-icons a:hover {
+            color: #ff5733;
+        }
+
+        .easter-egg {
+            position: absolute;
+            top: 40px;
+            right: 1050px;
+            background-color: #ffa500;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: opacity 0.3s;
+            text-decoration: none;
+            z-index: 1000;
+            opacity: 0;
+        }
+
+        .easter-egg:hover {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="music.html">Music</a></li>
+            <li><a href="https://www.facebook.com/lordtsarcasm">Poetry</a></li>
+            <li><a href="ai_art.html">AI Art</a></li>
+            <li><a href="https://www.youtube.com/@lordtsarcasm/videos">Videos</a></li>
+        </ul>
+    </nav>
+    
+
+    <header>
+        <video autoplay muted loop>
+            <source src="background.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <a href="special_thanks.html">
+            <img src="images/ltlogo.png" alt="Lord Tsarcasm Logo">
+        </a>
+        <div class="button-container">
+            <a href="index.html" class="button-red"></a>
+            <a href="about.html" class="button-purple"></a>
+            <a href="music.html" class="button-green"></a>
+            <a href="coming-soon.html" class="button-blue"></a>
+        </div>
+    </header>
+
+    <section>
+        <a href="special_thanks2.html" class="easter-egg">Special Thanks</a>
+    </section>
+
+    <footer class="bg-black py-6">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2023 Lord Tsarcasm. All rights reserved.</p>
+            <div class="mt-4 flex justify-center space-x-4">
+                <a href="https://spotify.com/lordtsarcasm" class="hover:text-red-400 transition">
+                    <!-- Spotify Icon -->
+                </a>
+                <a href="https://youtube.com/lordtsarcasm" class="hover:text-red-400 transition">
+                    <!-- YouTube Icon -->
+                </a>
+                <a href="https://instagram.com/lordtsarcasm" class="hover:text-red-400 transition">
+                    <!-- Instagram Icon -->
+                </a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

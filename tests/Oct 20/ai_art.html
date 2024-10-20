@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Remnants of Destruction - AI Art</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Removed the base href to prevent incorrect link resolutions -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rust-color: #8B4513;
+            --radiation-green: #39FF14;
+            --dust-color: #C2B280;
+            --metal-gray: #71797E;
+            --dark-bg: #0a0a0a;
+        }
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: var(--dark-bg);
+            color: var(--dust-color);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .dynamic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(45deg, #0a0a0a, #1a1a1a);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        @keyframes gradientBG {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+        header {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-image: url('images/apocalyptic-header-bg.jpg'); /* Updated to relative path */
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5em;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: var(--radiation-green);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-5px, 5px); }
+            40% { transform: translate(-5px, -5px); }
+            60% { transform: translate(5px, 5px); }
+            80% { transform: translate(5px, -5px); }
+            100% { transform: translate(0); }
+        }
+        h1::before,
+        h1::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        h1::before {
+            left: 2px;
+            text-shadow: -2px 0 #ff00de;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch 5s infinite linear alternate-reverse;
+        }
+        h1::after {
+            left: -2px;
+            text-shadow: -2px 0 #00ff9f;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch 5s infinite linear alternate-reverse;
+        }
+        nav {
+            background-color: rgba(139, 69, 19, 0.8);
+            padding: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: space-around;
+        }
+        nav ul li a {
+            color: var(--dust-color);
+            text-decoration: none;
+            font-size: 1.2em;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--radiation-green);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        nav ul li a:hover {
+            color: var(--radiation-green);
+            text-shadow: 0 0 10px var(--radiation-green);
+            background-color: rgba(57, 255, 20, 0.1);
+        }
+        nav ul li a:hover::after {
+            transform: translateX(0);
+        }
+        main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        .section {
+            margin-bottom: 60px;
+        }
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--radiation-green);
+            border-bottom: 2px solid var(--rust-color);
+            padding-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 0 0 5px var(--radiation-green);
+            animation: fadeInUp 1s ease-out;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .filter-tags {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .filter-tag {
+            background-color: var(--metal-gray);
+            color: var(--dust-color);
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .filter-tag:hover, .filter-tag.active {
+            background-color: var(--radiation-green);
+            color: var(--dark-bg);
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        .item {
+            background-color: rgba(113, 121, 126, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+        .item:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 0 20px var(--radiation-green);
+        }
+        .item img, .item video {
+            width: 100%;  /* Ensures the image fits the container's width */
+            height: auto; /* Maintains aspect ratio */
+            max-width: 280px; /* Ensures the image doesn't exceed a specific size */
+            max-height: 280px; /* Ensures the image doesn't exceed a specific size */
+            object-fit: cover; /* Ensures the image covers the container without distortion */
+            display: block;
+            filter: grayscale(50%) sepia(30%);
+            transition: filter 0.3s ease;
+        }
+        .item:hover img, .item:hover video {
+            filter: grayscale(0%) sepia(0%);
+        }
+        .item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: var(--radiation-green);
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        .item.loaded::before {
+            opacity: 0;
+        }
+        footer {
+            background-color: rgba(113, 121, 126, 0.2);
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            border-top: 3px solid var(--rust-color);
+            position: relative;
+            z-index: 2;
+        }
+        @keyframes radiation-pulse {
+            0% { text-shadow: 0 0 5px var(--radiation-green); }
+            50% { text-shadow: 0 0 20px var(--radiation-green), 0 0 35px var(--radiation-green); }
+            100% { text-shadow: 0 0 5px var(--radiation-green); }
+        }
+        .radiation-effect {
+            animation: radiation-pulse 4s infinite;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+            color: var(--radiation-green);
+        }
+        @keyframes ellipsis {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+        }
+        .loading::after {
+            content: '.';
+            display: inline-block;
+            animation: ellipsis 1.5s infinite;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--metal-gray);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 80%;
+            max-height: 80%;
+            overflow: auto;
+            border: 3px solid var(--rust-color);
+            position: relative;
+            transform: scale(0.7);
+            transition: transform 0.3s ease;
+        }
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        .modal-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .modal-description {
+            max-width: 60%;
+        }
+        .modal-metadata {
+            text-align: right;
+        }
+        .modal-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .modal-nav button {
+            background-color: var(--metal-gray);
+            color: var(--dust-color);
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .modal-nav button:hover {
+            background-color: var(--radiation-green);
+            color: var(--dark-bg);
+        }
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: var(--dust-color);
+            cursor: pointer;
+        }
+        .modal-media {
+            max-width: 90%; /* Increased from 100% */
+            max-height: 80vh; /* Increased from 60vh */
+            display: block;
+            margin: 0 auto;
+        }
+        .crt-effect {
+            position: relative;
+        }
+        .crt-effect::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--metal-gray);
+            color: var(--dust-color);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            background-color: var(--radiation-green);
+            color: var(--dark-bg);
+        }
+        .light-theme {
+            --dark-bg: #f0f0f0;
+            --dust-color: #333;
+            --radiation-green: #00a86b;
+        }
+        #theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .load-more {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: var(--metal-gray);
+            color: var(--dust-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .load-more:hover {
+            background-color: var(--radiation-green);
+            color: var(--dark-bg);
+        }
+    </style>
+</head>
+<body>
+    <div class="dynamic-bg"></div>
+    <div class="noise"></div>
+    <div class="crt-effect">
+        <header>
+            <h1 class="radiation-effect" data-text="Remnants of Destruction">Remnants of Destruction</h1>
+        </header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li> <!-- Changed from /index.html to index.html -->
+                <li><a href="about.html">About</a></li> <!-- Changed from /about.html to about.html --><li><a href="projects.html">Projects</a></li> 
+                <li><a href="music.html">Music</a></li> <!-- Changed from /music.html to music.html -->
+                <li><a href="https://www.facebook.com/lordtsarcasm">Poetry</a></li> <!-- Changed from /poetry.html to poetry.html -->
+                <li><a href="ai_art.html">AI Art</a></li> <!-- Changed from /ai_art.html to ai_art.html -->
+                <li><a href="https://www.youtube.com/@lordtsarcasm/videos">Videos</a></li> <!-- Changed from /videos.html to videos.html -->
+            </ul>
+        </nav>
+        <main>
+            <!-- AI Art Section -->
+            <section class="section">
+                <h2>Species of the Apocalypse</h2>
+                <div class="filter-tags">
+                    <span class="filter-tag active" data-tag="all">All</span>
+                    <span class="filter-tag" data-tag="completed">Completed</span>
+                    <span class="filter-tag" data-tag="work-in-progress">Work in Progress</span>
+                </div>
+                <div class="gallery" id="ai-art-gallery">
+                    <!-- AI Art Items -->
+                    <div class="item" data-type="image" data-status="completed" data-description="Anthromorphs in a post-apocalyptic wilderness." data-date="Completed - 2023">
+                        <img src="images/AI_Art/anthromorphs.webp" alt="Anthromorphs in a post-apocalyptic wilderness." width="280" height="280">
+                        <div class="info">
+                            <h3>SPECIES NAME: Anthromorph</h3>
+                            <h3>SPECIES NUMBER: 0000011-7W</h3>
+                            <p>First Encounter: 2012, BOULDER, CO</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="image" data-status="completed" data-description="Avianos soaring over ruined cities." data-date="Completed - 2023">
+                        <img src="images/AI_Art/avianos.png" alt="Avianos soaring over ruined cities." width="280" height="280">
+                        <div class="info">
+                            <h3>SPECIES NAME: Avianos</h3>
+                            <h3>SPECIES NUMBER: 000012-7W</h3>
+                            <p>First Encounter: 2012, BOULDER, CO</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="image" data-status="completed" data-description="Behemoth roaming the desolate landscapes." data-date="Completed - 2023">
+                        <img src="images/AI_Art/Behemoth.webp" alt="Behemoth roaming the desolate landscapes." width="280" height="280">
+                        <div class="info">
+                            <h3>SPECIES NAME: Behemoth</h3>
+                            <h3>SPECIES NUMBER: 0000013-7W</h3>
+                            <p>First Encounter: 2012, BOULDER, CO</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="image" data-status="completed" data-description="Chiropteran creatures flying over ruined cities." data-date="Completed - 2023">
+                        <img src="images/AI_Art/Chiropteran.webp" alt="Chiropteran creatures flying over ruined cities." width="280" height="280">
+                        <div class="info">
+                            <h3>SPECIES NAME: Chiropteran</h3>
+                            <h3>SPECIES NUMBER: 0000010-7W</h3>
+                            <p>First Encounter: 2012, BOULDER, CO</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="image" data-status="completed" data-description="Dengar Charger navigating through debris." data-date="Completed - 2023">
+                        <img src="images/AI_Art/dengar_charger.webp" alt="Dengar Charger navigating through debris." width="280" height="280">
+                        <div class="info">
+                            <h3>SPECIES NAME: Dengar Charger</h3>
+                            <h3>SPECIES NUMBER: 000005-8W</h3>
+                            <p>First Encounter: 2012, BOULDER, CO</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="image" data-status="completed" data-description="Shalrah Dengar." data-date="Completed - 2023">
+                        <img src="images/AI_Art/shal'rah dengar.webp" alt="Dengar." width="280" height="280">
+                        <div class="info">
+                            <h3>SPECIES NAME: Dengar</h3>
+                            <h3>SPECIES NUMBER: 000006-9W</h3>
+                            <p>First Encounter: 2012, BOULDER, CO</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="image" data-status="completed" data-description="Kilrathi warrior surveying the destruction." data-date="Completed - 2023">
+                        <img src="images/AI_Art/kilrathi_warrior.webp" alt="Kilrathi warrior surveying the destruction." width="280" height="280">
+                        <div class="info">
+                            <h3>SPECIES NAME: Kilrathi</h3>
+                            <h3>SPECIES NUMBER: 000007-7W</h3>
+                            <p>First Encounter: 2012, BOULDER, CO</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="image" data-status="completed" data-description="Prometheus drones patrolling the wasteland." data-date="Completed - 2023">
+                        <img src="images/AI_Art/prometheus_drones.webp" alt="Prometheus drones patrolling the wasteland." width="280" height="280">
+                        <div class="info">
+                            <h3>SPECIES NAME: Prometheus AI</h3>
+                            <h3>SPECIES NUMBER: UNDEFINED</h3>
+                            <p>First Encounter: 2008, USA</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="image" data-status="completed" data-description="Shal'Rah Prime leader amidst cosmic chaos." data-date="Completed - 2023">
+                        <img src="images/AI_Art/shalrah prime.webp" alt="Shal'Rah Prime leader amidst cosmic chaos." width="280" height="280">
+                        <div class="info">
+                            <h3>SPECIES NAME: Shal'Rah Prime</h3>
+                            <h3>SPECIES NUMBER: 000002-7W</h3>
+                            <p>First Encounter: 2012, BOULDER, CO</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="image" data-status="completed" data-description="Tal'Ehn navigating a technological wasteland." data-date="Completed - 2023">
+                        <img src="images/AI_Art/Tal Ehn.webp" alt="Tal'Ehn navigating a technological wasteland." width="280" height="280">
+                        <div class="info">
+                            <h3>SPECIES NAME: Tal'Ehn</h3>
+                            <h3>SPECIES NUMBER: 000001-7W</h3>
+                            <p>First Encounter: 1947, ROSWELL, NM</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="image" data-status="completed" data-description="Talorian standing tall in the apocalypse." data-date="Completed - 2023">
+                        <img src="images/AI_Art/Talorian.webp" alt="Talorian standing tall in the apocalypse." width="280" height="280">
+                        <div class="info">
+                            <h3>SPECIES NAME: Talorian</h3>
+                            <h3>SPECIES NUMBER: 000003-7W</h3>
+                            <p>First Encounter: 2012, BOULDER, CO</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="image" data-status="completed" data-description="T'ana'Rhe under starlit ruins." data-date="Completed - 2023">
+                        <img src="images/AI_Art/tana_rhe.webp" alt="T'ana'Rhe under starlit ruins." width="280" height="280">
+                        <div class="info">
+                            <h3>SPECIES NAME: T'ana'Rhe</h3>
+                            <h3>SPECIES NUMBER: 000004-7W</h3>
+                            <p>First Encounter: 2012, BOULDER, CO</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="image" data-status="completed" data-description="Vyraxus amidst the barren lands." data-date="Completed - 2023">
+                        <img src="images/AI_Art/vyraxus.webp" alt="Vyraxus amidst the barren lands." width="280" height="280">
+                        <div class="info">
+                            <h3>SPECIES NAME: Vyraxus</h3>
+                            <h3>SPECIES NUMBER: 000009-7W</h3>
+                            <p>First Encounter: 2012, BOULDER, CO</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="image" data-status="completed" data-description="Xithrian shapeshifter in the mists." data-date="Completed - 2023">
+                        <img src="images/AI_Art/xithrian.webp" alt="Xithrian shapeshifter in the mists." width="280" height="280">
+                        <div class="info">
+                            <h3>SPECIES NAME: Xithrian</h3>
+                            <h3>SPECIES NUMBER: 000008-7W</h3>
+                            <p>First Encounter: 2012, BOULDER, CO</p>
+                        </div>
+                    </div>
+                    <!-- End of AI Art Items -->
+                </div>
+            
+
+                <button class="load-more" id="ai-art-load-more">Load More</button>
+            </section>
+            
+            <!-- Existing Sections (e.g., Videos) -->
+            <section class="section">
+                <h2>WIP: AI Videos</h2>
+                <div class="filter-tags">
+                    <span class="filter-tag active" data-tag="all">All</span>
+                    <span class="filter-tag" data-tag="completed">Completed</span>
+                    <span class="filter-tag" data-tag="work-in-progress">Work in Progress</span>
+                </div>
+                <div class="gallery" id="videos-gallery">
+                    <div class="item" data-type="video" data-status="completed" data-description="Shal'Rah Prime Invasion" data-date="WIP - 0:09">
+                        <video src="videos/srprimeinvasion.mp4" poster="videos/srprimeinvasion.webp" width="280" height="280" preload="metadata"></video>
+                        <div class="info">
+                            <h3>Shal'Rah Prime Invasion</h3>
+                            <p>WIP - 0:09</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="video" data-status="completed" data-description="Psionics musician using magic to protect himself from mutated horrors." data-date="WIP - 0:05">
+                        <video src="videos/psion.mp4" poster="videos/design.webp" width="280" height="280" preload="metadata"></video>
+                        <div class="info">
+                            <h3>Psionic Bard</h3>
+                            <p>WIP - 0:05</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="video" data-status="completed" data-description="H.I.V.E. soldiers capture a psion." data-date="WIP - 0:05">
+                        <video src="videos/hivecapturepsion.mp4" poster="videos/capture.webp" width="280" height="280" preload="metadata"></video>
+                        <div class="info">
+                            <h3>H.I.V.E. Capture</h3>
+                            <p>WIP - 0:05</p>
+                        </div>
+                    </div>
+                    <div class="item" data-type="video" data-status="completed" data-description="Found footage of the last transmission." data-date="Found Footage - 1:58">
+                        <video src="videos/srhuntingforhuman.mp4" poster="videos/srhunting.webp" width="280" height="280" preload="metadata"></video>
+                        <div class="info">
+                            <h3>Shal'rah Hunting</h3>
+                            <p>WIP - 0:10</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="load-more" id="videos-load-more">Load More</button>
+            </section>
+        </main>
+        <footer>
+            <p>&copy; 2023 Lord Tsarcasm. Surviving in the digital wasteland.</p>
+        </footer>
+    </div>
+
+    <div class="back-to-top">↑</div>
+
+    <button id="theme-toggle">☀️</button>
+
+    <div class="modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <div class="modal-info">
+                <div class="modal-description">
+                    <h2 id="modal-title"></h2>
+                    <p id="modal-details"></p>
+                </div>
+                <div class="modal-metadata">
+                    <p id="modal-date"></p>
+                    <p id="modal-type"></p>
+                </div>
+            </div>
+            <div id="modal-media-container"></div>
+            <div class="modal-nav">
+                <button id="modal-prev">Previous</button>
+                <button id="modal-next">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Selectors for AI Art and Videos
+            const aiArtGallery = document.getElementById('ai-art-gallery');
+            const videosGallery = document.getElementById('videos-gallery');
+            const aiArtLoadMore = document.getElementById('ai-art-load-more');
+            const videosLoadMore = document.getElementById('videos-load-more');
+
+            // Combine all items for modal functionality
+            const allGalleries = [aiArtGallery, videosGallery];
+            let allItems = [];
+            allGalleries.forEach(gallery => {
+                allItems = allItems.concat(Array.from(gallery.querySelectorAll('.item')));
+            });
+
+            const modal = document.querySelector('.modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDetails = document.getElementById('modal-details');
+            const modalMediaContainer = document.getElementById('modal-media-container');
+            const modalClose = document.querySelector('.modal-close');
+            const modalPrev = document.getElementById('modal-prev');
+            const modalNext = document.getElementById('modal-next');
+
+            let currentItemIndex = 0;
+
+            function updateModal(item) {
+                const title = item.querySelector('h3').textContent;
+                const details = item.dataset.description || "No description available.";
+                const type = item.dataset.type;
+                const mediaSrc = type === 'video' ? item.querySelector('video').src : item.querySelector('img').src;
+                const poster = type === 'video' ? item.querySelector('video').getAttribute('poster') : '';
+
+                modalTitle.textContent = title;
+                modalDetails.textContent = details;
+                document.getElementById('modal-date').textContent = item.dataset.date || "Date unknown";
+                document.getElementById('modal-type').textContent = type.charAt(0).toUpperCase() + type.slice(1);
+
+                modalMediaContainer.innerHTML = '';
+
+                if (type === 'video') {
+                    const video = document.createElement('video');
+                    video.src = mediaSrc;
+                    video.controls = true;
+                    video.classList.add('modal-media');
+                    video.poster = poster;
+                    modalMediaContainer.appendChild(video);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = mediaSrc;
+                    img.classList.add('modal-media');
+                    modalMediaContainer.appendChild(img);
+                }
+
+                currentItemIndex = allItems.indexOf(item);
+            }
+
+            allItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    updateModal(item);
+                    modal.classList.add('active');
+                });
+            });
+
+            modalPrev.addEventListener('click', () => {
+                currentItemIndex = (currentItemIndex - 1 + allItems.length) % allItems.length;
+                updateModal(allItems[currentItemIndex]);
+            });
+
+            modalNext.addEventListener('click', () => {
+                currentItemIndex = (currentItemIndex + 1) % allItems.length;
+                updateModal(allItems[currentItemIndex]);
+            });
+
+            modalClose.addEventListener('click', () => {
+                modal.classList.remove('active');
+            });
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+
+            // Filter Functionality
+            const filterTags = document.querySelectorAll('.filter-tag');
+            filterTags.forEach(tag => {
+                tag.addEventListener('click', () => {
+                    const selectedTag = tag.dataset.tag;
+                    filterTags.forEach(t => t.classList.remove('active'));
+                    tag.classList.add('active');
+
+                    allGalleries.forEach(gallery => {
+                        const items = gallery.querySelectorAll('.item');
+                        items.forEach(item => {
+                            if (selectedTag === 'all' || item.dataset.status === selectedTag) {
+                                item.style.display = 'block';
+                            } else {
+                                item.style.display = 'none';
+                            }
+                        });
+                    });
+                });
+            });
+
+            // Back to Top Functionality
+            const backToTop = document.querySelector('.back-to-top');
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTop.classList.add('visible');
+                } else {
+                    backToTop.classList.remove('visible');
+                }
+            });
+
+            backToTop.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Lazy Loading Implementation
+            function setupLazyLoading() {
+                const mediaItems = document.querySelectorAll('.item img, .item video');
+
+                const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const media = entry.target;
+                            if (media.dataset.src) {
+                                media.src = media.dataset.src;
+                                media.removeAttribute('data-src');
+                                media.onload = () => media.parentElement.classList.add('loaded');
+                            }
+                            observer.unobserve(media);
+                        }
+                    });
+                }, { rootMargin: '100px' });
+
+                mediaItems.forEach(media => {
+                    if (media.src) {
+                        media.dataset.src = media.src;
+                        media.removeAttribute('src');
+                        observer.observe(media);
+                    }
+                });
+            }
+
+            setupLazyLoading();
+
+            // Load More Functionality for AI Art
+            aiArtLoadMore.addEventListener('click', () => {
+                loadMoreItems('ai-art-gallery', aiArtLoadMore, 'images/AI_Art/generated-', 'webp');
+            });
+
+            // Load More Functionality for Videos (if needed)
+            videosLoadMore.addEventListener('click', () => {
+                loadMoreItems('videos-gallery', videosLoadMore, 'videos/generated-', 'mp4');
+            });
+
+            function loadMoreItems(galleryId, button, basePath, extension) {
+                const gallery = document.getElementById(galleryId);
+                const currentItems = gallery.querySelectorAll('.item').length;
+                const totalItems = 10; // Set your total number of items here
+                const itemsPerPage = 4;
+
+                if (currentItems >= totalItems) {
+                    button.style.display = 'none';
+                    return;
+                }
+
+                const fragment = document.createDocumentFragment();
+                const itemsToLoad = Math.min(itemsPerPage, totalItems - currentItems);
+
+                for (let i = 1; i <= itemsToLoad; i++) {
+                    const newItem = document.createElement('div');
+                    newItem.className = 'item';
+                    const itemNumber = currentItems + i;
+                    
+                    if (galleryId === 'ai-art-gallery') {
+                        // For AI Art Images
+                        const imageName = `generated-${itemNumber}.${extension}`;
+                        newItem.setAttribute('data-type', 'image');
+                        newItem.setAttribute('data-status', 'completed');
+                        newItem.setAttribute('data-description', `AI generated post-apocalyptic scene ${itemNumber}.`);
+                        newItem.setAttribute('data-date', `Completed - 2023`);
+                        newItem.innerHTML = `
+                            <img src="${basePath}${imageName}" alt="AI generated post-apocalyptic scene ${itemNumber}." width="280" height="280">
+                            <div class="info">
+                                <h3>Wasteland Scene ${itemNumber}</h3>
+                                <p>Completed - 2023</p>
+                            </div>
+                        `;
+                    } else if (galleryId === 'videos-gallery') {
+                        // For Videos (if applicable)
+                        const videoName = `generated-${itemNumber}.${extension}`;
+                        newItem.setAttribute('data-type', 'video');
+                        newItem.setAttribute('data-status', 'completed');
+                        newItem.setAttribute('data-description', `AI generated video ${itemNumber}.`);
+                        newItem.setAttribute('data-date', `Video - ${itemNumber}:00`);
+                        newItem.innerHTML = `
+                            <video src="${basePath}${videoName}" poster="${basePath}poster-${itemNumber}.jpg" width="280" height="280" preload="metadata"></video>
+                            <div class="info">
+                                <h3>AI Video ${itemNumber}</h3>
+                                <p>Video - ${itemNumber}:00</p>
+                            </div>
+                        `;
+                    }
+
+                    fragment.appendChild(newItem);
+                }
+
+                gallery.appendChild(fragment);
+                setupLazyLoading();
+                attachModalListeners(galleryId);
+            }
+
+            // Attach Event Listeners to Newly Added Items
+            function attachModalListeners(galleryId) {
+                const gallery = document.getElementById(galleryId);
+                const newItems = gallery.querySelectorAll('.item:not([data-loaded])');
+
+                newItems.forEach(item => {
+                    item.setAttribute('data-loaded', 'true');
+                    item.addEventListener('click', () => {
+                        updateModal(item);
+                        modal.classList.add('active');
+                    });
+                });
+            }
+
+            // Theme Toggle Functionality
+            const themeToggle = document.getElementById('theme-toggle');
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('light-theme');
+                themeToggle.textContent = document.body.classList.contains('light-theme') ? '🌙' : '☀️';
+            });
+
+            // Swipe Support for Modal
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            modal.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+
+            modal.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+
+            function handleSwipe() {
+                if (touchEndX < touchStartX - 50) { // Swipe Left
+                    modalNext.click();
+                }
+                if (touchEndX > touchStartX + 50) { // Swipe Right
+                    modalPrev.click();
+                }
+            }
+
+            // Random Glitch Effect
+            setInterval(() => {
+                const elements = document.querySelectorAll('h1, h2, .item');
+                const randomElement = elements[Math.floor(Math.random() * elements.length)];
+                randomElement.style.textShadow = '2px 2px #ff00de, -2px -2px #00ff9f';
+                setTimeout(() => {
+                    randomElement.style.textShadow = '';
+                }, 50);
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
