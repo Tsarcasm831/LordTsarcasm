@@ -287,7 +287,105 @@
             .nav-link {
                 margin: 5px 0;
             }
+            .coming-soon-sidebar {
+                display: none; /* Hide sidebar on small screens */
+            }
+
+            /* Adjust NEW RELEASES grid for smaller screens */
+            .new-releases .album-grid {
+                flex-direction: column;
+                align-items: center;
+            }
         }
+        .new-releases {
+            margin-top: 50px;
+        }
+
+        .new-releases h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .new-releases .album-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .new-releases .album-card {
+            width: 200px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .new-releases .album-card:hover {
+            transform: scale(1.05);
+        }
+
+        .new-releases .album-cover {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .new-releases .album-info {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .new-releases .album-title {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .new-releases .album-details {
+            font-size: 14px;
+            color: #777;
+        }
+        /* Coming Soon Sidebar */
+        .coming-soon-sidebar {
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            background-color: rgba(51, 51, 51, 0.9);
+            padding: 20px;
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+            z-index: 1000;
+        }
+
+        .coming-soon-sidebar h3 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 10px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .coming-soon-sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .coming-soon-sidebar li {
+            margin: 10px 0;
+        }
+
+        .coming-soon-sidebar a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            transition: color 0.3s;
+        }
+
+        .coming-soon-sidebar a:hover {
+            color: #0073e6;
+        }
+
     </style>
 </head>
 
@@ -306,6 +404,25 @@
             </nav>
         </div>
     </header>
+
+    <!-- Coming Soon Sidebar -->
+    <div class="coming-soon-sidebar">
+        <h3>Coming Soon</h3>
+        <ul>
+            <li><a href="#" onclick="openModal('tear-down-walls-modal')">Tear Down Walls</a></li>
+            <li><a href="#" onclick="openModal('whats-your-confection-modal')">What's Your Confection?</a></li>
+            <li><a href="#" onclick="openModal('still-believe-modal')">Still Believe</a></li>
+        </ul>
+    </div>
+
+
+    <div class="container new-releases">
+        <h2>NEW RELEASES</h2>
+        <div class="album-grid" id="newReleasesGrid">
+            <!-- New Release album cards will be dynamically added here -->
+        </div>
+    </div>
+    
 
     <div class="hero">
         <div class="hero-background" id="heroBackground">
@@ -382,6 +499,85 @@
             const heroBackground = $('#heroBackground');
             const albumGrid = $('#albumGrid');
             let imageSet = '';
+            
+            const newReleasesData = [
+                { 
+                    id: 'hellstrom-modal', 
+                    title: 'Hellstrom', 
+                    image: 'hellstrom.png', 
+                    details: 'Album - 2024', 
+                    description: 'An intense and raw album that pushes the boundaries of genre and sound.',
+                    songList: `
+                        <ul>
+                            <li>Promolink: <a href="https://artists.landr.com/055855768841">LandR</a></li>   
+                        </ul>`,
+                    spotify: 'https://open.spotify.com/album/59nyBhIhYXd2rVkSrmwVi5',
+                    youtube: 'https://music.youtube.com/x', 
+                    apple: 'https://music.apple.com/us/album/1771582650'
+                },
+                { 
+                    id: 'bad-day-modal', 
+                    title: 'Bad Day', 
+                    image: 'badday.png', 
+                    details: 'Single - 2024 - 1 song', 
+                    description: '"I feel better when I\'ve had a bad day." A powerful anthem for anyone who has ever felt overwhelmed by life.', 
+                    songList: `
+                        <ul>
+                            <audio controls>
+                                <source src="music/badday.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </ul>`,
+                },
+                { 
+                    id: 'atlas-modal', 
+                    title: 'Atlas Alone', 
+                    image: 'Atlas Alone.png', 
+                    details: 'Single - 2024 - 1 song', 
+                    description: 'A powerful exploration of inner strength and vulnerability, capturing the emotional weight of carrying the world alone.', 
+                    songList: `
+                        <ul>
+                            <audio controls>
+                                <source src="music/Atlas Alone.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <li><a href="https://open.spotify.com/track/3pQY0y3fzJd6WY8azPqaLf?si=69fed89524ae422a">Original Track</a></li>
+                            <li><a href="https://open.spotify.com/artist/47s2i6XVeEU4bk6nAcOwUb?si=qohHd1T9StC2jzlpjmf_Gg">Ricardo Abyssal Spotify</a></li>
+                        </ul>
+                        `,
+                },
+                { 
+                    id: 'mwymi-modal', 
+                    title: 'Money Where Your Mouth Is', 
+                    image: 'mwymi.png', 
+                    details: 'Single - 2024 - 1 song', 
+                    description: 'Put your money where your mouth is with this powerful single that challenges listeners to back up their words with action.', 
+                    songList: `
+                        <ul>
+                            <audio controls>
+                                <source src="music/mwymi.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </ul>
+                        `,
+                },
+                { 
+                    id: 'ptwig-modal', 
+                    title: 'Play This When I\'m Gone', 
+                    image: 'ptwig.png', 
+                    details: 'Single - 2024 - 1 song', 
+                    description: 'A hauntingly beautiful track that captures the essence of loss and longing, leaving a lasting impact on the listener.', 
+                    songList: `
+                        <ul>
+                            <audio controls>
+                                <source src="music/ptwig.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </ul>
+                        `,
+                },
+            ];
+
 
             const albumData = [
                 { 
@@ -636,6 +832,49 @@
                 },
                 
             ];
+            
+            // Handle New Releases
+            const newReleasesGrid = $('#newReleasesGrid');
+            let newReleasesSet = '';
+
+            newReleasesData.forEach(album => {
+                const imgPath = imageFolder + album.image;
+
+                newReleasesSet += `
+                    <div class="album-card" onclick="openModal('${album.id}')">
+                        <img src="${imgPath}" alt="${album.title}" class="album-cover">
+                        <div class="album-info">
+                            <div class="album-title">${album.title}</div>
+                            <div class="album-details">${album.details}</div>
+                        </div>
+                    </div>
+                `;
+
+                // Append modals directly into HTML
+                $('body').append(`
+                    <div id="${album.id}" class="modal">
+                        <div class="modal-content">
+                            <span class="close" onclick="closeModal('${album.id}')">&times;</span>
+                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover">
+                            <div class="modal-album-title">${album.title}</div>
+                            <div class="modal-album-details">${album.details}</div>
+                            <div class="modal-description">
+                                <p>${album.description}</p>
+                            </div>
+                            <div class="modal-song-list">
+                                ${album.songList}
+                            </div>
+                            ${createModalIcons(album)}
+                        </div>
+                    </div>
+                `);
+            });
+
+            // Append new releases to the grid
+            newReleasesGrid.append(newReleasesSet);
+
+            // Set all links inside modals to open in a new window
+            $('.modal a').attr('target', '_blank');
 
             albumData.forEach(album => {
                 const imgPath = imageFolder + album.image;
@@ -766,6 +1005,44 @@
             });
         });
     </script>
+<!-- Tear Down Walls Modal -->
+<div id="tear-down-walls-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('tear-down-walls-modal')">&times;</span>
+        <img src="images/tear-down-walls.png" alt="Tear Down Walls" class="modal-album-cover">
+        <div class="modal-album-title">Tear Down Walls</div>
+        <div class="modal-album-details">Coming Soon - Album</div>
+        <div class="modal-description">
+            <p>An upcoming album that aims to break barriers and redefine musical boundaries.</p>
+        </div>
+    </div>
+</div>
+
+<!-- What's Your Confection? Modal -->
+<div id="whats-your-confection-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('whats-your-confection-modal')">&times;</span>
+        <img src="images/whats-your-confection.png" alt="What's Your Confection?" class="modal-album-cover">
+        <div class="modal-album-title">What's Your Confection?</div>
+        <div class="modal-album-details">Coming Soon - Single</div>
+        <div class="modal-description">
+            <p>A sweet new single that explores the complexities of desire and satisfaction.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Still Believe Modal -->
+<div id="still-believe-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('still-believe-modal')">&times;</span>
+        <img src="images/still-believe.png" alt="Still Believe" class="modal-album-cover">
+        <div class="modal-album-title">Still Believe</div>
+        <div class="modal-album-details">Coming Soon - Single</div>
+        <div class="modal-description">
+            <p>A heartfelt single reaffirming faith and resilience in challenging times.</p>
+        </div>
+    </div>
+</div>
 
 </body>
 
