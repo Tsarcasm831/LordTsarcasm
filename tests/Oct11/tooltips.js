@@ -14,6 +14,7 @@ entityTooltip.style.display = 'none';
 entityTooltip.style.zIndex = '1000'; // Ensure tooltip is above other elements
 document.body.appendChild(entityTooltip);
 
+
 // Function to handle mouse move and show tooltip for entities
 function onMouseMove(event) {
     const rect = renderer.domElement.getBoundingClientRect();

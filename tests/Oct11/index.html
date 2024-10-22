@@ -13,7 +13,7 @@
             <canvas id="mapCanvas"></canvas>
             <button onclick="closeFullscreenMap()" style="position: absolute; top: 10px; right: 10px; z-index: 201;">Close Map</button>
         </div>
-
+        
         <!-- Skill Tree Popup -->
         <div id="skillTree" style="display: none;">
             <h2>Skill Tree</h2>
@@ -408,13 +408,49 @@
             let playerInventory = []; // Player inventory
 
             const npcData = [
-                { name: 'Elder Thoran', dialogue: 'Greetings, adventurer. May your journey be safe.' },
-                { name: 'Merchant Lila', dialogue: 'Looking to trade? I have wares you might like.' },
-                { name: 'Blacksmith Brom', dialogue: 'Need your weapons sharpened?' },
-                { name: 'Farmer Finn', dialogue: 'These crops won\'t tend themselves.' },
-                { name: 'Guard Greta', dialogue: 'Stay vigilant out there.' },
+                { 
+                    name: 'John Reilly', 
+                    dialogue: 'Greetings, adventurer. May your journey be safe.', 
+                    occupation: 'Town Guard', 
+                    health: 100, 
+                    location: { x: 200, y: 0, z: -150 },
+                    faction: 'Town' 
+                },
+                { 
+                    name: 'Martha Reilly', 
+                    dialogue: 'Looking to trade? I have wares you might like.', 
+                    occupation: 'Merchant', 
+                    health: 100, 
+                    location: { x: 300, y: 0, z: -100 },
+                    faction: 'Town' 
+                },
+                { 
+                    name: 'Noah', 
+                    dialogue: 'Need your weapons sharpened?', 
+                    occupation: 'Blacksmith', 
+                    health: 120, 
+                    location: { x: 100, y: 0, z: -50 },
+                    faction: 'Town' 
+                },
+                { 
+                    name: 'Jace', 
+                    dialogue: 'These crops won\'t tend themselves.', 
+                    occupation: 'Farmer', 
+                    health: 80, 
+                    location: { x: 400, y: 0, z: 0 },
+                    faction: 'Village' 
+                },
+                { 
+                    name: 'Kaanan', 
+                    dialogue: 'Stay vigilant out there.', 
+                    occupation: 'Ranger', 
+                    health: 150, 
+                    location: { x: -50, y: 0, z: 50 },
+                    faction: 'Outskirts' 
+                },
                 // Add more NPCs as desired
             ];
+
 
             // Player health and energy
             let playerHealth = 100;
