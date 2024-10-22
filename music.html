@@ -410,9 +410,9 @@
         <h3>Coming Soon</h3>
         <ul>
             <li><a href="#" onclick="openModal('tear-down-walls-modal')">Tear Down The Walls</a></li>
-            <li><a href="#" onclick="openModal('whats-your-confection-modal')">What's Your Confection?</a></li>
-            <li><a href="#" onclick="openModal('still-believe-modal')">Still Believe</a></li>
-            <li><a href="#" onclick="openModal('i-could-modal')">I Could.. I Could...</a></li>
+            <li><a href="#" onclick="openModal('confection-modal')">What's Your Confection?</a></li>
+            <li><a href="#" onclick="openModal('stillbelieve-modal')">Still Believe</a></li>
+            <li><a href="#" onclick="openModal('icould-modal')">I Could.. I Could...</a></li>
             <li><a href="#" onclick="openModal('stranger-modal')">Stranger</a></li>
         </ul>
     </div>
@@ -503,20 +503,38 @@
             let imageSet = '';
             
             const newReleasesData = [
-                { 
-                    id: 'hellstrom-modal', 
-                    title: 'Hellstrom', 
-                    image: 'hellstrom.png', 
-                    details: 'Album - 2024', 
-                    description: 'An intense and raw album that pushes the boundaries of genre and sound.',
+                {
+                    id: 'hellstrom-modal',
+                    title: 'Hellstrom',
+                    image: 'hellstrom.png',
+                    details: 'Hellstrom - Album - 18 songs', 
+                    description: 'An intense and raw album that pushes the boundaries of genre and sound, inspired by themes of chaos, power, and transformation.',
                     songList: `
                         <ul>
-                            <li>Promolink: <a href="https://artists.landr.com/055855768841">LandR</a></li>   
+                            <li>S.V.T. (Out in the Cold) - 2024 Version</li>
+                            <li>Sands of Time</li>
+                            <li>Puppet on a Wire - 2024 Version</li>
+                            <li>This Ain't Paradise - 2024 Version</li>
+                            <li>Patterns and Atoms</li>
+                            <li>Barely There</li>
+                            <li>Citizen of the World</li>
+                            <li>City of Shadows</li>
+                            <li>Disappointing Again</li>
+                            <li>Stars and Scars</li>
+                            <li>Candles in the Dark</li>
+                            <li>Completely</li>
+                            <li>Just an Update...</li>
+                            <li>Infinity</li>
+                            <li>Empty Little Soul - 2024 Version</li>
+                            <li>The Story Grows Old</li>
+                            <li>Timeline</li>
+                            <li>Routine</li>
                         </ul>`,
-                    spotify: 'https://open.spotify.com/album/59nyBhIhYXd2rVkSrmwVi5',
-                    youtube: 'https://music.youtube.com/x', 
-                    apple: 'https://music.apple.com/us/album/1771582650'
+                    spotify: 'https://open.spotify.com/album/59nyBhIhYXd2rVkSrmwVi5?go=1', 
+                    youtube: 'https://www.youtube.com/watch?v=I2SwOWN1W4I&list=OLAK5uy_lPDbLufGyGPRRUdhaiWtn3E73KMRKXkfM', 
+                    apple: 'https://music.apple.com/us/album/1771582650?app=music&at=1l3vpUI&ct=LFV_8ae31fe85997b4a3c828e98bdd413c58&itscg=30440&itsct=catchall_p4&lId=211350774&cId=none&sr=4&src=Linkfire&ls=1'
                 },
+
                 { 
                     id: 'bad-day-modal', 
                     title: 'Bad Day', 
@@ -582,7 +600,7 @@
                     id: 'walls-modal', 
                     title: 'Tear Down Walls', 
                     image: 'tear-down-walls.png', 
-                    details: 'Single - 2024', 
+                    details: 'Single - 2024 - 1 song', 
                     description: 'A powerful anthem that inspires listeners to break down barriers and build connections with others.',
                     songList: `
                         <ul>
@@ -596,7 +614,7 @@
                     id: 'confection-modal', 
                     title: 'What\'s Your Confection', 
                     image: 'whats-your-confection.png', 
-                    details: 'Single - 2024', 
+                    details: 'Single - 2024 - 1 song', 
                     description: 'A powerful anthem that inspires listeners to break down barriers and build connections with others.',
                     songList: `
                         <ul>
@@ -610,7 +628,7 @@
                     id: 'stillbelieve-modal', 
                     title: 'Still Believe', 
                     image: 'still-believe.png', 
-                    details: 'Single - 2024', 
+                    details: 'Single - 2024 - 1 song', 
                     description: 'A powerful anthem that inspires listeners to keep believing in themselves and their dreams.',
                     songList: `
                         <ul>
@@ -624,7 +642,7 @@
                     id: 'icould-modal', 
                     title: 'I Could... I Could...', 
                     image: 'icould.png', 
-                    details: 'Single - 2024', 
+                    details: 'Single - 2024 - 1 song', 
                     description: 'A powerful anthem that inspires listeners to keep believing in themselves and their dreams.',
                     songList: `
                         <ul>
@@ -638,7 +656,7 @@
                     id: 'stranger-modal', 
                     title: 'Stranger', 
                     image: 'stranger.png', 
-                    details: 'Single - 2024', 
+                    details: 'Single - 2023 - 1 song', 
                     description: 'A translation of the song "Иностранец" by Валерий Меладзе.',
                     songList: `
                         <ul>
