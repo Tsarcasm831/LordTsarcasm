@@ -67,7 +67,30 @@ function init() {
     groundShape.holes.push(holePath);
 
     const groundGeometry = new THREE.ShapeGeometry(groundShape);
-    const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+    console.log(groundGeometry.attributes.uv); // Inspect UVs in the console
+
+    // Load the texture and apply it to the ground material
+    const textureLoader = new THREE.TextureLoader();
+    const groundTexture = textureLoader.load(
+        'ground.png',
+        () => {
+            console.log('Ground texture loaded successfully.');
+        },
+        undefined,
+        (error) => {
+            console.error('Error loading ground texture:', error);
+        }
+    );
+    
+    groundTexture.wrapS = THREE.RepeatWrapping;
+    groundTexture.wrapT = THREE.RepeatWrapping;
+    groundTexture.repeat.set(25, 25); // Adjust the repeat to scale the texture as desired
+
+
+    const groundMaterial = new THREE.MeshLambertMaterial({
+        map: groundTexture,
+    });
+
     ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     ground.name = 'ground';

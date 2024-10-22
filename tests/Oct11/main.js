@@ -188,6 +188,7 @@ function onDocumentKeyDown(event) {
 
 document.getElementById('closeHelp').addEventListener('click', function() {
     document.getElementById('helpWindow').style.display = 'none';
+    helpWindowOpen = false; // Ensure the variable tracks the state properly
 });
 
 
@@ -889,15 +890,20 @@ function createWhiteWall() {
     return whiteWall;
 }
 
+// Ensure the help window properly adjusts when the window is resized
+window.addEventListener('resize', onWindowResize);
+
+// Adjusting for window resize
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    
     minimapCamera.left = -200;
     minimapCamera.right = 200;
     minimapCamera.top = 200;
     minimapCamera.bottom = -200;
     minimapCamera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 
