@@ -1,6 +1,6 @@
 ﻿<html><head><base href="
     ">
-    <title>Remnants of Destructions</title>
+    <title>Remnants of Destruction</title>
     <link rel="stylesheet" type="text/css" href="rodstyles.css">
 </head>
 <style>
@@ -513,29 +513,82 @@
             <input type="password" id="adminPassword">
             <button onclick="checkAdminPassword()">Submit</button>
         </div>
-        <div id="adminControls" style="display: none;">
-            <h2>Admin Controls</h2>
-            <section>
-                <h3>Player Stats</h3>
-                <p>Health: <input type="number" id="playerHealthInput" value="100" step="1"></p>
-                <p>Gold: <input type="number" id="playerGoldInput" value="0" step="1"></p>
-                <p>Experience: <input type="number" id="playerExperienceInput" value="0" step="1"></p>
-                <button onclick="updatePlayerStats()">Update Player Stats</button>
-            </section>
-            <section>
-                <h3>Player Options</h3>
-                <p>
-                    <label>
-                        <input type="checkbox" id="invulnerabilityCheckbox"> Invulnerable
-                    </label>
-                </p>
-                <button onclick="updatePlayerOptions()">Update Player Options</button>
-            </section>
-            
-            <div id="fullscreenMap" style="display: none;">
-                <canvas id="mapCanvas"></canvas>
-                <button onclick="closeFullscreenMap()" style="position: absolute; top: 10px; right: 10px;">Close Map</button>
-            </div>
+        <!-- Admin Console -->
+		<div id="adminConsole" class="modal" style="display: none;">
+			<div class="modal-content">
+				<span class="close" onclick="closeAdminConsole()">&times;</span>
+				<div id="adminLogin">
+					<h2>Admin Console</h2>
+					<p>Please enter the admin password:</p>
+					<input type="password" id="adminPassword" placeholder="Enter password">
+					<button onclick="checkAdminPassword()">Submit</button>
+				</div>
+				<div id="adminControls" style="display: none;">
+					<h2>Admin Controls</h2>
+					<section>
+						<h3>Player Stats</h3>
+						<label>Health:
+							<input type="number" id="playerHealthInput" value="100" step="1">
+						</label>
+						<label>Gold:
+							<input type="number" id="playerGoldInput" value="0" step="1">
+						</label>
+						<label>Experience:
+							<input type="number" id="playerExperienceInput" value="0" step="1">
+						</label>
+						<button onclick="updatePlayerStats()">Update Player Stats</button>
+					</section>
+					<section>
+						<h3>Player Options</h3>
+						<label>
+							<input type="checkbox" id="invulnerabilityCheckbox"> Invulnerable
+						</label>
+						<button onclick="updatePlayerOptions()">Update Player Options</button>
+					</section>
+					<section>
+						<h3>Spawn Entities</h3>
+						<label>Entity Type:
+							<select id="entityTypeSelect">
+								<option value="enemy">Enemy</option>
+								<option value="friendlyNPC">Friendly NPC</option>
+								<option value="structure">Structure</option>
+								<option value="treasureChest">Treasure Chest</option>
+								<option value="settlement">Settlement</option>
+								<option value="quadruped">Quadruped</option>
+							</select>
+						</label>
+						<label>Quantity:
+							<input type="number" id="entityQuantityInput" value="1" step="1" min="1">
+						</label>
+						<button onclick="spawnEntities()">Spawn Entities</button>
+					</section>
+					<section>
+						<h3>Game Settings</h3>
+						<label>Enemy Speed:
+							<input type="number" id="enemySpeedInput" value="0.7" step="0.1">
+						</label>
+						<button onclick="updateGameSettings()">Update Game Settings</button>
+					</section>
+					<section>
+						<h3>Teleport Player</h3>
+						<label>X:
+							<input type="number" id="teleportXInput" value="0" step="1">
+						</label>
+						<label>Z:
+							<input type="number" id="teleportZInput" value="0" step="1">
+						</label>
+						<button onclick="teleportPlayer()">Teleport Player</button>
+					</section>
+					<section>
+						<h3>NPC Admin</h3>
+						<label>
+							<input type="checkbox" id="npcAdminCheckbox"> Enable NPC Admin Mode
+						</label>
+					</section>
+					<button onclick="closeAdminConsole()">Close</button>
+				</div>
+			</div>
+		</div>
 
 
             <section>
@@ -672,6 +725,7 @@
         let enemies = []; // List of enemies
         let gold = 0; // Gold amount
 		let bestiary = {}; // Bestiary data
+        const safeZoneRadius = 200; // Radius of the safe zone
         const townRadius = 200; // Radius of the town
 		let quadrupeds = []; // List of quadrupeds
         let walls = []; // List of walls
@@ -947,24 +1001,22 @@
             scene.add(player);
 
 			function checkEnemiesInSafeZone() {
-				const safeZoneRadius = 300; // Radius of the safe zone
+                enemies.forEach((enemy) => {
+                    if (enemy.userData.isDead) return;
 
-				enemies.forEach((enemy) => {
-					if (enemy.userData.isDead) return;
+                    const distanceFromCenter = enemy.position.length(); // Equivalent to sqrt(x^2 + z^2)
 
-					const distanceFromCenter = Math.sqrt(
-						enemy.position.x * enemy.position.x + enemy.position.z * enemy.position.z
-					);
+                    if (distanceFromCenter < safeZoneRadius) {
+                        // Calculate direction away from center
+                        const directionAway = enemy.position.clone().normalize();
+                        const pushBackDistance = 5; // Distance to push the enemy out per frame
+                        enemy.position.add(directionAway.multiplyScalar(pushBackDistance));
 
-					if (distanceFromCenter < safeZoneRadius) {
-						const angle = Math.random() * Math.PI * 2;
-						const teleportDistance = 1000;
-						enemy.position.x = Math.cos(angle) * teleportDistance;
-						enemy.position.z = Math.sin(angle) * teleportDistance;
-						enemy.position.y = 0; 
-					}
-				});
-			}
+                        // Optional: Stop the enemy's movement
+                        enemy.isMoving = false;
+                    }
+                });
+            }
 
 			// Add a Purple Structure a Little Ways Away from Town
             const purpleStructure = createPurpleStructure();
@@ -1097,7 +1149,12 @@
             } else {
                 player.isMoving = false;
             }
-
+            // Prevent enemies from entering the safe zone
+            try {
+                checkEnemiesInSafeZone();
+            } catch (error) {
+                console.error('Error in checkEnemiesInSafeZone:', error);
+            }
             // Maintain minimum of 50 enemies
             maintainEnemyCount();
 
