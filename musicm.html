@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Meta tags for character set and viewport -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lord Tsarcasm - Music</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Inline CSS for mobile optimization -->
+    <style>
+        /* General styles */
+        body {
+            margin: 0;
+            font-family: 'Lato', sans-serif;
+            background-color: #111;
+            color: #fff;
+        }
+
+        a {
+            color: #0073e6;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Header styles */
+        .header {
+            background-color: #333;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Navigation menu */
+        .nav-menu {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 0;
+            margin: 10px 0 0 0;
+            list-style: none;
+        }
+
+        .nav-link {
+            margin: 5px 10px;
+            font-size: 16px;
+        }
+
+        /* Hero section */
+        .hero {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .hero-background {
+            display: flex;
+            animation: scrollBackground 40s linear infinite;
+        }
+
+        .hero-background img {
+            height: 100%;
+            flex-shrink: 0;
+        }
+
+        @keyframes scrollBackground {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* New Releases */
+        .new-releases {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .new-releases h2 {
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 20px;
+        }
+
+        .album-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .album-card {
+            width: 90%;
+            max-width: 300px;
+            cursor: pointer;
+        }
+
+        .album-cover {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .album-info {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .album-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .album-details {
+            font-size: 14px;
+            color: #bbb;
+        }
+
+        /* Spotify embeds */
+        .spotify-links {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .spotify-links iframe {
+            width: 100%;
+            max-width: 300px;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #222;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            background-color: rgba(0, 0, 0, 0.95);
+        }
+
+        .modal-content {
+            background-color: #333;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 90%;
+            color: #fff;
+            position: relative;
+            text-align: center;
+        }
+
+        .modal-content img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .modal-album-title {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .modal-album-details {
+            font-size: 16px;
+            color: #bbb;
+            margin-bottom: 15px;
+        }
+
+        .modal-description {
+            font-size: 14px;
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .modal-song-list {
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        /* Media Queries */
+        @media (min-width: 600px) {
+            .nav-menu {
+                flex-wrap: nowrap;
+            }
+
+            .album-grid {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .album-card {
+                width: 45%;
+                max-width: 200px;
+            }
+
+            .spotify-links {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .spotify-links iframe {
+                margin: 10px;
+            }
+        }
+
+        @media (min-width: 900px) {
+            .album-card {
+                width: 30%;
+            }
+
+            .modal-content {
+                max-width: 600px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="logo">Lord Tsarcasm</div>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="https://www.lordtsarcasm.com" class="nav-link">Home</a></li>
+                <li><a href="about.html" class="nav-link">About</a></li>
+                <li><a href="music.html" class="nav-link">Music</a></li>
+                <li><a href="projects.html" class="nav-link">Projects</a></li>
+                <li><a href="https://www.facebook.com/lordtsarcasm" class="nav-link">Poetry</a></li>
+                <li><a href="ai_art.html" class="nav-link">AI Art</a></li>
+                <li><a href="https://www.youtube.com/@lordtsarcasm/videos" class="nav-link">Videos</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-background" id="heroBackground">
+            <!-- Images will be inserted here via JavaScript -->
+        </div>
+    </section>
+
+    <!-- New Releases Section -->
+    <section class="new-releases">
+        <h2>NEW RELEASES</h2>
+        <div class="album-grid" id="newReleasesGrid">
+            <!-- New Release album cards will be dynamically added here -->
+        </div>
+    </section>
+
+    <!-- Stuck In My Head Section -->
+    <section class="spotify-links">
+        <h2>Stuck In My Head</h2>
+        <iframe src="https://open.spotify.com/embed/track/5TU1cWjUGyVKjSnIIxRSEf" height="80"></iframe>
+        <iframe src="https://open.spotify.com/embed/track/44NQYaCbgHKuOISQRmNdVN" height="80"></iframe>
+        <iframe src="https://open.spotify.com/embed/track/7jFyzgoUQ10PTYhuC5vXHA" height="80"></iframe>
+        <iframe src="https://open.spotify.com/embed/track/3vxMfMNjD8k0ozmuVDu0Ai" height="80"></iframe>
+        <iframe src="https://open.spotify.com/embed/album/4mLuzYF9sqsZ6AmZMu9tkx" height="80"></iframe>
+        <iframe src="https://open.spotify.com/embed/album/59nyBhIhYXd2rVkSrmwVi5" height="80"></iframe>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="footer">
+        <p>&copy; 2023 Lord Tsarcasm. All rights reserved.</p>
+    </footer>
+
+    <!-- Modals will be dynamically generated -->
+    <!-- Include jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- JavaScript for dynamic content and modal functionality -->
+    <script>
+        $(document).ready(function () {
+            const imageFolder = 'images/';
+            const heroBackground = $('#heroBackground');
+            const newReleasesGrid = $('#newReleasesGrid');
+
+            // Data for new releases
+            const newReleasesData = [
+                {
+                    id: 'hellstrom-modal',
+                    title: 'Hellstrom',
+                    image: 'hellstrom.png',
+                    details: 'Album - 2024',
+                    description: 'An intense and raw album that pushes the boundaries of genre and sound.',
+                    songList: `
+                        <ul>
+                            <li>Promolink: <a href="https://artists.landr.com/055855768841" target="_blank">LandR</a></li>
+                        </ul>`,
+                    spotify: 'https://open.spotify.com/album/59nyBhIhYXd2rVkSrmwVi5',
+                    youtube: '',
+                    apple: 'https://music.apple.com/us/album/1771582650'
+                },
+                {
+                    id: 'bad-day-modal',
+                    title: 'Bad Day',
+                    image: 'badday.png',
+                    details: 'Single - 2024',
+                    description: '"I feel better when I\'ve had a bad day." A powerful anthem for anyone who has ever felt overwhelmed by life.',
+                    songList: `
+                        <ul>
+                            <audio controls>
+                                <source src="music/badday.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </ul>`,
+                    spotify: '',
+                    youtube: '',
+                    apple: ''
+                },
+                {
+                    id: 'atlas-modal',
+                    title: 'Atlas Alone',
+                    image: 'Atlas Alone.png',
+                    details: 'Single - 2024',
+                    description: 'A powerful exploration of inner strength and vulnerability, capturing the emotional weight of carrying the world alone.',
+                    songList: `
+                        <ul>
+                            <audio controls>
+                                <source src="music/Atlas Alone.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <li><a href="https://open.spotify.com/track/3pQY0y3fzJd6WY8azPqaLf?si=69fed89524ae422a" target="_blank">Original Track</a></li>
+                            <li><a href="https://open.spotify.com/artist/47s2i6XVeEU4bk6nAcOwUb?si=qohHd1T9StC2jzlpjmf_Gg" target="_blank">Ricardo Abyssal Spotify</a></li>
+                        </ul>`,
+                    spotify: '',
+                    youtube: '',
+                    apple: ''
+                },
+                // Add more new releases as needed
+            ];
+
+            // Populate new releases
+            newReleasesData.forEach(album => {
+                const albumCard = `
+                    <div class="album-card" onclick="openModal('${album.id}')">
+                        <img src="${imageFolder + album.image}" alt="${album.title}" class="album-cover">
+                        <div class="album-info">
+                            <div class="album-title">${album.title}</div>
+                            <div class="album-details">${album.details}</div>
+                        </div>
+                    </div>
+                `;
+                newReleasesGrid.append(albumCard);
+                createModal(album);
+            });
+
+            // Data for hero images
+            const heroImages = newReleasesData.map(album => album.image);
+
+            // Populate hero images
+            let imageSet = '';
+            heroImages.forEach(image => {
+                imageSet += `<img src="${imageFolder + image}" alt="">`;
+            });
+            heroBackground.append(imageSet + imageSet); // Duplicate images for smooth scrolling
+
+            // Function to create modals
+            function createModal(album) {
+                const modalHTML = `
+                    <div id="${album.id}" class="modal">
+                        <div class="modal-content">
+                            <span class="close" onclick="closeModal('${album.id}')">&times;</span>
+                            <img src="${imageFolder + album.image}" alt="${album.title}" class="modal-album-cover">
+                            <div class="modal-album-title">${album.title}</div>
+                            <div class="modal-album-details">${album.details}</div>
+                            <div class="modal-description">
+                                <p>${album.description}</p>
+                            </div>
+                            <div class="modal-song-list">
+                                ${album.songList}
+                            </div>
+                            ${createModalIcons(album)}
+                        </div>
+                    </div>
+                `;
+                $('body').append(modalHTML);
+            }
+
+            // Function to create modal icons
+            function createModalIcons(album) {
+                let iconsHTML = '';
+                if (album.spotify || album.youtube || album.apple) {
+                    iconsHTML += '<div class="modal-icons">';
+                    if (album.spotify) {
+                        iconsHTML += `<a href="${album.spotify}" target="_blank"><i class="fab fa-spotify"></i> Spotify</a>`;
+                    }
+                    if (album.youtube) {
+                        iconsHTML += `<a href="${album.youtube}" target="_blank"><i class="fab fa-youtube"></i> YouTube</a>`;
+                    }
+                    if (album.apple) {
+                        iconsHTML += `<a href="${album.apple}" target="_blank"><i class="fab fa-apple"></i> Apple Music</a>`;
+                    }
+                    iconsHTML += '</div>';
+                }
+                return iconsHTML;
+            }
+        });
+
+        // Modal functionality
+        function openModal(modalId) {
+            $('#' + modalId).fadeIn();
+        }
+
+        function closeModal(modalId) {
+            $('#' + modalId).fadeOut();
+        }
+
+        // Close modal when clicking outside of it
+        $(window).on('click', function (event) {
+            if ($(event.target).hasClass('modal')) {
+                $(event.target).fadeOut();
+            }
+        });
+    </script>
+</body>
+
+</html>
