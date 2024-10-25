@@ -1,103 +1,111 @@
 // settlement.js
 
-// Function to create settlement walls
-function createSettlementWalls() {
-    const wallsGroup = new THREE.Group();
+function createSettlement(x, y, z) {
+	const settlementGroup = new THREE.Group();
 
-    const wallMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
-    const wallHeight = 30;
-    const wallThickness = 2;
-    const wallLength = 600;
+	// Create settlement walls
+	const wallsGroup = createSettlementWalls();
+	wallsGroup.position.set(x, y, z);
+	settlementGroup.add(wallsGroup);
 
-    const northWallLeftGeometry = new THREE.BoxGeometry(wallLength / 2 - 50, wallHeight, wallThickness);
-    const northWallLeft = new THREE.Mesh(northWallLeftGeometry, wallMaterial);
-    northWallLeft.position.set(-wallLength / 4 - 25, wallHeight / 2, -300);
-    wallsGroup.add(northWallLeft);
-    walls.push(northWallLeft);
+	// Create structures and NPCs
+	const positions = [
+		{ x: x + 50, z: z + 50 },
+		{ x: x - 50, z: z + 50 },
+		{ x: x + 50, z: z - 50 },
+		{ x: x - 50, z: z - 50 },
+		{ x: x, z: z + 70 },
+	];
 
-    const northWallRight = new THREE.Mesh(northWallLeftGeometry, wallMaterial);
-    northWallRight.position.set(wallLength / 4 + 25, wallHeight / 2, -300);
-    wallsGroup.add(northWallRight);
-    walls.push(northWallRight);
+	positions.forEach(pos => {
+		const structure = createStructure();
+		structure.position.set(pos.x, y, pos.z);
+		settlementGroup.add(structure);
+		walls.push(...structure.userData.walls);
+		structures.push(structure);
 
-    const gateBarrierGeometry = new THREE.BoxGeometry(100, wallHeight, wallThickness);
-    const gateBarrierMaterial = new THREE.MeshLambertMaterial({ color: 0x000000, transparent: true, opacity: 0 });
-    const northGateBarrier = new THREE.Mesh(gateBarrierGeometry, gateBarrierMaterial);
-    northGateBarrier.position.set(0, wallHeight / 2, -300);
-    wallsGroup.add(northGateBarrier);
-    enemyWalls.push(northGateBarrier);
+		const npc = createFriendlyNPC();
+		npc.position.set(pos.x, y, pos.z);
+		settlementGroup.add(npc);
+		friendlies.push(npc);
+	});
 
-    const southWallLeft = northWallLeft.clone();
-    southWallLeft.position.set(-wallLength / 4 - 25, wallHeight / 2, 300);
-    wallsGroup.add(southWallLeft);
-    walls.push(southWallLeft);
-
-    const southWallRight = northWallRight.clone();
-    southWallRight.position.set(wallLength / 4 + 25, wallHeight / 2, 300);
-    wallsGroup.add(southWallRight);
-    walls.push(southWallRight);
-
-    const southGateBarrier = northGateBarrier.clone();
-    southGateBarrier.position.set(0, wallHeight / 2, 300);
-    wallsGroup.add(southGateBarrier);
-    enemyWalls.push(southGateBarrier);
-
-    const eastWallGeometry = new THREE.BoxGeometry(wallThickness, wallHeight, wallLength);
-    const eastWall = new THREE.Mesh(eastWallGeometry, wallMaterial);
-    eastWall.position.set(300, wallHeight / 2, 0);
-    wallsGroup.add(eastWall);
-    walls.push(eastWall);
-
-    const westWall = eastWall.clone();
-    westWall.position.set(-300, wallHeight / 2, 0);
-    wallsGroup.add(westWall);
-    walls.push(westWall);
-
-    // Add white walls at gate barriers
-    const northGateWhiteWall = createWhiteWall();
-    northGateWhiteWall.position.set(0, 15, -300);
-    wallsGroup.add(northGateWhiteWall);
-
-    const southGateWhiteWall = createWhiteWall();
-    southGateWhiteWall.position.set(0, 15, 300);
-    wallsGroup.add(southGateWhiteWall);
-
-    walls.push(northGateWhiteWall);
-    walls.push(southGateWhiteWall);
-
-    return wallsGroup;
+	scene.add(settlementGroup);
 }
 
-// Function to create settlement
-function createSettlement(x, y, z) {
-    const settlementGroup = new THREE.Group();
+function createSettlementWalls() {
+    const safeZoneSize = 1200;  // Match the exact size of the grey safe zone
+    const wallHeight = 30;
+    const wallThickness = 2;
+    const gateWidth = 100;
 
-    // Create settlement walls
-    const wallsGroup = createSettlementWalls();
-    wallsGroup.position.set(x, y, z);
-    settlementGroup.add(wallsGroup);
+    const wallMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
 
-    // Create structures and NPCs
-    const positions = [
-        { x: x + 50, z: z + 50 },
-        { x: x - 50, z: z + 50 },
-        { x: x + 50, z: z - 50 },
-        { x: x - 50, z: z - 50 },
-        { x: x, z: z + 70 },
-    ];
+    // North Wall (Split into two segments)
+    const sideLength = (safeZoneSize - gateWidth) / 2;
+    
+    // North Walls
+    const northLeftWall = new THREE.Mesh(
+        new THREE.BoxGeometry(sideLength, wallHeight, wallThickness),
+        wallMaterial
+    );
+    northLeftWall.position.set(-safeZoneSize/4 - gateWidth/4, wallHeight/2, -safeZoneSize/2);
+    scene.add(northLeftWall);
+    walls.push(northLeftWall);
 
-    positions.forEach(pos => {
-        const structure = createStructure();
-        structure.position.set(pos.x, y, pos.z);
-        settlementGroup.add(structure);
-        walls.push(...structure.userData.walls);
-        structures.push(structure);
+    const northRightWall = new THREE.Mesh(
+        new THREE.BoxGeometry(sideLength, wallHeight, wallThickness),
+        wallMaterial
+    );
+    northRightWall.position.set(safeZoneSize/4 + gateWidth/4, wallHeight/2, -safeZoneSize/2);
+    scene.add(northRightWall);
+    walls.push(northRightWall);
 
-        const npc = createFriendlyNPC();
-        npc.position.set(pos.x, y, pos.z);
-        settlementGroup.add(npc);
-        friendlies.push(npc);
+    // South Walls
+    const southLeftWall = northLeftWall.clone();
+    southLeftWall.position.set(-safeZoneSize/4 - gateWidth/4, wallHeight/2, safeZoneSize/2);
+    scene.add(southLeftWall);
+    walls.push(southLeftWall);
+
+    const southRightWall = northRightWall.clone();
+    southRightWall.position.set(safeZoneSize/4 + gateWidth/4, wallHeight/2, safeZoneSize/2);
+    scene.add(southRightWall);
+    walls.push(southRightWall);
+
+    // Side Walls
+    const eastWall = new THREE.Mesh(
+        new THREE.BoxGeometry(wallThickness, wallHeight, safeZoneSize),
+        wallMaterial
+    );
+    eastWall.position.set(safeZoneSize/2, wallHeight/2, 0);
+    scene.add(eastWall);
+    walls.push(eastWall);
+
+    const westWall = new THREE.Mesh(
+        new THREE.BoxGeometry(wallThickness, wallHeight, safeZoneSize),
+        wallMaterial
+    );
+    westWall.position.set(-safeZoneSize/2, wallHeight/2, 0);
+    scene.add(westWall);
+    walls.push(westWall);
+
+    // Gates (enemy barriers only - transparent)
+    const gateMaterial = new THREE.MeshBasicMaterial({ 
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.3
     });
 
-    scene.add(settlementGroup);
+    const northGate = new THREE.Mesh(
+        new THREE.BoxGeometry(gateWidth, wallHeight, wallThickness),
+        gateMaterial
+    );
+    northGate.position.set(0, wallHeight/2, -safeZoneSize/2);
+    scene.add(northGate);
+    enemyWalls.push(northGate);  // Only add to enemyWalls
+
+    const southGate = northGate.clone();
+    southGate.position.set(0, wallHeight/2, safeZoneSize/2);
+    scene.add(southGate);
+    enemyWalls.push(southGate);  // Only add to enemyWalls
 }

@@ -50,3 +50,20 @@ function takeAllChestItems() {
 
     closeChestPopup();
 }
+
+function createTreasureChest(x, y, z) {
+    const chestGeometry = new THREE.BoxGeometry(10, 10, 10);
+    const chestMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+    const chest = new THREE.Mesh(chestGeometry, chestMaterial);
+    chest.position.set(x, y + 5, z);
+
+    chest.userData = {
+        type: 'treasureChest',
+        items: generateRandomItems(3),
+        gold: Math.floor(Math.random() * 100) + 50
+    };
+
+    scene.add(chest);
+    treasureChests.push(chest); // Keep track of treasure chests
+    return chest;
+}

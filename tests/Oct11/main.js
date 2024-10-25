@@ -1,5 +1,3 @@
-
-
 function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
@@ -285,19 +283,6 @@ function onDocumentMouseUp(event) {
     mouseDestination = null;
 }
 
-// Structure Functions:
-function openStructureAdminPopup(structure) {
-	currentStructure = structure;
-	document.getElementById('structureScaleInput').value = structure.scale.x;
-	document.getElementById('structureColorInput').value = '#' + structure.userData.color.getHexString();
-	document.getElementById('structureAdminPopup').style.display = 'block';
-}
-
-function closeStructureAdminPopup() {
-	document.getElementById('structureAdminPopup').style.display = 'none';
-	currentStructure = null;
-}
-
 function saveStructureChanges() {
 	if (currentStructure) {
 		const scale = parseFloat(document.getElementById('structureScaleInput').value);
@@ -354,8 +339,8 @@ function addMapMarkers() {
 
     // Add other markers as needed (e.g., friendly NPCs, settlements)
 }
-   
 
+// Function to create a quadruped
 function createQuadruped(color = 0x996633) {
     const group = new THREE.Group();
 
@@ -472,24 +457,6 @@ function createHumanoid(color) {
     return group;
 }
 
-function animateQuadruped(quadruped, delta) {
-    if (quadruped.isMoving) {
-        quadruped.animationTime += delta * quadruped.animationSpeed;
-        const angle = Math.sin(quadruped.animationTime) * (Math.PI / 6);
-
-        // Front Left & Back Right Legs
-        quadruped.legs[0].rotation.x = angle;
-        quadruped.legs[3].rotation.x = angle;
-
-        // Front Right & Back Left Legs
-        quadruped.legs[1].rotation.x = -angle;
-        quadruped.legs[2].rotation.x = -angle;
-    } else {
-        // Reset leg rotations
-        quadruped.legs.forEach(leg => leg.rotation.x = 0);
-    }
-}
-
 function animateHumanoid(humanoid, delta) {
     if (humanoid.isAttacking) {
         humanoid.attackTime += delta * humanoid.animationSpeed;
@@ -516,23 +483,6 @@ function animateHumanoid(humanoid, delta) {
         humanoid.leftLeg.rotation.x = 0;
         humanoid.rightLeg.rotation.x = 0;
     }
-}
-
-function createTreasureChest(x, y, z) {
-    const chestGeometry = new THREE.BoxGeometry(10, 10, 10);
-    const chestMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
-    const chest = new THREE.Mesh(chestGeometry, chestMaterial);
-    chest.position.set(x, y + 5, z);
-
-    chest.userData = {
-        type: 'treasureChest',
-        items: generateRandomItems(3),
-        gold: Math.floor(Math.random() * 100) + 50
-    };
-
-    scene.add(chest);
-    treasureChests.push(chest); // Keep track of treasure chests
-    return chest;
 }
 
 function createSettlement(x, y, z) {
@@ -566,32 +516,6 @@ function createSettlement(x, y, z) {
 	});
 
 	scene.add(settlementGroup);
-}
-
-// Function to increase a specific stat
-function increaseStat(stat) {
-    if (characterStats.statPoints > 0) {
-        characterStats[stat] += 1;
-        characterStats.statPoints -= 1;
-        updateDisplay();
-    } else {
-        alert('No available stat points!');
-    }
-}
-
-// Example function to handle leveling up
-function levelUp() {
-    if (characterStats.experience >= characterStats.nextLevelExperience) {
-        characterStats.level += 1;
-        characterStats.experience -= characterStats.nextLevelExperience;
-        characterStats.nextLevelExperience = Math.floor(characterStats.nextLevelExperience * 1.5);
-        characterStats.statPoints += 5; // Grant 5 stat points per level
-        alert(`Leveled up to ${characterStats.level}! You have ${characterStats.statPoints} stat points to distribute.`);
-        updateDisplay();
-        
-        // Open trait selection modal upon leveling up
-        openTraitSelection();
-    }
 }
 
 function createSettlementWalls() {
@@ -750,89 +674,6 @@ function getRandomPositionOutsideTown(minDistance, maxDistance) {
     let z = Math.sin(angle) * distance;
     return { x: x, z: z };
 }
-
-function createEnemy(x, y, z, type = 'red') {
-    let color;
-    let damageRate; // Damage per second
-
-    if (type === 'blue') {
-        color = 0x0000ff; // Blue color
-        damageRate = 4; // 2x damage assuming base is 2
-    } else {
-        color = 0xff0000; // Red color
-        damageRate = 2; // Base damage per second
-    }
-
-    const enemy = createHumanoid(color);
-    enemy.position.set(x, 0, z);
-    enemy.userData.type = 'hostile';
-    enemy.userData.isDead = false; 
-    enemy.userData.hasBeenLooted = false; // Initialize flag
-    enemy.userData.deathTime = 0; // Existing initialization
-    enemy.userData.direction = new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
-    enemy.isMoving = true; 
-    enemy.userData.damageRate = damageRate; // Assign damage rate
-    scene.add(enemy);
-    return enemy;
-}
-
-function moveQuadrupeds(delta) {
-    quadrupeds.forEach((quadruped) => {
-        if (quadruped.isDead) return; // Optional: Handle dead quadrupeds
-
-        // Simple wandering logic
-        if (!quadruped.isMoving) {
-            // Decide to move or stay
-            if (Math.random() < 0.01) { // 1% chance to start moving each frame
-                quadruped.isMoving = true;
-                // Random direction
-                const angle = Math.random() * 2 * Math.PI;
-                quadruped.userData.direction.set(Math.cos(angle), 0, Math.sin(angle));
-                // Rotate to face direction
-                quadruped.rotation.y = angle;
-            }
-        } else {
-            // Move in the set direction
-            const moveDistance = globalEnemySpeed * delta * 10; // Adjust speed as needed
-            quadruped.position.add(quadruped.userData.direction.clone().multiplyScalar(moveDistance));
-
-            // Check for collisions with walls
-            let collided = false;
-            for (let wall of walls) {
-                const quadrupedBox = new THREE.Box3().setFromObject(quadruped);
-                const wallBox = new THREE.Box3().setFromObject(wall);
-                if (quadrupedBox.intersectsBox(wallBox)) {
-                    collided = true;
-                    break;
-                }
-            }
-
-            for (let wall of enemyWalls) {
-                const quadrupedBox = new THREE.Box3().setFromObject(quadruped);
-                const wallBox = new THREE.Box3().setFromObject(wall);
-                if (quadrupedBox.intersectsBox(wallBox)) {
-                    collided = true;
-                    break;
-                }
-            }
-
-            if (collided) {
-                quadruped.position.sub(quadruped.userData.direction.clone().multiplyScalar(moveDistance));
-                quadruped.isMoving = false;
-            } else {
-                quadruped.isMoving = true;
-            }
-
-            // Stop moving after a certain distance or time
-            if (Math.random() < 0.005) { // 0.5% chance to stop moving each frame
-                quadruped.isMoving = false;
-            }
-        }
-
-        // Animate quadruped
-        animateQuadruped(quadruped, delta);
-    });
-}
         
 function toggleFullscreenMap() {
     const fullscreenMap = document.getElementById('fullscreenMap');
@@ -917,8 +758,6 @@ function onWindowResize() {
     minimapCamera.bottom = -200;
     minimapCamera.updateProjectionMatrix();
 }
-
-
 
 initMap();
 init();

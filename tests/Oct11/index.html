@@ -397,7 +397,7 @@
             let rotateLeft = false; // Add this variable for rotation
             let currentStructure = null; // Implement Structure Admin Functions
             let rotateRight = false; // Add this variable for rotation
-            let globalEnemySpeed = 0.7; // Global variable for enemy speed
+            let globalEnemySpeed = 0.1; // Global variable for enemy speed
             let activeDamageIntervals = new Map(); // Keep track of active damage intervals
             const collidableTerrainObjects = [];       
             let playerInventory = []; // Player inventory
@@ -534,8 +534,6 @@
             };
 
 
-            // Tooltip Element
-            const tooltip = document.getElementById('tooltip');
             const npc = createHumanoid(color);
         </script>
         <script src="init.js"></script>
@@ -559,8 +557,8 @@
         <script src="neutralanimals.js"></script>
         <script src="hostilequadrupeds.js"></script>
         <script src="settlement.js"></script>
-        <!-- <script src="characterCreation.js"></script> --> 
-        <!-- <script src="characterSprite.js"></script> --> 
+        <script src="characterCreation.js"></script> 
+        <script src="characterSprite.js"></script>
         
         
 

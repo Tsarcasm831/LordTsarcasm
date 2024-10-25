@@ -1,7 +1,5 @@
 // hostilequadrupeds.js
-
-// Array to hold hostile quadrupeds
-let hostileQuadrupeds = [];
+// Function to move hostile quadrupeds
 
 // Function to create a hostile quadruped
 function createHostileQuadruped(x, y, z) {
@@ -27,7 +25,13 @@ function createHostileQuadruped(x, y, z) {
     return hostileQuadruped;
 }
 
-// Function to move hostile quadrupeds
+// Function to spawn hostile quadrupeds
+function addHostileQuadrupeds() {
+    for (let i = 0; i < 5; i++) {
+        let position = getRandomPositionOutsideTown(500, 1500);
+        createHostileQuadruped(position.x, 0, position.z);
+    }
+}
 function moveHostileQuadrupeds(delta) {
     hostileQuadrupeds.forEach((hostileQuadruped) => {
         if (hostileQuadruped.userData.isDead) return;
@@ -215,15 +219,6 @@ function lootAllItemsHostileQuadruped() {
     document.getElementById('lootBar').style.width = '0%';
     alert('Items looted and added to your inventory.');
 }
-
-// Function to spawn hostile quadrupeds
-function addHostileQuadrupeds() {
-    for (let i = 0; i < 5; i++) {
-        let position = getRandomPositionOutsideTown(500, 1500);
-        createHostileQuadruped(position.x, 0, position.z);
-    }
-}
-
 
 // Function to attack a hostile quadruped
 function attackHostileQuadruped(hostileQuadruped) {

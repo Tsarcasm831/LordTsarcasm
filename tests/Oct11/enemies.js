@@ -301,10 +301,6 @@ function moveEnemies(delta) {
     });
 }
 
-
-
-
-
 function attackEnemy(enemy) {
     const attackRange = 20; 
 
@@ -324,11 +320,6 @@ function attackEnemy(enemy) {
 function playAttackAnimation() {
     player.isAttacking = true;
     player.attackTime = 0;
-}
-
-function enemyAttackPlayer(enemy) {
-    const damageAmount = Math.floor(Math.random() * 3) + 1; // Damage between 1 and 3
-    damagePlayer(damageAmount);
 }
 
 function enemyAttackPlayer(enemy, delta) {

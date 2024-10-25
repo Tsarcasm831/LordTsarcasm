@@ -70,10 +70,21 @@ function init() {
     const textureLoader = new THREE.TextureLoader();
     const groundTexture = textureLoader.load(
         'ground.png',
-        () => {
-            console.log('Ground texture loaded successfully.');
+        (texture) => {
+            // Configure texture once it's loaded
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(50, 50); // Larger repeat values for more texture repetition
+            texture.encoding = THREE.sRGBEncoding;
+            texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            
+            // Update the material with the loaded texture
+            groundMaterial.map = texture;
+            groundMaterial.needsUpdate = true;
+            
+            console.log('Ground texture loaded successfully');
         },
-        undefined,
+        undefined, // onProgress callback not needed
         (error) => {
             console.error('Error loading ground texture:', error);
         }
@@ -127,23 +138,7 @@ function init() {
 
     shrineGroup.position.set(0, 0, 0);
     scene.add(shrineGroup);
-
-    // Spawn Red Enemies (Regular)
-    for (let i = 0; i < 10; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let enemy = createEnemy(position.x, 0, position.z, 'red');
-        enemies.push(enemy);
-        scene.add(enemy);
-    }
-
-    // Spawn Blue Enemies
-    for (let i = 0; i < 3; i++) { // Adjust the number as desired
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let blueEnemy = createEnemy(position.x, 0, position.z, 'blue');
-        enemies.push(blueEnemy);
-        scene.add(blueEnemy);
-    }
-
+    
     const structurePositions = [
         // Row 1 (z = 200)
         { x: -200, z: 200 },
@@ -200,66 +195,6 @@ function init() {
 			}
 		});
 	}
-
-	
-
-    // Function to add diverse plants to the terrain
-    function addPlantsToTerrain() {
-        const numElements = 3000; // Total number of natural elements
-
-        const elementTypes = [
-            {
-                // Tree
-				geometry: new THREE.ConeGeometry(20, 200, 20),
-                material: new THREE.MeshLambertMaterial({ color: 0x228B22 }),
-                yOffset: 5,
-            },
-            {
-                geometry: new THREE.CylinderGeometry(0.5, 0.5, 5, 8),
-                material: new THREE.MeshLambertMaterial({ color: 0x8B4513 }),
-                yOffset: 2.5,
-            },
-            {
-                geometry: new THREE.SphereGeometry(3, 8, 8),
-                material: new THREE.MeshLambertMaterial({ color: 0x006400 }),
-                yOffset: 3,
-            },
-			{
-				//Large Bush
-                geometry: new THREE.SphereGeometry(4, 12, 13),
-                material: new THREE.MeshLambertMaterial({ color: 0x006400 }),
-                yOffset: 3,
-            },
-            {
-				//Rock
-                geometry: new THREE.DodecahedronGeometry(3, 2),
-                material: new THREE.MeshLambertMaterial({ color: 0x808080 }),
-                yOffset: 3,
-            },
-        ];
-
-        for (let i = 0; i < numElements; i++) {
-            const typeIndex = Math.floor(Math.random() * elementTypes.length);
-            const element = new THREE.Mesh(
-                elementTypes[typeIndex].geometry,
-                elementTypes[typeIndex].material
-            );
-
-            // Random position within the terrain bounds, avoiding the safe zone
-            let x = Math.random() * 10000 - 5000;
-            let z = Math.random() * 10000 - 5000;
-            while (Math.sqrt(x * x + z * z) < 800) { // Ensure elements are not in the safe zone
-                x = Math.random() * 10000 - 5000;
-                z = Math.random() * 10000 - 5000;
-            }
-
-            element.position.set(x, elementTypes[typeIndex].yOffset, z);
-            element.rotation.y = Math.random() * Math.PI * 2; // Random rotation
-            scene.add(element);
-        }
-    }
-
-    addPlantsToTerrain(); // Call the function to add plants and rocks
 
     window.addEventListener('resize', onWindowResize, false);
     document.addEventListener('keydown', onDocumentKeyDown, false);

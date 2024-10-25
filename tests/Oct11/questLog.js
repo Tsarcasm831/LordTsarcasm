@@ -1,8 +1,5 @@
 // questLog.js
 
-let quests = [];
-let questLogOpen = false;
-
 function initializeQuestLog() {
     // Initialize quests or other necessary setup
     quests = []; // Example initialization
@@ -30,24 +27,11 @@ function completeQuest(questId) {
     updateQuest(questId, { completed: true });
 }
 
-// Update the quest log display in the DOM
-function updateQuestLogDisplay() {
-    const questList = document.getElementById('questList');
-    if (!questList) {
-        console.error("Element with ID 'questList' not found.");
-        return;
-    }
-
-    questList.innerHTML = '';
-
-    quests.forEach(quest => {
-        const questItem = document.createElement('li');
-        questItem.innerHTML = `
-            <strong>${quest.title}</strong> - ${quest.description}
-            ${quest.completed ? '<span style="color: green;">(Completed)</span>' : ''}
-        `;
-        questList.appendChild(questItem);
-    });
+function initializeQuestLogUI() {
+    // Initialize quests or other necessary setup
+    quests = []; // Example initialization
+    questLogOpen = false;
+    // Optionally, preload some quests
 }
 
 // Open the quest log
@@ -71,6 +55,19 @@ function closeQuestLog() {
     } else {
         console.error("Element with ID 'questLog' not found.");
     }
+}
+
+function populateQuestLog() {
+    const questList = document.getElementById('questList');
+    questList.innerHTML = ''; // Clear existing quests
+
+    quests.forEach(quest => {
+        const questItem = document.createElement('li');
+        questItem.innerText = `${quest.name}: ${quest.description}`;
+        questList.appendChild(questItem);
+    });
+
+    // Add more quest details as needed
 }
 
 // Initialize the quest log on script load
