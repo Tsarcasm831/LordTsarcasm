@@ -29,7 +29,7 @@ function createGroundAndSafeZone(scene, enemyWalls) {
     groundShape.lineTo(-5000, 5000);
     groundShape.lineTo(-5000, -5000);
 
-    const safeZoneSize = 300;
+    const safeZoneSize = 600;
     const holePath = new THREE.Path();
     holePath.moveTo(-safeZoneSize, -safeZoneSize);
     holePath.lineTo(-safeZoneSize, safeZoneSize);
@@ -45,14 +45,14 @@ function createGroundAndSafeZone(scene, enemyWalls) {
     ground.name = 'ground';
     scene.add(ground);
 
-    const safeZoneGroundGeometry = new THREE.PlaneGeometry(600, 600);
+    const safeZoneGroundGeometry = new THREE.PlaneGeometry(1200, 1200);
     const safeZoneGroundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
     const safeZoneGround = new THREE.Mesh(safeZoneGroundGeometry, safeZoneGroundMaterial);
     safeZoneGround.rotation.x = -Math.PI / 2;
     safeZoneGround.position.y = 0.1;
     scene.add(safeZoneGround);
 
-    const safeZoneBarrierGeometry = new THREE.BoxGeometry(600, 50, 600);
+    const safeZoneBarrierGeometry = new THREE.BoxGeometry(1200, 50, 1200);
     const safeZoneBarrierMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
     const safeZoneBarrier = new THREE.Mesh(safeZoneBarrierGeometry, safeZoneBarrierMaterial);
     safeZoneBarrier.position.set(0, 25, 0);
@@ -60,6 +60,30 @@ function createGroundAndSafeZone(scene, enemyWalls) {
     enemyWalls.push(safeZoneBarrier);
 
     return { ground, safeZoneGround, safeZoneBarrier };
+    // Create complete wall enclosure
+    const safeZoneWalls = [
+        // North wall
+        createSafeZoneWall(safeZoneSize, wallHeight, 2, 0, wallHeight/2, -safeZoneSize),
+        // South wall
+        createSafeZoneWall(safeZoneSize, wallHeight, 2, 0, wallHeight/2, safeZoneSize),
+        // East wall
+        createSafeZoneWall(2, wallHeight, safeZoneSize, safeZoneSize, wallHeight/2, 0),
+        // West wall
+        createSafeZoneWall(2, wallHeight, safeZoneSize, -safeZoneSize, wallHeight/2, 0),
+    ];
+
+    safeZoneWalls.forEach(wall => {
+        scene.add(wall);
+        walls.push(wall);
+    });
+}
+
+function createSafeZoneWall(width, height, depth, x, y, z) {
+    const wallGeometry = new THREE.BoxGeometry(width, height, depth);
+    const wallMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+    const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+    wall.position.set(x, y, z);
+    return wall;
 }
 
 function createShrine(scene) {
@@ -117,77 +141,6 @@ function createStructuresAndNPCs(scene, walls, structures, friendlies, npcData) 
     });
 }
 
-function createSettlementWalls(scene, walls, enemyWalls) {
-    const wallMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
-    const wallHeight = 30;
-    const wallThickness = 2;
-    const wallLength = 600;
-
-    const northWallLeftGeometry = new THREE.BoxGeometry(wallLength / 2 - 50, wallHeight, wallThickness);
-    const northWallLeft = new THREE.Mesh(northWallLeftGeometry, wallMaterial);
-    northWallLeft.position.set(-wallLength / 4 - 25, wallHeight / 2, -300);
-    scene.add(northWallLeft);
-    walls.push(northWallLeft);
-
-    const northWallRight = new THREE.Mesh(northWallLeftGeometry, wallMaterial);
-    northWallRight.position.set(wallLength / 4 + 25, wallHeight / 2, -300);
-    scene.add(northWallRight);
-    walls.push(northWallRight);
-
-    const gateBarrierGeometry = new THREE.BoxGeometry(100, wallHeight, wallThickness);
-    const gateBarrierMaterial = new THREE.MeshLambertMaterial({ color: 0x000000, transparent: true, opacity: 0 });
-    const northGateBarrier = new THREE.Mesh(gateBarrierGeometry, gateBarrierMaterial);
-    northGateBarrier.position.set(0, wallHeight / 2, -300);
-    scene.add(northGateBarrier);
-    enemyWalls.push(northGateBarrier);
-
-    const southWallLeft = northWallLeft.clone();
-    southWallLeft.position.set(-wallLength / 4 - 25, wallHeight / 2, 300);
-    scene.add(southWallLeft);
-    walls.push(southWallLeft);
-
-    const southWallRight = northWallRight.clone();
-    southWallRight.position.set(wallLength / 4 + 25, wallHeight / 2, 300);
-    scene.add(southWallRight);
-    walls.push(southWallRight);
-
-    const southGateBarrier = northGateBarrier.clone();
-    southGateBarrier.position.set(0, wallHeight / 2, 300);
-    scene.add(southGateBarrier);
-    enemyWalls.push(southGateBarrier);
-
-    const eastWallGeometry = new THREE.BoxGeometry(wallThickness, wallHeight, wallLength);
-    const eastWall = new THREE.Mesh(eastWallGeometry, wallMaterial);
-    eastWall.position.set(300, wallHeight / 2, 0);
-    scene.add(eastWall);
-    walls.push(eastWall);
-
-    const westWall = eastWall.clone();
-    westWall.position.set(-300, wallHeight / 2, 0);
-    scene.add(westWall);
-    walls.push(westWall);
-
-    // Add white walls at gate barriers
-    const northGateWhiteWall = createWhiteWall();
-    northGateWhiteWall.position.set(0, 15, -300); // Position at the gate
-    scene.add(northGateWhiteWall);
-
-    const southGateWhiteWall = createWhiteWall();
-    southGateWhiteWall.position.set(0, 15, 300); // Position at the gate
-    scene.add(southGateWhiteWall);
-
-    // Add to walls array if enemies should collide
-    walls.push(northGateWhiteWall);
-    walls.push(southGateWhiteWall);
-}
-
-function createWhiteWall() {
-    const wallGeometry = new THREE.BoxGeometry(10, 30, 2); // Adjust size as needed
-    const wallMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff }); // White color
-    const whiteWall = new THREE.Mesh(wallGeometry, wallMaterial);
-    whiteWall.userData.isWhiteWall = true; // Flag to identify white walls
-    return whiteWall;
-}
 
 function createStructure() {
     const building = new THREE.Group();
@@ -252,6 +205,8 @@ function createStructure() {
 
     return building;
 }
+
+
 
 function createFriendlyNPC(color = 0x00ff00, name = 'Friendly NPC', dialogue = 'Hello!') {
     const npc = createHumanoid(color);

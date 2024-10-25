@@ -513,6 +513,33 @@ body, html {
     max-width: 200px;
 }
 
+.tooltip-header {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.tooltip-rarity {
+    font-style: italic;
+    color: #FFD700;
+    margin-bottom: 5px;
+}
+
+.tooltip-description {
+    margin-bottom: 5px;
+}
+
+.tooltip-stats {
+    color: #00FF00;
+    white-space: pre-line;
+}
+
+/* Rarity colors */
+.common { color: #FFFFFF; }
+.uncommon { color: #00FF00; }
+.rare { color: #0070DD; }
+.epic { color: #A335EE; }
+.legendary { color: #FF8000; }
+
 /* Additional Styles for Better Usability */
 .admin-tab-content p {
     margin: 10px 0;
@@ -584,6 +611,27 @@ body, html {
 
 #npcAdminPopup button {
     margin-right: 10px;
+}
+
+.inventory-slot {
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.inventory-slot:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+#entityTooltip {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.9);
+    border: 1px solid #444;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 1000;
+    max-width: 300px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 #chestPopup {

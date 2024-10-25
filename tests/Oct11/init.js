@@ -47,9 +47,6 @@ function init() {
     helpWindowOpen = true;
     document.getElementById('helpWindow').style.display = 'block';
 
-    
-    
-
     const groundShape = new THREE.Shape();
     groundShape.moveTo(-5000, -5000);
     groundShape.lineTo(5000, -5000);
@@ -87,9 +84,7 @@ function init() {
     groundTexture.repeat.set(25, 25); // Adjust the repeat to scale the texture as desired
 
 
-    const groundMaterial = new THREE.MeshLambertMaterial({
-        map: groundTexture,
-    });
+    const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
 
     ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;

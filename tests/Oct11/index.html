@@ -1,6 +1,6 @@
 ﻿<html>
     <head>
-        <title>Remnants of Destruction v0.2.7</title>
+        <title>Remnants of Destruction v0.2.9</title>
         <link rel="stylesheet" type="text/css" href="rodstyles.css">
         <!-- Include Three.js -->
         <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
@@ -14,6 +14,48 @@
             <button onclick="closeFullscreenMap()" style="position: absolute; top: 10px; right: 10px; z-index: 201;">Close Map</button>
         </div>
         
+        <!-- Help Window -->
+        <div id="helpWindow">
+            <button id="closeHelp">X</button>
+            <div class="content">
+                <div class="left-column">
+                    <h2>Latest Updates</h2>
+                    <p><strong>Version 0.2.9</strong></p>
+                    <ul class="updates">
+                        <li>Fixed Enemies in Safezone</li>
+                        <li>Fixed Gates of settlement</li>
+                        <li>Improved on-hover elements in inventory (WIP)</li>
+                        <li>Increased "safezone" size</li>
+                        <li>Randomized Enemy Movement</li>
+                    </ul>
+                    <h3><strong>Admin Info:</strong></h3>
+                    <p><strong>Admin Password:</strong> ltwelcome1</p>
+                </div>
+                <div class="right-column">
+                    <h3>Key Bindings:</h3>
+                    <ul class="keybindings">
+                        <li><strong>I</strong> or <strong>B</strong>: Open/Close Inventory</li>
+                        <li><strong>C</strong>: Open/Close Character Stats</li>
+                        <li><strong>Q</strong>: Open/Close Quest Log</li>
+                        <li><strong>T</strong>: Start Teleportation</li>
+                        <li><strong>A</strong>: Rotate Camera Left</li>
+                        <li><strong>D</strong>: Rotate Camera Right</li>
+                        <li><strong>`</strong>: Open/Close Admin Console</li>
+                        <li><strong>H</strong>: Open/Close Help Window</li>
+                        <li><strong>Y</strong>: Open/Close Bestiary</li>
+                    </ul>
+        
+                    <h3>Planned Fixes:</h3>
+                    <ul class="features">
+                        <li>More structures</li>
+                        <li>More NPCs</li>
+                        <li>Fix Item ToolTips</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+
         <!-- Skill Tree Popup -->
         <div id="skillTree" style="display: none;">
             <h2>Skill Tree</h2>
@@ -300,53 +342,6 @@
             </ul>
             <button onclick="closeQuestLog()">Close Quest Log</button>
         </div>
-
-        <!-- Help Window -->
-        <div id="helpWindow">
-            <button id="closeHelp">X</button>
-            <div class="content">
-                <div class="left-column">
-                    <h2>Latest Updates</h2>
-                    <p><strong>Version 0.2.7</strong></p>
-                    <ul class="updates">
-                        <li>Fixed Bestiary</li>
-                        <li>Improved Admin Screen</li>
-                        <li>Fixed on-hover elements to show correct data</li>
-                        <li>Increased "safezone" size</li>
-                        <li>Smoothened camera rotation</li>
-                        <li>Fixed Closing Help Window with the X button</li>
-                    </ul>
-                    <h3><strong>Admin Info:</strong></h3>
-                    <p><strong>Admin Password:</strong> ltwelcome1</p>
-                </div>
-                <div class="right-column">
-                    <h3>Key Bindings:</h3>
-                    <ul class="keybindings">
-                        <li><strong>I</strong> or <strong>B</strong>: Open/Close Inventory</li>
-                        <li><strong>C</strong>: Open/Close Character Stats</li>
-                        <li><strong>Q</strong>: Open/Close Quest Log</li>
-                        <li><strong>T</strong>: Start Teleportation</li>
-                        <li><strong>A</strong>: Rotate Camera Left</li>
-                        <li><strong>D</strong>: Rotate Camera Right</li>
-                        <li><strong>`</strong>: Open/Close Admin Console</li>
-                        <li><strong>H</strong>: Open/Close Help Window</li>
-                        <li><strong>Y</strong>: Open/Close Bestiary</li>
-                    </ul>
-        
-                    <h3>Planned Fixes:</h3>
-                    <ul class="features">
-                        <li>Enemies allowed in safe zone</li>
-                        <li>More structures</li>
-                        <li>More NPCs</li>
-                        <li>Fix Black Ground</li>
-                        <li>Item ToolTips</li>
-                        
-                    </ul>
-                </div>
-            </div>
-        </div>
-        
-        
         
         </div>
 

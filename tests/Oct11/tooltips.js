@@ -14,6 +14,16 @@ entityTooltip.style.display = 'none';
 entityTooltip.style.zIndex = '1000'; // Ensure tooltip is above other elements
 document.body.appendChild(entityTooltip);
 
+// Helper function to find the ancestor with userData.name
+function getEntityWithName(object) {
+    while (object) {
+        if (object.userData && object.userData.name) {
+            return object;
+        }
+        object = object.parent;
+    }
+    return null;
+}
 
 // Function to handle mouse move and show tooltip for entities
 function onMouseMove(event) {
@@ -33,20 +43,23 @@ function onMouseMove(event) {
 
     // Display tooltip based on the first intersected object
     if (enemyIntersects.length > 0) {
-        const enemy = enemyIntersects[0].object;
-        entityTooltip.innerHTML = `<strong>${enemy.userData.name || 'Enemy'}</strong>`;
+        const intersectedObject = enemyIntersects[0].object;
+        const enemy = getEntityWithName(intersectedObject);
+        entityTooltip.innerHTML = `<strong>${(enemy && enemy.userData.name) || 'Enemy'}</strong>`;
         entityTooltip.style.left = `${event.clientX + 10}px`;
         entityTooltip.style.top = `${event.clientY + 10}px`;
         entityTooltip.style.display = 'block';
     } else if (friendlyIntersects.length > 0) {
-        const friendly = friendlyIntersects[0].object;
-        entityTooltip.innerHTML = `<strong>${friendly.userData.name || 'Friendly NPC'}</strong>`;
+        const intersectedObject = friendlyIntersects[0].object;
+        const friendly = getEntityWithName(intersectedObject);
+        entityTooltip.innerHTML = `<strong>${(friendly && friendly.userData.name) || 'Friendly NPC'}</strong>`;
         entityTooltip.style.left = `${event.clientX + 10}px`;
         entityTooltip.style.top = `${event.clientY + 10}px`;
         entityTooltip.style.display = 'block';
     } else if (quadrupedIntersects.length > 0) {
-        const quadruped = quadrupedIntersects[0].object;
-        entityTooltip.innerHTML = `<strong>${quadruped.userData.name || 'Creature'}</strong>`;
+        const intersectedObject = quadrupedIntersects[0].object;
+        const quadruped = getEntityWithName(intersectedObject);
+        entityTooltip.innerHTML = `<strong>${(quadruped && quadruped.userData.name) || 'Creature'}</strong>`;
         entityTooltip.style.left = `${event.clientX + 10}px`;
         entityTooltip.style.top = `${event.clientY + 10}px`;
         entityTooltip.style.display = 'block';
