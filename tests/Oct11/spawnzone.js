@@ -39,12 +39,38 @@ function createGroundAndSafeZone(scene, enemyWalls) {
     groundShape.holes.push(holePath);
 
     const groundGeometry = new THREE.ShapeGeometry(groundShape);
-    const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+    
+    // Create texture loader
+    const textureLoader = new THREE.TextureLoader();
+    
+    // Load the ground texture with proper error handling
+    const groundTexture = textureLoader.load(
+        'images/ground.png',
+        function(texture) {
+            // Success callback
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(50, 50); // Adjust the repeat values to scale the texture appropriately
+            texture.needsUpdate = true;
+        },
+        undefined, // Progress callback (optional)
+        function(error) {
+            console.error('Error loading ground texture:', error);
+        }
+    );
+
+    // Create material with the loaded texture
+    const groundMaterial = new THREE.MeshLambertMaterial({
+        map: groundTexture,
+        side: THREE.DoubleSide
+    });
+
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     ground.name = 'ground';
     scene.add(ground);
 
+    // Create safe zone ground
     const safeZoneGroundGeometry = new THREE.PlaneGeometry(1200, 1200);
     const safeZoneGroundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
     const safeZoneGround = new THREE.Mesh(safeZoneGroundGeometry, safeZoneGroundMaterial);
@@ -52,30 +78,19 @@ function createGroundAndSafeZone(scene, enemyWalls) {
     safeZoneGround.position.y = 0.1;
     scene.add(safeZoneGround);
 
+    // Create invisible barrier for safe zone
     const safeZoneBarrierGeometry = new THREE.BoxGeometry(1200, 50, 1200);
-    const safeZoneBarrierMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
+    const safeZoneBarrierMaterial = new THREE.MeshBasicMaterial({ 
+        color: 0x000000, 
+        transparent: true, 
+        opacity: 0 
+    });
     const safeZoneBarrier = new THREE.Mesh(safeZoneBarrierGeometry, safeZoneBarrierMaterial);
     safeZoneBarrier.position.set(0, 25, 0);
     scene.add(safeZoneBarrier);
     enemyWalls.push(safeZoneBarrier);
 
     return { ground, safeZoneGround, safeZoneBarrier };
-    // Create complete wall enclosure
-    const safeZoneWalls = [
-        // North wall
-        createSafeZoneWall(safeZoneSize, wallHeight, 2, 0, wallHeight/2, -safeZoneSize),
-        // South wall
-        createSafeZoneWall(safeZoneSize, wallHeight, 2, 0, wallHeight/2, safeZoneSize),
-        // East wall
-        createSafeZoneWall(2, wallHeight, safeZoneSize, safeZoneSize, wallHeight/2, 0),
-        // West wall
-        createSafeZoneWall(2, wallHeight, safeZoneSize, -safeZoneSize, wallHeight/2, 0),
-    ];
-
-    safeZoneWalls.forEach(wall => {
-        scene.add(wall);
-        walls.push(wall);
-    });
 }
 
 function createSafeZoneWall(width, height, depth, x, y, z) {
