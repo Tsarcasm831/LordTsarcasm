@@ -102,6 +102,80 @@
     gui.domElement.style.right = '10px';
 
     function init() {
+      // 1. Version Compatibility Check
+      function checkThreeJSCompatibility() {
+        if (typeof THREE === 'undefined') {
+          console.error('THREE.js is not loaded');
+          return false;
+        }
+        
+        // Check for required features
+        const requiredFeatures = {
+          WebGLRenderer: THREE.WebGLRenderer,
+          OrbitControls: THREE.OrbitControls,
+          EffectComposer: THREE.EffectComposer
+        };
+        
+        for (const [feature, implementation] of Object.entries(requiredFeatures)) {
+          if (typeof implementation === 'undefined') {
+            console.error(`Required THREE.js feature missing: ${feature}`);
+            return false;
+          }
+        }
+        
+        return true;
+      }
+
+      // 2. Shader Compatibility Check
+      function checkShaderCompatibility(gl) {
+        const extensions = {
+          required: ['OES_texture_float', 'WEBGL_depth_texture'],
+          optional: ['EXT_shader_texture_lod']
+        };
+        
+        const supported = {
+          required: {},
+          optional: {}
+        };
+        
+        extensions.required.forEach(ext => {
+          supported.required[ext] = gl.getExtension(ext) !== null;
+          if (!supported.required[ext]) {
+            console.error(`Required WebGL extension not supported: ${ext}`);
+          }
+        });
+        
+        extensions.optional.forEach(ext => {
+          supported.optional[ext] = gl.getExtension(ext) !== null;
+        });
+        
+        return supported;
+      }
+
+      // 3. Fallback Implementation
+      function initWithFallbacks() {
+        // Check WebGL support
+        if (!renderer.capabilities.isWebGL2) {
+          console.warn('WebGL 2 not supported, falling back to WebGL 1');
+          // Modify shader versions and features accordingly
+          const shaderMaterials = [realityDistortionField, ...multiversalPortals]
+            .filter(obj => obj && obj.material && obj.material.type === 'ShaderMaterial');
+          
+          shaderMaterials.forEach(obj => {
+            obj.material.vertexShader = obj.material.vertexShader.replace('#version 300 es', '');
+            obj.material.fragmentShader = obj.material.fragmentShader.replace('#version 300 es', '');
+          });
+        }
+        
+        // Check post-processing support
+        if (!THREE.EffectComposer) {
+          console.warn('EffectComposer not supported, falling back to basic rendering');
+          animate = function() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+          };
+        }
+      }
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
       renderer = new THREE.WebGLRenderer({ antialias: true });
