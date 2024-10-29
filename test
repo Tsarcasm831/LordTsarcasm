@@ -1,0 +1,209 @@
+// 1. Core position and boundary management
+function isWithinBounds(position) {
+    return position.x >= -15 && position.x <= 15 &&  // Wider X range
+           position.y >= 1 && position.y <= 15 &&    // Higher ceiling
+           position.z >= -20 && position.z <= 0;     // Deeper Z range
+}
+
+// 2. Enhanced bounding box calculations
+function getObjectBounds(object) {
+    const boundingBox = new THREE.Box3();
+    // Ensure matrix updates before calculating bounds
+    object.updateMatrixWorld(true);
+    boundingBox.setFromObject(object);
+    // Add padding to the bounding box
+    boundingBox.min.subScalar(0.5);
+    boundingBox.max.addScalar(0.5);
+    return boundingBox;
+}
+
+// 3. Improved collision detection
+function doBoxesOverlap(box1, box2) {
+    // Add a small epsilon to prevent floating-point errors
+    const epsilon = 0.001;
+    return box1.intersectsBox(box2) && 
+           Math.abs(box1.min.distanceTo(box2.min)) > epsilon;
+}
+
+// 4. Enhanced position finding with better distribution
+function findFreePosition(objectType = 'default') {
+    const sizePresets = {
+        'screen': { size: new THREE.Vector3(16/9 * 2.5, 2.5, 0.1), padding: 1.5 },
+        'cube': { size: new THREE.Vector3(1, 1, 1), padding: 0.5 },
+        'sphere': { size: new THREE.Vector3(1, 1, 1), padding: 0.5 },
+        'torus': { size: new THREE.Vector3(1.2, 1.2, 0.4), padding: 0.5 },
+        'default': { size: new THREE.Vector3(1, 1, 1), padding: 0.5 }
+    };
+
+    const preset = sizePresets[objectType] || sizePresets.default;
+    const maxAttempts = 100; // Increased attempts
+    let attempts = 0;
+    
+    // Create grid-based positioning
+    const grid = {
+        x: { min: -15, max: 15, step: preset.size.x + preset.padding },
+        y: { min: 1, max: 15, step: preset.size.y + preset.padding },
+        z: { min: -20, max: 0, step: preset.size.z + preset.padding }
+    };
+
+    while (attempts < maxAttempts) {
+        // Try grid-based position first for better organization
+        const gridPosition = attempts < 50 ? new THREE.Vector3(
+            grid.x.min + Math.floor(attempts / 25) * grid.x.step,
+            grid.y.min + (attempts % 5) * grid.y.step,
+            grid.z.min + (attempts % 25) * grid.z.step
+        ) : new THREE.Vector3(
+            Math.random() * (grid.x.max - grid.x.min) + grid.x.min,
+            Math.random() * (grid.y.max - grid.y.min) + grid.y.min,
+            Math.random() * (grid.z.max - grid.z.min) + grid.z.min
+        );
+
+        if (!isWithinBounds(gridPosition)) {
+            attempts++;
+            continue;
+        }
+
+        // Check for collisions
+        const newObjectBox = new THREE.Box3();
+        newObjectBox.setFromCenterAndSize(
+            gridPosition,
+            new THREE.Vector3().addVectors(preset.size, new THREE.Vector3(preset.padding, preset.padding, preset.padding))
+        );
+
+        let hasCollision = false;
+        scene.children.forEach(child => {
+            if (child instanceof THREE.Mesh || child instanceof THREE.Group) {
+                const existingBox = getObjectBounds(child);
+                if (doBoxesOverlap(newObjectBox, existingBox)) {
+                    hasCollision = true;
+                }
+            }
+        });
+
+        if (!hasCollision) {
+            return gridPosition;
+        }
+
+        attempts++;
+    }
+
+    // Fallback position with increased height and random offset
+    return new THREE.Vector3(
+        Math.random() * 10 - 5,
+        15 + Math.random() * 5,
+        -10 + Math.random() * 5
+    );
+}
+
+// 5. Improved video texture creation with proper cleanup
+function createVideoTexture(videoId) {
+    // Remove existing iframe if it exists
+    const existingIframe = document.querySelector(`iframe[data-video-id="${videoId}"]`);
+    if (existingIframe) {
+        existingIframe.remove();
+    }
+
+    // Create new iframe with proper attributes
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = `
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+        width: 640px;
+        height: 360px;
+        pointer-events: none;
+        visibility: hidden;
+    `;
+    iframe.setAttribute('data-video-id', videoId);
+    iframe.setAttribute('allow', 'autoplay');
+    iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&playsinline=1`;
+    document.body.appendChild(iframe);
+
+    // Create and configure the video texture
+    const texture = new THREE.VideoTexture(iframe);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.format = THREE.RGBFormat;
+    texture.generateMipmaps = false;
+
+    // Store iframe reference for cleanup
+    texture.userData = { iframe };
+    
+    return texture;
+}
+
+// 6. Enhanced YouTube screen creation
+function createYoutubeScreen(videoId = 'yJ7R3jxSF_g') {
+    const geometry = new THREE.PlaneGeometry(16 / 9 * 2, 2);
+    const position = findFreePosition('screen');
+    
+    const texture = createVideoTexture(videoId);
+    const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        side: THREE.DoubleSide
+    });
+    
+    const screen = new THREE.Mesh(geometry, material);
+    screen.position.copy(position);
+    screen.rotation.set(0, 0, 0);
+    
+    screen.userData.type = 'youtube-screen';
+    screen.userData.videoId = videoId;
+    screen.userData.iframe = texture.userData.iframe;
+    
+    // Add event listener for cleanup
+    screen.addEventListener('removed', () => {
+        if (screen.userData.iframe) {
+            screen.userData.iframe.remove();
+        }
+        if (screen.material.map) {
+            screen.material.map.dispose();
+        }
+    });
+    
+    scene.add(screen);
+    return screen;
+}
+
+// 7. Enhanced object creation
+function createNewObject(type = 'cube') {
+    const geometries = {
+        cube: new THREE.BoxGeometry(1, 1, 1),
+        sphere: new THREE.SphereGeometry(0.5, 32, 32),
+        torus: new THREE.TorusGeometry(0.5, 0.2, 16, 100)
+    };
+
+    const material = new THREE.MeshPhongMaterial({
+        color: 0x00ffff,
+        transparent: true,
+        opacity: 0.8
+    });
+
+    const object = new THREE.Mesh(geometries[type] || geometries.cube, material);
+    const freePosition = findFreePosition(type);
+    object.position.copy(freePosition);
+    
+    // Add proper cleanup
+    object.addEventListener('removed', () => {
+        object.geometry.dispose();
+        object.material.dispose();
+    });
+    
+    scene.add(object);
+    selectObject(object);
+    return object;
+}
+
+// 8. Cleanup function for scene management
+function cleanupScene() {
+    scene.children.forEach(child => {
+        if (child.userData.type === 'youtube-screen' && child.userData.iframe) {
+            child.userData.iframe.remove();
+        }
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+            if (child.material.map) child.material.map.dispose();
+            child.material.dispose();
+        }
+    });
+}
