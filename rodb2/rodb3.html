@@ -1,0 +1,401 @@
+<html>
+    <head>
+        <title>ROD v0.3.0</title>
+        <link rel="stylesheet" href="styles.css">
+        <style>
+            body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; }
+            canvas { width: 100%; height: 100%; }
+            #info {
+                position: absolute;
+                color: white;
+                background-color: rgba(0,0,0,0.7);
+                padding: 10px;
+                border-radius: 5px;
+                font-size: 14px;
+                top: 10px;
+                left: 10px;
+            }
+            #biome-info {
+                position: absolute;
+                top: 40px;
+                left: 10px;
+                color: white;
+                background-color: rgba(0,0,0,0.7);
+                padding: 5px;
+                border-radius: 5px;
+            }
+            #crosshair {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 20px;
+                height: 20px;
+                border: 2px solid white;
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                pointer-events: none;
+            }
+            #inventory {
+                position: fixed;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: rgba(0, 0, 0, 0.5);
+                border-radius: 5px;
+                padding: 5px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            #hotbar {
+                display: flex;
+                justify-content: center;
+            }
+            .inventory-slot {
+                width: 40px;
+                height: 40px;
+                background-color: rgba(255, 255, 255, 0.2);
+                border: 2px solid #fff;
+                margin: 2px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 20px;
+                color: white;
+                position: relative;
+            }
+            #inventory-grid {
+                display: grid;
+                grid-template-columns: repeat(9, 1fr);
+                gap: 2px;
+                margin-top: 5px;
+            }
+            .item-count {
+                position: absolute;
+                bottom: 2px;
+                right: 2px;
+                font-size: 12px;
+                background-color: rgba(0, 0, 0, 0.5);
+                padding: 1px 3px;
+                border-radius: 3px;
+            }
+            #player-hand-container {
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                width: 200px;
+                height: 200px;
+                perspective: 1000px;
+            }
+            #player-hand-canvas {
+                width: 100%;
+                height: 100%;
+            }
+            #status-bars {
+                position: fixed;
+                bottom: 70px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 200px;
+            }
+            #health-bar, #hunger-bar {
+                width: 100%;
+                height: 20px;
+                background-color: #333;
+                margin-bottom: 5px;
+                border-radius: 10px;
+                overflow: hidden;
+            }
+            #health-bar .bar-fill {
+                height: 100%;
+                background-color: #2ecc71;
+                width: 100%;
+                transition: width 0.3s ease-in-out;
+            }
+            #hunger-bar .bar-fill {
+                height: 100%;
+                background-color: #f1c40f;
+                width: 100%;
+                transition: width 0.3s ease-in-out;
+            }
+            #crafting-menu {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: rgba(0, 0, 0, 0.8);
+                border-radius: 5px;
+                padding: 10px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            #crafting-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 5px;
+                margin-bottom: 10px;
+            }
+            #crafting-result {
+                width: 50px;
+                height: 50px;
+                background-color: rgba(255, 255, 255, 0.2);
+                border: 2px solid #fff;
+                margin-bottom: 10px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 20px;
+                color: white;
+            }
+            #craft-button {
+                background-color: #4CAF50;
+                border: none;
+                color: white;
+                padding: 10px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin: 4px 2px;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+            #pause-screen {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            }
+            #pause-screen h1 {
+                color: white;
+                font-size: 48px;
+            }
+            #admin-console {
+                position: fixed;
+                top: 10%;
+                left: 50%;
+                transform: translate(-50%, 0);
+                background-color: rgba(0, 0, 0, 0.9);
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                z-index: 2000;
+                text-align: left;
+                max-width: 600px;
+                width: 80%;
+                display: flex;
+                flex-direction: column;
+            }
+            .tab-buttons {
+                display: flex;
+                justify-content: space-around;
+                margin-bottom: 20px;
+            }
+            .tab-button {
+                background-color: #333;
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                cursor: pointer;
+                font-size: 16px;
+                border-radius: 5px 5px 0 0;
+            }
+            .tab-button.active {
+                background-color: #555;
+            }
+            .tab-content {
+                display: none;
+            }
+            .tab-content.active {
+                display: block;
+            }
+            .admin-section {
+                margin-bottom: 20px;
+            }
+            .admin-section h3 {
+                margin-top: 0;
+                margin-bottom: 10px;
+            }
+            .admin-section .form-control {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 10px;
+            }
+            .admin-section label {
+                margin-bottom: 5px;
+            }
+            .admin-section select,
+            .admin-section input,
+            .admin-section button {
+                width: 100%;
+                margin-top: 5px;
+                font-size: 16px;
+            }
+            .admin-section button {
+                cursor: pointer;
+                margin-top: 10px;
+            }
+            .admin-section hr {
+                margin: 20px 0;
+                border: none;
+                border-top: 1px solid #444;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="info">WASD to move, Space to jump, Mouse to look</div>
+        <div id="biome-info">Current Biome: Unknown</div>
+        <div id="crosshair"></div>
+        <div id="inventory">
+            <div id="hotbar"></div>
+            <div id="inventory-grid" style="display: none;"></div>
+        </div>
+        <div id="crafting-menu" style="display: none;">
+            <div id="crafting-grid"></div>
+            <div id="crafting-result"></div>
+            <button id="craft-button">Craft</button>
+        </div>
+        <div id="player-hand-container">
+            <canvas id="player-hand-canvas"></canvas>
+        </div>
+        <div id="status-bars">
+        <div id="health-bar">
+            <div class="bar-fill"></div>
+        </div>
+        <div id="hunger-bar">
+            <div class="bar-fill"></div>
+        </div>
+        </div>
+        <div id="pause-screen">
+            <h1>PAUSED</h1>
+        </div>
+        <div id="admin-console" style="display: none;">
+            <h2>Admin Console</h2>
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="spawn">Spawn Objects</button>
+                <button class="tab-button" data-tab="settings">Game Settings</button>
+                <button class="tab-button" data-tab="player-stats">Player Stats</button>
+                <button class="tab-button" data-tab="inventory">Inventory Management</button>
+                <button class="tab-button" data-tab="physics">Game Physics</button>
+                <button class="tab-button" data-tab="mobs">Mob Controls</button>
+            </div>
+            <div class="tab-content active" id="tab-spawn">
+                <div class="admin-section">
+                    <h3>Spawn Objects</h3>
+                    <div class="form-control">
+                        <label for="spawn-object-menu">Select Object to Spawn:</label>
+                        <select id="spawn-object-menu">
+                            <option value="tree">Tree</option>
+                            <option value="rock">Rock</option>
+                            <option value="boulder">Boulder</option>
+                            <option value="apple_tree">Apple Tree</option>
+                            <option value="cactus">Cactus</option>
+                            <option value="palm_tree">Palm Tree</option>
+                            <option value="spider_web">Spider Web</option>
+                            <option value="wooden_wall">Wooden Wall</option>
+                            <option value="wooden_floor">Wooden Floor</option>
+                            <option value="wooden_door">Wooden Door</option>
+                            <option value="stone_wall">Stone Wall</option>
+                            <option value="stone_floor">Stone Floor</option>
+                        </select>
+                    </div>
+                    <button id="spawn-button">Spawn</button>
+                </div>
+            </div>
+            <div class="tab-content" id="tab-settings">
+                <div class="admin-section">
+                    <h3>Game Settings</h3>
+                    <div class="form-control">
+                        <label for="time-of-day">Set Time of Day:</label>
+                        <select id="time-of-day">
+                            <option value="day">Day</option>
+                            <option value="sunset">Sunset</option>
+                            <option value="night">Night</option>
+                            <option value="sunrise">Sunrise</option>
+                        </select>
+                    </div>
+                    <button id="set-time-button">Set Time</button>
+                    <div class="form-control">
+                        <label for="weather">Set Weather:</label>
+                        <select id="weather">
+                            <option value="clear">Clear</option>
+                            <option value="rain">Rain</option>
+                            <option value="snow">Snow</option>
+                        </select>
+                    </div>
+                    <button id="set-weather-button">Set Weather</button>
+                </div>
+            </div>
+            <div class="tab-content" id="tab-player-stats">
+                <div class="admin-section">
+                    <h3>Player Stats</h3>
+                    <div class="form-control">
+                        <label for="player-health">Health:</label>
+                        <input type="number" id="player-health" min="0" max="100" value="100">
+                    </div>
+                    <button id="set-health-button">Set Health</button>
+                    <div class="form-control">
+                        <label for="player-hunger">Hunger:</label>
+                        <input type="number" id="player-hunger" min="0" max="100" value="100">
+                    </div>
+                    <button id="set-hunger-button">Set Hunger</button>
+                </div>
+            </div>
+            <div class="tab-content" id="tab-inventory">
+                <div class="admin-section">
+                    <h3>Inventory Management</h3>
+                    <div class="form-control">
+                        <label for="give-item">Give Item:</label>
+                        <select id="give-item">
+                            <option value="Apple">Apple</option>
+                            <option value="Stick">Stick</option>
+                            <option value="Stone">Stone</option>
+                            <option value="Coconut">Coconut</option>
+                            <option value="Hammer">Hammer</option>
+                            <option value="Wooden Wall">Wooden Wall</option>
+                            <option value="Wooden Floor">Wooden Floor</option>
+                            <option value="Wooden Door">Wooden Door</option>
+                            <option value="Stone Wall">Stone Wall</option>
+                            <option value="Stone Floor">Stone Floor</option>
+                        </select>
+                    </div>
+                    <button id="give-item-button">Give Item</button>
+                </div>
+            </div>
+            <div class="tab-content" id="tab-physics">
+                <div class="admin-section">
+                    <h3>Game Physics Settings</h3>
+                    <div class="form-control">
+                        <label for="gravity">Gravity:</label>
+                        <input type="number" id="gravity" value="-9.8" step="0.1">
+                    </div>
+                    <button id="set-gravity-button">Set Gravity</button>
+                    <div class="form-control">
+                        <label for="jump-force">Jump Force:</label>
+                        <input type="number" id="jump-force" value="7" step="0.1">
+                    </div>
+                    <button id="set-jump-force-button">Set Jump Force</button>
+                </div>
+            </div>
+            <div class="tab-content" id="tab-mobs">
+                <div class="admin-section">
+                    <h3>Mob Controls</h3>
+                    <button id="spawn-mob-button">Spawn Mob</button>
+                    <button id="remove-mobs-button">Remove All Mobs</button>
+                </div>
+            </div>
+        </div>
+    
+
+    
+    <script type="module" src="main.js"></script>
+    
+    </body>
+    </html>
