@@ -2,9 +2,11 @@
 
 // Import necessary modules
 import { WeatherSystem } from './weather.js';
-import * as THREE from 'https://unpkg.com/three@0.152.2/build/three.module.js';
-import * as BufferGeometryUtils from './libs/BufferGeometryUtils.js';
-import { SimplexNoise } from './libs/SimplexNoise.js';
+import * as THREE from './node_modules/three/build/three.module.js';
+import * as BufferGeometryUtils from './node_modules/three/examples/jsm/utils/BufferGeometryUtils.js';
+import SimplexNoise from './node_modules/simplex-noise/dist/esm/simplex-noise.js';
+
+
 
 // Define global variables and constants
 
