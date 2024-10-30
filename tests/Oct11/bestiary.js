@@ -439,7 +439,12 @@ function displayRaceDetails(creatureKey) {
     const detailsContent = document.getElementById('creatureDetailsContent');
 
     detailsContent.innerHTML = `
-        <img src="${creature.highResImage.src}" alt="${creature.name}" class="creature-detail-image">
+        <div class="creature-detail-header">
+            <img src="${creature.highResImage.src}" alt="${creature.name}" class="creature-detail-image">
+            <div class="stats-container">
+                ${generateStatsHTML(creature.stats)}
+            </div>
+        </div>
         <h2>${creature.name}</h2>
         <p>${creature.extendedDescription}</p>
         <h3>History</h3>
@@ -448,10 +453,6 @@ function displayRaceDetails(creatureKey) {
         <p>${creature.abilities}</p>
         <h3>Culture</h3>
         <p>${creature.culture}</p>
-        <h3>Stats</h3>
-        <div class="stats-container">
-            ${generateStatsHTML(creature.stats)}
-        </div>
         <div id="model-container-${creatureKey}" class="model-container"></div>
     `;
 
