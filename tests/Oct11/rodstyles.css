@@ -833,6 +833,7 @@ body, html {
     overflow-y: auto; /* Scroll vertically if content is too long */
     border-radius: 10px;
     position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9); /* Enhanced shadow for better depth */
 }
 
 /* Bestiary Content Styles */
@@ -844,57 +845,64 @@ body, html {
 }
 
 .creature-card {
-    border: 1px solid #555;
+    border: 2px solid #555;
     border-radius: 10px;
     padding: 15px;
     margin: 10px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     background-color: #292929;
-    transition: background 0.3s;
+    transition: background 0.3s, box-shadow 0.3s;
     width: 100%;
-    max-width: 350px; /* Adjusted for better fit */
+    max-width: 300px; /* Adjusted for better fit */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
 }
 
 .creature-card:hover {
     background-color: #3a3a3a;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); /* Enhanced hover effect */
 }
 
 .creature-image {
-    width: 150px;
-    height: 150px;
+    width: 180px;
+    height: 180px;
     object-fit: cover;
     border-radius: 10px;
-    margin-right: 20px;
+    margin-bottom: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
 }
 
 .creature-info {
-    flex: 1;
+    text-align: center;
 }
 
 .creature-info h3 {
     margin: 0 0 10px 0;
     color: #FFD700;
+    font-size: 1.5em;
 }
 
 .creature-info p {
-    margin: 0 0 10px 0;
+    margin: 0 0 15px 0;
     color: #e0e0e0;
+    font-size: 1em;
 }
 
 .view-details-button {
-    padding: 8px 12px;
+    padding: 10px 15px;
     background-color: #8B0000;
     color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 1em;
 }
 
 .view-details-button:hover {
     background-color: #FF6347;
+    transform: scale(1.05);
 }
 
 /* Creature Details Modal Styles */
@@ -920,7 +928,7 @@ body, html {
     background-color: #1A1A1A;
     color: #e0e0e0;
     margin: 5% auto; /* 5% from the top and centered */
-    padding: 20px;
+    padding: 30px;
     border: 2px solid #FFD700;
     width: 90%; /* Could be more or less, depending on screen size */
     max-width: 1000px;
@@ -928,23 +936,29 @@ body, html {
     overflow-y: auto; /* Scroll vertically if content is too long */
     border-radius: 10px;
     position: relative;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.9); /* Enhanced shadow for better depth */
 }
 
 /* Detailed Image */
 .creature-detail-image {
     width: 100%;
-    max-width: 600px;
+    max-width: 500px;
     height: auto;
     border-radius: 8px;
     margin-bottom: 20px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+    transition: transform 0.3s ease-in-out;
+}
+
+.creature-detail-image:hover {
+    transform: scale(1.02);
 }
 
 /* Stats Container */
 .stats-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 15px;
     margin-top: 20px;
 }
 
@@ -959,6 +973,7 @@ body, html {
     width: 60px;
     font-weight: bold;
     color: #FFD700;
+    font-size: 1.1em;
 }
 
 .stat-bar {
@@ -993,14 +1008,13 @@ body, html {
 @media (max-width: 1200px) {
     .creature-card {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         max-width: 100%;
     }
 
     .creature-image {
         width: 100%;
         height: auto;
-        margin-right: 0;
         margin-bottom: 15px;
     }
 
