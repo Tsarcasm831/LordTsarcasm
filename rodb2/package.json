@@ -2,5 +2,8 @@
   "dependencies": {
     "simplex-noise": "^4.0.3",
     "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.169.0"
   }
 }

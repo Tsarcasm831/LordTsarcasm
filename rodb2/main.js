@@ -3,7 +3,6 @@
 // Import necessary modules
 import { WeatherSystem } from './weather.js';
 import * as THREE from './node_modules/three/build/three.module.js';
-import * as BufferGeometryUtils from './node_modules/three/examples/jsm/utils/BufferGeometryUtils.js';
 import SimplexNoise from './node_modules/simplex-noise/dist/esm/simplex-noise.js';
 
 
@@ -184,7 +183,7 @@ const inventory = {
     updateUI: function() {
         const hotbar = document.getElementById('hotbar');
         const inventoryGrid = document.getElementById('inventory-grid');
-        
+
         hotbar.innerHTML = '';
         inventoryGrid.innerHTML = '';
 
@@ -201,7 +200,7 @@ const inventory = {
             }
             slot.addEventListener('click', () => this.selectSlot(i));
             if (i === this.selectedSlot) slot.classList.add('selected');
-            
+
             slot.draggable = true;
             slot.addEventListener('dragstart', this.dragStart.bind(this));
             slot.addEventListener('dragover', this.dragOver);
@@ -249,7 +248,7 @@ const inventory = {
         e.preventDefault();
         const fromSlot = parseInt(e.dataTransfer.getData('text'));
         const toSlot = parseInt(e.target.getAttribute('data-slot'));
-        
+
         if (fromSlot !== toSlot) {
             const temp = this.items[fromSlot];
             this.items[fromSlot] = this.items[toSlot];
@@ -258,7 +257,7 @@ const inventory = {
             updateInHandDisplay();
         }
     },
-    
+
     createItemMesh: function(item) {
         let geometry, material;
         switch (item) {
@@ -344,7 +343,7 @@ const crafting = {
     updateUI: function() {
         const craftingGrid = document.getElementById('crafting-grid');
         const craftingResult = document.getElementById('crafting-result');
-        
+
         craftingGrid.innerHTML = '';
         for (let i = 0; i < 4; i++) {
             const slot = document.createElement('div');
@@ -428,7 +427,7 @@ const crafting = {
 };
 
 
-// Implement updateInHandDisplay, lockPointer, createPlayer, updateStatusBars, initInventory, 
+// Implement updateInHandDisplay, lockPointer, createPlayer, updateStatusBars, initInventory,
 function updateInHandDisplay() {
     const canvas = document.getElementById('player-hand-canvas');
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
@@ -486,7 +485,7 @@ function initInventory() {
         } else if (event.code >= 'Digit1' && event.code <= 'Digit9') {
             inventory.selectSlot(parseInt(event.code.charAt(5)) - 1);
             updateInHandDisplay();
-        } else if (event.code === 'KeyP') { 
+        } else if (event.code === 'KeyP') {
             togglePause();
         }
         if (event.code === 'Backquote') {
@@ -574,7 +573,7 @@ function initInventory() {
     });
 }
 
-// toggleAdminConsole, spawnObject, spawnMobs, togglePause, createWater, createBreakingIndicator, 
+// toggleAdminConsole, spawnObject, spawnMobs, togglePause, createWater, createBreakingIndicator,
 function toggleAdminConsole() {
     const adminConsole = document.getElementById('admin-console');
     if (adminConsole.style.display === 'none') {
@@ -691,7 +690,7 @@ function createBreakingIndicator() {
     return indicator;
 }
 
-// createSun, createWoodenFloor, createWoodenWall, createWoodenDoor, createStoneWall, createStoneFloor, 
+// createSun, createWoodenFloor, createWoodenWall, createWoodenDoor, createStoneWall, createStoneFloor,
 function createSun() {
     const sunGeometry = new THREE.SphereGeometry(50, 32, 32);
     const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
@@ -780,7 +779,7 @@ function init() {
 
     renderer.domElement.addEventListener('click', lockPointer);
     document.addEventListener('pointerlockchange', onPointerLockChange);
-    
+
     document.addEventListener('mousedown', onMouseDown);
     document.addEventListener('mouseup', onMouseUp);
     document.addEventListener('keydown', onKeyDown);
@@ -807,10 +806,10 @@ function onMouseMove(event) {
 }
 
 function decreaseHunger() {
-    if (isLocked && !isPaused) {  
-        hunger = Math.max(0, hunger - 0.01);  
+    if (isLocked && !isPaused) {
+        hunger = Math.max(0, hunger - 0.01);
         if (hunger === 0) {
-            health = Math.max(0, health - 0.01);  
+            health = Math.max(0, health - 0.01);
         }
         updateStatusBars();
     }
@@ -879,9 +878,9 @@ function animate() {
             water.position.z = camera.position.z;
 
             camera.getWorldDirection(direction);
-            
-            decreaseHunger();  
-            
+
+            decreaseHunger();
+
             for (let mob of mobs) {
                 mob.update(delta);
             }
@@ -892,7 +891,7 @@ function animate() {
                  document.exitPointerLock();
              }
          }
- 
+
          const sunRotationSpeed = 0.1;
          const sun = scene.getObjectByName('sun');
          if (sun) {
@@ -900,7 +899,7 @@ function animate() {
              sun.position.y = 500 * Math.sin(sunRotationSpeed * Date.now() / 1000) + 500;
              sun.position.z = 1000 * Math.sin(sunRotationSpeed * Date.now() / 1000);
          }
- 
+
          updateChunks();
          updateWeather();
          renderer.render(scene, camera);
@@ -967,7 +966,7 @@ function onMouseDown(event) {
     if (isLocked) {
         mouseDown = true;
         mouseDownTime = Date.now();
-        
+
         raycaster.setFromCamera(new THREE.Vector2(), camera);
         const intersects = raycaster.intersectObjects(interactableObjects.map(obj => obj.mesh));
         if (intersects.length > 0) {
@@ -991,7 +990,7 @@ function onMouseDown(event) {
         const selectedItem = inventory.items[inventory.selectedSlot];
         if (selectedItem && selectedItem.name === 'Apple') {
             inventory.removeItem(inventory.selectedSlot);
-            hunger = Math.min(100, hunger + 20);  
+            hunger = Math.min(100, hunger + 20);
             updateStatusBars();
             updateInHandDisplay();
         }
@@ -1022,8 +1021,8 @@ function onKeyDown(event) {
         case 'KeyA': moveLeft = true; break;
         case 'KeyD': moveRight = true; break;
         case 'Space': if (canJump) jump = true; break;
-        case 'KeyP': 
-            togglePause(); 
+        case 'KeyP':
+            togglePause();
             break;
     }
 }
@@ -1046,9 +1045,9 @@ function onMouseUp(event) {
 }
 
 
-// getBiome, 
-// getCurrentBiome, updateBiomeInfo, generateChunkTerrain, 
-// createCactus, createAppleTree, createPalmTree, createStylizedTree, createRock, 
+// getBiome,
+// getCurrentBiome, updateBiomeInfo, generateChunkTerrain,
+// createCactus, createAppleTree, createPalmTree, createStylizedTree, createRock,
 // createBoulder, createSpiderWeb, getTerrainHeight, updateChunks, setTimeOfDay, setWeather, breakObject, onMouseDown, onPointerLockChange, onWindowResize, onKeyDown, onKeyUp, onMouseUp, onMouseMove, decreaseHunger, etc.
 
 // Example: Implement getBiome, getCurrentBiome, updateBiomeInfo
@@ -1058,7 +1057,7 @@ function getBiome(x, z) {
     const denseForestNoise = simplex.noise2D(x / 500, z / 500);
     const groveNoise = simplex.noise2D(x / 300, z / 300);
     const beachNoise = simplex.noise2D(x / 200, z / 200);
-    
+
     const terrainHeight = getTerrainHeight(x, z);
     const waterSurfaceHeight = settings.terrainHeight * settings.waterLevel - 10;
     const nearWater = Math.abs(terrainHeight - waterSurfaceHeight) < 5;
@@ -1107,11 +1106,11 @@ function generateChunkTerrain(chunkX, chunkZ) {
     for (let i = 0; i < vertices.length; i += 3) {
         const x = vertices[i] + chunkX * settings.chunkSize;
         const z = vertices[i + 2] + chunkZ * settings.chunkSize;
-        
+
         const baseNoise = simplex.noise2D(x / 500, z / 500);
         const detailNoise = simplex.noise2D(x / 100, z / 100) * 0.5;
         const combinedNoise = (baseNoise + detailNoise) / 1.5;
-        
+
         vertices[i + 1] = combinedNoise * settings.terrainHeight;
 
         const biome = getBiome(x, z);
@@ -1193,7 +1192,7 @@ function generateChunkTerrain(chunkX, chunkZ) {
         }
     }
 
-    const webCount = 3; 
+    const webCount = 3;
     for (let i = 0; i < webCount; i++) {
         const x = Math.random() * settings.chunkSize;
         const z = Math.random() * settings.chunkSize;
@@ -1204,7 +1203,7 @@ function generateChunkTerrain(chunkX, chunkZ) {
 
         if (biome === biomes.DESERT && y > settings.terrainHeight * settings.waterLevel - 10) {
             const web = createSpiderWeb();
-            web.position.set(x, y + 1, z); 
+            web.position.set(x, y + 1, z);
             chunkGroup.add(web);
             interactableObjects.push({ mesh: web, type: 'spider_web', health: 10 });
         }
@@ -1367,7 +1366,7 @@ function createRock() {
 }
 
 function createBoulder() {
-    const geometry = new THREE.DodecahedronGeometry(Math.random() * 2 + 2, 1); 
+    const geometry = new THREE.DodecahedronGeometry(Math.random() * 2 + 2, 1);
     const material = new THREE.MeshPhongMaterial({ color: 0x808080 });
     const boulder = new THREE.Mesh(geometry, material);
     boulder.castShadow = true;
@@ -1376,7 +1375,7 @@ function createBoulder() {
 }
 
 function createSpiderWeb() {
-    const webGeometry = new THREE.CircleGeometry(2, 6); 
+    const webGeometry = new THREE.CircleGeometry(2, 6);
     const webMaterial = new THREE.MeshPhongMaterial({
         color: 0xffffff,
         transparent: true,
@@ -1384,7 +1383,7 @@ function createSpiderWeb() {
         side: THREE.DoubleSide
     });
     const web = new THREE.Mesh(webGeometry, webMaterial);
-    web.rotation.x = -Math.PI / 2; 
+    web.rotation.x = -Math.PI / 2;
     return web;
 }
 
@@ -1412,7 +1411,7 @@ function updateChunks() {
         const distance = Math.max(Math.abs(chunkX - playerChunkX), Math.abs(chunkZ - playerChunkZ));
         chunk.visible = distance <= settings.renderDistance;
     }
-    
+
     updateBiomeInfo();
 }
 
@@ -1425,3 +1424,4 @@ function onPointerLockChange() {
 }
 
 init();
+
