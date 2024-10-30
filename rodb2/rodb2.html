@@ -254,6 +254,14 @@
 <div id="info">WASD to move, Space to jump, Mouse to look</div>
 <div id="biome-info">Current Biome: Unknown</div>
 <div id="crosshair"></div>
+<div class="form-control">
+    <label for="mob-type-select">Select Mob Type:</label>
+    <select id="mob-type-select">
+        <option value="Goblin">Goblin</option>
+        <option value="Orc">Orc</option>
+        <option value="Troll">Troll</option>
+    </select>
+</div>
 <div id="inventory">
     <div id="hotbar"></div>
     <div id="inventory-grid" style="display: none;"></div>
@@ -440,8 +448,10 @@ const mobs = [];
 const clock = new THREE.Clock();
 
 class Mob {
-    constructor(position) {
-        this.mesh = this.createMesh();
+    constructor(position, type = 'Goblin') {
+        this.type = type;
+        this.name = type;
+        this.mesh = this.createMesh(type);
         this.mesh.position.copy(position);
         scene.add(this.mesh);
         this.direction = new THREE.Vector3(
@@ -449,17 +459,214 @@ class Mob {
             0,
             (Math.random() - 0.5)
         ).normalize();
-        this.speed = 1.5;
-        this.health = 50;
+
+        // Set attributes based on mob type
+        switch(type) {
+            case 'Goblin':
+                break;
+            case 'Orc':
+                break;
+            case 'Troll':
+                break;
+            default:
+                this.speed = 1.0;
+                this.health = 60;
+        }
+
+        this.createNameTag();
+        // Create walking animation
+        this.createWalkingAnimation();
+        const skeletonHelper = new THREE.SkeletonHelper(this.mesh);
+        scene.add(skeletonHelper);
+        interactableObjects.push({ mesh: this.mesh, type: 'mob', health: this.health });
+
     }
 
-    createMesh() {
-        const geometry = new THREE.BoxGeometry(1, 2, 1);
-        const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-        const mesh = new THREE.Mesh(geometry, material);
+    createIdleAnimation() {
+    // No movement, but you can add slight breathing or idle motions
+        const times = [0, 1];
+        const values = [0, 0];
+
+        const tracks = [
+            new THREE.NumberKeyframeTrack('.bones[leftArm].rotation[x]', times, values),
+            new THREE.NumberKeyframeTrack('.bones[rightArm].rotation[x]', times, values),
+            new THREE.NumberKeyframeTrack('.bones[leftLeg].rotation[x]', times, values),
+            new THREE.NumberKeyframeTrack('.bones[rightLeg].rotation[x]', times, values),
+        ];
+
+        const clip = new THREE.AnimationClip('idle', -1, tracks);
+        this.idleAction = this.mixer.clipAction(clip);
+        this.idleAction.loop = THREE.LoopRepeat;
+        this.idleAction.play();
+    }
+
+    createMesh(type) {
+        let mesh;
+        switch(type) {
+            case 'Goblin':
+                mesh = this.createHumanoidMesh(0x00ff00); // Green color for Goblin
+                this.speed = 2.0;
+                this.health = 50;
+                break;
+            case 'Orc':
+                mesh = this.createHumanoidMesh(0x0000ff); // Blue color for Orc
+                this.speed = 1.5;
+                this.health = 80;
+                break;
+            case 'Troll':
+                mesh = this.createHumanoidMesh(0x800080); // Purple color for Troll
+                this.speed = 1.0;
+                this.health = 120;
+                break;
+            default:
+                mesh = this.createHumanoidMesh(0xff0000); // Default Red color
+                this.speed = 1.0;
+                this.health = 60;
+        }
         mesh.castShadow = true;
         mesh.receiveShadow = true;
         return mesh;
+    }
+
+    createHumanoidMesh(color) {
+    // Geometry for the humanoid mesh
+    const geometry = new THREE.BoxGeometry(1, 2, 0.5, 1, 1, 1);
+    geometry.translate(0, 1, 0); // Shift the geometry to align with bones
+
+    // Create bones
+    const bones = [];
+
+    // Root bone (hips)
+    const rootBone = new THREE.Bone();
+    rootBone.name = 'root';
+    rootBone.position.y = 0; // Hips at y = 0
+    bones.push(rootBone);
+
+    // Spine bone
+    const spineBone = new THREE.Bone();
+    spineBone.name = 'spine';
+    spineBone.position.y = 1; // Spine is 1 unit above hips
+    rootBone.add(spineBone);
+
+    // Left leg bone
+    const leftLegBone = new THREE.Bone();
+    leftLegBone.name = 'leftLeg';
+    leftLegBone.position.x = -0.5;
+    leftLegBone.position.y = -1; // Leg is 1 unit below hips
+    rootBone.add(leftLegBone);
+
+    // Right leg bone
+    const rightLegBone = new THREE.Bone();
+    rightLegBone.name = 'rightLeg';
+    rightLegBone.position.x = 0.5;
+    rightLegBone.position.y = -1;
+    rootBone.add(rightLegBone);
+
+    // Left arm bone
+    const leftArmBone = new THREE.Bone();
+    leftArmBone.name = 'leftArm';
+    leftArmBone.position.x = -0.75;
+    leftArmBone.position.y = 1; // Arms are 1 unit above spine
+    spineBone.add(leftArmBone);
+
+    // Right arm bone
+    const rightArmBone = new THREE.Bone();
+    rightArmBone.name = 'rightArm';
+    rightArmBone.position.x = 0.75;
+    rightArmBone.position.y = 1;
+    spineBone.add(rightArmBone);
+
+    // Head bone
+    const headBone = new THREE.Bone();
+    headBone.name = 'head';
+    headBone.position.y = 1; // Head is 1 unit above spine
+    spineBone.add(headBone);
+
+    // Create the skeleton
+    const skeleton = new THREE.Skeleton(bones);
+
+    // Create arrays for skin indices and weights
+    const skinIndices = [];
+    const skinWeights = [];
+
+    // Assign vertices to bones
+    for (let i = 0; i < geometry.attributes.position.count; i++) {
+        const vertex = new THREE.Vector3().fromBufferAttribute(geometry.attributes.position, i);
+
+        // Default to root bone
+        let skinIndex = 0;
+        let skinWeight = 1;
+
+        if (vertex.y < 1) {
+            // Assign to legs
+            if (vertex.x < 0) {
+                skinIndex = 2; // Left leg bone
+            } else {
+                skinIndex = 3; // Right leg bone
+            }
+        } else if (vertex.y > 2.5) {
+            skinIndex = 6; // Head bone
+        } else if (vertex.y > 2) {
+            if (vertex.x < -0.5) {
+                skinIndex = 4; // Left arm bone
+            } else if (vertex.x > 0.5) {
+                skinIndex = 5; // Right arm bone
+            } else {
+                skinIndex = 1; // Spine bone
+            }
+        } else {
+            skinIndex = 1; // Spine bone
+        }
+
+        // Push the skin index and weight for the vertex
+        skinIndices.push(skinIndex, 0, 0, 0);
+        skinWeights.push(skinWeight, 0, 0, 0);
+    }
+
+    // Set the attributes on the geometry
+    geometry.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(skinIndices, 4));
+    geometry.setAttribute('skinWeight', new THREE.Float32BufferAttribute(skinWeights, 4));
+
+    // Material
+    const material = new THREE.MeshPhongMaterial({
+        color: color,
+        skinning: true,
+    });
+
+    // Create the SkinnedMesh
+    const mesh = new THREE.SkinnedMesh(geometry, material);
+    mesh.add(rootBone);
+    mesh.bind(skeleton);
+
+    // Store references for animation
+    this.skeleton = skeleton;
+    this.bones = {
+        root: rootBone,
+        spine: spineBone,
+        leftLeg: leftLegBone,
+        rightLeg: rightLegBone,
+        leftArm: leftArmBone,
+        rightArm: rightArmBone,
+        head: headBone,
+    };
+
+    return mesh;
+}
+
+
+    createNameTag() {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        context.font = '20px Arial';
+        context.fillStyle = 'white';
+        context.fillText(this.name, 0, 20);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+        this.nameTag = new THREE.Sprite(spriteMaterial);
+        this.nameTag.scale.set(10, 5, 1);
+        this.nameTag.position.set(0, 3, 0); // Position above the mob
+        this.mesh.add(this.nameTag);
     }
 
     update(delta) {
@@ -467,12 +674,26 @@ class Mob {
         const movement = this.direction.clone().multiplyScalar(moveDistance);
         this.mesh.position.add(movement);
 
+        // Rotate the mob to face the movement direction
+        this.mesh.lookAt(this.mesh.position.clone().add(this.direction));
+
         if (Math.random() < 0.02) {
             this.direction.set(
                 (Math.random() - 0.5),
                 0,
                 (Math.random() - 0.5)
             ).normalize();
+        }
+
+        // Update animation mixer
+        if (this.mixer) {
+            this.mixer.update(delta);
+        }
+
+        // Adjust the speed of the animation based on movement speed
+        if (this.walkAction) {
+            const speedFactor = this.speed / 2; // Adjust denominator as needed
+            this.walkAction.timeScale = speedFactor;
         }
 
         const terrainHeight = getTerrainHeight(this.mesh.position.x, this.mesh.position.z);
@@ -484,7 +705,101 @@ class Mob {
         if (distanceToPlayer < 2) {
             this.attackPlayer();
         }
+
+        // Update name tag orientation
+        if (this.nameTag) {
+            this.nameTag.lookAt(camera.position);
+        }
+
+        // Determine if mob is moving
+        const isMoving = movement.lengthSq() > 0.0001;
+
+        if (isMoving) {
+            // Play walking animation
+            if (this.walkAction && !this.walkAction.isRunning()) {
+                this.idleAction.stop();
+                this.walkAction.play();
+            }
+        } else {
+            // Play idle animation
+            if (this.idleAction && !this.idleAction.isRunning()) {
+                this.walkAction.stop();
+                this.idleAction.play();
+            }
+        }
+        
+        // Adjust the speed of the animation based on movement speed
+        if (this.walkAction) {
+            const speedFactor = this.speed / 2; // Adjust denominator as needed
+            this.walkAction.timeScale = speedFactor;
+        }
+         // Rotate the mob to face movement direction
+        if (this.direction.lengthSq() > 0.001) {
+            const targetQuaternion = new THREE.Quaternion();
+            targetQuaternion.setFromUnitVectors(
+                new THREE.Vector3(0, 0, 1), // Assuming the mesh faces +Z
+                this.direction.clone().normalize()
+            );
+            this.mesh.quaternion.slerp(targetQuaternion, 0.1); // Smooth rotation
+        }
     }
+
+    createWalkingAnimation() {
+        const times = [0, 0.5, 1]; // Animation keyframe times
+
+        // Left leg rotation around X-axis
+        const leftLegRotationValues = [
+            Math.PI / 4,  // Forward
+            -Math.PI / 4, // Backward
+            Math.PI / 4,  // Forward
+        ];
+
+        // Right leg rotation around X-axis (opposite of left leg)
+        const rightLegRotationValues = [
+            -Math.PI / 4, // Backward
+            Math.PI / 4,  // Forward
+            -Math.PI / 4, // Backward
+        ];
+
+        // Similar for arms but inverse
+        const leftArmRotationValues = [
+            -Math.PI / 4, // Backward
+            Math.PI / 4,  // Forward
+            -Math.PI / 4, // Backward
+        ];
+
+        const rightArmRotationValues = [
+            Math.PI / 4,  // Forward
+            -Math.PI / 4, // Backward
+            Math.PI / 4,  // Forward
+        ];
+
+        // Create keyframe tracks
+        const tracks = [];
+
+        tracks.push(
+            new THREE.NumberKeyframeTrack('.bones["leftLeg"].rotation[x]', times, leftLegRotationValues)
+        );
+        tracks.push(
+            new THREE.NumberKeyframeTrack('.bones["rightLeg"].rotation[x]', times, rightLegRotationValues)
+        );
+        tracks.push(
+            new THREE.NumberKeyframeTrack('.bones["leftArm"].rotation[x]', times, leftArmRotationValues)
+        );
+        tracks.push(
+            new THREE.NumberKeyframeTrack('.bones["rightArm"].rotation[x]', times, rightArmRotationValues)
+        );
+
+        // Create the clip
+        const clip = new THREE.AnimationClip('walk', -1, tracks);
+
+        // Create the mixer and action
+        this.mixer = new THREE.AnimationMixer(this.mesh);
+        this.walkAction = this.mixer.clipAction(clip);
+        this.walkAction.loop = THREE.LoopRepeat;
+        this.walkAction.play();
+    }
+
 
     attackPlayer() {
         health = Math.max(0, health - 0.1);
@@ -877,10 +1192,20 @@ function initInventory() {
     });
 
     document.getElementById('craft-button').addEventListener('click', () => crafting.craft());
-    document.getElementById('spawn-button').addEventListener('click', () => {
-        const selectedObject = document.getElementById('spawn-object-menu').value;
-        spawnObject(selectedObject);
+    document.getElementById('spawn-mob-button').addEventListener('click', () => {
+        const x = player.position.x + (Math.random() - 0.5) * 20;
+        const z = player.position.z + (Math.random() - 0.5) * 20;
+        const y = getTerrainHeight(x, z) + 1;
+
+        const mobTypeSelect = document.getElementById('mob-type-select');
+        const selectedType = mobTypeSelect.value;
+
+        const mob = new Mob(new THREE.Vector3(x, y, z), selectedType);
+        mobs.push(mob);
+        console.log(`${selectedType} spawned.`);
     });
+
+
 
     document.getElementById('set-time-button').addEventListener('click', () => {
         const timeOfDay = document.getElementById('time-of-day').value;

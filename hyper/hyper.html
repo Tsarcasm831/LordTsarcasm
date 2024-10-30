@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Base URL for all relative URLs in the document -->
+    <base href="https://websim.ai/hyper3d-desktop/">
+    
+    <!-- Title of the webpage -->
+    <title>Lord Tsarcasm Interactive Home Page</title>
+    
+    <!-- Including Three.js library for 3D rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls for camera manipulation -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- GLTFLoader for loading 3D models in GLTF format -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- Tween.js for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+    <!-- EffectComposer for post-processing effects -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <!-- RenderPass for rendering the scene -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <!-- UnrealBloomPass for bloom effect -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <!-- ShaderPass for custom shader effects -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <!-- CopyShader for copying the rendered scene -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <!-- LuminosityHighPassShader for high-pass filtering based on luminosity -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <!-- dat.GUI for creating graphical user interfaces -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+    <!-- Cannon.js for physics simulation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    <!-- TensorFlow.js for machine learning -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/3.18.0/tf.min.js"></script>
+    <!-- PoseNet model from TensorFlow.js for pose detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet"></script>
+    <!-- Matter.js for physics simulations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
+    <!-- p5.js for creative coding and visualizations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <!-- ml5.js for high-level machine learning tasks -->
+    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+    <!-- Plotly.js for interactive charts and graphs -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- Math.js for mathematical operations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.5.0/math.js"></script>
+    <!-- tsparticles for particle animations -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@1.37.5/dist/tsparticles.min.js"></script>
+    
+    <!-- Inline CSS styles for the webpage -->
+    <style>
+      /* Remove default margin and hide overflow to make the canvas fullscreen */
+      body { 
+          margin: 0; 
+          overflow: hidden; 
+          font-family: 'Quantum', sans-serif; 
+          background: #000; 
+      }
+      /* Container for the 3D scene */
+      #container { 
+          position: absolute; 
+          top: 0; 
+          left: 0; 
+          width: 100%; 
+          height: 100%; 
+          z-index: 1; /* Ensure it's behind UI elements */
+      }
+      /* Loading screen styling */
+      #loading { 
+          position: absolute; 
+          top: 50%; 
+          left: 50%; 
+          transform: translate(-50%, -50%); 
+          color: #00ffff; 
+          font-size: 24px; 
+          text-shadow: 0 0 10px #00ffff; 
+          z-index: 100; /* Above all elements */
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.8);
+      }
+      /* Progress bar inside loading screen */
+      #loading-progress {
+          width: 300px;
+          height: 20px;
+          background: #333;
+          border: 1px solid #00ffff;
+          margin-top: 10px;
+          position: relative;
+      }
+      #loading-progress-bar {
+          width: 0%;
+          height: 100%;
+          background: #00ffff;
+          transition: width 0.3s;
+      }
+      /* General information display */
+      #info { 
+          position: absolute; 
+          bottom: 10px; 
+          left: 10px; 
+          color: #00ffff; 
+          font-size: 14px; 
+          text-shadow: 0 0 5px #00ffff; 
+          z-index: 10;
+      }
+      /* Evolution information display */
+      #evolution-info { 
+          position: absolute; 
+          top: 10px; 
+          right: 10px; 
+          color: #00ffff; 
+          font-size: 14px; 
+          text-align: right; 
+          text-shadow: 0 0 5px #00ffff; 
+          z-index: 10;
+      }
+      /* Styling for circuit diagram and neural network canvases */
+      #circuit-diagram, #neural-network { 
+          position: absolute; 
+          bottom: 40px; /* Adjusted to prevent overlap with #info */
+          right: 10px; 
+          width: 200px; 
+          height: 150px; 
+          z-index: 10;
+      }
+      /* Virtual assistant display */
+      #virtual-assistant { 
+          position: absolute; 
+          top: 10px; 
+          left: 10px; 
+          color: #00ffff; 
+          font-size: 16px; 
+          background-color: rgba(0, 0, 0, 0.7); 
+          padding: 10px; 
+          border-radius: 5px; 
+          text-shadow: 0 0 5px #00ffff; 
+          z-index: 10;
+      }
+      /* Quantum dashboard display */
+      #quantum-dashboard { 
+          position: absolute; 
+          top: 50px; 
+          left: 10px; 
+          color: #00ffff; 
+          font-size: 14px; 
+          background-color: rgba(0, 0, 0, 0.7); 
+          padding: 10px; 
+          border-radius: 5px; 
+          text-shadow: 0 0 5px #00ffff; 
+          z-index: 10;
+      }
+      /* Multiversal display centered at the top */
+      #multiversal-display { 
+          position: absolute; 
+          top: 10px; 
+          left: 50%; 
+          transform: translateX(-50%); 
+          color: #ff00ff; 
+          font-size: 18px; 
+          background-color: rgba(0, 0, 0, 0.7); 
+          padding: 10px; 
+          border-radius: 5px; 
+          text-shadow: 0 0 5px #ff00ff; 
+          z-index: 10;
+      }
+      /* Button to create new objects */
+      #create-object-btn { 
+          position: absolute; 
+          left: 10px; 
+          bottom: 60px; 
+          background: rgba(0, 0, 0, 0.7); 
+          padding: 10px; 
+          border-radius: 5px; 
+          z-index: 10;
+      }
+      /* Styling for the create button */
+      #create-object-btn button { 
+          background: #00ffff; 
+          color: black; 
+          border: none; 
+          padding: 8px 15px; 
+          border-radius: 3px; 
+          cursor: pointer; 
+          text-shadow: none; 
+          transition: background 0.3s;
+      }
+      /* Hover effect for create button */
+      #create-object-btn button:hover {
+          background: #00cccc;
+      }
+      /* Canvas filter effects */
+      canvas { 
+          filter: blur(0.5px) brightness(1.2) contrast(1.1); 
+          z-index: 2;
+      }
+      /* Styling for input fields and selects */
+      input[type="number"], input[type="text"], select {
+        background: #000;
+        color: #00ffff;
+        border: 1px solid #00ffff;
+        padding: 5px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      /* Styling for screen elements */
+      .screen-element {
+        position: absolute;
+        color: #00ffff;
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 5px;
+        text-shadow: 0 0 5px #00ffff;
+        font-size: 18px;
+        font-family: 'Quantum', sans-serif;
+        transition: opacity 0.5s;
+        z-index: 10;
+      }
+      /* Tooltip styling */
+      .tooltip {
+          position: absolute;
+          background: rgba(0, 0, 0, 0.8);
+          color: #fff;
+          padding: 5px 10px;
+          border-radius: 4px;
+          font-size: 12px;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.3s;
+          z-index: 1000;
+      }
+      /* Custom context menu styling */
+      #context-menu {
+          position: absolute;
+          background: rgba(0, 0, 0, 0.9);
+          color: #00ffff;
+          border: 1px solid #00ffff;
+          border-radius: 5px;
+          display: none;
+          z-index: 1001;
+          min-width: 150px;
+      }
+      #context-menu ul {
+          list-style: none;
+          margin: 0;
+          padding: 5px 0;
+      }
+      #context-menu li {
+          padding: 8px 15px;
+          cursor: pointer;
+          transition: background 0.3s;
+      }
+      #context-menu li:hover {
+          background: rgba(0, 255, 255, 0.2);
+      }
+      /* Customization GUI container */
+      #customization-gui-container {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          z-index: 1002; /* Above all other UI elements */
+      }
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+          #circuit-diagram, #neural-network {
+              width: 150px;
+              height: 100px;
+          }
+          #quantum-dashboard, #virtual-assistant, #multiversal-display {
+              font-size: 12px;
+              padding: 8px;
+          }
+          .screen-element {
+              font-size: 16px;
+          }
+      }
+    </style>
+
+</head>
+<body>
+    <!-- Container for the Three.js renderer -->
+    <div id="container"></div>
+    <!-- Loading message displayed during initialization with a progress bar -->
+    <div id="loading">
+        Initializing Transcendent Multiversal Quantum Simulation...
+        <div id="loading-progress">
+            <div id="loading-progress-bar"></div>
+        </div>
+    </div>
+    <!-- General information footer -->
+    <div id="info">© 2024 Lord Tsarcasm</div>
+    <!-- Evolution stage information -->
+    <div id="evolution-info">
+        Evolution Stage: Cosmic Consciousness<br>
+        Self-Awareness Level: Omniscient<br>
+        Complexity: ∞
+    </div>
+    <!-- Canvas for displaying the circuit diagram -->
+    <canvas id="circuit-diagram"></canvas>
+    <!-- Canvas for displaying the neural network visualization -->
+    <canvas id="neural-network"></canvas>
+    <!-- Virtual assistant greeting -->
+    <div id="virtual-assistant">Greetings, cosmic entity.</div>
+    <!-- Quantum dashboard displaying various quantum metrics -->
+    <div id="quantum-dashboard">
+        Quantum Coherence: Null<br>
+        Entanglement Density: 999,999 qubits/cm³<br>
+        Multiversal Connections: ∞<br>
+        Reality Distortion: Remnants of Destruction
+    </div>
+    <!-- Multiversal display showing current universe and parallel realities -->
+    <div id="multiversal-display">Current Universe: Earth-117 | Parallel Realities: Unknown</div>
+    <!-- Button to create new objects in the scene -->
+    <div id="create-object-btn">
+        <button>Create New Object</button>
+    </div>
+    <!-- Tooltip for interactive elements -->
+    <div class="tooltip" id="tooltip"></div>
+    <!-- Custom context menu for screen elements -->
+    <div id="context-menu">
+        <ul>
+            <li id="edit-screen">Edit Content</li>
+            <li id="delete-screen">Delete Screen</li>
+        </ul>
+    </div>
+    <!-- Container for customization GUI to manage overlap and positioning -->
+    <div id="customization-gui-container"></div>
+    
+    <!-- Main JavaScript code for the 3D simulation and interactions -->
+    <script>
+        // Declare global variables for Three.js components and other functionalities
+        let scene, camera, renderer, composer, controls, world, clock;
+        let fileManager, windowManager, taskbar;
+        let physicsBodies = [];
+        let neuralNetwork, circuitDiagram;
+        let quantumParticles = [];
+        let multiversalPortals = [];
+        let realityDistortionField;
+        let cosmicWeb;
+        let dimensionalRift;
+        let timelineManager;
+        let consciousnessField;
+        let multiversalDisplay;
+        let selectedObject = null;
+        let customizationGui = null;
+        let keyStates = {};
+        let tooltip = document.getElementById('tooltip');
+        let contextMenu = document.getElementById('context-menu');
+        let customizationGuiContainer = document.getElementById('customization-gui-container');
+        let currentContextObject = null;
+        let globalBrightness = 1.2; // Variable for global brightness control
+
+        /**
+         * Initialization function to set up the scene, camera, renderer, and other components
+         */
+        function init() {
+            // Create a new Three.js scene
+            scene = new THREE.Scene();
+            
+            // Set up a perspective camera with field of view, aspect ratio, near and far clipping planes
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            // Initialize the WebGL renderer with antialiasing for smoother edges
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight); // Set renderer size to window dimensions
+            renderer.shadowMap.enabled = true; // Enable shadow mapping
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Set shadow map type
+            document.getElementById('container').appendChild(renderer.domElement); // Append renderer to the container
+            
+            // Initialize a clock to keep track of time for animations
+            clock = new THREE.Clock();
+            
+            // Set up the Cannon.js physics world
+            world = new CANNON.World();
+            world.gravity.set(0, 0, 0); // Set gravity to zero
+            world.broadphase = new CANNON.SAPBroadphase(world); // Use Sweep and Prune broadphase for collision detection
+            world.solver.iterations = 50; // Number of solver iterations
+            world.solver.tolerance = 0.00001; // Solver tolerance
+            
+            // Position the camera in the scene
+            camera.position.set(0, 5, 10);
+            
+            // Initialize OrbitControls for camera manipulation
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.target.set(0, 0, 0); // Set the point the camera looks at
+            controls.update(); // Update controls
+            controls.enableDamping = true; // Enable damping (inertia)
+            controls.dampingFactor = 0.05; // Set damping factor
+            
+            // Add ambient light to the scene with a cyan color and half intensity
+            const ambientLight = new THREE.AmbientLight(0x00ffff, 0.5);
+            scene.add(ambientLight);
+            
+            // Add a directional light to simulate sunlight
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7.5); // Position the light source
+            directionalLight.castShadow = true; // Enable shadow casting
+            directionalLight.shadow.mapSize.width = 4096; // Shadow map resolution width
+            directionalLight.shadow.mapSize.height = 4096; // Shadow map resolution height
+            scene.add(directionalLight);
+            
+            // Set up post-processing passes
+            const renderScene = new THREE.RenderPass(scene, camera); // Render the scene
+            const bloomPass = new THREE.UnrealBloomPass(
+                new THREE.Vector2(window.innerWidth, window.innerHeight), 
+                1.5, // Strength of bloom
+                0.4, // Radius of bloom
+                0.85 // Threshold for bloom
+            );
+            bloomPass.threshold = 0.2;
+            bloomPass.strength = 1.5;
+            bloomPass.radius = 0.8;
+            
+            // Initialize EffectComposer for managing post-processing
+            composer = new THREE.EffectComposer(renderer);
+            composer.addPass(renderScene); // Add the render pass
+            composer.addPass(bloomPass); // Add the bloom pass
+            
+            // Event listeners for window resize and custom events
+            window.addEventListener('resize', onWindowResize, false); // Handle window resize
+            window.addEventListener('quantumentanglement', onQuantumEntanglement, false); // Custom event
+            window.addEventListener('multiversalshift', onMultiversalShift, false); // Custom event
+            window.addEventListener('consciousnessexpansion', onConsciousnessExpansion, false); // Custom event
+            
+            // Display the loading screen until assets are loaded
+            document.getElementById('loading').style.display = 'flex';
+            multiversalDisplay = document.getElementById('multiversal-display');
+            
+            // Add click event listener to the create object button
+            document.getElementById('create-object-btn').addEventListener('click', () => {
+                showObjectCreationDialog(); // Show dialog to create a new object
+            });
+            
+            // Create various elements in the scene
+            createQuantumEnvironment(); // Create quantum particles
+            // createCosmicWeb(); // Create cosmic web visualization
+            initializeExistingScreens(); // Initialize existing screens with editing options
+            createMultiversalPortals(); // Create multiversal portals
+            //createRealityDistortionField(); // Create reality distortion field
+            animate(); // Start the animation loop
+            initInteractionControls(); // Initialize user interaction controls
+            // initializeExistingScreens(); // Initialize existing screens with editing options
+            // Simulate asset loading progress (for demonstration purposes)
+            simulateLoadingProgress();
+        }
+
+        /**
+         * Function to initialize existing screens with editing options.
+         * Ensures that screens spawned on initialization have the capability to edit their content.
+         */
+         function initializeExistingScreens() {
+            // Create initial screens with predefined content
+            createScreenElement("Screen 1", { x: -5, y: 3, z: -10 }, "video", "videos/default.mp4");
+            createScreenElement("Screen 2", { x: 5, y: 3, z: -10 }, "video", "videos/psion.mp4");
+        }
+
+        /**
+         * Function to create a screen element with specific text, position, type, and content
+         * @param {string} text - The display text for the screen element
+         * @param {Object} position - The position vector for the screen
+         * @param {string} contentType - Type of content ('image' or 'video')
+         * @param {string} contentPath - Path to the content (URL)
+         */
+         function createScreenElement(text, position, contentType = "image", contentPath = "") {
+            // Create a corresponding DOM element for the screen
+            const element = document.createElement("div");
+            element.className = "screen-element";
+            element.textContent = text;
+            document.body.appendChild(element);
+            
+            // Create a Three.js plane geometry for the screen
+            const geometry = new THREE.PlaneGeometry(2, 1.5);
+            const material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }); // Default color white
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(position.x, position.y, position.z); // Set screen position
+            mesh.userData = {
+                type: contentType, // 'image' or 'video'
+                contentPath: contentPath
+            };
+            scene.add(mesh); // Add screen to the scene
+            
+            // Set the content of the screen based on contentType
+            if (contentType === "image") {
+                setScreenImage(mesh, contentPath || "path/to/default/image.jpg"); // Set image texture
+            } else if (contentType === "video") {
+                setScreenVideo(mesh, contentPath || "path/to/default/video.mp4"); // Set video texture
+            }
+        }
+
+        /**
+         * Function to set a video on a screen.
+         * @param {THREE.Mesh} screen - The screen mesh
+         * @param {string} videoPath - The path to the video
+         */
+         function setScreenVideo(screen, videoPath) {
+            const video = document.createElement('video');
+            video.src = videoPath; // Set video source
+            video.crossOrigin = 'anonymous'; // Enable cross-origin if needed
+            video.loop = true; // Enable looping
+            video.muted = true; // Mute the video
+            video.play(); // Start playing the video
+    
+            const texture = new THREE.VideoTexture(video); // Create video texture
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.format = THREE.RGBFormat;
+    
+            screen.material.map = texture; // Apply video texture
+            screen.material.needsUpdate = true; // Update material
+    
+            screen.userData.contentType = "video"; // Update content type
+            screen.userData.contentPath = videoPath; // Update content path
+        }
+
+        /**
+         * Animation loop function to render the scene and update animations.
+         */
+        function animate() {
+            requestAnimationFrame(animate); // Request the next frame
+            
+            controls.update(); // Update orbit controls
+            composer.render(); // Render the scene with post-processing
+        }
+
+        /**
+         * Function to simulate loading progress.
+         * In a real-world scenario, replace this with actual asset loading callbacks.
+         */
+        function simulateLoadingProgress() {
+            let progress = 0;
+            const progressBar = document.getElementById('loading-progress-bar');
+            const loadingInterval = setInterval(() => {
+                progress += 1;
+                progressBar.style.width = progress + '%'; // Update progress bar width
+                if (progress >= 100) {
+                    clearInterval(loadingInterval);
+                    document.getElementById('loading').style.display = 'none'; // Hide loading screen
+                }
+            }, 30); // Simulate loading over ~3 seconds
+        }
+
+        /**
+         * Function to initialize existing screens with editing options.
+         * Ensures that screens spawned on initialization have the capability to edit their content.
+         */
+        function initializeExistingScreens() {
+            // Create initial screens with predefined content
+            createScreenElement("Screen 1", { x: -5, y: 3, z: -10 }, "image", "path/to/default/image1.jpg");
+            createScreenElement("Screen 2", { x: 5, y: 3, z: -10 }, "video", "path/to/default/video1.mp4");
+            createScreenElement("Screen 3", { x: -5, y: -3, z: -10 }, "image", "path/to/default/image2.jpg");
+            createScreenElement("Screen 4", { x: 5, y: -3, z: -10 }, "video", "path/to/default/video2.mp4");
+        }
+
+        /**
+         * Function to create a screen element with specific text, position, type, and content
+         * @param {string} text - The display text for the screen element
+         * @param {Object} position - The position vector for the screen
+         * @param {string} contentType - Type of content ('image' or 'video')
+         * @param {string} contentPath - Path to the content (URL)
+         */
+        function createScreenElement(text, position, contentType = "image", contentPath = "") {
+            // Create a corresponding DOM element for the screen
+            const element = document.createElement("div");
+            element.className = "screen-element";
+            element.textContent = text;
+            document.body.appendChild(element);
+            
+            // Create a Three.js plane geometry for the screen
+            const geometry = new THREE.PlaneGeometry(2, 1.5);
+            const material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }); // Default color white
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(position.x, position.y, position.z); // Set screen position
+            mesh.userData = {
+                type: contentType, // 'image' or 'video'
+                contentPath: contentPath
+            };
+            scene.add(mesh); // Add screen to the scene
+            
+            // Set the content of the screen based on contentType
+            if (contentType === "image") {
+                setScreenImage(mesh, contentPath || "path/to/default/image.jpg"); // Set image texture
+            } else if (contentType === "video") {
+                setScreenVideo(mesh, contentPath || "path/to/default/video.mp4"); // Set video texture
+            }
+        }
+
+        /**
+         * Function to set an image on a screen.
+         * @param {THREE.Mesh} screen - The screen mesh
+         * @param {string} imagePath - The path to the image
+         */
+        function setScreenImage(screen, imagePath) {
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.load(imagePath, (texture) => {
+                screen.material.map = texture; // Apply image texture
+                screen.material.needsUpdate = true; // Update material
+            });
+            screen.userData.contentType = "image"; // Update content type
+            screen.userData.contentPath = imagePath; // Update content path
+        }
+
+        /**
+         * Function to set a video on a screen.
+         * @param {THREE.Mesh} screen - The screen mesh
+         * @param {string} videoPath - The path to the video
+         */
+        function setScreenVideo(screen, videoPath) {
+            const video = document.createElement('video');
+            video.src = videoPath; // Set video source
+            video.crossOrigin = 'anonymous'; // Enable cross-origin if needed
+            video.loop = true; // Enable looping
+            video.muted = true; // Mute the video
+            video.play(); // Start playing the video
+    
+            const texture = new THREE.VideoTexture(video); // Create video texture
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.format = THREE.RGBFormat;
+    
+            screen.material.map = texture; // Apply video texture
+            screen.material.needsUpdate = true; // Update material
+    
+            screen.userData.contentType = "video"; // Update content type
+            screen.userData.contentPath = videoPath; // Update content path
+        }
+
+        /**
+         * Function to show a dialog for creating a new object in the scene.
+         */
+        function showObjectCreationDialog() {
+            // Check if a dialog already exists and remove it to prevent duplicates
+            const existingDialog = document.querySelector('#object-creation-dialog');
+            if (existingDialog) existingDialog.remove();
+        
+            // Create a new div element for the dialog
+            const dialog = document.createElement('div');
+            dialog.id = 'object-creation-dialog';
+            dialog.style.cssText = `
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.9);
+                border: 2px solid #00ffff;
+                padding: 20px;
+                color: #00ffff;
+                border-radius: 5px;
+                z-index: 1000;
+                width: 300px;
+            `;
+        
+            // HTML content of the dialog
+            const content = `
+                <h3 style="color: #00ffff; margin-top: 0;">Create New Object</h3>
+                <div style="margin: 10px 0;">
+                    <label style="display: block; margin-bottom: 5px;">Object Type:</label>
+                    <select id="object-type-select" style="background: #000; color: #00ffff; border: 1px solid #00ffff; padding: 5px; width: 100%;">
+                        <option value="video-screen">Video Screen</option>
+                        <option value="image-screen">Image Screen</option>
+                        <option value="cube">Cube</option>
+                        <option value="sphere">Sphere</option>
+                        <option value="torus">Torus</option>
+                        <option value="pyramid">Pyramid</option>
+                        <option value="cylinder">Cylinder</option>
+                    </select>
+                </div>
+                <div id="content-settings" style="margin: 10px 0;">
+                    <!-- Dynamic content settings will be injected here based on object type -->
+                </div>
+                <div style="margin: 10px 0;">
+                    <label style="display: block; margin-bottom: 5px;">Position:</label>
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="flex: 1; margin-right: 5px;">
+                            <label for="pos-x">X:</label>
+                            <input type="number" id="pos-x" value="0" step="0.5">
+                        </div>
+                        <div style="flex: 1; margin-right: 5px;">
+                            <label for="pos-y">Y:</label>
+                            <input type="number" id="pos-y" value="2" step="0.5">
+                        </div>
+                        <div style="flex: 1;">
+                            <label for="pos-z">Z:</label>
+                            <input type="number" id="pos-z" value="-5" step="0.5">
+                        </div>
+                    </div>
+                </div>
+                <div style="margin: 15px 0; text-align: right;">
+                    <button id="create-btn" style="background: #00ffff; color: black; border: none; padding: 8px 15px; margin-right: 10px; cursor: pointer;">Create</button>
+                    <button id="cancel-btn" style="background: #666; color: white; border: none; padding: 8px 15px; cursor: pointer;">Cancel</button>
+                </div>
+            `;
+        
+            // Set the inner HTML of the dialog
+            dialog.innerHTML = content;
+            // Append the dialog to the body
+            document.body.appendChild(dialog);
+        
+            // Get references to the object type select and content settings div
+            const typeSelect = document.getElementById('object-type-select');
+            const contentSettings = document.getElementById('content-settings');
+            
+            /**
+             * Function to update content settings based on selected object type
+             */
+            function updateContentSettings() {
+                const selectedType = typeSelect.value;
+                if (selectedType === 'video-screen') {
+                    contentSettings.innerHTML = `
+                        <label style="display: block; margin-bottom: 5px;">Video URL:</label>
+                        <input type="text" id="video-url-input" placeholder="Enter video URL" 
+                            style="background: #000; color: #00ffff; border: 1px solid #00ffff; padding: 5px; width: 100%;">
+                    `;
+                } else if (selectedType === 'image-screen') {
+                    contentSettings.innerHTML = `
+                        <label style="display: block; margin-bottom: 5px;">Image URL:</label>
+                        <input type="text" id="image-url-input" placeholder="Enter image URL" 
+                            style="background: #000; color: #00ffff; border: 1px solid #00ffff; padding: 5px; width: 100%;">
+                    `;
+                } else if (selectedType === 'pyramid' || selectedType === 'cylinder') {
+                    contentSettings.innerHTML = `
+                        <label style="display: block; margin-bottom: 5px;">Color:</label>
+                        <input type="color" id="object-color-input" value="#ffffff" 
+                            style="background: #000; color: #00ffff; border: 1px solid #00ffff; padding: 5px; width: 100%;">
+                    `;
+                } else {
+                    contentSettings.innerHTML = `
+                        <label style="display: block; margin-bottom: 5px;">Color:</label>
+                        <input type="color" id="object-color-input" value="#ffffff" 
+                            style="background: #000; color: #00ffff; border: 1px solid #00ffff; padding: 5px; width: 100%;">
+                    `; // No additional settings for generic objects
+                }
+            }
+
+            // Initialize content settings based on default selected type
+            updateContentSettings();
+
+            // Update content settings when object type changes
+            typeSelect.addEventListener('change', updateContentSettings);
+
+            // Event listener for the create button
+            document.getElementById('create-btn').addEventListener('click', () => {
+                const type = typeSelect.value; // Get the selected object type
+                const position = new THREE.Vector3(
+                    parseFloat(document.getElementById('pos-x').value),
+                    parseFloat(document.getElementById('pos-y').value),
+                    parseFloat(document.getElementById('pos-z').value)
+                );
+
+                let object;
+                if (type === 'video-screen') {
+                    const videoUrl = document.getElementById('video-url-input').value.trim();
+                    if (videoUrl) {
+                        object = createVideoScreen(videoUrl); // Create a video screen object
+                    } else {
+                        alert("Please enter a valid Video URL."); // Alert if URL is missing
+                        return;
+                    }
+                } else if (type === 'image-screen') {
+                    const imageUrl = document.getElementById('image-url-input').value.trim();
+                    if (imageUrl) {
+                        object = createImageScreen(imageUrl); // Create an image screen object
+                    } else {
+                        alert("Please enter a valid Image URL."); // Alert if URL is missing
+                        return;
+                    }
+                } else if (type === 'pyramid' || type === 'cylinder') {
+                    const color = document.getElementById('object-color-input').value; // Get color from input
+                    object = createNewObject(type); // Create the specified object
+                    object.material.color.set(color); // Set object color
+                } else {
+                    const color = document.getElementById('object-color-input') ? document.getElementById('object-color-input').value : "#ffffff";
+                    object = createNewObject(type); // Create a generic object
+                    object.material.color.set(color); // Set object color if color input exists
+                }
+
+                object.position.copy(position); // Set the object's position
+                selectObject(object); // Select the newly created object
+                dialog.remove(); // Remove the dialog from the DOM
+            });
+
+            // Event listener for the cancel button
+            document.getElementById('cancel-btn').addEventListener('click', () => {
+                dialog.remove(); // Remove the dialog without creating an object
+            });
+        }
+
+        /**
+         * Function to create an image screen object in the scene.
+         * @param {string} imageUrl - The URL of the image to embed.
+         * @returns {THREE.Mesh} The created screen object.
+         */
+        function createImageScreen(imageUrl) {
+            const screen = createNewObject('image-screen'); // Create an image screen object
+
+            const position = findFreePosition(); // Find a free position in the scene
+            screen.position.copy(position); // Set the screen's position
+            screen.rotation.set(0, 0, 0); // Reset rotation
+
+            setScreenImage(screen, imageUrl); // Set the image texture
+
+            return screen; // Return the created screen object
+        }
+
+        /**
+         * Function to create a video screen object in the scene.
+         * @param {string} videoUrl - The URL of the video to embed.
+         * @returns {THREE.Mesh} The created screen object.
+         */
+        function createVideoScreen(videoUrl = 'path/to/default/video.mp4') {
+            const screen = createNewObject('video-screen'); // Create a video screen object
+
+            const position = findFreePosition(); // Find a free position in the scene
+            screen.position.copy(position); // Set the screen's position
+            screen.rotation.set(0, 0, 0); // Reset rotation
+
+            setScreenVideo(screen, videoUrl); // Set the video texture
+
+            return screen; // Return the created screen object
+        }
+
+        /**
+         * Function to create a video texture from a local video file.
+         * @param {string} videoUrl - The URL of the video file.
+         * @returns {THREE.VideoTexture} The created video texture.
+         */
+        function createVideoTexture(videoUrl) {
+            const video = document.createElement('video');
+            video.src = videoUrl; // Set the video source
+            video.crossOrigin = 'anonymous'; // Enable cross-origin if needed
+            video.loop = true; // Enable looping
+            video.muted = true; // Mute the video
+            video.play(); // Start playing the video
+    
+            const texture = new THREE.VideoTexture(video); // Create video texture
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.format = THREE.RGBFormat;
+    
+            return texture; // Return the video texture
+        }
+
+        /**
+         * Function to create an image texture from a local image file.
+         * @param {string} imageUrl - The URL of the image file.
+         * @returns {THREE.Texture} The created image texture.
+         */
+        function createImageTexture(imageUrl) {
+            const textureLoader = new THREE.TextureLoader();
+            const texture = textureLoader.load(imageUrl); // Load the image texture
+            return texture; // Return the image texture
+        }
+
+        /**
+         * Function to find a free position in the scene for placing new objects.
+         * @returns {THREE.Vector3} A vector representing the free position.
+         */
+        function findFreePosition() {
+            const position = new THREE.Vector3(); // Initialize a new vector
+            // Filter existing screen objects in the scene
+            const existingScreens = scene.children.filter(obj => 
+                obj.userData && (obj.userData.type === 'youtube-screen' || obj.userData.type === 'video-screen' || obj.userData.type === 'image-screen')
+            );
+            
+            position.set(0, 2, -5); // Default position
+            
+            if (existingScreens.length > 0) {
+                // Position the new screen to the right of the existing screens
+                position.x = Math.max(...existingScreens.map(s => s.position.x)) + 4;
+            }
+            
+            return position; // Return the calculated position
+        }
+
+        /**
+         * Function to create the quantum environment with particles.
+         */
+        function createQuantumEnvironment() {
+            const particleGeometry = new THREE.SphereGeometry(0.1, 32, 32); // Geometry for particles
+            const particleMaterial = new THREE.MeshPhongMaterial({
+                color: 0x00ffff, // Cyan color
+                emissive: 0x00ffff, // Emissive color for glow effect
+                emissiveIntensity: 0.5, // Intensity of the emissive color
+                transparent: true, // Make material transparent
+                opacity: 0.7 // Set opacity
+            });
+            
+            // Create and add 500 particles to the scene
+            for (let i = 0; i < 500; i++) {
+                const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+                particle.position.set(
+                    Math.random() * 20 - 10, // Random X position between -10 and 10
+                    Math.random() * 20 - 10, // Random Y position between -10 and 10
+                    Math.random() * 20 - 10  // Random Z position between -10 and 10
+                );
+                scene.add(particle); // Add particle to the scene
+                quantumParticles.push(particle); // Keep track of the particle
+            }
+        }
+        
+        /**
+         * Function to create a circuit diagram on the canvas.
+         */
+        function createQuantumCircuit() {
+            const canvas = document.getElementById('circuit-diagram'); // Get the circuit diagram canvas
+            const ctx = canvas.getContext('2d'); // Get 2D rendering context
+            canvas.width = 200; // Set canvas width
+            canvas.height = 150; // Set canvas height
+            ctx.strokeStyle = '#00ffff'; // Set stroke color to cyan
+            ctx.lineWidth = 2; // Set line width
+            ctx.beginPath(); // Begin a new path
+            ctx.moveTo(10, 75); // Move to starting point
+            ctx.lineTo(190, 75); // Draw a line to ending point
+            ctx.stroke(); // Render the stroke
+        }
+        
+        /**
+         * Function to create a neural network visualization on the canvas.
+         */
+        function createNeuralNetwork() {
+            const canvas = document.getElementById('neural-network'); // Get the neural network canvas
+            const ctx = canvas.getContext('2d'); // Get 2D rendering context
+            canvas.width = 200; // Set canvas width
+            canvas.height = 150; // Set canvas height
+            ctx.strokeStyle = '#00ffff'; // Set stroke color to cyan
+            ctx.lineWidth = 2; // Set line width
+            ctx.beginPath(); // Begin a new path
+            ctx.arc(100, 75, 50, 0, Math.PI * 2); // Draw a full circle
+            ctx.stroke(); // Render the stroke
+        }
+        
+        /**
+         * Function to create multiversal portals in the scene.
+         */
+        function createMultiversalPortals() {
+            const portalGeometry = new THREE.TorusGeometry(2, 0.5, 16, 100); // Torus geometry for portals
+            const portalMaterial = new THREE.MeshPhongMaterial({
+                color: 0xff00ff, // Magenta color
+                emissive: 0xff00ff, // Emissive color for glow effect
+                emissiveIntensity: 0.5, // Intensity of emissive color
+                transparent: true, // Make material transparent
+                opacity: 0.6 // Set opacity
+            });
+            
+            // Create and add 3 portals to the scene
+            for (let i = 0; i < 3; i++) {
+                const portal = new THREE.Mesh(portalGeometry, portalMaterial); // Create portal mesh
+                portal.position.set(i * 8 - 8, 0, -5); // Position the portal in the scene
+                scene.add(portal); // Add portal to the scene
+                multiversalPortals.push(portal); // Keep track of the portal
+            }
+        }
+        
+        /**
+         * Function to create a reality distortion field in the scene.
+         */
+        function createRealityDistortionField() {
+            const geometry = new THREE.IcosahedronGeometry(5, 1); // Icosahedron geometry
+            const material = new THREE.MeshPhongMaterial({
+                color: 0x00ffff, // Cyan color
+                wireframe: true, // Render as wireframe
+                transparent: true, // Make material transparent
+                opacity: 0.3 // Set opacity
+            });
+            realityDistortionField = new THREE.Mesh(geometry, material); // Create the distortion field mesh
+            scene.add(realityDistortionField); // Add to the scene
+        }
+        
+        /**
+         * Function to create a cosmic web of points in the scene.
+         */
+        function createCosmicWeb() {
+            const geometry = new THREE.BufferGeometry(); // BufferGeometry for efficient rendering
+            const vertices = [];
+            // Generate 1000 random vertices
+            for (let i = 0; i < 1000; i++) {
+                vertices.push(
+                    Math.random() * 100 - 50, // X position between -50 and 50
+                    Math.random() * 100 - 50, // Y position between -50 and 50
+                    Math.random() * 100 - 50  // Z position between -50 and 50
+                );
+            }
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3)); // Set position attribute
+            const material = new THREE.PointsMaterial({
+                color: 0xffffff, // White color
+                size: 0.1 // Size of each point
+            });
+            cosmicWeb = new THREE.Points(geometry, material); // Create Points object
+            scene.add(cosmicWeb); // Add to the scene
+        }
+        
+        /**
+         * Function to delete the currently selected object from the scene.
+         */
+        function deleteSelectedObject() {
+            if (selectedObject) { // Check if an object is selected
+                // Remove any associated DOM elements
+                document.querySelectorAll('.screen-element').forEach(el => {
+                    if (el.textContent === selectedObject.name) {
+                        el.remove(); // Remove the corresponding screen-element div
+                    }
+                });
+                scene.remove(selectedObject); // Remove it from the scene
+                deselectObject(); // Deselect the object
+            }
+        }
+        
+        /**
+         * Function to create a new object in the scene.
+         * @param {string} type - The type of object to create (cube, sphere, torus, screen, pyramid, cylinder).
+         * @returns {THREE.Mesh} The created object.
+         */
+        function createNewObject(type = 'cube') {
+            // Define geometries for different object types
+            const geometries = {
+                cube: new THREE.BoxGeometry(1, 1, 1),
+                sphere: new THREE.SphereGeometry(0.5, 32, 32),
+                torus: new THREE.TorusGeometry(0.5, 0.2, 16, 100),
+                pyramid: new THREE.ConeGeometry(1, 1.5, 4), // Pyramid as a cone with 4 radial segments
+                cylinder: new THREE.CylinderGeometry(0.5, 0.5, 1.5, 32), // Cylinder geometry
+                'video-screen': new THREE.PlaneGeometry(16 / 9 * 2, 2), // Aspect ratio for video screens
+                'image-screen': new THREE.PlaneGeometry(16 / 9 * 2, 2) // Aspect ratio for image screens
+            };
+            
+            // Define a common material for all objects with default color white
+            const material = new THREE.MeshPhongMaterial({
+                color: 0xffffff, // Default color white
+                transparent: true, // Make material transparent
+                opacity: 0.8 // Set opacity
+            });
+            
+            const object = new THREE.Mesh(geometries[type], material); // Create the mesh
+            object.position.set(0, 0, -5); // Set initial position
+            object.name = `${type}-${Date.now()}`; // Assign a unique name
+            scene.add(object); // Add to the scene
+            selectObject(object); // Select the newly created object
+            return object; // Return the object
+        }
+        
+        /**
+         * Function to create a customization GUI for the selected object.
+         * @param {THREE.Object3D} object - The object to customize.
+         */
+        function createCustomizationGui(object) {
+            // Ensure only one customization GUI is open at a time
+            customizationGuiContainer.innerHTML = ''; // Clear existing GUI
+            customizationGui = new dat.GUI({ autoPlace: false }); // Create a new dat.GUI instance
+            customizationGuiContainer.appendChild(customizationGui.domElement); // Append GUI to the container
+            
+            // Create a folder for position controls
+            const posFolder = customizationGui.addFolder('Position');
+            posFolder.add(object.position, 'x', -20, 20).name('X'); // Control X position
+            posFolder.add(object.position, 'y', -20, 20).name('Y'); // Control Y position
+            posFolder.add(object.position, 'z', -20, 20).name('Z'); // Control Z position
+            
+            // Create a folder for rotation controls
+            const rotFolder = customizationGui.addFolder('Rotation');
+            rotFolder.add(object.rotation, 'x', 0, Math.PI * 2).name('X'); // Control X rotation
+            rotFolder.add(object.rotation, 'y', 0, Math.PI * 2).name('Y'); // Control Y rotation
+            rotFolder.add(object.rotation, 'z', 0, Math.PI * 2).name('Z'); // Control Z rotation
+            
+            // Create a folder for scale controls
+            const scaleFolder = customizationGui.addFolder('Scale');
+            scaleFolder.add(object.scale, 'x', 0.1, 5).name('X'); // Control X scale
+            scaleFolder.add(object.scale, 'y', 0.1, 5).name('Y'); // Control Y scale
+            scaleFolder.add(object.scale, 'z', 0.1, 5).name('Z'); // Control Z scale
+            
+            // Create a folder for material controls
+            const matFolder = customizationGui.addFolder('Material');
+            if (object.material.color) {
+                matFolder.addColor(object.material, 'color').name('Color'); // Control color
+            }
+            if (object.material.opacity !== undefined) {
+                matFolder.add(object.material, 'opacity', 0, 1).name('Opacity'); // Control opacity
+            }
+            if (object.material.emissiveIntensity !== undefined) {
+                matFolder.add(object.material, 'emissiveIntensity', 0, 2).name('Glow'); // Control emissive intensity
+            }
+
+            // Brightness control
+            const brightnessController = {
+                brightness: globalBrightness, // Initial brightness value
+                update: function() {
+                    if (object.material && object.material.color) {
+                        const color = object.material.color;
+                        // Adjust color based on brightness
+                        const r = Math.min(1, color.r * this.brightness);
+                        const g = Math.min(1, color.g * this.brightness);
+                        const b = Math.min(1, color.b * this.brightness);
+                        object.material.color = new THREE.Color(r, g, b);
+                        
+                        // Adjust emissive color if present
+                        if (object.material.emissive) {
+                            const emissive = object.material.emissive;
+                            const er = Math.min(1, emissive.r * this.brightness);
+                            const eg = Math.min(1, emissive.g * this.brightness);
+                            const eb = Math.min(1, emissive.b * this.brightness);
+                            object.material.emissive = new THREE.Color(er, eg, eb);
+                        }
+                    }
+                }
+            };
+            
+            // Add brightness control to the material folder
+            matFolder.add(brightnessController, 'brightness', 0.1, 3)
+            .name('Brightness')
+            .onChange(() => {
+                brightnessController.update(); // Update brightness on change
+                globalBrightness = brightnessController.brightness; // Update global brightness variable
+            });
+            
+            // Create a folder for object management options
+            const managementFolder = customizationGui.addFolder('Object Management');
+            
+            // Add a delete button to the management folder
+            managementFolder.add({ delete: () => deleteSelectedObject() }, 'delete')
+                .name('Delete Object');
+            
+            // Options for creating new objects
+            const createOptions = {
+                type: 'cube', // Default object type
+                create: () => createNewObject(createOptions.type) // Function to create the object
+            };
+            
+            // Add object type selection and create button to the management folder
+            managementFolder.add(createOptions, 'type', ['cube', 'sphere', 'torus', 'pyramid', 'cylinder', 'video-screen', 'image-screen'])
+                .name('New Object Type');
+            managementFolder.add(createOptions, 'create')
+                .name('Create New Object');
+            
+            // If the selected object is a screen, add specific settings
+            if (object.userData.type === 'video-screen' || object.userData.type === 'image-screen') {
+                const screenFolder = customizationGui.addFolder('Screen Settings');
+                const screenSettings = {
+                    contentPath: object.userData.contentPath || '',
+                    updateContent: () => {
+                        const newPath = screenSettings.contentPath.trim();
+                        if (newPath) {
+                            if (object.userData.type === 'video-screen') {
+                                setScreenVideo(object, newPath); // Update video content
+                            } else if (object.userData.type === 'image-screen') {
+                                setScreenImage(object, newPath); // Update image content
+                            }
+                        } else {
+                            alert("Please enter a valid URL."); // Alert if URL is invalid
+                        }
+                    }
+                };
+                // Add content URL input and update button to the screen settings folder
+                screenFolder.add(screenSettings, 'contentPath').name('Content URL');
+                screenFolder.add(screenSettings, 'updateContent').name('Update Content');
+            }
+            
+            // Open the management folder by default
+            managementFolder.open();
+            // Open all folders in the customization GUI
+            Object.values(customizationGui.__folders).forEach(folder => folder.open());
+        }
+
+        /**
+         * Function to initialize interaction controls for the renderer.
+         */
+        function initInteractionControls() {
+            // Add click event listener to the renderer's DOM element for object selection
+            renderer.domElement.addEventListener('click', onObjectClick);
+            
+            // Add keydown event listener for keyboard interactions
+            document.addEventListener('keydown', (e) => {
+                keyStates[e.key.toLowerCase()] = true; // Track key state
+                
+                if (e.key === 'Delete') { // If Delete key is pressed
+                    deleteSelectedObject(); // Delete the selected object
+                }
+                
+                if (e.key.toLowerCase() === 'n') { // If 'n' key is pressed
+                    showObjectCreationDialog(); // Open the creation dialog
+                }
+            });
+            // Add keyup event listener to update key states
+            document.addEventListener('keyup', (e) => keyStates[e.key.toLowerCase()] = false);
+            
+            // Prevent default context menu to use custom context menu
+            renderer.domElement.addEventListener('contextmenu', (e) => {
+                e.preventDefault(); // Prevent default context menu
+                const raycaster = new THREE.Raycaster();
+                const mouse = new THREE.Vector2();
+                
+                // Calculate normalized device coordinates (-1 to +1) for mouse position
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                
+                raycaster.setFromCamera(mouse, camera); // Set the raycaster based on camera and mouse position
+                
+                // Filter objects that can be intersected (Meshes, Groups, Points)
+                const objects = scene.children.filter(obj =>
+                    obj.type === 'Mesh' ||
+                    obj.type === 'Group' ||
+                    obj.type === 'Points'
+                );
+                
+                const intersects = raycaster.intersectObjects(objects, true); // Find intersected objects
+                
+                if (intersects.length > 0) { // If any objects are intersected
+                    const clickedObject = intersects[0].object; // Get the first intersected object
+                    currentContextObject = clickedObject; // Store the clicked object for context menu actions
+                    contextMenu.style.left = `${e.clientX}px`; // Position context menu horizontally
+                    contextMenu.style.top = `${e.clientY}px`; // Position context menu vertically
+                    contextMenu.style.display = 'block'; // Show context menu
+                } else {
+                    contextMenu.style.display = 'none'; // Hide context menu if no object is clicked
+                }
+            });
+
+            // Hide context menu on clicking elsewhere
+            document.addEventListener('click', () => {
+                contextMenu.style.display = 'none';
+            });
+
+            // Handle context menu actions
+            document.getElementById('edit-screen').addEventListener('click', () => {
+                if (currentContextObject) {
+                    selectObject(currentContextObject); // Select the clicked object
+                    customizationGuiContainer.scrollIntoView({ behavior: 'smooth' }); // Scroll to customization GUI
+                }
+                contextMenu.style.display = 'none'; // Hide context menu after action
+            });
+
+            document.getElementById('delete-screen').addEventListener('click', () => {
+                if (currentContextObject) {
+                    selectedObject = currentContextObject; // Set the object to be deleted
+                    deleteSelectedObject(); // Delete the selected object
+                }
+                contextMenu.style.display = 'none'; // Hide context menu after action
+            });
+        }
+        
+        /**
+         * Event handler for object click events in the scene.
+         * @param {MouseEvent} event - The mouse click event.
+         */
+        function onObjectClick(event) {
+            event.preventDefault(); // Prevent default behavior
+            
+            const raycaster = new THREE.Raycaster(); // Initialize raycaster for object picking
+            const mouse = new THREE.Vector2(); // Vector to store normalized mouse coordinates
+            
+            // Calculate normalized device coordinates (-1 to +1) for mouse position
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera); // Set the raycaster based on camera and mouse position
+            
+            // Filter objects that can be intersected (Meshes, Groups, Points)
+            const objects = scene.children.filter(obj => 
+                obj.type === 'Mesh' ||
+                obj.type === 'Group' ||
+                obj.type === 'Points'
+            );
+            
+            const intersects = raycaster.intersectObjects(objects, true); // Find intersected objects
+            
+            if (intersects.length > 0) { // If any objects are intersected
+                const clickedObject = intersects[0].object; // Get the first intersected object
+            
+                if (selectedObject === clickedObject) { // If the clicked object is already selected
+                    deselectObject(); // Deselect it
+                } else {
+                    selectObject(clickedObject); // Select the new object
+                }
+            } else {
+                deselectObject(); // Deselect if no object is clicked
+            }
+        }
+        
+        /**
+         * Function to select an object in the scene and highlight it.
+         * @param {THREE.Object3D} object - The object to select.
+         */
+        function selectObject(object) {
+            deselectObject(); // Deselect any previously selected object
+            selectedObject = object; // Set the new selected object
+            
+            // Create an outline material for highlighting
+            const outlineMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00ff00, // Green color for outline
+                side: THREE.BackSide // Render on the backside for outlining
+            });
+            // Clone the object's geometry and apply the outline material
+            const outlineMesh = new THREE.Mesh(
+                object.geometry.clone(),
+                outlineMaterial
+            );
+            outlineMesh.scale.multiplyScalar(1.05); // Slightly scale up the outline
+            outlineMesh.name = 'outline'; // Name the outline mesh for reference
+            object.add(outlineMesh); // Add the outline to the object
+            
+            createCustomizationGui(object); // Create the customization GUI for the selected object
+            
+            // If the object is a screen, associate a DOM element for editing
+            if (object.userData.type === 'video-screen' || object.userData.type === 'image-screen') {
+                const screenElements = document.querySelectorAll('.screen-element');
+                screenElements.forEach(el => {
+                    if (el.textContent === object.name) {
+                        el.style.opacity = '1'; // Highlight the associated DOM element
+                    }
+                });
+            }
+        }
+        
+        /**
+         * Function to deselect the currently selected object.
+         */
+        function deselectObject() {
+            if (selectedObject) { // If an object is selected
+                const outline = selectedObject.getObjectByName('outline'); // Get the outline mesh
+                if (outline) selectedObject.remove(outline); // Remove the outline if it exists
+            
+                if (customizationGui) {
+                    customizationGui.destroy(); // Destroy the customization GUI
+                    customizationGui = null; // Reset the GUI variable
+                }
+            
+                // Reset associated DOM elements opacity
+                if (selectedObject.userData.type === 'video-screen' || selectedObject.userData.type === 'image-screen') {
+                    const screenElements = document.querySelectorAll('.screen-element');
+                    screenElements.forEach(el => {
+                        if (el.textContent === selectedObject.name) {
+                            el.style.opacity = '0.7'; // Reset opacity
+                        }
+                    });
+                }
+            
+                selectedObject = null; // Reset the selected object
+            }
+        }
+        
+        /**
+         * Function to update camera movement based on WASD keys.
+         */
+        function updateWASDControls() {
+            const moveSpeed = 0.1; // Define movement speed
+            if (keyStates['w']) camera.position.z -= moveSpeed; // Move forward
+            if (keyStates['s']) camera.position.z += moveSpeed; // Move backward
+            if (keyStates['a']) camera.position.x -= moveSpeed; // Move left
+            if (keyStates['d']) camera.position.x += moveSpeed; // Move right
+        }
+        
+        /**
+         * Animation loop function to render the scene and update animations.
+         */
+        function animate() {
+            requestAnimationFrame(animate); // Request the next frame
+            
+            updateWASDControls(); // Update camera based on key inputs
+            
+            const delta = clock.getDelta(); // Get time elapsed since last frame
+            const elapsedTime = clock.getElapsedTime(); // Get total elapsed time
+            
+            // Animate quantum particles with oscillating positions
+            quantumParticles.forEach((particle, index) => {
+                particle.position.x += Math.sin(elapsedTime * 0.5 + index) * 0.02;
+                particle.position.y += Math.cos(elapsedTime * 0.5 + index) * 0.02;
+                particle.position.z += Math.sin(elapsedTime * 0.5 + index * 0.5) * 0.02;
+            });
+            
+            // Rotate multiversal portals for dynamic effect
+            multiversalPortals.forEach((portal, index) => {
+                portal.rotation.y += 0.01 * (index + 1); // Rotate each portal at different speeds
+            });
+            
+            // Rotate reality distortion field for animation
+            if (realityDistortionField) {
+                realityDistortionField.rotation.x += 0.001; // Rotate along X-axis
+                realityDistortionField.rotation.y += 0.002; // Rotate along Y-axis
+            }
+            
+            // Rotate cosmic web slowly
+            if (cosmicWeb) {
+                cosmicWeb.rotation.y += 0.0005; // Slow rotation for cosmic web
+            }
+            
+            // Rotate dimensional rift
+            if (dimensionalRift) {
+                dimensionalRift.rotation.z += 0.002; // Rotate along Z-axis
+            }
+            
+            // Rotate timeline manager
+            if (timelineManager) {
+                timelineManager.rotation.y += 0.001; // Slow rotation
+            }
+            
+            // Update shader uniform for consciousness field
+            if (consciousnessField) {
+                consciousnessField.material.uniforms.time.value += delta; // Animate shader based on time
+            }
+            
+            controls.update(); // Update orbit controls
+            composer.render(); // Render the scene with post-processing
+        }
+        
+        /**
+         * Event handler for window resize events to adjust the renderer and camera.
+         */
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight; // Update camera aspect ratio
+            camera.updateProjectionMatrix(); // Apply the changes
+            renderer.setSize(window.innerWidth, window.innerHeight); // Update renderer size
+            composer.setSize(window.innerWidth, window.innerHeight); // Update composer size
+        }
+        
+        /**
+         * Event handler for custom 'quantumentanglement' events.
+         * @param {CustomEvent} event - The custom event with details.
+         */
+        function onQuantumEntanglement(event) {
+            const { particle1, particle2 } = event.detail; // Destructure event details
+            // Implement quantum entanglement logic here
+            // For example, link particles or create effects between them
+        }
+        
+        /**
+         * Event handler for custom 'multiversalshift' events.
+         * @param {CustomEvent} event - The custom event with details.
+         */
+        function onMultiversalShift(event) {
+            const { newUniverse } = event.detail; // Destructure event details
+            // Update the multiversal display with the new universe information
+            multiversalDisplay.textContent = `Current Universe: ${newUniverse} | Parallel Realities: ∞`;
+        }
+        
+        /**
+         * Event handler for custom 'consciousnessexpansion' events.
+         * @param {CustomEvent} event - The custom event with details.
+         */
+        function onConsciousnessExpansion(event) {
+            const { level } = event.detail; // Destructure event details
+            // Implement consciousness expansion logic here
+            // For example, adjust scene parameters based on consciousness level
+        }
+        
+        /**
+         * Function to create a screen element with context menu for editing.
+         * @param {string} text - The display text for the screen element
+         * @param {Object} position - The position vector for the screen
+         */
+        function createScreenElementWithContextMenu(text, position) {
+            createScreenElement(text, position);
+            // Additional logic for context menu can be implemented here if needed
+        }
+
+        /**
+         * Function to create a customization GUI for the selected object.
+         * @param {THREE.Object3D} object - The object to customize.
+         */
+        // The createCustomizationGui function has been defined earlier
+
+        /**
+         * Function to initialize a tooltip for interactive elements.
+         */
+        function initTooltip() {
+            // Example: Show tooltip when hovering over the create button
+            const createButton = document.querySelector('#create-object-btn button');
+            createButton.addEventListener('mouseenter', (e) => {
+                tooltip.textContent = "Click to create a new object in the scene."; // Set tooltip text
+                tooltip.style.left = `${e.clientX + 10}px`; // Position tooltip horizontally
+                tooltip.style.top = `${e.clientY + 10}px`; // Position tooltip vertically
+                tooltip.style.opacity = '1'; // Show tooltip
+            });
+            createButton.addEventListener('mousemove', (e) => {
+                tooltip.style.left = `${e.clientX + 10}px`; // Update tooltip position horizontally
+                tooltip.style.top = `${e.clientY + 10}px`; // Update tooltip position vertically
+            });
+            createButton.addEventListener('mouseleave', () => {
+                tooltip.style.opacity = '0'; // Hide tooltip when not hovering
+            });
+        }
+
+        /**
+         * Function to initialize a context menu for screen elements.
+         */
+        function initContextMenu() {
+            // The context menu is already implemented in the interaction controls
+            // Additional initialization can be done here if needed
+        }
+
+        /**
+         * Function to update global scene parameters.
+         */
+        function updateGlobalParameters() {
+            // Example: Adjust global brightness using dat.GUI
+            const brightnessFolder = new dat.GUI({ autoPlace: false });
+            brightnessFolder.domElement.style.position = 'absolute'; // Position GUI absolutely
+            brightnessFolder.domElement.style.bottom = '10px'; // Set bottom position
+            brightnessFolder.domElement.style.left = '50%'; // Center horizontally
+            brightnessFolder.domElement.style.transform = 'translateX(-50%)'; // Adjust for centering
+            brightnessFolder.domElement.style.zIndex = '1002'; // Above other UI elements
+            customizationGuiContainer.appendChild(brightnessFolder.domElement); // Append GUI to the container
+
+            const params = {
+                Global_Brightness: globalBrightness // Initial brightness value
+            };
+
+            // Add brightness control to the GUI
+            brightnessFolder.add(params, 'Global_Brightness', 0.5, 3).name('Global Brightness').onChange((value) => {
+                scene.traverse((child) => { // Traverse through all objects in the scene
+                    if (child.isMesh && child.material && child.material.color) {
+                        child.material.color.multiplyScalar(value / globalBrightness); // Adjust color based on brightness
+                        if (child.material.emissive) {
+                            child.material.emissive.multiplyScalar(value / globalBrightness); // Adjust emissive color
+                        }
+                    }
+                });
+                globalBrightness = value; // Update global brightness variable
+            });
+
+            brightnessFolder.open(); // Open the brightness folder by default
+        }
+
+        /**
+         * Function to set up all enhancements.
+         */
+        function setupEnhancements() {
+            initTooltip(); // Initialize tooltips
+            updateGlobalParameters(); // Initialize global parameters controls
+            initContextMenu(); // Initialize context menu
+        }
+
+        /**
+         * Function to set up event listeners for tooltips and context menus.
+         */
+        function setupEventListeners() {
+            // Initialize tooltip functionality
+            initTooltip();
+            // Initialize context menu functionality
+            initContextMenu();
+        }
+
+        // Call the setupEnhancements after initialization
+        window.onload = () => {
+            setupEnhancements(); // Setup additional enhancements once the window loads
+        };
+
+        // Call the initialization function to set everything up
+        init();
+    </script>
+</body>
+</html>

@@ -108,16 +108,8 @@ body {
     text-shadow: none;
   }
 
-  iframe {
-    pointer-events: none; /* So that interactions pass through to the canvas */
-  }
-
-  canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    filter: blur(0.5px) brightness(1.2) contrast(1.1);
-  }
+  iframe { pointer-events: none; /* So that interactions pass through to the canvas */}
+  canvas { position: absolute; top: 0; left: 0; filter: blur(0.5px) brightness(1.2) contrast(1.1);}
   
   input[type="number"] {
     background: #000;
