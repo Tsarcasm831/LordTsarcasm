@@ -356,19 +356,6 @@ function animateDeadEnemies(delta) {
     });
 }
 
-function maintainEnemyCount() {
-    const activeEnemies = enemies.filter(enemy => !enemy.userData.isDead).length;
-    const enemiesToSpawn = 100 - activeEnemies;
-
-    for (let i = 0; i < enemiesToSpawn; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let type = Math.random() < 0.1 ? 'blue' : 'red'; // 10% chance to spawn a blue enemy
-        let enemy = createEnemy(position.x, 0, position.z, type);
-        enemies.push(enemy);
-        scene.add(enemy);
-    }
-}
-
 function defeatEnemy(enemy) {
     addExperience(20);
     gold += 10;

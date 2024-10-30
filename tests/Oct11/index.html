@@ -88,6 +88,18 @@
             </div>
         </div>
 
+        <!-- New Button to Open Music Page -->
+        <button id="openMusic" class="open-music-button">Open Music</button>
+
+        <!-- Music Modal -->
+        <div id="musicModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <button id="closeMusicModal" class="close-button">&times;</button>
+                <iframe src="music.html" style="width: 100%; height: 600px; border: none;"></iframe>
+            </div>
+        </div>
+
+
         <div id="inventory">
             <h2>Inventory</h2>
             <p>Gold: <span id="goldAmount">0</span></p>
@@ -341,8 +353,6 @@
             </ul>
             <button onclick="closeQuestLog()">Close Quest Log</button>
         </div>
-        
-        </div>
 
 	    <div id="structureAdminPopup" style="display: none;">
 		    <h2>Structure Admin</h2>
@@ -352,7 +362,7 @@
 		    <button onclick="closeStructureAdminPopup()">Close</button>
 	    </div>
 
-    
+        <!-- SCRIPTS -->
         <script>
             let inventoryLoaded = false;
             const clock = new THREE.Clock(); // Create a new Three.js clock
@@ -532,32 +542,128 @@
                 // Add more skills as needed
             };
 
-
+            const color = 0xFFFFFF; // Example color in hexadecimal
             const npc = createHumanoid(color);
-        </script>
+
+
+            
+            // Function to open the music modal
+            function openMusicModal() {
+                console.log('openMusicModal called'); // Add this line
+                document.getElementById('musicModal').style.display = 'flex';
+            }
+
+            // Function to close the music modal
+            function closeMusicModal() {
+                document.getElementById('musicModal').style.display = 'none';
+            }
+
+            // Update the button event listener
+            const openMusicButton = document.getElementById('openMusic');
+            if (openMusicButton) {
+                openMusicButton.addEventListener('click', openMusicModal);
+            } else {
+                console.error("Button with ID 'openMusic' not found.");
+            }
+
+            // Add event listener for the close button
+            const closeMusicModalButton = document.getElementById('closeMusicModal');
+            if (closeMusicModalButton) {
+                closeMusicModalButton.addEventListener('click', closeMusicModal);
+            }
+
+            // Update the keydown event
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'm' || event.key === 'M') {
+                    openMusicModal();
+                }
+            });
+
+            function createHumanoid(color) {
+                const group = new THREE.Group();
+
+                const bodyGeometry = new THREE.BoxGeometry(5, 10, 2);
+                const bodyMaterial = new THREE.MeshLambertMaterial({ color });
+                const body = new THREE.Mesh(new THREE.BoxGeometry(5, 10, 2), bodyMaterial);
+                body.position.y = 10;
+                group.add(body);
+
+                const headGeometry = new THREE.BoxGeometry(3, 3, 3);
+                const headMaterial = new THREE.MeshLambertMaterial({ color });
+                const head = new THREE.Mesh(new THREE.BoxGeometry(3, 3, 3), headMaterial);
+                head.position.y = 17;
+                group.add(head);
+
+                const armGeometry = new THREE.BoxGeometry(1, 8, 1);
+                const armMaterial = new THREE.MeshLambertMaterial({ color });
+                const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+                leftArm.position.set(-3.5, 10, 0);
+                group.add(leftArm);
+                const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+                rightArm.position.set(3.5, 10, 0);
+                group.add(rightArm);
+
+                const legGeometry = new THREE.BoxGeometry(2, 10, 2);
+                const legMaterial = new THREE.MeshLambertMaterial({ color });
+                const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+                leftLeg.position.set(-1, 5, 0);
+                group.add(leftLeg);
+                const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+                rightLeg.position.set(1, 5, 0);
+                group.add(rightLeg);
+
+                group.head = head;
+                group.body = body;
+                group.leftArm = leftArm;
+                group.rightArm = rightArm;
+                group.leftLeg = leftLeg;
+                group.rightLeg = rightLeg;
+
+                group.animationTime = 0;
+                group.animationSpeed = 10.0;
+                group.isMoving = false;
+                group.isAttacking = false;
+                group.attackTime = 0;
+
+                group.userData = {
+                    name: 'Friendly NPC',
+                    health: 100,
+                    dialogue: 'Hello!',
+                    weight: 1
+                };
+
+                return group;
+            }
+        
+    </script>
         <script src="init.js"></script>
+        <script src="inventory.js"></script>
+        <script src="enemies.js"></script>
+        <script src="neutralanimals.js"></script>
+        <script src="teleport.js"></script>
         <script src="main.js"></script>
         <script src="npc.js"></script>
         <script src="admin.js"></script>
         <script src="purplestructure.js"></script>
         <script src="bestiary.js"></script>
         <script src="settlement.js"></script>
-        <script src="inventory.js"></script>
-        <script src="enemies.js"></script>
+        
+        
         <script src="ui.js"></script>
         <script src="spawnzone.js"></script>
-        <script src="updatedisplays.js"></script>
+        
         <script src="questLog.js"></script>
         <script src="tooltips.js"></script>
-        <script src="teleport.js"></script>
+        
         <script src="skilltree.js"></script>
         <script src="randomitems.js"></script>
         <script src="chest.js"></script>
-        <script src="neutralanimals.js"></script>
+        
         <script src="hostilequadrupeds.js"></script>
         <script src="settlement.js"></script>
         <script src="characterCreation.js"></script> 
         <script src="characterSprite.js"></script>
+        <script src="updatedisplays.js"></script>
         
         
 

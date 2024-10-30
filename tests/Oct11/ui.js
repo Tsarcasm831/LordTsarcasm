@@ -23,7 +23,6 @@ function initializeUI() {
 
 // --------------------------------------- Inventory UI ---------------------------------------
 
-let playerInventory = []; // Player inventory
 
 
 
@@ -65,17 +64,6 @@ function hideTooltip() {
 
 // --------------------------------------- Stats UI ---------------------------------------
 
-let characterStats = {
-    level: 1,
-    experience: 0,
-    nextLevelExperience: 100,
-    strength: 10,
-    dexterity: 10,
-    vitality: 10,
-    energy: 10,
-    statPoints: 0
-};
-
 function initializeStatsUI() {
     updateStatsDisplay();
 }
@@ -103,33 +91,6 @@ function increaseStat(stat) {
 
 // --------------------------------------- Skill Tree UI ---------------------------------------
 
-let skillTreeData = {
-    strength: {
-        name: 'Strength Boost',
-        description: 'Increase your strength by 5.',
-        cost: 1,
-        learned: false
-    },
-    dexterity: {
-        name: 'Dexterity Boost',
-        description: 'Increase your dexterity by 5.',
-        cost: 1,
-        learned: false
-    },
-    vitality: {
-        name: 'Vitality Boost',
-        description: 'Increase your vitality by 5.',
-        cost: 1,
-        learned: false
-    },
-    energy: {
-        name: 'Energy Boost',
-        description: 'Increase your energy by 5.',
-        cost: 1,
-        learned: false
-    }
-    // Add more skills as needed
-};
 
 function initializeSkillTreeUI() {
     // Skill Tree is initialized when opened
@@ -220,7 +181,6 @@ function populateBestiary() {
 
 // --------------------------------------- Quest Log UI ---------------------------------------
 
-let quests = []; // Initialize the quest array
 
 function initializeQuestLogUI() {
     // Quest Log is initialized when opened
@@ -252,7 +212,7 @@ function populateQuestLog() {
 
 // --------------------------------------- Help Window UI ---------------------------------------
 
-let helpWindowOpen = false;
+
 
 function initializeHelpWindowUI() {
     // Help Window is initialized when opened
@@ -265,7 +225,7 @@ function toggleHelpWindow() {
 
 // --------------------------------------- Admin Console UI ---------------------------------------
 
-let isAdminLoggedIn = false;
+
 
 function initializeAdminConsoleUI() {
     // Admin Console is initialized when opened
@@ -495,8 +455,6 @@ function lootAllItemsUI() {
 
 // --------------------------------------- NPC Popup UI ---------------------------------------
 
-let npcPopupOpen = false;
-let currentNpc = null;
 
 function initializeNpcPopupUI() {
     // NPC Popup is initialized when opened
@@ -520,7 +478,7 @@ function closeNpcPopupUI() {
 
 // --------------------------------------- Chest Popup UI ---------------------------------------
 
-let currentOpenedChest = null;
+
 
 function initializeChestPopupUI() {
     // Chest Popup is initialized when opened
