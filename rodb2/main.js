@@ -2,8 +2,8 @@
 
 // Import necessary modules
 import { WeatherSystem } from './weather.js';
-import * as THREE from './node_modules/three/build/three.module.js';
-import SimplexNoise from './node_modules/simplex-noise/dist/esm/simplex-noise.js';
+import * as THREE from './libs/three.module.js';
+import SimplexNoise from './libs/simplex-noise.js';
 
 
 

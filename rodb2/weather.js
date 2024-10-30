@@ -1,6 +1,6 @@
 // weather.js - Weather system
 
-import * as THREE from './node_modules/three/build/three.module.js';
+import * as THREE from './libs/three.module.js';
 
 
 const PARTICLE_POOL_SIZE = 15000;
