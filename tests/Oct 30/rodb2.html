@@ -1,0 +1,184 @@
+<html>
+    <head>
+        <title>ROD v0.3.0</title>
+        <script type="module" src="js/libs.js"></script>
+        <script type="module" src="js/app.js"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js"></script>
+        <script src="https://cdn.rawgit.com/mrdoob/three.js/r128/examples/js/utils/BufferGeometryUtils.js"></script>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <div id="info">
+            WASD to move, Space to jump, Mouse to look
+            <button id="sound-button" style="margin-left: 10px;">Sound: Off</button>
+        </div>
+        
+        <div id="biome-info">Current Biome: Unknown</div>
+
+        <div id="crosshair"></div>
+
+        <div class="form-control">
+            <label for="mob-type-select">Select Mob Type:</label>
+            <select id="mob-type-select">
+                <option value="Goblin">Goblin</option>
+                <option value="Orc">Orc</option>
+                <option value="Troll">Troll</option>
+            </select>
+        </div>
+
+        <div id="inventory">
+            <div id="hotbar"></div>
+            <div id="inventory-grid" style="display: none;"></div>
+        </div>
+
+        <div id="crafting-menu" style="display: none;">
+            <div id="crafting-grid"></div>
+            <div id="crafting-result"></div>
+            <button id="craft-button">Craft</button>
+        </div>
+
+        <div id="player-hand-container">
+            <canvas id="player-hand-canvas"></canvas>
+        </div>
+        
+        <div id="status-bars">
+            <div id="health-bar">
+            <div class="bar-fill"></div>
+        </div>
+
+        <div id="hunger-bar">
+            <div class="bar-fill"></div>
+        </div>
+
+        </div>
+            <div id="pause-screen">
+            <h1>PAUSED</h1>
+        </div>
+
+        <div id="admin-console" style="display: none;">
+            <h2>Admin Console</h2>
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="spawn">Spawn Objects</button>
+                <button class="tab-button" data-tab="settings">Game Settings</button>
+                <button class="tab-button" data-tab="player-stats">Player Stats</button>
+                <button class="tab-button" data-tab="inventory">Inventory Management</button>
+                <button class="tab-button" data-tab="physics">Game Physics</button>
+                <button class="tab-button" data-tab="mobs">Mob Controls</button>
+            </div>
+            <div class="tab-content active" id="tab-spawn">
+                <div class="admin-section">
+                    <h3>Spawn Objects</h3>
+                    <div class="form-control">
+                        <label for="spawn-object-menu">Select Object to Spawn:</label>
+                        <select id="spawn-object-menu">
+                            <option value="tree">Tree</option>
+                            <option value="rock">Rock</option>
+                            <option value="boulder">Boulder</option>
+                            <option value="apple_tree">Apple Tree</option>
+                            <option value="cactus">Cactus</option>
+                            <option value="palm_tree">Palm Tree</option>
+                            <option value="spider_web">Spider Web</option>
+                            <option value="wooden_wall">Wooden Wall</option>
+                            <option value="wooden_floor">Wooden Floor</option>
+                            <option value="wooden_door">Wooden Door</option>
+                            <option value="stone_wall">Stone Wall</option>
+                            <option value="stone_floor">Stone Floor</option>
+                        </select>
+                    </div>
+                    <button id="spawn-button">Spawn</button>
+                </div>
+            </div>
+            <div class="tab-content" id="tab-settings">
+                <div class="admin-section">
+                    <h3>Game Settings</h3>
+                    <div class="form-control">
+                        <label for="time-of-day">Set Time of Day:</label>
+                        <select id="time-of-day">
+                            <option value="day">Day</option>
+                            <option value="sunset">Sunset</option>
+                            <option value="night">Night</option>
+                            <option value="sunrise">Sunrise</option>
+                        </select>
+                    </div>
+                    <button id="set-time-button">Set Time</button>
+                    <div class="form-control">
+                        <label for="weather">Set Weather:</label>
+                        <select id="weather">
+                            <option value="clear">Clear</option>
+                            <option value="rain">Rain</option>
+                            <option value="snow">Snow</option>
+                        </select>
+                    </div>
+                    <button id="set-weather-button">Set Weather</button>
+                </div>
+            </div>
+            <div class="tab-content" id="tab-player-stats">
+                <div class="admin-section">
+                    <h3>Player Stats</h3>
+                    <div class="form-control">
+                        <label for="player-health">Health:</label>
+                        <input type="number" id="player-health" min="0" max="100" value="100">
+                    </div>
+                    <button id="set-health-button">Set Health</button>
+                    <div class="form-control">
+                        <label for="player-hunger">Hunger:</label>
+                        <input type="number" id="player-hunger" min="0" max="100" value="100">
+                    </div>
+                    <button id="set-hunger-button">Set Hunger</button>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-inventory">
+                <div class="admin-section">
+                    <h3>Inventory Management</h3>
+                    <div class="form-control">
+                        <label for="give-item">Give Item:</label>
+                        <select id="give-item">
+                            <option value="Apple">Apple</option>
+                            <option value="Stick">Stick</option>
+                            <option value="Stone">Stone</option>
+                            <option value="Coconut">Coconut</option>
+                            <option value="Hammer">Hammer</option>
+                            <option value="Wooden Wall">Wooden Wall</option>
+                            <option value="Wooden Floor">Wooden Floor</option>
+                            <option value="Wooden Door">Wooden Door</option>
+                            <option value="Stone Wall">Stone Wall</option>
+                            <option value="Stone Floor">Stone Floor</option>
+                        </select>
+                    </div>
+                    <button id="give-item-button">Give Item</button>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-physics">
+                <div class="admin-section">
+                    <h3>Game Physics Settings</h3>
+                    <div class="form-control">
+                        <label for="gravity">Gravity:</label>
+                        <input type="number" id="gravity" value="-9.8" step="0.1">
+                    </div>
+                    <button id="set-gravity-button">Set Gravity</button>
+                    <div class="form-control">
+                        <label for="jump-force">Jump Force:</label>
+                        <input type="number" id="jump-force" value="7" step="0.1">
+                    </div>
+                    <button id="set-jump-force-button">Set Jump Force</button>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab-mobs">
+                <div class="admin-section">
+                    <h3>Mob Controls</h3>
+                    <button id="spawn-mob-button">Spawn Mob</button>
+                    <button id="remove-mobs-button">Remove All Mobs</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FIX: Added Mob Health Display -->
+        <div id="mob-health">Mob Health: <span id="mob-health-value">100</span></div>
+
+    </body>
+</html>
