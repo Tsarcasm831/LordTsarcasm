@@ -1,3 +1,4 @@
+// main.js
 function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
