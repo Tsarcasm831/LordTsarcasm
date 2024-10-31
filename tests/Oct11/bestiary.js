@@ -589,6 +589,23 @@ function closeBestiary() {
     }
 }
 
+// Define the toggleBestiary function
+function toggleBestiary() {
+    // Get the bestiary modal element by its ID
+    const bestiaryModal = document.getElementById('bestiaryModal');
+    
+    // Toggle the bestiaryOpen variable between true and false
+    bestiaryOpen = !bestiaryOpen;
+
+    // If bestiaryOpen is true, show the modal and render its content
+    if (bestiaryOpen) {
+        bestiaryModal.style.display = 'block';
+        renderBestiary();  // Ensure the bestiary content loads when opened
+    } else {
+        // If bestiaryOpen is false, hide the modal
+        bestiaryModal.style.display = 'none';
+    }
+}
 
 /**
  * Populates the bestiary modal with all races.
