@@ -5,7 +5,6 @@ const tooltip = document.getElementById('tooltip');
 
 // Initialize UI Components
 function initializeUI() {
-    initializeInventoryUI();
     initializeStatsUI();
     initializeSkillTreeUI();
     initializeBestiaryUI();
