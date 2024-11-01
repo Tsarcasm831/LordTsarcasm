@@ -38,7 +38,7 @@ function updateDisplay() {
     document.getElementById('reputation').textContent = characterStats.reputation;
     document.getElementById('statPoints').textContent = characterStats.statPoints;
     
-    applyAppearanceUpdates(); // Update character appearance based on new stats
+
     renderCharacterSprite(); // Update the character sprite in the inventory
 }
 
