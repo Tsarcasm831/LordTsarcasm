@@ -4,8 +4,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     initializeBestiary();
     setupEventListeners();
-    initializeBestiaryUI();
 });
+
 
 function initializeBestiaryUI() {
     // Add this to ensure rendering when opened
@@ -366,7 +366,10 @@ function setupEventListeners() {
     const bestiaryModal = document.getElementById('bestiaryModal');
 
     if (openBestiaryButton) {
-        openBestiaryButton.addEventListener('click', openBestiary);
+        openBestiaryButton.addEventListener('click', () => {
+            openBestiary();
+            renderBestiary();
+        });
     }
 
     if (closeBestiaryButton) {
@@ -388,6 +391,7 @@ function setupEventListeners() {
         }
     });
 }
+
 
 /**
  * Renders the bestiary content by listing all races.
@@ -585,27 +589,10 @@ function closeBestiary() {
     // Also close creature details if open
     const detailsModal = document.getElementById('creatureDetailsModal');
     if (detailsModal.classList.contains('show')) {
-        closeCreatureDetails();
+        closeCreatureDetails(); // Now handles undefined creatureKey
     }
 }
 
-// Define the toggleBestiary function
-function toggleBestiary() {
-    // Get the bestiary modal element by its ID
-    const bestiaryModal = document.getElementById('bestiaryModal');
-    
-    // Toggle the bestiaryOpen variable between true and false
-    bestiaryOpen = !bestiaryOpen;
-
-    // If bestiaryOpen is true, show the modal and render its content
-    if (bestiaryOpen) {
-        bestiaryModal.style.display = 'block';
-        renderBestiary();  // Ensure the bestiary content loads when opened
-    } else {
-        // If bestiaryOpen is false, hide the modal
-        bestiaryModal.style.display = 'none';
-    }
-}
 
 /**
  * Populates the bestiary modal with all races.
@@ -623,9 +610,16 @@ function closeCreatureDetails(creatureKey) {
     detailsModal.classList.remove('show');
     detailsModal.setAttribute('aria-hidden', 'true');
 
-    // Optionally, remove the 3D model to free up resources
-    const modelContainer = document.getElementById(`model-container-${creatureKey}`);
-    if (modelContainer) {
-        modelContainer.innerHTML = '';
+    if (creatureKey) {
+        const modelContainer = document.getElementById(`model-container-${creatureKey}`);
+        if (modelContainer) {
+            modelContainer.innerHTML = '';
+        }
+    } else {
+        // If no creatureKey is provided, clear all model containers
+        const modelContainers = document.querySelectorAll('[id^="model-container-"]');
+        modelContainers.forEach(container => {
+            container.innerHTML = '';
+        });
     }
 }

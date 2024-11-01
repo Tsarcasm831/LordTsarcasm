@@ -1,21 +1,101 @@
 /* Modified rodstyles.css */
-/* Updated to improve Bestiary modal toggle, responsiveness, and image resizing */
+/* Enhanced Bestiary and Music Modal for Better Responsiveness and Fit */
 
-/* Existing CSS */
+/* ======================= */
+/*       Reset Styles      */
+/* ======================= */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 body, html { 
     margin: 0; 
     padding: 0; 
     overflow: hidden; 
+    height: 100%; /* Ensure body takes full height */
+    font-family: Arial, sans-serif; /* Consistent font */
+    background-color: #121212; /* Dark background for better contrast */
+    color: #e0e0e0; /* Light text for readability */
 }
 
+/* ======================= */
+/*       General Styles    */
+/* ======================= */
+
+/* Hide scrollbars for the entire application */
+body, html {
+    overflow: hidden;
+}
+
+/* Ensure modals take full viewport */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow: auto; /* Enable scroll if content overflows */
+    z-index: 1000; /* Base z-index for modals */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Show modals using Flexbox for centering */
+.modal.show {
+    display: flex;
+}
+
+/* General Modal Content Styling */
+.modal-content {
+    position: relative;
+    background: #1A1A1A;
+    color: #e0e0e0;
+    padding: 20px;
+    border: 2px solid #FFD700;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 1200px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+    transition: all 0.3s ease;
+}
+
+/* Close Buttons Styling */
+.close-button, .close-details {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 30px;
+    cursor: pointer;
+    color: #FFD700;
+    background: none;
+    border: none;
+}
+
+.close-button:hover, .close-details:hover {
+    color: #fff;
+}
+
+/* ======================= */
+/*      Game Canvas        */
+/* ======================= */
 #gameCanvas { 
     display: block; 
+    width: 100%;
+    height: 100%;
+    background-color: #000; /* Background color for the game canvas */
 }
 
+/* ======================= */
+/*      Inventory & Stats  */
+/* ======================= */
 #inventory, #stats {
     position: absolute;
-    width: 850px; /* Adjusted width for new inventory layout */
-    height: 650px; /* Adjusted height for new inventory layout */
     background: rgba(0, 0, 0, 0.8);
     color: #fff;
     display: none;
@@ -23,35 +103,46 @@ body, html {
     border: 2px solid #aaa;
     z-index: 10;
     overflow-y: auto; /* Allow scrolling if content overflows vertically */
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
 }
 
+/* Inventory Styling */
 #inventory { 
     top: 50%; 
     left: 50%; 
     transform: translate(-50%, -50%); 
+    width: 90%;
+    max-width: 900px;
+    height: 80vh;
 }
 
+/* Stats Styling */
 #stats {
-    position: absolute;
-    width: 400px;
-    height: auto;
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    display: none;
-    padding: 20px;
-    border: 2px solid #aaa;
-    z-index: 10;
-    overflow-y: auto;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    width: 400px;
+    height: auto;
 }
 
 #stats button {
     margin-right: 10px;
     margin-bottom: 10px;
+    padding: 8px 12px;
+    background-color: #FFD700;
+    color: #2c2c2c;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
+#stats button:hover {
+    background-color: #e6c200;
+}
+
+/* Hotbar Styling */
 #hotbar {
     position: absolute;
     bottom: 10px; /* Adjusted position */
@@ -110,6 +201,8 @@ body, html {
     overflow-y: auto;
     display: none;
     z-index: 1001;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
 }
 
 .skill {
@@ -118,6 +211,12 @@ body, html {
     margin-bottom: 10px;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.skill:hover {
+    background-color: #555;
+    transform: scale(1.02);
 }
 
 .skill.learned {
@@ -129,7 +228,6 @@ body, html {
     background-color: #222;
     cursor: not-allowed;
 }
-
 
 .slot {
     width: 64px;
@@ -146,6 +244,7 @@ body, html {
     background: rgba(255, 255, 255, 0.2);
 }
 
+/* Minimap Container */
 #minimapContainer {
     position: absolute;
     top: 10px;
@@ -159,10 +258,12 @@ body, html {
     border-radius: 10px;
 }
 
+/* Inventory Tabs */
 #inventoryTabs {
     display: flex;
     gap: 5px;
     margin-top: 10px;
+    flex-wrap: wrap;
 }
 
 .inventory-tab {
@@ -171,6 +272,10 @@ body, html {
     color: #fff;
     border: none;
     cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    flex: 1 1 auto;
+    text-align: center;
 }
 
 .inventory-tab.active {
@@ -200,8 +305,16 @@ body, html {
     height: 50px;
     border: 1px solid #fff;
     background: rgba(255, 255, 255, 0.1);
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
+.inventory-slot:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* NPC Popup */
 #npcPopup {
     position: absolute;
     width: 400px;
@@ -214,11 +327,14 @@ body, html {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
 }
 
+/* Life Orb */
 #lifeOrb {
     position: absolute;
-    bottom: 100px; /* Adjusted position */
+    bottom: 100px;
     left: 20px;
     width: 100px;
     height: 100px;
@@ -253,9 +369,10 @@ body, html {
     text-shadow: 1px 1px 2px #000;
 }
 
+/* Energy Orb */
 #energyOrb {
     position: absolute;
-    bottom: 100px; /* Matched with health orb */
+    bottom: 100px;
     right: 20px;
     width: 100px;
     height: 100px;
@@ -280,6 +397,7 @@ body, html {
     text-shadow: 1px 1px 2px #000;
 }
 
+/* Teleportation Bar */
 #teleportationBarContainer {
     position: absolute;
     bottom: 50%;
@@ -291,14 +409,16 @@ body, html {
     background-color: rgba(0, 0, 0, 0.7);
     z-index: 10;
     display: none;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 #teleportationBar {
     width: 0%;
     height: 100%;
     background-color: #00ff00;
+    transition: width 0.3s ease;
 }
-
 
 /* Admin Console Modal Styles */
 #adminConsole {
@@ -324,17 +444,26 @@ body, html {
     max-height: 90%;
     overflow-y: auto;
     position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
 }
 
-/* Close Button */
+/* Close Button for Admin Console */
 #adminConsole .close-button {
     position: absolute;
-    top: 15px;
-    right: 20px;
-    background: transparent;
+    top: 10px;
+    right: 25px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    background: none;
     border: none;
-    font-size: 24px;
-    color: #e0e0e0;
+    cursor: pointer;
+}
+
+#adminConsole .close-button:hover,
+#adminConsole .close-button:focus {
+    color: black;
+    text-decoration: none;
     cursor: pointer;
 }
 
@@ -445,29 +574,6 @@ body, html {
     margin-right: 10px;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    #adminConsole .modal-content {
-        width: 95%;
-        padding: 20px;
-    }
-
-    .admin-tabs {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .tab-button {
-        width: 100%;
-        max-width: none;
-    }
-
-    .admin-tab-content button {
-        width: 100%;
-    }
-}
-
-
 /* Loading Overlay Styles */
 .loading-overlay {
     position: fixed;
@@ -496,8 +602,6 @@ body, html {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
-
 
 /* Tooltip Styles */
 .tooltip {
@@ -533,7 +637,7 @@ body, html {
     white-space: pre-line;
 }
 
-/* Rarity colors */
+/* Rarity Colors */
 .common { color: #FFFFFF; }
 .uncommon { color: #00FF00; }
 .rare { color: #0070DD; }
@@ -549,7 +653,7 @@ body, html {
     font-weight: bold;
 }
 
-
+/* Loot Bar Container */
 #lootBarContainer {
     position: absolute;
     bottom: 50%;
@@ -561,14 +665,18 @@ body, html {
     background-color: rgba(0, 0, 0, 0.7);
     z-index: 10;
     display: none;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 #lootBar {
     width: 0%;
     height: 100%;
     background-color: #ffff00;
+    transition: width 0.3s ease;
 }
 
+/* Loot Popup */
 #lootPopup {
     position: absolute;
     width: 400px;
@@ -582,8 +690,11 @@ body, html {
     left: 50%;
     transform: translate(-50%, -50%);
     display: none;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
 }
 
+/* NPC Admin Popup */
 #npcAdminPopup {
     position: absolute;
     width: 400px;
@@ -597,6 +708,8 @@ body, html {
     left: 50%;
     transform: translate(-50%, -50%);
     overflow-y: auto;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
 }
 
 #npcAdminPopup input,
@@ -607,33 +720,25 @@ body, html {
     color: #fff;
     border: 1px solid #555;
     padding: 5px;
+    border-radius: 4px;
 }
 
 #npcAdminPopup button {
     margin-right: 10px;
-}
-
-.inventory-slot {
-    position: relative;
+    padding: 8px 12px;
+    background-color: #FFD700;
+    color: #2c2c2c;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.3s;
 }
 
-.inventory-slot:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+#npcAdminPopup button:hover {
+    background-color: #e6c200;
 }
 
-#entityTooltip {
-    position: fixed;
-    background-color: rgba(0, 0, 0, 0.9);
-    border: 1px solid #444;
-    border-radius: 4px;
-    pointer-events: none;
-    z-index: 1000;
-    max-width: 300px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
+/* Chest Popup */
 #chestPopup {
     position: absolute;
     width: 800px;
@@ -648,27 +753,27 @@ body, html {
     transform: translate(-50%, -50%);
     overflow-y: auto;
     display: none;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
 }
 
 #chestInventoryContainer {
     display: flex;
     gap: 20px;
-    flex-wrap: wrap; /* Allow wrapping if necessary */
+    flex-wrap: wrap;
 }
 
 #chestPopup .inventoryGrid {
     max-height: 400px;
     overflow-y: auto;
-}
-
-#chestPopup .inventoryGrid {
     display: grid;
-    grid-template-columns: repeat(7, 50px); /* Adjust columns as needed */
+    grid-template-columns: repeat(7, 50px);
     grid-auto-rows: 50px;
     gap: 2px;
     margin-top: 10px;
 }
 
+/* Help Window */
 #helpWindow {
     position: absolute;
     width: 600px;
@@ -684,6 +789,7 @@ body, html {
     transform: translate(-50%, -50%);
     font-family: Arial, sans-serif;
     border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
     box-sizing: border-box;
 }
 
@@ -698,6 +804,7 @@ body, html {
     padding: 5px 10px;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 #closeHelp:hover {
@@ -716,7 +823,7 @@ body, html {
 }
 
 #helpWindow h2, #helpWindow h3 {
-    color: #ffd700; /* Optional: Gold color for headers */
+    color: #ffd700; /* Gold color for headers */
     margin-top: 0;
 }
 
@@ -731,73 +838,6 @@ body, html {
 
 .updates li, .keybindings li, .features li {
     margin-bottom: 5px;
-}
-
-
-/* Skill Tree Styles */
-#skillTree {
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    background: rgba(0, 0, 0, 0.9);
-    color: #fff;
-    padding: 20px;
-    border: 2px solid #aaa;
-    z-index: 100;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: none;
-    overflow-y: auto;
-    border-radius: 10px;
-}
-
-#skillTree h2 {
-    text-align: center;
-}
-
-#skillsContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.skill {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 10px;
-    border: 1px solid #555;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.skill:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.skill.unavailable {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.skill.learned {
-    background: rgba(0, 255, 0, 0.5);
-    cursor: default;
-}
-
-/* Tooltip Styles */
-.tooltip {
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    padding: 5px 10px;
-    border-radius: 5px;
-    pointer-events: none;
-    font-size: 12px;
-    z-index: 1000; /* Ensure it's above other popups like skillTree */
-    display: none;
-    max-width: 200px;
 }
 
 /* ======================= */
@@ -815,17 +855,19 @@ body, html {
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
     background-color: rgba(0, 0, 0, 0.8); /* Black w/ opacity */
+    align-items: center;
+    justify-content: center;
 }
 
 #bestiaryModal.show {
-    display: block; /* Show the modal */
+    display: flex; /* Use flex to center content */
 }
 
 #bestiaryModal .modal-content {
     background-color: #1A1A1A;
     color: #e0e0e0;
     margin: 5% auto; /* 5% from the top and centered */
-    padding: 20px;
+    padding: 30px;
     border: 2px solid #FFD700;
     width: 90%; /* Could be more or less, depending on screen size */
     max-width: 1200px;
@@ -836,7 +878,6 @@ body, html {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.9); /* Enhanced shadow for better depth */
 }
 
-/* Bestiary Content Styles */
 .bestiary-content {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Responsive columns */
@@ -914,13 +955,14 @@ body, html {
     top: 0;
     width: 100%; /* Full width */
     height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
     background-color: rgba(0, 0, 0, 0.9); /* Darker semi-transparent background */
     transition: opacity 0.3s ease;
+    align-items: center;
+    justify-content: center;
 }
 
 #creatureDetailsModal.show {
-    display: block;
+    display: flex;
     opacity: 1;
 }
 
@@ -947,7 +989,6 @@ body, html {
     margin-bottom: 20px;
 }
 
-/* Detailed Image */
 .creature-detail-image {
     flex: 1 1 300px;
     max-width: 100%;
@@ -961,7 +1002,6 @@ body, html {
     transform: scale(1.02);
 }
 
-/* Stats Container */
 .stats-container {
     flex: 1 1 300px;
     display: flex;
@@ -1010,6 +1050,1278 @@ body, html {
     background-color: #000; /* Background color for the 3D model */
 }
 
+/* ======================= */
+/*      Admin Console      */
+/* ======================= */
+
+/* Admin Console Modal Styles */
+#adminConsole {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.75);
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; /* Ensure it's above other elements */
+}
+
+#adminConsole .modal-content {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    padding: 30px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 800px;
+    max-height: 90%;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+}
+
+/* Close Button */
+#adminConsole .close-button {
+    position: absolute;
+    top: 10px;
+    right: 25px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+#adminConsole .close-button:hover,
+#adminConsole .close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Tab Navigation Styles */
+.admin-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tab-button {
+    background-color: #444;
+    color: #e0e0e0;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    min-width: 120px;
+    text-align: center;
+}
+
+.tab-button:hover {
+    background-color: #555;
+}
+
+.tab-button.active {
+    background-color: #FFD700;
+    color: #2c2c2c;
+}
+
+/* Tab Content Styles */
+.admin-tab-content {
+    display: none; /* Hidden by default */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.admin-tab-content.active {
+    display: block;
+    opacity: 1;
+}
+
+.admin-tab-content h3 {
+    margin-top: 0;
+    color: #FFD700;
+}
+
+.admin-tab-content section {
+    margin-bottom: 20px;
+}
+
+.admin-tab-content h4 {
+    margin-bottom: 10px;
+    color: #FFD700;
+}
+
+/* Form Elements Styles */
+.admin-tab-content input[type="number"],
+.admin-tab-content input[type="password"],
+.admin-tab-content select,
+.admin-tab-content textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #3a3a3a;
+    color: #fff;
+    box-sizing: border-box;
+}
+
+.admin-tab-content input[type="number"]:focus,
+.admin-tab-content input[type="password"]:focus,
+.admin-tab-content select:focus,
+.admin-tab-content textarea:focus {
+    border-color: #FFD700;
+    box-shadow: 0 0 5px #FFD700;
+    outline: none;
+}
+
+/* Buttons Styles */
+.admin-tab-content button {
+    background-color: #FFD700;
+    color: #2c2c2c;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    font-size: 16px;
+}
+
+.admin-tab-content button:hover {
+    background-color: #e6c200;
+}
+
+/* Checkbox Labels */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.checkbox-label input {
+    margin-right: 10px;
+}
+
+/* ======================= */
+/*      Loading Overlay    */
+/* ======================= */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000; /* Above admin console */
+}
+
+.loading-spinner {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #FFD700;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+/* Spinner Animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ======================= */
+/*          Tooltip        */
+/* ======================= */
+.tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    pointer-events: none;
+    font-size: 12px;
+    z-index: 1000; /* Ensure it's above other popups like skillTree */
+    display: none;
+    max-width: 200px;
+}
+
+.tooltip-header {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.tooltip-rarity {
+    font-style: italic;
+    color: #FFD700;
+    margin-bottom: 5px;
+}
+
+.tooltip-description {
+    margin-bottom: 5px;
+}
+
+.tooltip-stats {
+    color: #00FF00;
+    white-space: pre-line;
+}
+
+/* Rarity Colors */
+.common { color: #FFFFFF; }
+.uncommon { color: #00FF00; }
+.rare { color: #0070DD; }
+.epic { color: #A335EE; }
+.legendary { color: #FF8000; }
+
+/* ======================= */
+/*      Additional Styles   */
+/* ======================= */
+
+.admin-tab-content p {
+    margin: 10px 0;
+}
+
+.admin-tab-content label {
+    font-weight: bold;
+}
+
+/* ======================= */
+/*      Loot Bar Container */
+/* ======================= */
+#lootBarContainer {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    width: 200px;
+    height: 20px;
+    border: 2px solid #fff;
+    transform: translate(-50%, 50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 10;
+    display: none;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#lootBar {
+    width: 0%;
+    height: 100%;
+    background-color: #ffff00;
+    transition: width 0.3s ease;
+}
+
+/* ======================= */
+/*         Help Window     */
+/* ======================= */
+#helpWindow {
+    position: absolute;
+    width: 600px;
+    height: 500px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    display: none;
+    padding: 20px;
+    border: 2px solid #aaa;
+    z-index: 10;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: Arial, sans-serif;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    box-sizing: border-box;
+}
+
+#closeHelp {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ff4c4c;
+    border: none;
+    color: white;
+    font-size: 16px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#closeHelp:hover {
+    background-color: #ff0000;
+}
+
+.content {
+    display: flex;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.left-column, .right-column {
+    width: 48%;
+    padding: 10px;
+}
+
+#helpWindow h2, #helpWindow h3 {
+    color: #ffd700; /* Gold color for headers */
+    margin-top: 0;
+}
+
+#helpWindow ul {
+    padding-left: 20px;
+    margin-bottom: 10px;
+}
+
+.updates, .keybindings, .features {
+    list-style-type: disc;
+}
+
+.updates li, .keybindings li, .features li {
+    margin-bottom: 5px;
+}
+
+/* ======================= */
+/*        Skill Tree       */
+/* ======================= */
+
+/* Skill Tree Styles */
+#skillTree {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 20px;
+    border: 2px solid #aaa;
+    z-index: 100;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    overflow-y: auto;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+}
+
+#skillTree h2 {
+    text-align: center;
+    color: #FFD700;
+    margin-top: 0;
+}
+
+#skillsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.skill {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.skill:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+}
+
+.skill.unavailable {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.skill.learned {
+    background: rgba(0, 255, 0, 0.5);
+    cursor: default;
+}
+
+/* ======================= */
+/*       Music Modal       */
+/* ======================= */
+.open-music-button {
+    position: fixed; /* Changed to fixed to stay in viewport */
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #0073e6;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1100; /* Above other elements */
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.open-music-button:hover {
+    background-color: #005bb5;
+    transform: scale(1.05);
+}
+
+/* Music Modal Styles */
+#musicModal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200; /* Above other modals */
+}
+
+#musicModal.show {
+    display: flex;
+}
+
+#musicModal .modal-content {
+    background-color: #1A1A1A;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 800px;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+    border: 2px solid #FFD700;
+    overflow-y: auto;
+}
+
+#musicModal .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: #fff;
+    cursor: pointer;
+}
+
+#musicModal .close-button:hover {
+    color: #FFD700;
+}
+
+/* ======================= */
+/*      NPC Admin Popup    */
+/* ======================= */
+
+/* NPC Admin Popup Styles */
+#npcAdminPopup {
+    position: absolute;
+    width: 400px;
+    height: auto;
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 20px;
+    border: 2px solid #aaa;
+    z-index: 100;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow-y: auto;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+#npcAdminPopup input,
+#npcAdminPopup textarea {
+    width: 100%;
+    margin-bottom: 10px;
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+#npcAdminPopup button {
+    margin-right: 10px;
+    padding: 8px 12px;
+    background-color: #FFD700;
+    color: #2c2c2c;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#npcAdminPopup button:hover {
+    background-color: #e6c200;
+}
+
+/* ======================= */
+/*       Chest Popup       */
+/* ======================= */
+
+/* Chest Popup Styles */
+#chestPopup {
+    position: absolute;
+    width: 800px;
+    max-height: 90%;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 20px;
+    border: 2px solid #aaa;
+    z-index: 10;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow-y: auto;
+    display: none;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+#chestInventoryContainer {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap; /* Allow wrapping if necessary */
+}
+
+#chestPopup .inventoryGrid {
+    max-height: 400px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(7, 50px); /* Adjust columns as needed */
+    grid-auto-rows: 50px;
+    gap: 2px;
+    margin-top: 10px;
+}
+
+/* ======================= */
+/*        Entity Tooltip   */
+/* ======================= */
+#entityTooltip {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.9);
+    border: 1px solid #444;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 1000;
+    max-width: 300px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* ======================= */
+/*      Inventory Slot     */
+/* ======================= */
+.inventory-slot {
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.inventory-slot:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ======================= */
+/*          Bestiary       */
+/* ======================= */
+
+/* Bestiary Modal Styles */
+#bestiaryModal {
+    display: none; /* Default is hidden */
+    position: fixed;
+    z-index: 1000; /* Ensure it is above other elements */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.8); /* Black w/ opacity */
+    align-items: center;
+    justify-content: center;
+}
+
+#bestiaryModal.show {
+    display: flex; /* Use flex to center content */
+}
+
+#bestiaryModal .modal-content {
+    background-color: #1A1A1A;
+    color: #e0e0e0;
+    margin: 5% auto; /* 5% from the top and centered */
+    padding: 30px;
+    border: 2px solid #FFD700;
+    width: 90%; /* Could be more or less, depending on screen size */
+    max-width: 1200px;
+    max-height: 90vh; /* Ensure it doesn't exceed viewport height */
+    overflow-y: auto; /* Scroll vertically if content is too long */
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9); /* Enhanced shadow for better depth */
+}
+
+.bestiary-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Responsive columns */
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Creature Card Styles */
+.creature-card {
+    border: 2px solid #555;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #292929;
+    transition: background 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+}
+
+.creature-card:hover {
+    background-color: #3a3a3a;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); /* Enhanced hover effect */
+}
+
+/* Creature Image Styles */
+.creature-image {
+    width: 100%;
+    height: auto;
+    max-height: 200px; /* Optional: Limit the max height */
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}
+
+.creature-info {
+    text-align: center;
+}
+
+.creature-info h3 {
+    margin: 0 0 10px 0;
+    color: #FFD700;
+    font-size: 1.5em;
+}
+
+.creature-info p {
+    margin: 0 0 15px 0;
+    color: #e0e0e0;
+    font-size: 1em;
+}
+
+.view-details-button {
+    padding: 10px 15px;
+    background-color: #8B0000;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 1em;
+}
+
+.view-details-button:hover {
+    background-color: #FF6347;
+    transform: scale(1.05);
+}
+
+/* Creature Details Modal Styles */
+#creatureDetailsModal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1500; /* Higher than bestiary modal */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    background-color: rgba(0, 0, 0, 0.9); /* Darker semi-transparent background */
+    transition: opacity 0.3s ease;
+    align-items: center;
+    justify-content: center;
+}
+
+#creatureDetailsModal.show {
+    display: flex;
+    opacity: 1;
+}
+
+#creatureDetailsModal .modal-content {
+    background-color: #1A1A1A;
+    color: #e0e0e0;
+    margin: 5% auto; /* 5% from the top and centered */
+    padding: 30px;
+    border: 2px solid #FFD700;
+    width: 90%; /* Could be more or less, depending on screen size */
+    max-width: 1000px;
+    max-height: 90vh; /* Ensure it doesn't exceed viewport height */
+    overflow-y: auto; /* Scroll vertically if content is too long */
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.9); /* Enhanced shadow for better depth */
+}
+
+.creature-detail-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.creature-detail-image {
+    flex: 1 1 300px;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+    transition: transform 0.3s ease-in-out;
+}
+
+.creature-detail-image:hover {
+    transform: scale(1.02);
+}
+
+.stats-container {
+    flex: 1 1 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.stat-item span {
+    flex: 0 0 60px;
+    font-weight: bold;
+    color: #FFD700;
+    font-size: 1.1em;
+    margin-right: 10px;
+}
+
+.stat-bar {
+    flex: 1;
+    background: #555;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: inset 0 0 5px #000;
+}
+
+.progress {
+    background: linear-gradient(90deg, #FFD700 0%, #FF8C00 100%);
+    height: 100%;
+    width: 0;
+    transition: width 1s ease-in-out;
+}
+
+/* 3D Model Container */
+.model-container {
+    width: 100%;
+    height: 400px;
+    margin-top: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+    background-color: #000; /* Background color for the 3D model */
+}
+
+/* ======================= */
+/*         Music Page      */
+/* ======================= */
+
+/* Open Music Button */
+.open-music-button {
+    position: fixed; /* Fixed to stay in viewport */
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #0073e6;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1100; /* Above other elements */
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.open-music-button:hover {
+    background-color: #005bb5;
+    transform: scale(1.05);
+}
+
+/* Music Modal Styles */
+#musicModal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200; /* Above other modals */
+}
+
+#musicModal.show {
+    display: flex;
+}
+
+#musicModal .modal-content {
+    background-color: #1A1A1A;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 800px;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+    border: 2px solid #FFD700;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+/* Close Button for Music Modal */
+#musicModal .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: #fff;
+    cursor: pointer;
+}
+
+#musicModal .close-button:hover {
+    color: #FFD700;
+}
+
+/* Music Controls */
+.music-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.music-player {
+    width: 100%;
+    max-width: 600px;
+}
+
+.music-player audio {
+    width: 100%;
+    outline: none;
+}
+
+/* Playlist Styling */
+.playlist {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.playlist-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.playlist-item:hover {
+    background-color: #555;
+    transform: scale(1.02);
+}
+
+.playlist-item.active {
+    background-color: #FFD700;
+    color: #2c2c2c;
+}
+
+.playlist-item .track-name {
+    flex: 1;
+}
+
+.playlist-item .remove-track {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 10px;
+}
+
+.playlist-item .remove-track:hover {
+    color: #ff4c4c;
+}
+
+/* Add Track Button */
+.add-track-button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 16px;
+}
+
+.add-track-button:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+/* ======================= */
+/*        Responsive       */
+/* ======================= */
+
+/* Responsive Design Enhancements */
+
+/* Bestiary Modal Responsive Adjustments */
+@media (max-width: 1200px) {
+    #bestiaryModal .modal-content {
+        padding: 20px;
+    }
+
+    .creature-card {
+        max-width: 100%;
+    }
+
+    .creature-image {
+        max-height: 180px;
+    }
+
+    .creature-info h3 {
+        font-size: 1.3em;
+    }
+
+    .view-details-button {
+        font-size: 0.9em;
+        padding: 8px 12px;
+    }
+}
+
+/* Bestiary Modal on Smaller Screens */
+@media (max-width: 768px) {
+    #bestiaryModal .modal-content {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .bestiary-content {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .creature-card {
+        padding: 10px;
+    }
+
+    .creature-image {
+        max-height: 150px;
+    }
+
+    .creature-info h3 {
+        font-size: 1.2em;
+    }
+
+    .view-details-button {
+        font-size: 0.85em;
+        padding: 7px 10px;
+    }
+
+    /* Adjust Creature Details Modal */
+    #creatureDetailsModal .modal-content {
+        padding: 20px;
+    }
+
+    .creature-detail-header {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .creature-detail-image,
+    .stats-container {
+        flex: 1 1 100%;
+    }
+
+    .model-container {
+        height: 300px;
+    }
+}
+
+/* Music Modal Responsive Adjustments */
+@media (max-width: 1200px) {
+    #musicModal .modal-content {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    #musicModal .modal-content {
+        width: 95%;
+        padding: 10px;
+    }
+
+    .open-music-button {
+        padding: 8px 16px;
+        bottom: 15px;
+        right: 15px;
+    }
+
+    /* Music Player Adjustments */
+    .music-controls {
+        gap: 15px;
+    }
+
+    .playlist-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .playlist-item .remove-track {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+
+    .add-track-button {
+        width: 100%;
+    }
+}
+
+/* ======================= */
+/*        Additional       */
+/* ======================= */
+
+/* Smooth Transitions for Modals */
+.modal-content,
+#musicModal .modal-content,
+#creatureDetailsModal .modal-content {
+    transition: all 0.3s ease;
+}
+
+/* Ensure Images are Responsive */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Prevent Body from Scrolling When Modal is Open */
+body.modal-open {
+    overflow: hidden;
+}
+
+/* ======================= */
+/*        Minimap Styles   */
+/* ======================= */
+
+/* Minimap Container */
+#minimapContainer {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 200px;
+    height: 200px;
+    border: 2px solid #fff;
+    overflow: hidden;
+    z-index: 5;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+}
+
+/* Minimap Content */
+#minimapContent {
+    width: 100%;
+    height: 100%;
+    background: url('minimap-background.png') no-repeat center center;
+    background-size: cover;
+}
+
+/* ======================= */
+/*        Chest Styles     */
+/* ======================= */
+
+/* Chest Animation */
+@keyframes chestOpen {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(180deg); }
+}
+
+.chest {
+    width: 100px;
+    height: 100px;
+    background: url('chest-closed.png') no-repeat center center;
+    background-size: contain;
+    animation: chestOpen 2s forwards;
+}
+
+/* Chest Open State */
+.chest.open {
+    background: url('chest-open.png') no-repeat center center;
+    background-size: contain;
+}
+
+/* ======================= */
+/*       Entity Tooltip    */
+/* ======================= */
+
+/* Entity Tooltip Styles */
+#entityTooltip {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.9);
+    border: 1px solid #444;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 1000;
+    max-width: 300px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    padding: 10px;
+}
+
+#entityTooltip .tooltip-header {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#entityTooltip .tooltip-rarity {
+    font-style: italic;
+    color: #FFD700;
+    margin-bottom: 5px;
+}
+
+#entityTooltip .tooltip-description {
+    margin-bottom: 5px;
+}
+
+#entityTooltip .tooltip-stats {
+    color: #00FF00;
+    white-space: pre-line;
+}
+
+/* ======================= */
+/*       Chest Popup       */
+/* ======================= */
+
+/* Chest Popup Styles */
+#chestPopup {
+    position: absolute;
+    width: 800px;
+    max-height: 90%;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 20px;
+    border: 2px solid #aaa;
+    z-index: 10;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow-y: auto;
+    display: none;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+/* Chest Inventory Container */
+#chestInventoryContainer {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap; /* Allow wrapping if necessary */
+}
+
+/* Chest Popup Inventory Grid */
+#chestPopup .inventoryGrid {
+    max-height: 400px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(7, 50px); /* Adjust columns as needed */
+    grid-auto-rows: 50px;
+    gap: 2px;
+    margin-top: 10px;
+}
+
+/* ======================= */
+/*        Keybindings     */
+/* ======================= */
+
+/* Keybindings List */
+.keybindings-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.keybindings-list li {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.keybindings-list li .action {
+    color: #FFD700;
+    font-weight: bold;
+}
+
+.keybindings-list li .key {
+    background-color: #333;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* ======================= */
+/*         Features       */
+/* ======================= */
+
+/* Features List */
+.features-list {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.features-list li {
+    margin-bottom: 10px;
+}
+
+/* ======================= */
+/*         Updates        */
+/* ======================= */
+
+/* Updates List */
+.updates-list {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.updates-list li {
+    margin-bottom: 10px;
+}
+
+/* ======================= */
+/*      Responsive Media   */
+/* ======================= */
+
 /* Responsive Design for Bestiary and Details Modal */
 @media (max-width: 1200px) {
     .creature-card {
@@ -1027,20 +2339,47 @@ body, html {
     .stat-item {
         flex: 1 1 100%;
     }
+
+    #skillTree {
+        width: 90%;
+        height: 90%;
+    }
 }
 
 @media (max-width: 768px) {
-    .stat-item {
-        flex: 1 1 100%;
-    }
-
     #bestiaryModal .modal-content,
-    #creatureDetailsModal .modal-content {
+    #creatureDetailsModal .modal-content,
+    #musicModal .modal-content {
         width: 95%;
+        padding: 15px;
     }
 
-    .model-container {
-        height: 300px;
+    .bestiary-content {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .creature-card {
+        padding: 10px;
+    }
+
+    .creature-image {
+        max-height: 150px;
+    }
+
+    .creature-info h3 {
+        font-size: 1.2em;
+    }
+
+    .view-details-button {
+        font-size: 0.85em;
+        padding: 7px 10px;
+    }
+
+    /* Adjust Creature Details Modal */
+    #creatureDetailsModal .modal-content {
+        padding: 20px;
     }
 
     .creature-detail-header {
@@ -1053,58 +2392,402 @@ body, html {
         flex: 1 1 100%;
     }
 
-    .creature-card {
-        max-width: 100%;
+    .model-container {
+        height: 300px;
+    }
+
+    /* Music Modal Adjustments */
+    .music-controls {
+        gap: 15px;
+    }
+
+    .playlist-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .playlist-item .remove-track {
+        margin-left: 0;
+        margin-top: 5px;
+    }
+
+    .add-track-button {
+        width: 100%;
     }
 }
 
-.open-music-button {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    padding: 10px 20px;
-    background-color: #0073e6;
+/* ======================= */
+/*        Media Queries    */
+/* ======================= */
+
+/* Extra Small Devices (Phones) */
+@media (max-width: 576px) {
+    .creature-card {
+        padding: 8px;
+    }
+
+    .creature-image {
+        max-height: 120px;
+    }
+
+    .creature-info h3 {
+        font-size: 1em;
+    }
+
+    .view-details-button {
+        font-size: 0.8em;
+        padding: 5px 8px;
+    }
+
+    .stat-item span {
+        flex: 0 0 50px;
+        font-size: 1em;
+    }
+
+    .stat-item .stat-bar {
+        height: 15px;
+    }
+
+    .progress {
+        height: 15px;
+    }
+
+    .model-container {
+        height: 250px;
+    }
+
+    /* Music Modal Adjustments */
+    #musicModal .modal-content {
+        padding: 10px;
+    }
+
+    .music-player {
+        max-width: 100%;
+    }
+
+    .playlist {
+        margin-top: 15px;
+    }
+
+    .playlist-item {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ======================= */
+/*        Miscellaneous    */
+/* ======================= */
+
+/* Prevent text selection for buttons */
+button {
+    user-select: none;
+}
+
+/* Smooth Scroll for Modals */
+.modal-content, #musicModal .modal-content, #creatureDetailsModal .modal-content {
+    scroll-behavior: smooth;
+}
+
+/* Animation for Opening and Closing Modals */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.95); }
+}
+
+.modal-content {
+    animation: fadeIn 0.3s forwards;
+}
+
+.modal.show .modal-content {
+    animation: fadeIn 0.3s forwards;
+}
+
+.modal.hide .modal-content {
+    animation: fadeOut 0.3s forwards;
+}
+
+/* Ensure Buttons are Accessible */
+button:focus {
+    outline: 2px solid #FFD700;
+    outline-offset: 2px;
+}
+
+/* ======================= */
+/*        Music Player     */
+/* ======================= */
+
+/* Music Player Controls */
+.music-player-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 20px;
+}
+
+.music-player-controls button {
+    background-color: #444;
     color: #fff;
     border: none;
+    padding: 8px 12px;
     border-radius: 5px;
     cursor: pointer;
-    z-index: 300; /* Ensure it appears above other elements */
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-.open-music-button:hover {
-    background-color: #005bb5;
+.music-player-controls button:hover {
+    background-color: #555;
+    transform: scale(1.05);
 }
 
-/* Music Modal Styles */
-#musicModal {
-    position: fixed;
-    top: 0;
-    left: 0;
+/* Progress Bar */
+.music-player .progress-container {
     width: 100%;
+    background-color: #333;
+    height: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.music-player .progress-bar {
+    width: 0%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: #FFD700;
+    border-radius: 5px;
+    transition: width 0.1s linear;
+}
+
+/* ======================= */
+/*         Animations      */
+/* ======================= */
+
+/* Chest Opening Animation */
+@keyframes chestOpenAnimation {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(180deg); }
+}
+
+.chest.opening {
+    animation: chestOpenAnimation 1s forwards;
+}
+
+/* ======================= */
+/*        Dark Mode        */
+/* ======================= */
+
+/* Optional: Dark Mode Toggle */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-mode .modal-content,
+body.dark-mode #adminConsole .modal-content,
+body.dark-mode #bestiaryModal .modal-content,
+body.dark-mode #creatureDetailsModal .modal-content,
+body.dark-mode #musicModal .modal-content {
+    background-color: #1A1A1A;
+    color: #e0e0e0;
+}
+
+body.dark-mode .creature-card {
+    background-color: #292929;
+    color: #e0e0e0;
+}
+
+body.dark-mode .creature-card:hover {
+    background-color: #3a3a3a;
+}
+
+body.dark-mode .view-details-button {
+    background-color: #8B0000;
+    color: #fff;
+}
+
+body.dark-mode .view-details-button:hover {
+    background-color: #FF6347;
+}
+
+body.dark-mode .tab-button.active {
+    background-color: #FFD700;
+    color: #2c2c2c;
+}
+
+body.dark-mode .admin-tab-content h3,
+body.dark-mode .admin-tab-content h4 {
+    color: #FFD700;
+}
+
+body.dark-mode .tooltip {
+    background-color: rgba(0, 0, 0, 0.9);
+    color: #fff;
+}
+
+body.dark-mode .inventory-slot {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .inventory-slot:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ======================= */
+/*        Best Practices   */
+/* ======================= */
+
+/* Consistent Box Sizing */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Consistent Font Sizing */
+body {
+    font-size: 16px;
+}
+
+h2, h3, h4 {
+    margin: 0 0 10px 0;
+}
+
+p {
+    margin: 0 0 10px 0;
+}
+
+/* Button Accessibility */
+button {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* ======================= */
+/*        Utility Classes  */
+/* ======================= */
+
+/* Flex Utilities */
+.flex {
+    display: flex;
+}
+
+.flex-center {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
 }
 
-#musicModal .modal-content {
-    background-color: #1A1A1A;
-    padding: 20px;
-    border-radius: 10px;
-    width: 80%;
-    max-width: 800px;
-    position: relative;
+.flex-column {
+    display: flex;
+    flex-direction: column;
 }
 
-#musicModal .close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    font-size: 24px;
-    color: #fff;
-    cursor: pointer;
+.flex-row {
+    display: flex;
+    flex-direction: row;
 }
+
+/* Margin Utilities */
+.mt-10 { margin-top: 10px; }
+.mb-10 { margin-bottom: 10px; }
+.mt-20 { margin-top: 20px; }
+.mb-20 { margin-bottom: 20px; }
+
+/* Padding Utilities */
+.p-10 { padding: 10px; }
+.p-20 { padding: 20px; }
+
+/* Display Utilities */
+.d-none { display: none; }
+.d-block { display: block; }
+.d-flex { display: flex; }
+
+/* Text Alignment */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+/* Visibility */
+.visible { visibility: visible; }
+.hidden { visibility: hidden; }
+
+/* Cursor Styles */
+.cursor-pointer { cursor: pointer; }
+.cursor-default { cursor: default; }
+
+/* ======================= */
+/*        Media Queries    */
+/* ======================= */
+
+/* Tablets */
+@media (max-width: 992px) {
+    #inventory, #stats {
+        width: 80%;
+    }
+
+    #minimapContainer {
+        width: 150px;
+        height: 150px;
+    }
+
+    .inventoryGrid {
+        grid-template-columns: repeat(6, 50px);
+    }
+
+    #chestPopup {
+        width: 600px;
+    }
+}
+
+/* Mobile Devices */
+@media (max-width: 576px) {
+    #inventory, #stats {
+        width: 95%;
+    }
+
+    #minimapContainer {
+        width: 120px;
+        height: 120px;
+    }
+
+    .inventoryGrid {
+        grid-template-columns: repeat(5, 50px);
+    }
+
+    #chestPopup {
+        width: 90%;
+    }
+}
+
+/* ======================= */
+/*         Animations      */
+/* ======================= */
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade Out Animation */
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-20px); }
+}
+
+/* Apply Animations to Modals */
+.modal-content {
+    animation: fadeIn 0.3s forwards;
+}
+
+.modal.hide .modal-content {
+    animation: fadeOut 0.3s forwards;
+}
+
+/* ======================= */
+/*         End of CSS      */
+/* ======================= */

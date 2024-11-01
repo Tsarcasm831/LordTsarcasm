@@ -21,47 +21,6 @@ function initializeUI() {
     initializeTeleportationBarUI();
 }
 
-// --------------------------------------- Inventory UI ---------------------------------------
-
-
-
-
-// Function to Show Tooltip
-function showTooltip(event) {
-    const name = this.getAttribute('data-name');
-    const description = this.getAttribute('data-description');
-    tooltip.innerHTML = `<strong>${name}</strong><br>${description}`;
-    tooltip.style.display = 'block';
-}
-
-// Function to Move Tooltip with Mouse
-function moveTooltip(event) {
-    const tooltipWidth = tooltip.offsetWidth;
-    const tooltipHeight = tooltip.offsetHeight;
-    const pageWidth = window.innerWidth;
-    const pageHeight = window.innerHeight;
-
-    let x = event.clientX + 10;
-    let y = event.clientY + 10;
-
-    // Prevent tooltip from going off-screen
-    if (x + tooltipWidth > pageWidth) {
-        x = event.clientX - tooltipWidth - 10;
-    }
-    if (y + tooltipHeight > pageHeight) {
-        y = event.clientY - tooltipHeight - 10;
-    }
-
-    tooltip.style.left = `${x}px`;
-    tooltip.style.top = `${y}px`;
-}
-
-// Function to Hide Tooltip
-function hideTooltip() {
-    tooltip.style.display = 'none';
-    tooltip.innerHTML = '';
-}
-
 // --------------------------------------- Stats UI ---------------------------------------
 
 function initializeStatsUI() {
@@ -147,68 +106,7 @@ function populateSkillTree() {
     }
 }
 
-// --------------------------------------- Bestiary UI ---------------------------------------
 
-function initializeBestiaryUI() {
-    // Bestiary initialization if needed
-}
-
-function openBestiary() {
-    const bestiaryModal = document.getElementById('bestiaryModal');
-    bestiaryModal.style.display = 'block';
-    renderBestiary();  // Ensure content is populated when opened
-}
-
-function closeBestiary() {
-    const bestiaryDiv = document.getElementById('bestiary');
-    bestiaryDiv.style.display = 'none';
-}
-
-function populateBestiary() {
-    const bestiaryContent = document.getElementById('bestiaryContent');
-    bestiaryContent.innerHTML = ''; // Clear existing content
-
-    enemies.forEach(enemy => {
-        if (!enemy.userData.isDead) {
-            const enemyInfo = document.createElement('div');
-            enemyInfo.innerHTML = `<strong>Enemy:</strong> ${enemy.userData.type}<br>`;
-            bestiaryContent.appendChild(enemyInfo);
-        }
-    });
-
-    // Add more details as needed
-}
-
-// --------------------------------------- Quest Log UI ---------------------------------------
-
-
-function initializeQuestLogUI() {
-    // Quest Log is initialized when opened
-}
-
-function openQuestLog() {
-    questLogOpen = true;
-    document.getElementById('questLog').style.display = 'block';
-    populateQuestLog();
-}
-
-function closeQuestLog() {
-    questLogOpen = false;
-    document.getElementById('questLog').style.display = 'none';
-}
-
-function populateQuestLog() {
-    const questList = document.getElementById('questList');
-    questList.innerHTML = ''; // Clear existing quests
-
-    quests.forEach(quest => {
-        const questItem = document.createElement('li');
-        questItem.innerText = `${quest.name}: ${quest.description}`;
-        questList.appendChild(questItem);
-    });
-
-    // Add more quest details as needed
-}
 
 // --------------------------------------- Help Window UI ---------------------------------------
 
