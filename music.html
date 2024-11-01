@@ -385,7 +385,54 @@
         .coming-soon-sidebar a:hover {
             color: #0073e6;
         }
+        /* Styles for Scheduled Releases */
+        .scheduled-releases {
+            margin-top: 50px;
+        }
 
+        .scheduled-releases h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .scheduled-releases .album-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .scheduled-releases .album-card {
+            width: 200px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .scheduled-releases .album-card:hover {
+            transform: scale(1.05);
+        }
+
+        .scheduled-releases .album-cover {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .scheduled-releases .album-info {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .scheduled-releases .album-title {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .scheduled-releases .album-details {
+            font-size: 14px;
+            color: #777;
+        }
     </style>
 </head>
 
@@ -395,12 +442,12 @@
             <div class="logo">Lord Tsarcasm</div>
             <nav class="nav-menu">
                 <a href="https://www.lordtsarcasm.com">Home</a></li>
-<a href="https://tsarcasm831.github.io/LordTsarcasm/about.html">About</a><
-<a href="https://tsarcasm831.github.io/LordTsarcasm/projects.html">Project
-<a href="https://tsarcasm831.github.io/LordTsarcasm/music.html">Music</a><
-<a href="https://www.facebook.com/lordtsarcasm">Poetry</a></li>
-<a href="https://tsarcasm831.github.io/LordTsarcasm/ai_art.html">AI Art</a
-<a href="https://www.youtube.com/@lordtsarcasm/videos">Videos</a></li>
+                <a href="https://tsarcasm831.github.io/LordTsarcasm/about.html">About</a>
+                <a href="https://tsarcasm831.github.io/LordTsarcasm/projects.html">Project
+                <a href="https://tsarcasm831.github.io/LordTsarcasm/music.html">Music</a>
+                <a href="https://www.facebook.com/lordtsarcasm">Poetry</a></li>
+                <a href="https://tsarcasm831.github.io/LordTsarcasm/ai_art.html">AI Art</a>
+                <a href="https://www.youtube.com/@lordtsarcasm/videos">Videos</a></li>
             </nav>
         </div>
     </header>
@@ -416,7 +463,14 @@
             <li><a href="#" onclick="openModal('stranger-modal')">Stranger</a></li>
         </ul>
     </div>
-
+    
+    <!-- Scheduled Releases Section -->
+    <div class="container scheduled-releases">
+        <h2>SCHEDULED RELEASES</h2>
+        <div class="album-grid" id="scheduledReleasesGrid">
+            <!-- Scheduled release albums will be dynamically added here -->
+        </div>
+    </div>
 
     <div class="container new-releases">
         <h2>NEW/PLANNED RELEASES</h2>
@@ -449,7 +503,7 @@
     </div>
 
     <div class="container">
-        <p>Lord Tsarcasm is the enigmatic alter ego of Xris Hawkins, a solitary NPC psionicist within the world of ROD. Together, they embody both a masterful storyteller and a rare, god-like presence, seamlessly weaving intricate narratives and occasionally intervening in player campaigns with their formidable powers. As Lord Tsarcasm, Xris Hawkins guides adventurers through epic tales, shaping destinies and adding depth to the unfolding saga with each subtle yet impactful intervention.</p>
+        <p>Lord Tsarcasm is the stage name of Xris Hawkins, a solitary NPC psionicist within the world of ROD. Xris and Lord Tsarcasm embody both a masterful storyteller and a rare, god-like presence, seamlessly weaving intricate narratives and occasionally intervening in player campaigns with their formidable powers. As Lord Tsarcasm, Xris Hawkins guides adventurers through epic tales, shaping destinies and adding depth to the unfolding saga with each subtle yet impactful intervention.</p>
 
         <div class="album-grid" id="albumGrid">
             <!-- Album cards will be dynamically added here -->
@@ -502,6 +556,23 @@
             const albumGrid = $('#albumGrid');
             let imageSet = '';
             
+            const scheduledReleasesData = [
+                { 
+                    id: 'icould-modal', 
+                    title: 'I Could... I Could...', 
+                    image: 'icould.png', 
+                    details: 'Single - 2024 - 1 song', 
+                    description: 'A powerful anthem that inspires listeners to keep believing in themselves and their dreams.',
+                    songList: `
+                        <ul>
+                            <audio controls controlsList="nodownload">
+                                <source src="music/icouldicould.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </ul>`,
+                },
+            ];
+
             const newReleasesData = [
                 {
                     id: 'hellstrom-modal',
@@ -638,20 +709,7 @@
                             </audio>
                         </ul>`,
                 },
-                { 
-                    id: 'icould-modal', 
-                    title: 'I Could... I Could...', 
-                    image: 'icould.png', 
-                    details: 'Single - 2024 - 1 song', 
-                    description: 'A powerful anthem that inspires listeners to keep believing in themselves and their dreams.',
-                    songList: `
-                        <ul>
-                            <audio controls controlsList="nodownload">
-                                <source src="music/icouldicould.mp3" type="audio/mpeg">
-                                Your browser does not support the audio element.
-                            </audio>
-                        </ul>`,
-                },
+                
                 { 
                     id: 'stranger-modal', 
                     title: 'Stranger', 
@@ -923,6 +981,45 @@
                 
             ];
             
+            // Handle Scheduled Releases
+            const scheduledReleasesGrid = $('#scheduledReleasesGrid');
+            let scheduledReleasesSet = '';
+
+            scheduledReleasesData.forEach(album => {
+                const imgPath = imageFolder + album.image;
+                scheduledReleasesSet += `
+                    <div class="album-card" onclick="openModal('${album.id}')">
+                        <img src="${imgPath}" alt="${album.title}" class="album-cover">
+                        <div class="album-info">
+                            <div class="album-title">${album.title}</div>
+                            <div class="album-details">${album.details}</div>
+                        </div>
+                    </div>
+                `;
+
+                // Append modal to body
+                $('body').append(`
+                    <div id="${album.id}" class="modal">
+                        <div class="modal-content">
+                            <span class="close" onclick="closeModal('${album.id}')">&times;</span>
+                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover">
+                            <div class="modal-album-title">${album.title}</div>
+                            <div class="modal-album-details">${album.details}</div>
+                            <div class="modal-description">
+                                <p>${album.description}</p>
+                            </div>
+                            <div class="modal-song-list">
+                                ${album.songList}
+                            </div>
+                        </div>
+                    </div>
+                `);
+            });
+
+            // Append to the DOM
+            scheduledReleasesGrid.append(scheduledReleasesSet);
+
+
             // Handle New Releases
             const newReleasesGrid = $('#newReleasesGrid');
             let newReleasesSet = '';
