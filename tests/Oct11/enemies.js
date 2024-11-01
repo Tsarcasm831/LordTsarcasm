@@ -1,4 +1,5 @@
 
+// Initialize Enemies
 function initEnemies() {
     // Spawn Red Enemies (Regular)
     for (let i = 0; i < 10; i++) {
@@ -15,8 +16,154 @@ function initEnemies() {
         enemies.push(blueEnemy);
         scene.add(blueEnemy);
     }
+
+    // Spawn Green Enemies
+    for (let i = 0; i < 5; i++) { // Adding more enemy types
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let greenEnemy = createEnemy(position.x, 0, position.z, 'green');
+        enemies.push(greenEnemy);
+        scene.add(greenEnemy);
+    }
+
+    // Spawn Yellow Enemies
+    for (let i = 0; i < 4; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let yellowEnemy = createEnemy(position.x, 0, position.z, 'yellow');
+        enemies.push(yellowEnemy);
+        scene.add(yellowEnemy);
+    }
+
+    // Spawn Purple Enemies
+    for (let i = 0; i < 2; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let purpleEnemy = createEnemy(position.x, 0, position.z, 'purple');
+        enemies.push(purpleEnemy);
+        scene.add(purpleEnemy);
+    }
+
+    // Spawn Orange Enemies
+    for (let i = 0; i < 6; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let orangeEnemy = createEnemy(position.x, 0, position.z, 'orange');
+        enemies.push(orangeEnemy);
+        scene.add(orangeEnemy);
+    }
+
+    // Spawn Cyan Enemies
+    for (let i = 0; i < 3; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let cyanEnemy = createEnemy(position.x, 0, position.z, 'cyan');
+        enemies.push(cyanEnemy);
+        scene.add(cyanEnemy);
+    }
+
+    // Spawn Magenta Enemies
+    for (let i = 0; i < 4; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let magentaEnemy = createEnemy(position.x, 0, position.z, 'magenta');
+        enemies.push(magentaEnemy);
+        scene.add(magentaEnemy);
+    }
+
+    // Spawn Lime Enemies
+    for (let i = 0; i < 5; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let limeEnemy = createEnemy(position.x, 0, position.z, 'lime');
+        enemies.push(limeEnemy);
+        scene.add(limeEnemy);
+    }
+
+    // Spawn Additional Enemy Types with Unique Properties
+    // Black Enemies
+    for (let i = 0; i < 3; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let blackEnemy = createEnemy(position.x, 0, position.z, 'black');
+        enemies.push(blackEnemy);
+        scene.add(blackEnemy);
+    }
+
+    // White Enemies
+    for (let i = 0; i < 3; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let whiteEnemy = createEnemy(position.x, 0, position.z, 'white');
+        enemies.push(whiteEnemy);
+        scene.add(whiteEnemy);
+    }
+
+    // Grey Enemies
+    for (let i = 0; i < 4; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let greyEnemy = createEnemy(position.x, 0, position.z, 'grey');
+        enemies.push(greyEnemy);
+        scene.add(greyEnemy);
+    }
+
+    // Brown Enemies
+    for (let i = 0; i < 2; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let brownEnemy = createEnemy(position.x, 0, position.z, 'brown');
+        enemies.push(brownEnemy);
+        scene.add(brownEnemy);
+    }
+
+    // Pink Enemies
+    for (let i = 0; i < 3; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let pinkEnemy = createEnemy(position.x, 0, position.z, 'pink');
+        enemies.push(pinkEnemy);
+        scene.add(pinkEnemy);
+    }
+
+    // Teal Enemies
+    for (let i = 0; i < 3; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let tealEnemy = createEnemy(position.x, 0, position.z, 'teal');
+        enemies.push(tealEnemy);
+        scene.add(tealEnemy);
+    }
+
+    // Maroon Enemies
+    for (let i = 0; i < 2; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let maroonEnemy = createEnemy(position.x, 0, position.z, 'maroon');
+        enemies.push(maroonEnemy);
+        scene.add(maroonEnemy);
+    }
+
+    // Navy Enemies
+    for (let i = 0; i < 2; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let navyEnemy = createEnemy(position.x, 0, position.z, 'navy');
+        enemies.push(navyEnemy);
+        scene.add(navyEnemy);
+    }
+
+    // Olive Enemies
+    for (let i = 0; i < 3; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let oliveEnemy = createEnemy(position.x, 0, position.z, 'olive');
+        enemies.push(oliveEnemy);
+        scene.add(oliveEnemy);
+    }
+
+    // Silver Enemies
+    for (let i = 0; i < 2; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let silverEnemy = createEnemy(position.x, 0, position.z, 'silver');
+        enemies.push(silverEnemy);
+        scene.add(silverEnemy);
+    }
+
+    // Gold Enemies
+    for (let i = 0; i < 2; i++) {
+        let position = getRandomPositionOutsideTown(300, 1000);
+        let goldEnemy = createEnemy(position.x, 0, position.z, 'gold');
+        enemies.push(goldEnemy);
+        scene.add(goldEnemy);
+    }
 }
 
+// Function to check if enemies are in the safe zone
 function checkEnemiesInSafeZone() {
     const safeZoneRadius = 300; // Radius of the safe zone
 
@@ -37,6 +184,7 @@ function checkEnemiesInSafeZone() {
     });
 }
 
+// Function to get a random position outside the town
 function getRandomPositionOutsideTown(minDistance, maxDistance) {
     let angle = Math.random() * 2 * Math.PI;
     let distance = minDistance + Math.random() * (maxDistance - minDistance);
@@ -45,6 +193,7 @@ function getRandomPositionOutsideTown(minDistance, maxDistance) {
     return { x: x, z: z };
 }
 
+// Function to spawn various entities
 function spawnEntities() {
     const entityType = document.getElementById('entityTypeSelect').value;
     const quantity = parseInt(document.getElementById('entityQuantityInput').value);
@@ -81,29 +230,202 @@ function spawnEntities() {
             createTreasureChest(spawnPosition.x, spawnPosition.y, spawnPosition.z);
             alert('Treasure Chest spawned.');
         } else if (entityType === 'settlement') {
-			createSettlement(spawnPosition.x, spawnPosition.y, spawnPosition.z);
-			alert('Settlement spawned.');
-		} else if (entityType === 'quadruped') {
-			const quadruped = createQuadruped();
-			quadruped.position.set(spawnPosition.x, spawnPosition.y, spawnPosition.z);
-			quadrupeds.push(quadruped);
-			scene.add(quadruped);
-			alert('Quadruped spawned.');
-		}
+            createSettlement(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            alert('Settlement spawned.');
+        } else if (entityType === 'quadruped') {
+            const quadruped = createQuadruped();
+            quadruped.position.set(spawnPosition.x, spawnPosition.y, spawnPosition.z);
+            quadrupeds.push(quadruped);
+            scene.add(quadruped);
+            alert('Quadruped spawned.');
+        }
     }
 }
 
+// Function to create an enemy
 function createEnemy(x, y, z, type) {
-    // Define enemy types with associated colors and damage rates
+    // Define enemy types with associated colors, textures, patterns, heights, body shapes, and damage rates
     const enemyTypes = {
-        'blue': { color: 0x0000ff, damageRate: 4, name: 'Blue Warrior' },
-        'green': { color: 0x00ff00, damageRate: 3, name: 'Green Archer' },
-        'yellow': { color: 0xffff00, damageRate: 2.5, name: 'Yellow Mage' },
-        'purple': { color: 0x800080, damageRate: 3.5, name: 'Purple Assassin' },
-        'orange': { color: 0xffa500, damageRate: 2.8, name: 'Orange Knight' },
-        'cyan': { color: 0x00ffff, damageRate: 3, name: 'Cyan Paladin' },
-        'magenta': { color: 0xff00ff, damageRate: 3.2, name: 'Magenta Sorcerer' },
-        'lime': { color: 0x32cd32, damageRate: 2.6, name: 'Lime Ranger' }
+        'red': {
+            color: 0xff0000,
+            texture: 'textures/enemies/red.png',
+            pattern: 'striped',
+            height: 1.8,
+            bodyShape: 'muscular',
+            damageRate: 2.5,
+            name: 'Red Warrior'
+        },
+        'blue': {
+            color: 0x0000ff,
+            texture: 'textures/enemies/blue.png',
+            pattern: 'spotted',
+            height: 1.6,
+            bodyShape: 'slim',
+            damageRate: 3.0,
+            name: 'Blue Archer'
+        },
+        'green': {
+            color: 0x00ff00,
+            texture: 'textures/enemies/green.png',
+            pattern: 'scaly',
+            height: 1.7,
+            bodyShape: 'stocky',
+            damageRate: 2.8,
+            name: 'Green Guardian'
+        },
+        'yellow': {
+            color: 0xffff00,
+            texture: 'textures/enemies/yellow.png',
+            pattern: 'plain',
+            height: 1.5,
+            bodyShape: 'average',
+            damageRate: 3.2,
+            name: 'Yellow Mage'
+        },
+        'purple': {
+            color: 0x800080,
+            texture: 'textures/enemies/purple.png',
+            pattern: 'spiky',
+            height: 1.9,
+            bodyShape: 'tall',
+            damageRate: 3.5,
+            name: 'Purple Assassin'
+        },
+        'orange': {
+            color: 0xffa500,
+            texture: 'textures/enemies/orange.png',
+            pattern: 'striped',
+            height: 1.75,
+            bodyShape: 'muscular',
+            damageRate: 2.8,
+            name: 'Orange Knight'
+        },
+        'cyan': {
+            color: 0x00ffff,
+            texture: 'textures/enemies/cyan.png',
+            pattern: 'geometric',
+            height: 1.65,
+            bodyShape: 'slim',
+            damageRate: 3.0,
+            name: 'Cyan Paladin'
+        },
+        'magenta': {
+            color: 0xff00ff,
+            texture: 'textures/enemies/magenta.png',
+            pattern: 'dotted',
+            height: 1.7,
+            bodyShape: 'average',
+            damageRate: 3.2,
+            name: 'Magenta Sorcerer'
+        },
+        'lime': {
+            color: 0x32cd32,
+            texture: 'textures/enemies/lime.png',
+            pattern: 'camouflage',
+            height: 1.6,
+            bodyShape: 'stocky',
+            damageRate: 2.6,
+            name: 'Lime Ranger'
+        },
+        'black': {
+            color: 0x000000,
+            texture: 'textures/enemies/black.png',
+            pattern: 'plain',
+            height: 1.8,
+            bodyShape: 'muscular',
+            damageRate: 3.5,
+            name: 'Black Knight'
+        },
+        'white': {
+            color: 0xffffff,
+            texture: 'textures/enemies/white.png',
+            pattern: 'spotted',
+            height: 1.7,
+            bodyShape: 'tall',
+            damageRate: 3.0,
+            name: 'White Mage'
+        },
+        'grey': {
+            color: 0x808080,
+            texture: 'textures/enemies/grey.png',
+            pattern: 'scaly',
+            height: 1.65,
+            bodyShape: 'average',
+            damageRate: 2.9,
+            name: 'Grey Guardian'
+        },
+        'brown': {
+            color: 0xa52a2a,
+            texture: 'textures/enemies/brown.png',
+            pattern: 'geometric',
+            height: 1.75,
+            bodyShape: 'stocky',
+            damageRate: 2.7,
+            name: 'Brown Ranger'
+        },
+        'pink': {
+            color: 0xffc0cb,
+            texture: 'textures/enemies/pink.png',
+            pattern: 'dotted',
+            height: 1.6,
+            bodyShape: 'slim',
+            damageRate: 3.1,
+            name: 'Pink Sorcerer'
+        },
+        'teal': {
+            color: 0x008080,
+            texture: 'textures/enemies/teal.png',
+            pattern: 'striped',
+            height: 1.8,
+            bodyShape: 'muscular',
+            damageRate: 3.3,
+            name: 'Teal Paladin'
+        },
+        'maroon': {
+            color: 0x800000,
+            texture: 'textures/enemies/maroon.png',
+            pattern: 'plain',
+            height: 1.7,
+            bodyShape: 'tall',
+            damageRate: 3.4,
+            name: 'Maroon Assassin'
+        },
+        'navy': {
+            color: 0x000080,
+            texture: 'textures/enemies/navy.png',
+            pattern: 'spiky',
+            height: 1.75,
+            bodyShape: 'muscular',
+            damageRate: 3.2,
+            name: 'Navy Knight'
+        },
+        'olive': {
+            color: 0x808000,
+            texture: 'textures/enemies/olive.png',
+            pattern: 'camouflage',
+            height: 1.65,
+            bodyShape: 'stocky',
+            damageRate: 2.8,
+            name: 'Olive Ranger'
+        },
+        'silver': {
+            color: 0xc0c0c0,
+            texture: 'textures/enemies/silver.png',
+            pattern: 'geometric',
+            height: 1.7,
+            bodyShape: 'average',
+            damageRate: 3.1,
+            name: 'Silver Paladin'
+        },
+        'gold': {
+            color: 0xffd700,
+            texture: 'textures/enemies/gold.png',
+            pattern: 'dotted',
+            height: 1.8,
+            bodyShape: 'tall',
+            damageRate: 3.6,
+            name: 'Gold Sorcerer'
+        }
     };
 
     // If the provided type is invalid or undefined, select a random type
@@ -112,11 +434,11 @@ function createEnemy(x, y, z, type) {
         type = types[Math.floor(Math.random() * types.length)];
     }
 
-    // Destructure the color, damageRate, and name from the selected enemy type
-    const { color, damageRate, name } = enemyTypes[type];
+    // Destructure the properties from the selected enemy type
+    const { color, texture, pattern, height, bodyShape, damageRate, name } = enemyTypes[type];
 
     // Create the enemy's visual representation (assuming createHumanoid returns a parent Object3D)
-    const enemy = createHumanoid(color);
+    const enemy = createHumanoid(color, texture, pattern, height, bodyShape);
 
     // Set the enemy's position in the scene
     enemy.position.set(x, y, z);
@@ -134,11 +456,17 @@ function createEnemy(x, y, z, type) {
     ).normalize();
     enemy.isMoving = true; 
     enemy.userData.damageRate = damageRate;
+    enemy.userData.pattern = pattern;
+    enemy.userData.height = height;
+    enemy.userData.bodyShape = bodyShape;
 
-    // **Set userData.name on all child meshes**
+    // **Set userData.name and other properties on all child meshes**
     enemy.traverse(function(child) {
         if (child.isMesh) {
             child.userData.name = enemy.userData.name;
+            child.userData.pattern = enemy.userData.pattern;
+            child.userData.height = enemy.userData.height;
+            child.userData.bodyShape = enemy.userData.bodyShape;
         }
     });
 
@@ -151,7 +479,83 @@ function createEnemy(x, y, z, type) {
     return enemy;
 }
 
+// Function to apply patterns to enemy meshes
+function applyPattern(mesh, pattern) {
+    switch(pattern) {
+        case 'striped':
+            // Apply striped texture or material
+            mesh.material = new THREE.MeshBasicMaterial({ 
+                color: mesh.material.color,
+                wireframe: false
+            });
+            // Additional pattern logic here...
+            break;
+        case 'spotted':
+            // Apply spotted texture or material
+            mesh.material = new THREE.MeshBasicMaterial({ 
+                color: mesh.material.color,
+                wireframe: false
+            });
+            // Additional pattern logic here...
+            break;
+        case 'scaly':
+            // Apply scaly texture or material
+            mesh.material = new THREE.MeshBasicMaterial({ 
+                color: mesh.material.color,
+                wireframe: false
+            });
+            // Additional pattern logic here...
+            break;
+        case 'plain':
+            // Plain material, no pattern
+            break;
+        case 'spiky':
+            // Apply spiky texture or geometry modifications
+            break;
+        case 'geometric':
+            // Apply geometric patterns
+            break;
+        case 'dotted':
+            // Apply dotted patterns
+            break;
+        case 'camouflage':
+            // Apply camouflage patterns
+            break;
+        default:
+            // Default pattern
+            break;
+    }
+}
 
+// Function to apply body shapes to enemy humanoids
+function applyBodyShape(humanoid, bodyShape) {
+    switch(bodyShape) {
+        case 'muscular':
+            // Modify geometry to appear more muscular
+            humanoid.scale.set(1.2, humanoid.scale.y, 1.2);
+            break;
+        case 'slim':
+            // Modify geometry to appear slimmer
+            humanoid.scale.set(0.8, humanoid.scale.y, 0.8);
+            break;
+        case 'stocky':
+            // Modify geometry to appear stockier
+            humanoid.scale.set(1.0, humanoid.scale.y, 1.0);
+            break;
+        case 'tall':
+            // Modify geometry to appear taller
+            humanoid.scale.set(1.0, humanoid.scale.y * 1.2, 1.0);
+            break;
+        case 'average':
+            // Default scaling
+            break;
+        default:
+            // Default scaling
+            break;
+    }
+}
+
+// Function to move enemies
 function moveEnemies(delta) {
     enemies.forEach((enemy) => {
         if (enemy.userData.isDead) return;
@@ -294,6 +698,9 @@ function moveEnemies(delta) {
                     }
                 }
             }
+
+            // Animate the enemy
+            animateHumanoid(enemy, delta);
         }
 
         // Animate the enemy

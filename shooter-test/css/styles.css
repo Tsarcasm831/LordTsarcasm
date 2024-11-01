@@ -1,0 +1,226 @@
+/* styles.css */
+body {
+margin: 0;
+overflow: hidden;
+background: #000;
+}
+canvas {
+display: block;
+}
+.controls {
+position: fixed;
+top: 10px;
+left: 10px;
+color: white;
+font-family: monospace;
+background: rgba(0,0,0,0.5);
+padding: 10px;
+border-radius: 5px;
+}
+.editor-controls {
+position: fixed;
+top: 10px;
+right: 10px;
+background: rgba(0,0,0,0.85);
+padding: 15px;
+border-radius: 8px;
+color: white;
+font-family: monospace;
+width: 220px; /* Increase width if necessary */
+}
+.editor-controls h3 {
+margin: 0 0 10px 0;
+border-bottom: 1px solid #666;
+padding-bottom: 5px;
+}
+.editor-controls .tool-group {
+margin-bottom: 15px;
+}
+.editor-controls button,
+.editor-controls select {
+display: block;
+margin: 8px 0;
+padding: 8px;
+width: 100%;
+background: #555;
+border: 1px solid #777;
+color: white;
+cursor: pointer;
+border-radius: 4px;
+transition: background 0.2s;
+}
+.editor-controls button:hover,
+.editor-controls select:hover {
+background: #666;
+}
+#weaponCanvas {
+position: fixed;
+bottom: 0;
+left: 50%;
+transform: translateX(-50%);
+pointer-events: none;
+z-index: 2; /* Ensure weaponCanvas is above muzzleFlashCanvas */
+}
+#muzzleFlashCanvas {
+position: fixed;
+bottom: 0;
+left: 50%;
+transform: translateX(-50%);
+pointer-events: none;
+mix-blend-mode: screen;
+z-index: 1; /* Ensure muzzleFlashCanvas is below weaponCanvas */
+}
+
+.hud {
+position: fixed;
+bottom: 0;
+left: 0;
+width: 100%;
+background: rgba(0, 0, 0, 0.7);
+color: white;
+font-family: monospace;
+display: flex;
+justify-content: space-around;
+padding: 10px 0;
+z-index: 3;
+}
+
+.hud .health-bar,
+.hud .ammo-count {
+font-size: 20px;
+}
+.hud button#muteButton {
+background: #555;
+border: 1px solid #777;
+color: white;
+cursor: pointer;
+border-radius: 4px;
+padding: 8px;
+font-family: monospace;
+}
+.hud button#muteButton:hover {
+background: #666;
+}
+.text-editor {
+position: fixed;
+right: 220px;
+top: 10px;
+background: rgba(0,0,0,0.85);
+padding: 15px;
+border-radius: 8px;
+color: white;
+font-family: monospace;
+display: none;
+}
+.text-editor h3 {
+margin: 0 0 10px 0;
+border-bottom: 1px solid #666;
+padding-bottom: 5px;
+}
+.text-editor textarea {
+width: 200px;
+height: 200px;
+background: #222;
+color: #0f0;
+font-family: monospace;
+border: 1px solid #444;
+margin: 10px 0;
+padding: 10px;
+border-radius: 4px;
+}
+.text-editor button {
+margin: 5px;
+padding: 5px 10px;
+background: #444;
+border: 1px solid #666;
+color: white;
+cursor: pointer;
+}
+.text-editor-dialog {
+display: none;
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background: rgba(0,0,0,0.9);
+padding: 20px;
+border-radius: 5px;
+color: white;
+font-family: monospace;
+z-index: 1000;
+}
+.text-editor-dialog textarea {
+width: 400px;
+height: 300px;
+background: #222;
+color: #0f0;
+font-family: monospace;
+border: 1px solid #444;
+margin: 10px 0;
+padding: 10px;
+}
+.map-editor-dialog {
+display: none;
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background: rgba(0,0,0,0.95);
+padding: 20px;
+border-radius: 8px;
+z-index: 1000;
+width: 80%;
+height: 80%;
+}
+.map-editor-dialog canvas {
+border: 1px solid #444;
+background: #111;
+}
+.map-editor-tools {
+position: absolute;
+right: 20px;
+top: 20px;
+width: 220px; /* Increase width if necessary */
+max-height: calc(100% - 40px); /* Leave some space for padding */
+overflow-y: auto;
+}
+.map-editor-dialog select,
+.map-editor-dialog button {
+display: block;
+width: 100%;
+margin: 5px 0;
+padding: 8px;
+background: #333;
+border: 1px solid #555;
+color: white;
+border-radius: 4px;
+}
+.editor-grid {
+display: grid;
+grid-template-columns: auto 220px;
+gap: 20px;
+height: 100%;
+}
+.close-editor {
+position: absolute;
+right: 10px;
+top: 10px;
+background: #500;
+border: none;
+color: white;
+width: 30px;
+height: 30px;
+border-radius: 50%;
+cursor: pointer;
+}
+.map-editor-dialog textarea#mapCodeArea {
+width: 100%;
+height: 100px;
+background: #222;
+color: #0f0;
+font-family: monospace;
+border: 1px solid #444;
+margin: 10px 0;
+padding: 10px;
+border-radius: 4px;
+}

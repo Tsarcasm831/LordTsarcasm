@@ -1,2234 +1,1997 @@
-<html><head><base href="." />
-    <meta charset="UTF-8">
-    <title>Basic Raycaster Demo</title>
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-        background: #000;
-      }
-      canvas {
-        display: block;
-      }
-      .controls {
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        color: white;
-        font-family: monospace;
-        background: rgba(0,0,0,0.5);
-        padding: 10px;
-        border-radius: 5px;
-      }
-      .editor-controls {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        background: rgba(0,0,0,0.85);
-        padding: 15px;
-        border-radius: 8px;
-        color: white;
-        font-family: monospace;
-        width: 220px; /* Increase width if necessary */
-      }
-      .editor-controls h3 {
-        margin: 0 0 10px 0;
-        border-bottom: 1px solid #666;
-        padding-bottom: 5px;
-      }
-      .editor-controls .tool-group {
-        margin-bottom: 15px;
-      }
-      .editor-controls button,
-      .editor-controls select {
-        display: block;
-        margin: 8px 0;
-        padding: 8px;
-        width: 100%;
-        background: #555;
-        border: 1px solid #777;
-        color: white;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: background 0.2s;
-      }
-      .editor-controls button:hover,
-      .editor-controls select:hover {
-        background: #666;
-      }
-      #weaponCanvas {
-        position: fixed;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        pointer-events: none;
-        z-index: 2; /* Ensure weaponCanvas is above muzzleFlashCanvas */
-      }
-      #muzzleFlashCanvas {
-        position: fixed;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        pointer-events: none;
-        mix-blend-mode: screen;
-        z-index: 1; /* Ensure muzzleFlashCanvas is below weaponCanvas */
-      }
-    
-      .hud {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        font-family: monospace;
-        display: flex;
-        justify-content: space-around;
-        padding: 10px 0;
-        z-index: 3;
-      }
-    
-      .hud .health-bar,
-      .hud .ammo-count {
-        font-size: 20px;
-      }
-      .hud button#muteButton {
-        background: #555;
-        border: 1px solid #777;
-        color: white;
-        cursor: pointer;
-        border-radius: 4px;
-        padding: 8px;
-        font-family: monospace;
-      }
-      .hud button#muteButton:hover {
-        background: #666;
-      }
-      .text-editor {
-        position: fixed;
-        right: 220px;
-        top: 10px;
-        background: rgba(0,0,0,0.85);
-        padding: 15px;
-        border-radius: 8px;
-        color: white;
-        font-family: monospace;
-        display: none;
-      }
-      .text-editor h3 {
-        margin: 0 0 10px 0;
-        border-bottom: 1px solid #666;
-        padding-bottom: 5px;
-      }
-      .text-editor textarea {
-        width: 200px;
-        height: 200px;
-        background: #222;
-        color: #0f0;
-        font-family: monospace;
-        border: 1px solid #444;
-        margin: 10px 0;
-        padding: 10px;
-        border-radius: 4px;
-      }
-      .text-editor button {
-        margin: 5px;
-        padding: 5px 10px;
-        background: #444;
-        border: 1px solid #666;
-        color: white;
-        cursor: pointer;
-      }
-      .text-editor-dialog {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0,0,0,0.9);
-        padding: 20px;
-        border-radius: 5px;
-        color: white;
-        font-family: monospace;
-        z-index: 1000;
-      }
-      .text-editor-dialog textarea {
-        width: 400px;
-        height: 300px;
-        background: #222;
-        color: #0f0;
-        font-family: monospace;
-        border: 1px solid #444;
-        margin: 10px 0;
-        padding: 10px;
-      }
-      .map-editor-dialog {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0,0,0,0.95);
-        padding: 20px;
-        border-radius: 8px;
-        z-index: 1000;
-        width: 80%;
-        height: 80%;
-      }
-      .map-editor-dialog canvas {
-        border: 1px solid #444;
-        background: #111;
-      }
-      .map-editor-tools {
-        position: absolute;
-        right: 20px;
-        top: 20px;
-        width: 220px; /* Increase width if necessary */
-        max-height: calc(100% - 40px); /* Leave some space for padding */
-        overflow-y: auto;
-      }
-      .map-editor-dialog select,
-      .map-editor-dialog button {
-        display: block;
-        width: 100%;
-        margin: 5px 0;
-        padding: 8px;
-        background: #333;
-        border: 1px solid #555;
-        color: white;
-        border-radius: 4px;
-      }
-      .editor-grid {
-        display: grid;
-        grid-template-columns: auto 220px;
-        gap: 20px;
-        height: 100%;
-      }
-      .close-editor {
-        position: absolute;
-        right: 10px;
-        top: 10px;
-        background: #500;
-        border: none;
-        color: white;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        cursor: pointer;
-      }
-      .map-editor-dialog textarea#mapCodeArea {
-        width: 100%;
-        height: 100px;
-        background: #222;
-        color: #0f0;
-        font-family: monospace;
-        border: 1px solid #444;
-        margin: 10px 0;
-        padding: 10px;
-        border-radius: 4px;
-      }
-    </style>
+<html>
+    <head>
+
+        <meta charset="UTF-8">
+        <title>Basic Raycaster Demo</title>
+        <link rel="stylesheet" href="css/styles.css">
     </head>
     <body>
-    <div class="controls">
-      Use WASD to move<br>
-      Mouse to look around<br>
-      Click to start<br>
-      Left Click to shoot<br><br>
-      <label for="pixelSizeSlider">Floor Pixel Size: <span id="pixelSizeValue">10</span></label><br>
-      <input type="range" id="pixelSizeSlider" min="1" max="40" value="10">
-    </div>
-    <div class="editor-controls" style="display: none;">
-      <h3>Map Editor</h3>
-      
-      <div class="tool-group">
-        <label>Tile Type:</label>
-        <select id="tileType">
-          <option value="0">Empty Space</option>
-          <option value="1">Wall</option>
-          <option value="2">Goop</option>
-          <option value="3">Floor Tile</option>
-          <option value="4">Pools</option>
-          <option value="5">Grass</option>
-          <option value="C">Ceiling</option> <!-- New Ceiling Option -->
-          <option value="E">Enemy Tile</option> <!-- New Enemy Tile Option -->
-          <option value="A">Ammunition Crate</option> <!-- New Ammunition Crate Option -->
-          <option value="D">Door</option> <!-- New Door Option -->
-        </select>
-      </div>
-    
-      <div class="tool-group">
-        <h3>Skybox</h3>
-        <select id="gameSkyboxSelect">
-          <option value="sunny">Sunny Sky</option>
-          <option value="city">City Sky</option>
-          <option value="sunset">Sunset Sky</option>
-        </select>
-        <button id="undoAction">Undo</button>
-        <button id="redoAction">Redo</button>
-        <button id="toggleTextEditor">Toggle Text Editor</button>
-        <button id="saveMap">Save Map File</button>
-        <button id="loadMap">Load Map File</button>
-      </div>
-    
-      <small>Click minimap to place tiles</small>
-    </div>
-    <div class="text-editor">
-      <h3>Text Editor</h3>
-      <textarea id="mapText" placeholder="Map data will appear here..."></textarea>
-      <button id="applyMapText">Apply Changes</button>
-    </div>
-    <div class="map-editor-dialog">
-      <button class="close-editor">&times;</button>
-      <div class="editor-grid">
-        <div class="editor-canvas-container">
-          <canvas id="editorCanvas"></canvas>
+        <div class="controls">
+            Use WASD to move<br>
+            Mouse to look around<br>
+            Click to start<br>
+            Left Click to shoot<br><br>
+            <label for="pixelSizeSlider">Floor Pixel Size: <span id="pixelSizeValue">10</span></label><br>
+            <input type="range" id="pixelSizeSlider" min="1" max="40" value="10">
         </div>
-        <div class="map-editor-tools">
-          <h3>Drawing Tools</h3>
-          <button id="drawToolButton" class="active">Draw Mode</button>
-          <button id="eraseToolButton">Erase Mode</button>
-          <button id="fillToolButton">Fill Tool</button>
-          <button id="lineToolButton">Line Tool</button>
-    
-          <h3>Tile Type</h3>
-          <select id="editorTileType">
-            <option value="0">Empty Space</option>
-            <option value="1">Wall</option>
-            <option value="2">Goop</option>
-            <option value="3">Floor Tile</option>
-            <option value="4">Pools</option>
-            <option value="5">Grass</option>
-            <option value="S">Start Position</option>
-            <option value="C">Ceiling</option>
-            <option value="E">Enemy Tile</option>
-            <option value="A">Ammunition Crate</option>
-            <option value="D">Door</option>
-          </select>
-    
-          <h3>Map Controls</h3>
-          <button id="newMap">New Map</button>
-          <button id="applyEditorMap">Apply Map</button>
-          <div class="map-size-inputs">
-            <label>Width: <input type="number" id="mapWidth" value="8" min="3" max="20"></label>
-            <label>Height: <input type="number" id="mapHeight" value="8" min="3" max="20"></label>
-          </div>
-          <div class="start-pos-display">
-            Start Position: <span id="startPosDisplay">Not Set</span>
-          </div>
-    
-          <h3>View</h3>
-          <label>Zoom Level: <span id="zoomLevelDisplay">100%</span></label>
-          <div class="map-controls-info">
-            <small>Mouse wheel to zoom</small><br>
-            <small>Right-click drag to pan</small>
-          </div>
-    
-          <h3>Map Code</h3>
-          <button id="copyMapCode">Copy Map Code</button>
-          <button id="loadMapCode">Load Map Code</button>
-          <textarea id="mapCodeArea" placeholder="Paste map code here..."></textarea>
-    
-          <h3>Skybox</h3>
-          <select id="editorSkyboxSelect">
-            <option value="sunny">Sunny Sky</option>
-            <option value="city">City Sky</option>
-            <option value="sunset">Sunset Sky</option>
-          </select>
+        <div class="editor-controls" style="display: none;">
+            <h3>Map Editor</h3>
+            
+            <div class="tool-group">
+            <label>Tile Type:</label>
+            <select id="tileType">
+                <option value="0">Empty Space</option>
+                <option value="1">Wall</option>
+                <option value="2">Goop</option>
+                <option value="3">Floor Tile</option>
+                <option value="4">Pools</option>
+                <option value="5">Grass</option>
+                <option value="C">Ceiling</option> <!-- New Ceiling Option -->
+                <option value="E">Enemy Tile</option> <!-- New Enemy Tile Option -->
+                <option value="A">Ammunition Crate</option> <!-- New Ammunition Crate Option -->
+                <option value="D">Door</option> <!-- New Door Option -->
+            </select>
+            </div>
+
+            <div class="tool-group">
+            <h3>Skybox</h3>
+            <select id="gameSkyboxSelect">
+                <option value="sunny">Sunny Sky</option>
+                <option value="city">City Sky</option>
+                <option value="sunset">Sunset Sky</option>
+            </select>
+            <button id="undoAction">Undo</button>
+            <button id="redoAction">Redo</button>
+            <button id="toggleTextEditor">Toggle Text Editor</button>
+            <button id="saveMap">Save Map File</button>
+            <button id="loadMap">Load Map File</button>
+            </div>
+
+            <small>Click minimap to place tiles</small>
         </div>
-      </div>
-    </div>
-    <canvas id="game"></canvas>
-    <canvas id="muzzleFlashCanvas"></canvas>
-    <canvas id="weaponCanvas"></canvas>
-    <div class="hud">
-        <div class="health-bar">Health: <span id="health-value">100%</span></div>
-        <div class="ammo-count">Ammo: <span id="ammo-value">10</span></div>
-        <button id="muteButton">Mute</button>
-    </div>
-    
-    <script>
-    const skyboxImages = {
-        sunny: new Image(),
-        city: new Image(),
-        sunset: new Image()
-    };
-    
-    skyboxImages.sunny.src = 'https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/SunnySky.png';
-    skyboxImages.city.src = 'https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/CitySky.png';
-    skyboxImages.sunset.src = 'https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/SunsetSky.png';
-    
-    let currentSkyboxName = 'sunny'; // Default skybox name
-    let currentSkybox = skyboxImages[currentSkyboxName];
-    
-    const ceilingTexture = new Image();
-    ceilingTexture.src = 'https://bghq.com/textures/doom/264.png'; // Replace with the URL of your desired ceiling texture
-    
-    const ammoCrateSprite = new Image();
-    ammoCrateSprite.src = 'https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/ammunition_crate.png';
-    
-    // Load the enemy spritesheet
-    const enemySpriteSheet = new Image();
-    enemySpriteSheet.src = 'https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/CacodemonSpritesheet.png';
-    
-    // Initialize mute state
-    let isMuted = false;
-    
-    // Add mute button functionality
-    document.getElementById('muteButton').addEventListener('click', () => {
-        isMuted = !isMuted;
-        // Mute or unmute all sounds
-        backgroundMusic.muted = isMuted;
-        shootingSound.muted = isMuted;
-        doorOpenSound.muted = isMuted;
-        ammoPickupSound.muted = isMuted;
-        // Update button text
-        document.getElementById('muteButton').textContent = isMuted ? 'Unmute' : 'Mute';
-    });
-    
-    // Load door texture and sound
-    const doorTexture = new Image();
-    doorTexture.src = 'https://bghq.com/textures/doom/069.png';
-    const doorOpenSound = new Audio('https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/dooropen.wav');
-    
-    const canvas = document.getElementById('game');
-    const ctx = canvas.getContext('2d');
-    
-    // Load shooting sound effect
-    const shootingSound = new Audio('https://file.garden/ZqkDHrmuZGkZD3Ia/8d82b5_doom_shotgun_firing_sound_effect.mp3');
-    const backgroundMusic = new Audio('https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/Doom%20II%20OST%20-%20Map%200115%20-%20Running%20from%20Evil%20%5BTubeRipper.cc%5D.mp3');
-    backgroundMusic.loop = true;
-    backgroundMusic.volume = 0.5;
-    const ammoPickupSound = new Audio('https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/dsitemup.wav');
-    
-    // Load floor texture without resizing to avoid tainting the canvas
-    const floorTexture = new Image();
-    floorTexture.src = 'https://bghq.com/textures/doom/085.png';
-    
-    const goopTexture = new Image();
-    goopTexture.src = 'https://bghq.com/textures/doom/164.png';
-    
-    const poolTextures = [];
-    for (let i = 125; i <= 128; i++) {
-        const img = new Image();
-        img.src = `https://bghq.com/textures/doom/${i}.png`;
-        poolTextures.push(img);
-    }
-    
-    const grassTextures = [];
-    grassTextures[0] = new Image();
-    grassTextures[0].src = 'https://bghq.com/textures/doom/136.png';
-    grassTextures[1] = new Image();
-    grassTextures[1].src = 'https://bghq.com/textures/doom/137.png';
-    
-    let editorOffsetX = 0;
-    let editorOffsetY = 0;
-    let maxEditorOffsetX = 0;
-    let maxEditorOffsetY = 0;
-    
-    let cellSize = 32;
-    
-    const wallTexture = new Image();
-    wallTexture.src = 'https://bghq.com/textures/doom/317.png';
-    const waterTexture = new Image();
-    waterTexture.src = 'https://bghq.com/textures/doom/166.png';
-    const poolWallTexture = new Image();
-    poolWallTexture.src = 'https://bghq.com/textures/doom/167.png';
-    
-    const muzzleFlashSprite = new Image();
-    muzzleFlashSprite.src = 'https://file.garden/ZqkDHrmuZGkZD3Ia/MuzzleFlash.png';
-    
-    let muzzleFlashSize = 0.3;        
-    let muzzleFlashXOffset = 48;      
-    let muzzleFlashYOffset = -101;    
-    
-    let floorPixelSize = 10;
-    
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resize);
-    resize();
-    
-    const map = [
-        [1,1,1,1,1,1,1,1],
-        [1,3,3,3,3,3,3,1],
-        [1,3,1,4,1,3,3,1],
-        [1,3,4,4,4,1,3,1],
-        [1,3,1,4,3,3,3,1],
-        [1,3,1,3,1,3,3,1],
-        [1,3,3,3,3,3,3,1],
-        [1,1,1,1,1,1,1,1]
-    ];
-    
-    const ceilingMap = map.map(row => row.map(() => false)); // Initialize with 'false' for all tiles
-    const enemyMap = map.map(row => row.map(() => false)); // Initialize enemyMap with 'false' values
-    const ammoCrateMap = map.map(row => row.map(() => false)); // Initialize ammoCrateMap with 'false' values
-    
-    const wallTypes = [];
-    
-    function updateWallTypes() {
-        for (let y = 0; y < map.length; y++) {
-            wallTypes[y] = [];
-            for (let x = 0; x < map[y].length; x++) {
-                const tile = map[y][x];
-                if (tile === 1) {
-                    wallTypes[y][x] = 1; // Standard wall
-                } else if (tile === 2) {
-                    wallTypes[y][x] = 2; // Goop wall
-                } else if (tile === 'D') {
-                    wallTypes[y][x] = 'door'; // Door
-                } else {
-                    wallTypes[y][x] = null; // Empty space or other types
-                }
-            }
-        }
-    }
-    
-    updateWallTypes();
-    
-    class AmmoCrate {
-        constructor(x, y) {
-            this.x = x;
-            this.y = y;
-            this.collected = false;
-        }
-    }
-    
-    let ammoCrates = [];
-    
-    function initializeAmmoCrates() {
-        ammoCrates = [];
-        for (let y = 0; y < map.length; y++) {
-            for (let x = 0; x < map[y].length; x++) {
-                if (ammoCrateMap[y][x]) {
-                    ammoCrates.push(new AmmoCrate(x + 0.5, y + 0.5));
-                }
-            }
-        }
-    }
-    
-    class Enemy {
-        constructor(x, y) {
-            this.x = x;
-            this.y = y;
-            this.speed = 0.02;
-            this.state = 'idle';
-            this.deathAnimationTime = 0;
-            this.deathAnimationDuration = 500;
-            this.attackCooldown = 0;
-            this.attackAnimationTime = 0;
-            this.attackAnimationDuration = 600;
-            this.health = 100;
-            this.spriteFrameX = 0;
-            this.spriteFrameY = 0;
-            this.lastFrameTime = 0;
-            this.animationSpeed = 100;
-        }
-    
-        update(player, deltaTime) {
-            if (this.state === 'dying') {
-                this.deathAnimationTime += deltaTime;
-                if (this.deathAnimationTime >= this.deathAnimationDuration) {
-                    this.state = 'dead';
-                }
-            } else if (this.state === 'attacking') {
-                const currentTime = Date.now();
-                if (currentTime - this.lastFrameTime > this.animationSpeed) {
-                    this.spriteFrameY++;
-                    if (this.spriteFrameY > 5) {
-                        this.spriteFrameY = 0;
-                        this.state = 'idle';
-                        this.attackCooldown = 2000;
-                        projectiles.push(new Projectile(this.x, this.y, player.x, player.y));
+        <div class="text-editor">
+            <h3>Text Editor</h3>
+            <textarea id="mapText" placeholder="Map data will appear here..."></textarea>
+            <button id="applyMapText">Apply Changes</button>
+        </div>
+        <div class="map-editor-dialog">
+            <button class="close-editor">&times;</button>
+            <div class="editor-grid">
+            <div class="editor-canvas-container">
+                <canvas id="editorCanvas"></canvas>
+            </div>
+            <div class="map-editor-tools">
+                <h3>Drawing Tools</h3>
+                <button id="drawToolButton" class="active">Draw Mode</button>
+                <button id="eraseToolButton">Erase Mode</button>
+                <button id="fillToolButton">Fill Tool</button>
+                <button id="lineToolButton">Line Tool</button>
+
+                <h3>Tile Type</h3>
+                <select id="editorTileType">
+                <option value="0">Empty Space</option>
+                <option value="1">Wall</option>
+                <option value="2">Goop</option>
+                <option value="3">Floor Tile</option>
+                <option value="4">Pools</option>
+                <option value="5">Grass</option>
+                <option value="S">Start Position</option>
+                <option value="C">Ceiling</option>
+                <option value="E">Enemy Tile</option>
+                <option value="A">Ammunition Crate</option>
+                <option value="D">Door</option>
+                </select>
+
+                <h3>Map Controls</h3>
+                <button id="newMap">New Map</button>
+                <button id="applyEditorMap">Apply Map</button>
+                <div class="map-size-inputs">
+                <label>Width: <input type="number" id="mapWidth" value="8" min="3" max="20"></label>
+                <label>Height: <input type="number" id="mapHeight" value="8" min="3" max="20"></label>
+                </div>
+                <div class="start-pos-display">
+                Start Position: <span id="startPosDisplay">Not Set</span>
+                </div>
+
+                <h3>View</h3>
+                <label>Zoom Level: <span id="zoomLevelDisplay">100%</span></label>
+                <div class="map-controls-info">
+                <small>Mouse wheel to zoom</small><br>
+                <small>Right-click drag to pan</small>
+                </div>
+
+                <h3>Map Code</h3>
+                <button id="copyMapCode">Copy Map Code</button>
+                <button id="loadMapCode">Load Map Code</button>
+                <textarea id="mapCodeArea" placeholder="Paste map code here..."></textarea>
+
+                <h3>Skybox</h3>
+                <select id="editorSkyboxSelect">
+                <option value="sunny">Sunny Sky</option>
+                <option value="city">City Sky</option>
+                <option value="sunset">Sunset Sky</option>
+                </select>
+            </div>
+            </div>
+        </div>
+        <canvas id="game"></canvas>
+        <canvas id="muzzleFlashCanvas"></canvas>
+        <canvas id="weaponCanvas"></canvas>
+        <div class="hud">
+            <div class="health-bar">Health: <span id="health-value">100%</span></div>
+            <div class="ammo-count">Ammo: <span id="ammo-value">10</span></div>
+            <button id="muteButton">Mute</button>
+        </div>
+
+        <!-- Scripts -->
+        <script>
+            const skyboxImages = {
+                sunny: new Image(),
+                city: new Image(),
+                sunset: new Image()
+            };
+            const muzzleFlash = {
+                canvas: document.getElementById('muzzleFlashCanvas'),
+                frame: 0,
+                totalFrames: 4,
+                animationSpeed: 50, 
+                lastFrameTime: 0,
+                isAnimating: false
+            };
+            const muzzleFlashCtx = muzzleFlash.canvas.getContext('2d');
+            const screenFlash = {
+                duration: 200, // Flash duration in milliseconds
+                opacity: 0,
+                maxOpacity: 0.8,
+                startTime: 0,
+                isFlashing: false,
+                trigger: function() {
+                    this.isFlashing = true;
+                    this.opacity = this.maxOpacity;
+                    this.startTime = Date.now();
+                },
+                update: function() {
+                    if (!this.isFlashing) return;
+                    const elapsedTime = Date.now() - this.startTime;
+                    if (elapsedTime >= this.duration) {
+                        this.isFlashing = false;
+                        this.opacity = 0;
+                        return;
                     }
-                    this.lastFrameTime = currentTime;
+                    this.opacity = this.maxOpacity * (1 - elapsedTime / this.duration);
+                },
+                draw: function() {
+                    if (!this.isFlashing) return;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
                 }
-            } else {
-                const dx = player.x - this.x;
-                const dy = player.y - this.y;
-                const distance = Math.hypot(dx, dy);
-    
-                if (distance < 5 && this.attackCooldown <= 0) {
-                    this.state = 'attacking';
+            };
+            const weapons = {
+                pistol: {
+                    name: 'pistol',
+                    sprite: new Image(),
+                    frame: 0,
+                    isAnimating: false,
+                    animationSpeed: 50,  // Faster animation for pistol
+                    lastFrameTime: 0,
+                    reversing: false,
+                    totalFrames: 5,
+                    damage: 20,  // Less damage
+                    ammo: 20,  // Initial pistol ammo
+                    canShoot: true,
+                    spriteSrc: 'https://file.garden/ZqkDHrmuZGkZD3Ia/PistolSpritesheet.png'
+                },
+                shotgun: {
+                    name: 'shotgun',
+                    sprite: new Image(),
+                    frame: 0,
+                    isAnimating: false,
+                    animationSpeed: 100,
+                    lastFrameTime: 0,
+                    reversing: false,
+                    totalFrames: 4,
+                    damage: 50,
+                    ammo: 10,  // Initial ammo for shotgun
+                    canShoot: true,
+                    spriteSrc: 'https://file.garden/ZqkDHrmuZGkZD3Ia/GunSpritesheet.png'
+                }
+            };
+            const weaponCanvas = document.getElementById('weaponCanvas');
+            const weaponCtx = weaponCanvas.getContext('2d');
+            const editorDialog = document.querySelector('.map-editor-dialog');
+            const editorCanvas = document.getElementById('editorCanvas');
+            const editorCtx = editorCanvas.getContext('2d');
+            const editorControls = document.querySelector('.editor-controls');
+            const textEditor = document.querySelector('.text-editor');
+            const toggleTextEditorBtn = document.getElementById('toggleTextEditor');
+            const minZoomLevel = 0.5;
+            const maxZoomLevel = 3;
+            const konamiCode = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright'];
+            const enemySpriteSheet = new Image();
+            const ceilingTexture = new Image();
+            const ammoCrateSprite = new Image();
+            const doorTexture = new Image();
+            const doorOpenSound = new Audio('https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/dooropen.wav');
+            const canvas = document.getElementById('game');
+            const ctx = canvas.getContext('2d');
+            const shootingSound = new Audio('https://file.garden/ZqkDHrmuZGkZD3Ia/8d82b5_doom_shotgun_firing_sound_effect.mp3');
+            const backgroundMusic = new Audio('https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/Doom%20II%20OST%20-%20Map%200115%20-%20Running%20from%20Evil%20%5BTubeRipper.cc%5D.mp3');
+            const ammoPickupSound = new Audio('https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/dsitemup.wav');
+            const floorTexture = new Image();
+            const goopTexture = new Image();
+            const poolTextures = [];
+            const grassTextures = [];
+            const wallTexture = new Image();
+            const waterTexture = new Image();
+            const poolWallTexture = new Image();
+            const muzzleFlashSprite = new Image();
+            const map = [
+                [1,1,1,1,1,1,1,1],
+                [1,3,3,3,3,3,3,1],
+                [1,3,1,4,1,3,3,1],
+                [1,3,4,4,4,1,3,1],
+                [1,3,1,4,3,3,3,1],
+                [1,3,1,3,1,3,3,1],
+                [1,3,3,3,3,3,3,1],
+                [1,1,1,1,1,1,1,1]
+            ];
+            const ceilingMap = map.map(row => row.map(() => false)); // Initialize with 'false' for all tiles
+            const enemyMap = map.map(row => row.map(() => false)); // Initialize enemyMap with 'false' values
+            const ammoCrateMap = map.map(row => row.map(() => false)); // Initialize ammoCrateMap with 'false' values
+            const player = {
+                x: 1.5,
+                y: 1.5,
+                angle: 0,
+                speed: 0.05,
+                turnSpeed: 0.05,
+                velocityX: 0,
+                velocityY: 0,
+                friction: 0.9,
+                acceleration: 0.005,
+                health: 100,
+                ammo: 10,
+                bobTime: 0,
+                bobAmount: 0
+            };
+            const wallTypes = [];
+            const keys = {};
+            
+            let enemies = [];
+            let openingDoors = [];
+            let undoStack = [];
+            let redoStack = [];
+            let projectiles = [];
+            let lastFrameTime = 0;
+            let currentWeapon = weapons.pistol;
+            let editorMode = false;
+            let editorStartPos = {x: 1.5, y: 1.5}; 
+            let zoomLevel = 1;
+            let isPanning = false;
+            let panStartX = 0;
+            let panStartY = 0;
+            let panOffsetX = 0;
+            let panOffsetY = 0;
+            let isDrawing = false;
+            let currentTool = 'draw';
+            let lineStartX = null;
+            let lineStartY = null;
+            let konamiIndex = 0;
+            let currentSkyboxName = 'sunny'; // Default skybox name
+            let currentSkybox = skyboxImages[currentSkyboxName];
+            let isMuted = false;
+            let editorOffsetX = 0;
+            let editorOffsetY = 0;
+            let maxEditorOffsetX = 0;
+            let maxEditorOffsetY = 0;
+            let ammoCrates = [];
+            let cellSize = 32;
+            let muzzleFlashSize = 0.3;        
+            let muzzleFlashXOffset = 48;      
+            let muzzleFlashYOffset = -101;    
+            let floorPixelSize = 10;
+            
+            ceilingTexture.src = 'https://bghq.com/textures/doom/264.png'; // Replace with the URL of your desired ceiling texture
+            ammoCrateSprite.src = 'https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/ammunition_crate.png';          
+            enemySpriteSheet.src = 'https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/CacodemonSpritesheet.png';
+            doorTexture.src = 'https://bghq.com/textures/doom/069.png';
+            backgroundMusic.loop = true;
+            backgroundMusic.volume = 0.5;
+            floorTexture.src = 'https://bghq.com/textures/doom/085.png';
+            goopTexture.src = 'https://bghq.com/textures/doom/164.png';
+            grassTextures[0] = new Image();
+            grassTextures[0].src = 'https://bghq.com/textures/doom/136.png';
+            grassTextures[1] = new Image();
+            grassTextures[1].src = 'https://bghq.com/textures/doom/137.png';
+            wallTexture.src = 'https://bghq.com/textures/doom/317.png';
+            waterTexture.src = 'https://bghq.com/textures/doom/166.png';
+            poolWallTexture.src = 'https://bghq.com/textures/doom/167.png';
+            muzzleFlashSprite.src = 'https://file.garden/ZqkDHrmuZGkZD3Ia/MuzzleFlash.png';
+            skyboxImages.sunny.src = 'https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/SunnySky.png';
+            skyboxImages.city.src = 'https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/CitySky.png';
+            skyboxImages.sunset.src = 'https://file.garden/ZqkDHrmuZGkZD3Ia/doom%20shit/SunsetSky.png';
+            weapons.pistol.sprite.src = weapons.pistol.spriteSrc;
+            weapons.shotgun.sprite.src = weapons.shotgun.spriteSrc;
+            
+
+            document.getElementById('muteButton').addEventListener('click', () => {
+                isMuted = !isMuted;
+                // Mute or unmute all sounds
+                backgroundMusic.muted = isMuted;
+                shootingSound.muted = isMuted;
+                doorOpenSound.muted = isMuted;
+                ammoPickupSound.muted = isMuted;
+                // Update button text
+                document.getElementById('muteButton').textContent = isMuted ? 'Unmute' : 'Mute';
+            });
+            
+            for (let i = 125; i <= 128; i++) {
+                const img = new Image();
+                img.src = `https://bghq.com/textures/doom/${i}.png`;
+                poolTextures.push(img);
+            }
+            
+            
+
+            
+            
+            
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            function updateWallTypes() {
+                for (let y = 0; y < map.length; y++) {
+                    wallTypes[y] = [];
+                    for (let x = 0; x < map[y].length; x++) {
+                        const tile = map[y][x];
+                        if (tile === 1) {
+                            wallTypes[y][x] = 1; // Standard wall
+                        } else if (tile === 2) {
+                            wallTypes[y][x] = 2; // Goop wall
+                        } else if (tile === 'D') {
+                            wallTypes[y][x] = 'door'; // Door
+                        } else {
+                            wallTypes[y][x] = null; // Empty space or other types
+                        }
+                    }
+                }
+            }
+            updateWallTypes();
+
+            class AmmoCrate {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.collected = false;
+                }
+            }
+            class Enemy {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.speed = 0.02;
+                    this.state = 'idle';
+                    this.deathAnimationTime = 0;
+                    this.deathAnimationDuration = 500;
+                    this.attackCooldown = 0;
                     this.attackAnimationTime = 0;
+                    this.attackAnimationDuration = 600;
+                    this.health = 100;
+                    this.spriteFrameX = 0;
                     this.spriteFrameY = 0;
+                    this.lastFrameTime = 0;
+                    this.animationSpeed = 100;
+                }
+
+                update(player, deltaTime) {
+                    if (this.state === 'dying') {
+                        this.deathAnimationTime += deltaTime;
+                        if (this.deathAnimationTime >= this.deathAnimationDuration) {
+                            this.state = 'dead';
+                        }
+                    } else if (this.state === 'attacking') {
+                        const currentTime = Date.now();
+                        if (currentTime - this.lastFrameTime > this.animationSpeed) {
+                            this.spriteFrameY++;
+                            if (this.spriteFrameY > 5) {
+                                this.spriteFrameY = 0;
+                                this.state = 'idle';
+                                this.attackCooldown = 2000;
+                                projectiles.push(new Projectile(this.x, this.y, player.x, player.y));
+                            }
+                            this.lastFrameTime = currentTime;
+                        }
+                    } else {
+                        const dx = player.x - this.x;
+                        const dy = player.y - this.y;
+                        const distance = Math.hypot(dx, dy);
+
+                        if (distance < 5 && this.attackCooldown <= 0) {
+                            this.state = 'attacking';
+                            this.attackAnimationTime = 0;
+                            this.spriteFrameY = 0;
+                            this.lastFrameTime = Date.now();
+                        } else {
+                            let moveX = (dx / distance) * this.speed;
+                            let moveY = (dy / distance) * this.speed;
+
+                            const newX = this.x + moveX;
+                            const newY = this.y + moveY;
+
+                            if (isPassable(map[Math.floor(newY)][Math.floor(this.x)])) {
+                                this.y = newY;
+                            }
+
+                            if (isPassable(map[Math.floor(this.y)][Math.floor(newX)])) {
+                                this.x = newX;
+                            }
+
+                            this.attackCooldown -= deltaTime;
+                        }
+                    }
+                }
+            }
+            class Projectile {
+                constructor(x, y, targetX, targetY) {
+                    this.x = x;
+                    this.y = y;
+                    const angle = Math.atan2(targetY - y, targetX - x);
+                    this.velocityX = Math.cos(angle) * 0.1;
+                    this.velocityY = Math.sin(angle) * 0.1;
+                    this.radius = 0.1;
+                    this.active = true;
+                    this.animationSpeed = 50; // Speed of the animation
                     this.lastFrameTime = Date.now();
-                } else {
-                    let moveX = (dx / distance) * this.speed;
-                    let moveY = (dy / distance) * this.speed;
-    
-                    const newX = this.x + moveX;
-                    const newY = this.y + moveY;
-    
-                    if (isPassable(map[Math.floor(newY)][Math.floor(this.x)])) {
-                        this.y = newY;
+                    this.frame = Math.floor(Math.random() * 4); // Initial random frame
+                }
+
+                update(deltaTime) {
+                    this.x += this.velocityX;
+                    this.y += this.velocityY;
+
+                    if (!isPassable(map[Math.floor(this.y)][Math.floor(this.x)])) {
+                        this.active = false;
                     }
-    
-                    if (isPassable(map[Math.floor(this.y)][Math.floor(newX)])) {
-                        this.x = newX;
+
+                    const dx = player.x - this.x;
+                    const dy = player.y - this.y;
+                    const distance = Math.hypot(dx, dy);
+                    if (distance < this.radius) {
+                        this.active = false;
+                        player.health -= 10;
+                        if (player.health < 0) player.health = 0;
+                        updateHUD();
                     }
-    
-                    this.attackCooldown -= deltaTime;
+
+                    // Update the frame to a random one at each interval
+                    const currentTime = Date.now();
+                    if (currentTime - this.lastFrameTime > this.animationSpeed) {
+                        this.frame = Math.floor(Math.random() * 4);
+                        this.lastFrameTime = currentTime;
+                    }
                 }
             }
-        }
-    }
-    
-    const player = {
-        x: 1.5,
-        y: 1.5,
-        angle: 0,
-        speed: 0.05,
-        turnSpeed: 0.05,
-        velocityX: 0,
-        velocityY: 0,
-        friction: 0.9,
-        acceleration: 0.005,
-        health: 100,
-        ammo: 10,
-        bobTime: 0,
-        bobAmount: 0
-    };
-    
-    let enemies = [];
-    let openingDoors = [];
-    
-    function openDoor(x, y) {
-        doorOpenSound.play();
-        openingDoors.push({
-            x: x,
-            y: y,
-            progress: 0,
-            duration: 1000,
-            startTime: Date.now()
-        });
-    }
-    
-    function updateDoors() {
-        const currentTime = Date.now();
-        openingDoors = openingDoors.filter(door => {
-            const elapsed = currentTime - door.startTime;
-            door.progress = elapsed / door.duration;
+
             
-            if (door.progress >= 1) {
-                map[door.y][door.x] = 3; // Change to floor tile
-                return false;
-            }
-            return true;
-        });
-    }
-    
-    function interactWithDoor() {
-        const playerMapX = Math.floor(player.x);
-        const playerMapY = Math.floor(player.y);
-    
-        const directions = [
-            { x: 0, y: -1 },
-            { x: 1, y: 0 },
-            { x: 0, y: 1 },
-            { x: -1, y: 0 },
-        ];
-    
-        for (let dir of directions) {
-            const checkX = playerMapX + dir.x;
-            const checkY = playerMapY + dir.y;
-    
-            if (map[checkY] && map[checkY][checkX] === 'D') {
-                openDoor(checkX, checkY);
-                break;
-            }
-        }
-    }
-    
-    function initializeEnemies() {
-        enemies = [];
-        for (let y = 0; y < map.length; y++) {
-            for (let x = 0; x < map[y].length; x++) {
-                if (enemyMap[y][x]) {
-                    enemies.push(new Enemy(x + 0.5, y + 0.5));
+
+            function initializeAmmoCrates() {
+                ammoCrates = [];
+                for (let y = 0; y < map.length; y++) {
+                    for (let x = 0; x < map[y].length; x++) {
+                        if (ammoCrateMap[y][x]) {
+                            ammoCrates.push(new AmmoCrate(x + 0.5, y + 0.5));
+                        }
+                    }
                 }
             }
-        }
-    }
-    
-    const keys = {};
-    window.addEventListener('keydown', (e) => {
-        keys[e.key.toLowerCase()] = true;
-        if (e.key.toLowerCase() === 'e') {
-            interactWithDoor();
-        } else if (e.key === '1') {
-            currentWeapon = weapons.pistol;
-            updateHUD();
-        } else if (e.key === '2') {
-            currentWeapon = weapons.shotgun;
-            updateHUD();
-        }
-    });
-    window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
-    window.addEventListener('mousemove', (e) => {
-        if (document.pointerLockElement === canvas) {
-            player.angle += e.movementX * 0.003;
-        }
-    });
-    
-    document.addEventListener('pointerlockchange', () => {
-        if (document.pointerLockElement !== canvas) {
-            keys['w'] = false;
-            keys['a'] = false;
-            keys['s'] = false;
-            keys['d'] = false;
-        }
-    });
-    
-    document.addEventListener('pointerlockerror', () => {
-        console.error('Pointer lock error');
-    });
-    
-    let undoStack = [];
-    let redoStack = [];
-    
-    function castRay(angle) {
-        let rayX = player.x;
-        let rayY = player.y;
-        let rayAngle = angle;
-        
-        const deltaX = Math.cos(rayAngle);
-        const deltaY = Math.sin(rayAngle);
-        
-        let distance = 0;
-        let hitX = 0;
-        let wallType = 0;
-    
-        let isGoop = false;
-        let goopDistance = 20;
-        let isPool = false;
-        let poolDistance = 20; 
-    
-        while (distance < 20) {
-            rayX += deltaX * 0.1;
-            rayY += deltaY * 0.1;
-            distance += 0.1;
+
             
-            const mapX = Math.floor(rayX);
-            const mapY = Math.floor(rayY);
-            
-            if (map[mapY] && map[mapY][mapX] === 1) {
-                hitX = rayX % 1;
-                wallType = wallTypes[mapY][mapX];
-                return { distance, hitX, wallType, doorProgress: 0, isGoop, goopDistance, isPool, poolDistance };
+            function openDoor(x, y) {
+                doorOpenSound.play();
+                openingDoors.push({
+                    x: x,
+                    y: y,
+                    progress: 0,
+                    duration: 1000,
+                    startTime: Date.now()
+                });
             }
-            
-            if (map[mapY] && map[mapY][mapX] === 'D') {
-                hitX = rayX % 1;
-                wallType = 'door';
-                let doorProgress = 0;
-                for (let door of openingDoors) {
-                    if (door.x === mapX && door.y === mapY) {
-                        doorProgress = door.progress;
+
+            function updateDoors() {
+                const currentTime = Date.now();
+                openingDoors = openingDoors.filter(door => {
+                    const elapsed = currentTime - door.startTime;
+                    door.progress = elapsed / door.duration;
+                    
+                    if (door.progress >= 1) {
+                        map[door.y][door.x] = 3; // Change to floor tile
+                        return false;
+                    }
+                    return true;
+                });
+            }
+
+            function interactWithDoor() {
+                const playerMapX = Math.floor(player.x);
+                const playerMapY = Math.floor(player.y);
+
+                const directions = [
+                    { x: 0, y: -1 },
+                    { x: 1, y: 0 },
+                    { x: 0, y: 1 },
+                    { x: -1, y: 0 },
+                ];
+
+                for (let dir of directions) {
+                    const checkX = playerMapX + dir.x;
+                    const checkY = playerMapY + dir.y;
+
+                    if (map[checkY] && map[checkY][checkX] === 'D') {
+                        openDoor(checkX, checkY);
                         break;
                     }
                 }
-                return { distance, hitX, wallType, doorProgress, isGoop, goopDistance, isPool, poolDistance };
             }
-            if (map[mapY] && map[mapY][mapX] === 2) {
-                isGoop = true;
-                goopDistance = distance;
-            }
-            if (map[mapY] && map[mapY][mapX] === 4) {
-                isPool = true;
-                poolDistance = distance;
-            }
-        }
-        
-        return { distance, hitX, wallType, isGoop, goopDistance, isPool, poolDistance };
-    }
-    
-    const muzzleFlash = {
-        canvas: document.getElementById('muzzleFlashCanvas'),
-        frame: 0,
-        totalFrames: 4,
-        animationSpeed: 50, 
-        lastFrameTime: 0,
-        isAnimating: false
-    };
-    const muzzleFlashCtx = muzzleFlash.canvas.getContext('2d');
-    
-    function resizeMuzzleFlashCanvas() {
-        muzzleFlash.canvas.width = window.innerWidth;
-        muzzleFlash.canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeMuzzleFlashCanvas);
-    resizeMuzzleFlashCanvas();
-    
-    function drawMuzzleFlash() {
-        if (!muzzleFlash.isAnimating) return;
-    
-        const currentTime = Date.now();
-        if (currentTime - muzzleFlash.lastFrameTime > muzzleFlash.animationSpeed) {
-            muzzleFlash.frame++;
-            if (muzzleFlash.frame >= muzzleFlash.totalFrames) {
-                muzzleFlash.isAnimating = false;
-                muzzleFlash.frame = 0;
-                muzzleFlashCtx.clearRect(0, 0, muzzleFlash.canvas.width, muzzleFlash.canvas.height);
-                return;
-            }
-            muzzleFlash.lastFrameTime = currentTime;
-        }
-        
-        muzzleFlashCtx.clearRect(0, 0, muzzleFlash.canvas.width, muzzleFlash.canvas.height);
-    
-        const frameWidth = muzzleFlashSprite.width / muzzleFlash.totalFrames;
-        const frameHeight = muzzleFlashSprite.height;
-    
-        const scale = (muzzleFlash.canvas.height / frameHeight) * muzzleFlashSize;
-        const scaledWidth = frameWidth * scale;
-        const scaledHeight = frameHeight * scale;
-    
-        const xPosition = (muzzleFlash.canvas.width - scaledWidth) / 2 + muzzleFlashXOffset;
-        const yPosition = muzzleFlash.canvas.height - scaledHeight + muzzleFlashYOffset;
-    
-        muzzleFlashCtx.drawImage(
-            muzzleFlashSprite,
-            muzzleFlash.frame * frameWidth, 0,
-            frameWidth, frameHeight,
-            xPosition,
-            yPosition,
-            scaledWidth,
-            scaledHeight
-        );
-    }
-    
-    function renderFloor(wallBottoms) {
-        const floorPixelSizeX = floorPixelSize;
-        const floorPixelSizeY = floorPixelSize;
-    
-        const rayDirX0 = Math.cos(player.angle - Math.PI / 3 / 2);
-        const rayDirY0 = Math.sin(player.angle - Math.PI / 3 / 2);
-        const rayDirX1 = Math.cos(player.angle + Math.PI / 3 / 2);
-        const rayDirY1 = Math.sin(player.angle + Math.PI / 3 / 2);
-    
-        for (let x = 0; x < canvas.width; x += floorPixelSizeX) {
-            const wallBottomY = Math.floor(wallBottoms[x]);
-            for (let y = wallBottomY; y < canvas.height; y += floorPixelSizeY) {
-                const p = y - canvas.height / 2;
-                const posZ = 0.5 * canvas.height;
-                const rowDistance = posZ / p;
-    
-                const floorStepX = rowDistance * (rayDirX1 - rayDirX0) / canvas.width;
-                const floorStepY = rowDistance * (rayDirY1 - rayDirY0) / canvas.width;
-    
-                let floorX = player.x + rowDistance * (rayDirX0 + ((rayDirX1 - rayDirX0) * x / canvas.width));
-                let floorY = player.y + rowDistance * (rayDirY0 + ((rayDirY1 - rayDirY0) * x / canvas.width));
-    
-                const cellX = Math.floor(floorX);
-                const cellY = Math.floor(floorY);
-    
-                if (map[cellY] && map[cellY][cellX] === 3) {
-                    const tx = Math.floor((floorX % 1) * floorTexture.width);
-                    const ty = Math.floor((floorY % 1) * floorTexture.height);
-    
-                    ctx.drawImage(
-                        floorTexture,
-                        tx, ty, 1, 1,
-                        x, y, floorPixelSizeX, floorPixelSizeY
-                    );
-                } else if (map[cellY] && map[cellY][cellX] === 2) {
-                    const tx = Math.floor((floorX % 1) * goopTexture.width);
-                    const ty = Math.floor((floorY % 1) * goopTexture.height);
-    
-                    ctx.drawImage(
-                        goopTexture,
-                        tx, ty, 1, 1,
-                        x, y, floorPixelSizeX, floorPixelSizeY
-                    );
-                } else if (map[cellY] && map[cellY][cellX] === 5) {
-                    const index = getGrassTextureIndex(cellX, cellY);
-                    const grassTexture = grassTextures[index];
-    
-                    const tx = Math.floor((floorX % 1) * grassTexture.width);
-                    const ty = Math.floor((floorY % 1) * grassTexture.height);
-    
-                    ctx.drawImage(
-                        grassTexture,
-                        tx, ty, 1, 1,
-                        x, y, floorPixelSizeX, floorPixelSizeY
-                    );
-                }
-            }
-        }
-    }
-    
-    function getGrassTextureIndex(x, y) {
-        return (x + y) % grassTextures.length;
-    }
-    
-    function renderCeiling(wallTops) {
-        const floorPixelSizeX = floorPixelSize;
-        const floorPixelSizeY = floorPixelSize;
-    
-        const rayDirX0 = Math.cos(player.angle - Math.PI / 3 / 2);
-        const rayDirY0 = Math.sin(player.angle - Math.PI / 3 / 2);
-        const rayDirX1 = Math.cos(player.angle + Math.PI / 3 / 2);
-        const rayDirY1 = Math.sin(player.angle + Math.PI / 3 / 2);
-    
-        for (let x = 0; x < canvas.width; x += floorPixelSizeX) {
-            const wallTopY = Math.floor(wallTops[x]);
-            for (let y = 0; y < wallTopY; y += floorPixelSizeY) {
-                const p = y - canvas.height / 2;
-                const posZ = 0.5 * canvas.height;
-                const rowDistance = posZ / -p; // Negative p for ceiling
-    
-                const floorStepX = rowDistance * (rayDirX1 - rayDirX0) / canvas.width;
-                const floorStepY = rowDistance * (rayDirY1 - rayDirY0) / canvas.width;
-    
-                let floorX = player.x + rowDistance * (rayDirX0 + ((rayDirX1 - rayDirX0) * x / canvas.width));
-                let floorY = player.y + rowDistance * (rayDirY0 + ((rayDirY1 - rayDirY0) * x / canvas.width));
-    
-                const cellX = Math.floor(floorX);
-                const cellY = Math.floor(floorY);
-    
-                if (ceilingMap[cellY] && ceilingMap[cellY][cellX]) {
-                    const tx = Math.floor((floorX % 1) * ceilingTexture.width);
-                    const ty = Math.floor((floorY % 1) * ceilingTexture.height);
-    
-                    ctx.drawImage(
-                        ceilingTexture,
-                        tx, ty, 1, 1,
-                        x, y, floorPixelSizeX, floorPixelSizeY
-                    );
-                }
-            }
-        }
-    }
-    
-    // Add projectiles array
-    let projectiles = [];
-    
-    class Projectile {
-        constructor(x, y, targetX, targetY) {
-            this.x = x;
-            this.y = y;
-            const angle = Math.atan2(targetY - y, targetX - x);
-            this.velocityX = Math.cos(angle) * 0.1;
-            this.velocityY = Math.sin(angle) * 0.1;
-            this.radius = 0.1;
-            this.active = true;
-            this.animationSpeed = 50; // Speed of the animation
-            this.lastFrameTime = Date.now();
-            this.frame = Math.floor(Math.random() * 4); // Initial random frame
-        }
-    
-        update(deltaTime) {
-            this.x += this.velocityX;
-            this.y += this.velocityY;
-    
-            if (!isPassable(map[Math.floor(this.y)][Math.floor(this.x)])) {
-                this.active = false;
-            }
-    
-            const dx = player.x - this.x;
-            const dy = player.y - this.y;
-            const distance = Math.hypot(dx, dy);
-            if (distance < this.radius) {
-                this.active = false;
-                player.health -= 10;
-                if (player.health < 0) player.health = 0;
-                updateHUD();
-            }
-    
-            // Update the frame to a random one at each interval
-            const currentTime = Date.now();
-            if (currentTime - this.lastFrameTime > this.animationSpeed) {
-                this.frame = Math.floor(Math.random() * 4);
-                this.lastFrameTime = currentTime;
-            }
-        }
-    }
-    
-    function draw() {
-        const bobOffset = player.bobAmount;
-    
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw skybox that tiles perfectly
-        const skyWidth = currentSkybox.width;
-        const skyHeight = currentSkybox.height;
-        const skyAspectRatio = skyWidth / skyHeight;
-        const skyImageWidth = skyAspectRatio * canvas.height;
-    
-        let skyOffsetX = (player.angle / (2 * Math.PI)) * skyImageWidth;
-        skyOffsetX = skyOffsetX % skyImageWidth;
-        if (skyOffsetX < 0) skyOffsetX += skyImageWidth;
-    
-        for (let x = -skyOffsetX; x < canvas.width; x += skyImageWidth) {
-            ctx.drawImage(currentSkybox, x, 0, skyImageWidth, canvas.height);
-        }
-    
-        ctx.fillStyle = '#666';
-        ctx.fillRect(0, canvas.height / 2, canvas.width, canvas.height / 2);
-        
-        const FOV = Math.PI / 3;
-        const rayCount = canvas.width;
-        const rayStep = FOV / rayCount;
-    
-        const wallBottoms = [];
-        const wallTops = []; // New array to store wall top positions
-        ctx.imageSmoothingEnabled = false;
-        
-        for (let i = 0; i < rayCount; i++) {
-            const rayAngle = player.angle - FOV / 2 + rayStep * i;
-            const { distance, hitX, wallType, doorProgress, isGoop, goopDistance, isPool, poolDistance } = castRay(rayAngle); 
-    
-            let wallHeight = canvas.height / distance;
-            const textureX = Math.floor(hitX * wallTexture.width);
-            
-            const brightness = Math.min(1, 1 / (distance * 0.2));
-            ctx.globalAlpha = brightness;
-    
-            if (isGoop) {
-                const floorHeight = canvas.height / goopDistance;
-                ctx.drawImage(
-                    goopTexture,
-                    textureX, 0,
-                    1, goopTexture.height,
-                    i,
-                    (canvas.height + floorHeight) / 2,
-                    1,
-                    canvas.height - ((canvas.height + floorHeight) / 2)
-                );
-            }
-    
-            if (isPool) {
-                const floorHeight = canvas.height / poolDistance;
-                
-                const poolAnimationSpeed = 200; 
-                const poolFrame = Math.floor(Date.now() / poolAnimationSpeed) % poolTextures.length;
-                const textureToUse = poolTextures[poolFrame];
-    
-                ctx.drawImage(
-                    textureToUse,
-                    textureX, 0,
-                    1, textureToUse.height,
-                    i,
-                    (canvas.height + floorHeight) / 2,
-                    1,
-                    canvas.height - ((canvas.height + floorHeight) / 2)
-                );
-            }
-    
-            const texture = wallType === 'door' ? doorTexture : 
-                           wallType === 2 ? poolWallTexture : 
-                           wallTexture;
-    
-            let wallTopY = (canvas.height - wallHeight) / 2;
-            let wallBottomY = (canvas.height + wallHeight) / 2;
-    
-            if (wallType === 'door' && doorProgress !== undefined) {
-                // The door lowers down as it opens
-                let shift = doorProgress * wallHeight;
-                wallTopY += shift;
-                wallBottomY += shift;
-    
-                // Allow the door to go slightly below floor level
-                if (doorProgress >= 1) {
-                    wallTopY += wallHeight * 0.1;
-                    wallBottomY += wallHeight * 0.1;
-                }
-    
-                wallHeight = wallBottomY - wallTopY;
-            }
-    
-            ctx.drawImage(
-                texture,
-                textureX, 0,
-                1, texture.height,
-                i,
-                wallTopY,
-                1,
-                wallHeight
-            );
-    
-            wallBottoms[i] = wallBottomY;
-            wallTops[i] = wallTopY; // Store wall top position
-    
-            ctx.globalAlpha = 1;
-        }
-        
-        renderCeiling(wallTops); // Call the ceiling rendering function
-        renderFloor(wallBottoms);
-    
-        // Draw enemies
-        enemies.forEach(enemy => {
-            const dx = enemy.x - player.x;
-            const dy = enemy.y - player.y;
-    
-            const distance = Math.hypot(dx, dy);
-            let enemyAngle = Math.atan2(dy, dx) - player.angle;
-    
-            if (enemyAngle < -Math.PI) enemyAngle += 2 * Math.PI;
-            if (enemyAngle > Math.PI) enemyAngle -= 2 * Math.PI;
-    
-            const FOV = Math.PI / 3;
-            if (Math.abs(enemyAngle) < FOV / 2) {
-                const rayAngle = player.angle + enemyAngle;
-                const { distance: wallDistance } = castRay(rayAngle);
-    
-                if (distance < wallDistance) {
-                    const screenX = (canvas.width / 2) * (1 + Math.tan(enemyAngle) / Math.tan(FOV / 2));
-                    const baseSpriteSize = (canvas.height / distance) * 0.7;
-                    let spriteSize = baseSpriteSize;
-                    const wallHeight = canvas.height / distance;
-                    const wallBottomY = (canvas.height + wallHeight) / 2;
-                    const spriteY = wallBottomY - spriteSize;
-    
-                    if (enemy.state === 'dying') {
-                        const progress = enemy.deathAnimationTime / enemy.deathAnimationDuration;
-                        spriteSize *= (1 - progress);
-                        ctx.globalAlpha = 1 - progress;
-                    }
-    
-                    const frameWidth = enemySpriteSheet.width / 5;
-                    const frameHeight = enemySpriteSheet.height / 6;
-                    const sx = enemy.spriteFrameX * frameWidth;
-                    const sy = enemy.spriteFrameY * frameHeight;
-    
-                    ctx.drawImage(
-                        enemySpriteSheet,
-                        sx, sy, frameWidth, frameHeight,
-                        screenX - spriteSize / 2,
-                        spriteY,
-                        spriteSize,
-                        spriteSize
-                    );
-    
-                    ctx.globalAlpha = 1;
-                }
-            }
-        });
-    
-        // Draw projectiles
-        projectiles.forEach(projectile => {
-            const dx = projectile.x - player.x;
-            const dy = projectile.y - player.y;
-            const distance = Math.hypot(dx, dy);
-    
-            let projectileAngle = Math.atan2(dy, dx) - player.angle;
-    
-            if (projectileAngle < -Math.PI) projectileAngle += 2 * Math.PI;
-            if (projectileAngle > Math.PI) projectileAngle -= 2 * Math.PI;
-    
-            const FOV = Math.PI / 3;
-            if (Math.abs(projectileAngle) < FOV / 2) {
-                const rayAngle = player.angle + projectileAngle;
-                const { distance: wallDistance } = castRay(rayAngle);
-    
-                if (distance < wallDistance) {
-                    const screenX = (canvas.width / 2) * (1 + Math.tan(projectileAngle) / Math.tan(FOV / 2));
-                    const spriteSize = (canvas.height / distance) * 0.2;
-    
-                    const wallHeight = canvas.height / distance;
-                    const wallBottomY = (canvas.height + wallHeight) / 2;
-                    const spriteY = wallBottomY - spriteSize;
-    
-        const frameWidth = muzzleFlashSprite.width / 4;
-        const frameHeight = muzzleFlashSprite.height;
-    
-        ctx.save();
-        ctx.filter = 'hue-rotate(180deg)';
-        ctx.globalAlpha = 0.8;
-    
-        ctx.drawImage(
-            muzzleFlashSprite,
-            projectile.frame * frameWidth, 0,
-            frameWidth, frameHeight,
-            screenX - spriteSize / 2,
-            spriteY,
-            spriteSize,
-            spriteSize
-        );
-    
-        ctx.restore();
-    
-                }
-            }
-        });
-        
-        // Draw ammunition crates
-        ammoCrates.forEach(crate => {
-            if (crate.collected) return;
-            const dx = crate.x - player.x;
-            const dy = crate.y - player.y;
-    
-            const distance = Math.hypot(dx, dy);
-    
-            // Calculate angle between the player's view and the crate
-            let crateAngle = Math.atan2(dy, dx) - player.angle;
-    
-            // Normalize the angle to be between -PI and PI
-            if (crateAngle < -Math.PI) crateAngle += 2 * Math.PI;
-            if (crateAngle > Math.PI) crateAngle -= 2 * Math.PI;
-    
-            // Check if the crate is within the field of view
-            const FOV = Math.PI / 3;
-            if (Math.abs(crateAngle) < FOV / 2) {
-                // Cast a ray to the crate to check for wall occlusion
-                const rayAngle = player.angle + crateAngle;
-                const { distance: wallDistance } = castRay(rayAngle);
-    
-                if (distance < wallDistance) {
-                    // Crate is visible, draw it
-                    const screenX = (canvas.width / 2) * (1 + Math.tan(crateAngle) / Math.tan(FOV / 2));
-    
-                    // Size of the sprite (make it smaller)
-                    const spriteSize = (canvas.height / distance) * 0.3;
-    
-                    // Position the sprite on the floor
-                    const wallHeight = canvas.height / distance;
-                    const wallBottomY = (canvas.height + wallHeight) / 2;
-                    const spriteY = wallBottomY - spriteSize;
-    
-                    ctx.drawImage(
-                        ammoCrateSprite,
-                        screenX - spriteSize / 2,
-                        spriteY,
-                        spriteSize,
-                        spriteSize
-                    );
-                }
-            }
-        });
-        
-        const minimapSize = 100;
-        const cellSize = minimapSize / map.length;
-        
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.fillRect(0, 0, minimapSize, minimapSize);
-        
-        for(let y = 0; y < map.length; y++) {
-            for(let x = 0; x < map[y].length; x++) {
-                const tile = map[y][x];
-                if(tile === 1) {
-                    ctx.fillStyle = '#fff';
-                } else if(tile === 2) {
-                    ctx.fillStyle = '#a52a2a';
-                } else if (tile === 3) {
-                    ctx.fillStyle = '#808080';
-                } else if (tile === 4) {
-                    ctx.fillStyle = '#44f';
-                } else if (tile === 5) {
-                    ctx.fillStyle = '#228B22';
-                } else if (tile === 'D') {
-                    ctx.fillStyle = '#888';
-                } else {
-                    continue;
-                }
-                ctx.fillRect(
-                    x * cellSize,
-                    y * cellSize,
-                    cellSize,
-                    cellSize
-                );
-                if (enemyMap[y][x]) {
-                    ctx.fillStyle = '#f00'; // Red for enemy spawn locations
-                    ctx.fillRect(
-                        x * cellSize,
-                        y * cellSize,
-                        cellSize,
-                        cellSize
-                    );
-                }
-                if (ammoCrateMap[y][x]) {
-                    ctx.fillStyle = '#ff0'; // Yellow for ammo crates
-                    ctx.fillRect(
-                        x * cellSize,
-                        y * cellSize,
-                        cellSize,
-                        cellSize
-                    );
-                }
-            }
-        }
-    
-        // Draw enemies on minimap
-        enemies.forEach(enemy => {
-            ctx.fillStyle = 'red';
-            ctx.beginPath();
-            ctx.arc(
-                enemy.x * cellSize,
-                enemy.y * cellSize,
-                3,
-                0,
-                Math.PI * 2
-            );
-            ctx.fill();
-        });
-        
-        ctx.fillStyle = 'red';
-        ctx.beginPath();
-        ctx.arc(
-            player.x * cellSize,
-            player.y * cellSize,
-            3,
-            0,
-            Math.PI * 2
-        );
-        ctx.fill();
-    
-        drawWeapon();
-        drawMuzzleFlash();
-    
-        // Draw crosshair
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(canvas.width / 2 - 10, canvas.height / 2);
-        ctx.lineTo(canvas.width / 2 + 10, canvas.height / 2);
-        ctx.moveTo(canvas.width / 2, canvas.height / 2 - 10);
-        ctx.lineTo(canvas.width / 2, canvas.height / 2 + 10);
-        ctx.stroke();
-    }
-    
-    const screenFlash = {
-        duration: 200, // Flash duration in milliseconds
-        opacity: 0,
-        maxOpacity: 0.8,
-        startTime: 0,
-        isFlashing: false,
-        trigger: function() {
-            this.isFlashing = true;
-            this.opacity = this.maxOpacity;
-            this.startTime = Date.now();
-        },
-        update: function() {
-            if (!this.isFlashing) return;
-            const elapsedTime = Date.now() - this.startTime;
-            if (elapsedTime >= this.duration) {
-                this.isFlashing = false;
-                this.opacity = 0;
-                return;
-            }
-            this.opacity = this.maxOpacity * (1 - elapsedTime / this.duration);
-        },
-        draw: function() {
-            if (!this.isFlashing) return;
-            ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-    };
-    
-    function update(deltaTime) {
-        player.velocityX *= player.friction;
-        player.velocityY *= player.friction;
-    
-        // Update bobbing
-        if (Math.abs(player.velocityX) > 0.001 || Math.abs(player.velocityY) > 0.001) {
-            player.bobTime += deltaTime * 0.01;
-            player.bobAmount = Math.sin(player.bobTime) * 5;
-        } else {
-            player.bobAmount *= 0.9;
-        }
-    
-        // Update projectiles with deltaTime
-        projectiles = projectiles.filter(projectile => {
-            projectile.update(deltaTime);
-            return projectile.active;
-        });
-    
-        // Check for ammunition crate collection
-        ammoCrates.forEach(crate => {
-            if (crate.collected) return;
-            const dx = player.x - crate.x;
-            const dy = player.y - crate.y;
-            const distance = Math.hypot(dx, dy);
-            if (distance < 0.5) {
-                crate.collected = true;
-                // Update ammoCrateMap
-                const x = Math.floor(crate.x);
-                const y = Math.floor(crate.y);
-                ammoCrateMap[y][x] = false;
-                weapons.pistol.ammo += 10;
-                weapons.shotgun.ammo += 10;
-                updateHUD();
-                screenFlash.trigger();
-                ammoPickupSound.play();
-            }
-        });
-    
-        // Update enemy positions and states
-        enemies.forEach(enemy => {
-            enemy.update(player, deltaTime);
-        });
-    
-        // Remove enemies that are dead
-        enemies = enemies.filter(enemy => enemy.state !== 'dead');
-    
-        if(keys['w']) {
-            player.velocityX += Math.cos(player.angle) * player.acceleration;
-            player.velocityY += Math.sin(player.angle) * player.acceleration;
-        }
-        if(keys['s']) {
-            player.velocityX -= Math.cos(player.angle) * player.acceleration;
-            player.velocityY -= Math.sin(player.angle) * player.acceleration;
-        }
-        if(keys['a']) {
-            player.velocityX += Math.cos(player.angle - Math.PI/2) * player.acceleration;
-            player.velocityY += Math.sin(player.angle - Math.PI/2) * player.acceleration;
-        }
-        if(keys['d']) {
-            player.velocityX += Math.cos(player.angle + Math.PI/2) * player.acceleration;
-            player.velocityY += Math.sin(player.angle + Math.PI/2) * player.acceleration;
-        }
-    
-        const newX = player.x + player.velocityX;
-        const newY = player.y + player.velocityY;
-    
-        if (
-            isPassable(map[Math.floor(newY)][Math.floor(player.x)]) 
-        ) {
-            player.y = newY;
-        }
-        if (
-            isPassable(map[Math.floor(player.y)][Math.floor(newX)]) 
-        ) {
-            player.x = newX;
-        }
-    
-        screenFlash.update();
-    }
-    
-    function isPassable(tile) {
-        return tile === 0 || tile === 3 || tile === 5;
-    }
-    
-    let lastFrameTime = 0;
-    
-    function gameLoop(timestamp) {
-        if (!lastFrameTime) lastFrameTime = timestamp;
-        const deltaTime = timestamp - lastFrameTime;
-        lastFrameTime = timestamp;
-    
-        if (player.health > 0) {
-            update(deltaTime);
-            updateDoors();
-            draw();
-            screenFlash.draw();
-            requestAnimationFrame(gameLoop);
-        } else {
-            ctx.fillStyle = 'red';
-            ctx.font = '48px monospace';
-            ctx.textAlign = 'center';
-            ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
-        }
-    }
-    
-    canvas.addEventListener('click', () => {
-        try {
-            canvas.requestPointerLock();
-            // Start background music when the game starts
-            if (backgroundMusic.paused) {
-                backgroundMusic.play();
-            }
-        } catch (error) {
-            console.error('Error requesting pointer lock:', error);
-        }
-    });
-    
-    const weapons = {
-        pistol: {
-            name: 'pistol',
-            sprite: new Image(),
-            frame: 0,
-            isAnimating: false,
-            animationSpeed: 50,  // Faster animation for pistol
-            lastFrameTime: 0,
-            reversing: false,
-            totalFrames: 5,
-            damage: 20,  // Less damage
-            ammo: 20,  // Initial pistol ammo
-            canShoot: true,
-            spriteSrc: 'https://file.garden/ZqkDHrmuZGkZD3Ia/PistolSpritesheet.png'
-        },
-        shotgun: {
-            name: 'shotgun',
-            sprite: new Image(),
-            frame: 0,
-            isAnimating: false,
-            animationSpeed: 100,
-            lastFrameTime: 0,
-            reversing: false,
-            totalFrames: 4,
-            damage: 50,
-            ammo: 10,  // Initial ammo for shotgun
-            canShoot: true,
-            spriteSrc: 'https://file.garden/ZqkDHrmuZGkZD3Ia/GunSpritesheet.png'
-        }
-    };
-    
-    // Load weapon sprites
-    weapons.pistol.sprite.src = weapons.pistol.spriteSrc;
-    weapons.shotgun.sprite.src = weapons.shotgun.spriteSrc;
-    
-    // Set the initial weapon
-    let currentWeapon = weapons.pistol;
-    
-    const weaponCanvas = document.getElementById('weaponCanvas');
-    const weaponCtx = weaponCanvas.getContext('2d');
-    
-    function resizeWeaponCanvas() {
-        weaponCanvas.width = window.innerWidth * 0.9;
-        weaponCanvas.height = window.innerHeight * 0.5;
-    }
-    window.addEventListener('resize', resizeWeaponCanvas);
-    resizeWeaponCanvas();
-    
-    function drawWeapon() {
-        weaponCtx.clearRect(0, 0, weaponCanvas.width, weaponCanvas.height);
-    
-        const bobOffset = player.bobAmount;
-        const weapon = currentWeapon;
-        const frameWidth = weapon.sprite.width / weapon.totalFrames;
-        const frameHeight = weapon.sprite.height;
-    
-        if (weapon.isAnimating) {
-            const currentTime = Date.now();
-            if (currentTime - weapon.lastFrameTime > weapon.animationSpeed) {
-                if (!weapon.reversing) {
-                    weapon.frame++;
-                    if (weapon.frame >= weapon.totalFrames - 1) {
-                        weapon.reversing = true;
-                    }
-                } else {
-                    weapon.frame--;
-                    if (weapon.frame <= 0) {
-                        weapon.frame = 0;
-                        weapon.reversing = false;
-                        weapon.isAnimating = false;
-                        weapon.canShoot = true;  // Allow shooting again
-                    }
-                }
-                weapon.lastFrameTime = currentTime;
-            }
-        }
-    
-        const scale = weaponCanvas.height / frameHeight;
-        const scaledWidth = frameWidth * scale;
-        const scaledHeight = frameHeight * scale;
-    
-        weaponCtx.drawImage(
-            weapon.sprite,
-            weapon.frame * frameWidth, 0,
-            frameWidth, frameHeight,
-            (weaponCanvas.width - scaledWidth) / 2,
-            weaponCanvas.height - scaledHeight + bobOffset,
-            scaledWidth, scaledHeight
-        );
-    }
-    
-    function updateHUD() {
-        document.getElementById('health-value').textContent = player.health + '%';
-        const healthBar = document.querySelector('.health-bar');
-        if (player.health <= 20) {
-            healthBar.style.color = 'red';
-        } else {
-            healthBar.style.color = 'white';
-        }
-        const weapon = currentWeapon;
-        if (weapon.ammo === Infinity) {
-            document.getElementById('ammo-value').textContent = '∞';
-        } else {
-            document.getElementById('ammo-value').textContent = weapon.ammo;
-        }
-    }
-    
-    function shoot() {
-        const weapon = currentWeapon;
-        if (weapon.ammo <= 0) {
-            console.log('Out of ammo!');
-            return;
-        }
-    
-        if (weapon.ammo !== Infinity) {
-            weapon.ammo--;
-            updateHUD();
-        }
-    
-        let enemyHit = false;
-    
-        enemies.forEach(enemy => {
-            // Allow shooting enemies that are not dead or dying
-            if (enemy.state === 'dead' || enemy.state === 'dying') return;
-    
-            const dx = enemy.x - player.x;
-            const dy = enemy.y - player.y;
-            const distance = Math.hypot(dx, dy);
-    
-            let enemyAngle = Math.atan2(dy, dx) - player.angle;
-            if (enemyAngle < -Math.PI) enemyAngle += 2 * Math.PI;
-            if (enemyAngle > Math.PI) enemyAngle -= 2 * Math.PI;
-    
-            const FOV = Math.PI / 3;
-            if (Math.abs(enemyAngle) < FOV / 2) {
-                const rayAngle = player.angle + enemyAngle;
-                const { distance: wallDistance } = castRay(rayAngle);
-    
-                if (distance < wallDistance) {
-                    const screenX = (canvas.width / 2) * (1 + Math.tan(enemyAngle) / Math.tan(FOV / 2));
-                    const hitZoneSize = 100;
-    
-                    if (Math.abs(screenX - canvas.width / 2) < hitZoneSize / 2) {
-                        enemy.health -= weapon.damage;
-                        if (enemy.health <= 0) {
-                            enemy.state = 'dying';
-                            enemy.deathAnimationTime = 0;
+
+            function initializeEnemies() {
+                enemies = [];
+                for (let y = 0; y < map.length; y++) {
+                    for (let x = 0; x < map[y].length; x++) {
+                        if (enemyMap[y][x]) {
+                            enemies.push(new Enemy(x + 0.5, y + 0.5));
                         }
-                        enemyHit = true;
+                    }
+                }
+            }
+
+            
+            window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+            window.addEventListener('mousemove', (e) => {
+                if (document.pointerLockElement === canvas) {
+                    player.angle += e.movementX * 0.003;
+                }
+            });
+
+            document.addEventListener('pointerlockchange', () => {
+                if (document.pointerLockElement !== canvas) {
+                    keys['w'] = false;
+                    keys['a'] = false;
+                    keys['s'] = false;
+                    keys['d'] = false;
+                }
+            });
+
+            document.addEventListener('pointerlockerror', () => {
+                console.error('Pointer lock error');
+            });
+
+            
+
+            function castRay(angle) {
+                let rayX = player.x;
+                let rayY = player.y;
+                let rayAngle = angle;
+                
+                const deltaX = Math.cos(rayAngle);
+                const deltaY = Math.sin(rayAngle);
+                
+                let distance = 0;
+                let hitX = 0;
+                let wallType = 0;
+
+                let isGoop = false;
+                let goopDistance = 20;
+                let isPool = false;
+                let poolDistance = 20; 
+
+                while (distance < 20) {
+                    rayX += deltaX * 0.1;
+                    rayY += deltaY * 0.1;
+                    distance += 0.1;
+                    
+                    const mapX = Math.floor(rayX);
+                    const mapY = Math.floor(rayY);
+                    
+                    if (map[mapY] && map[mapY][mapX] === 1) {
+                        hitX = rayX % 1;
+                        wallType = wallTypes[mapY][mapX];
+                        return { distance, hitX, wallType, doorProgress: 0, isGoop, goopDistance, isPool, poolDistance };
+                    }
+                    
+                    if (map[mapY] && map[mapY][mapX] === 'D') {
+                        hitX = rayX % 1;
+                        wallType = 'door';
+                        let doorProgress = 0;
+                        for (let door of openingDoors) {
+                            if (door.x === mapX && door.y === mapY) {
+                                doorProgress = door.progress;
+                                break;
+                            }
+                        }
+                        return { distance, hitX, wallType, doorProgress, isGoop, goopDistance, isPool, poolDistance };
+                    }
+                    if (map[mapY] && map[mapY][mapX] === 2) {
+                        isGoop = true;
+                        goopDistance = distance;
+                    }
+                    if (map[mapY] && map[mapY][mapX] === 4) {
+                        isPool = true;
+                        poolDistance = distance;
+                    }
+                }
+                
+                return { distance, hitX, wallType, isGoop, goopDistance, isPool, poolDistance };
+            }
+            
+            window.addEventListener('keydown', (e) => {
+                keys[e.key.toLowerCase()] = true;
+                if (e.key.toLowerCase() === 'e') {
+                    interactWithDoor();
+                } else if (e.key === '1') {
+                    currentWeapon = weapons.pistol;
+                    updateHUD();
+                } else if (e.key === '2') {
+                    currentWeapon = weapons.shotgun;
+                    updateHUD();
+                }
+            });
+            
+
+            function resizeMuzzleFlashCanvas() {
+                muzzleFlash.canvas.width = window.innerWidth;
+                muzzleFlash.canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resizeMuzzleFlashCanvas);
+            resizeMuzzleFlashCanvas();
+
+            function drawMuzzleFlash() {
+                if (!muzzleFlash.isAnimating) return;
+
+                const currentTime = Date.now();
+                if (currentTime - muzzleFlash.lastFrameTime > muzzleFlash.animationSpeed) {
+                    muzzleFlash.frame++;
+                    if (muzzleFlash.frame >= muzzleFlash.totalFrames) {
+                        muzzleFlash.isAnimating = false;
+                        muzzleFlash.frame = 0;
+                        muzzleFlashCtx.clearRect(0, 0, muzzleFlash.canvas.width, muzzleFlash.canvas.height);
                         return;
                     }
+                    muzzleFlash.lastFrameTime = currentTime;
+                }
+                
+                muzzleFlashCtx.clearRect(0, 0, muzzleFlash.canvas.width, muzzleFlash.canvas.height);
+
+                const frameWidth = muzzleFlashSprite.width / muzzleFlash.totalFrames;
+                const frameHeight = muzzleFlashSprite.height;
+
+                const scale = (muzzleFlash.canvas.height / frameHeight) * muzzleFlashSize;
+                const scaledWidth = frameWidth * scale;
+                const scaledHeight = frameHeight * scale;
+
+                const xPosition = (muzzleFlash.canvas.width - scaledWidth) / 2 + muzzleFlashXOffset;
+                const yPosition = muzzleFlash.canvas.height - scaledHeight + muzzleFlashYOffset;
+
+                muzzleFlashCtx.drawImage(
+                    muzzleFlashSprite,
+                    muzzleFlash.frame * frameWidth, 0,
+                    frameWidth, frameHeight,
+                    xPosition,
+                    yPosition,
+                    scaledWidth,
+                    scaledHeight
+                );
+            }
+
+            function renderFloor(wallBottoms) {
+                const floorPixelSizeX = floorPixelSize;
+                const floorPixelSizeY = floorPixelSize;
+
+                const rayDirX0 = Math.cos(player.angle - Math.PI / 3 / 2);
+                const rayDirY0 = Math.sin(player.angle - Math.PI / 3 / 2);
+                const rayDirX1 = Math.cos(player.angle + Math.PI / 3 / 2);
+                const rayDirY1 = Math.sin(player.angle + Math.PI / 3 / 2);
+
+                for (let x = 0; x < canvas.width; x += floorPixelSizeX) {
+                    const wallBottomY = Math.floor(wallBottoms[x]);
+                    for (let y = wallBottomY; y < canvas.height; y += floorPixelSizeY) {
+                        const p = y - canvas.height / 2;
+                        const posZ = 0.5 * canvas.height;
+                        const rowDistance = posZ / p;
+
+                        const floorStepX = rowDistance * (rayDirX1 - rayDirX0) / canvas.width;
+                        const floorStepY = rowDistance * (rayDirY1 - rayDirY0) / canvas.width;
+
+                        let floorX = player.x + rowDistance * (rayDirX0 + ((rayDirX1 - rayDirX0) * x / canvas.width));
+                        let floorY = player.y + rowDistance * (rayDirY0 + ((rayDirY1 - rayDirY0) * x / canvas.width));
+
+                        const cellX = Math.floor(floorX);
+                        const cellY = Math.floor(floorY);
+
+                        if (map[cellY] && map[cellY][cellX] === 3) {
+                            const tx = Math.floor((floorX % 1) * floorTexture.width);
+                            const ty = Math.floor((floorY % 1) * floorTexture.height);
+
+                            ctx.drawImage(
+                                floorTexture,
+                                tx, ty, 1, 1,
+                                x, y, floorPixelSizeX, floorPixelSizeY
+                            );
+                        } else if (map[cellY] && map[cellY][cellX] === 2) {
+                            const tx = Math.floor((floorX % 1) * goopTexture.width);
+                            const ty = Math.floor((floorY % 1) * goopTexture.height);
+
+                            ctx.drawImage(
+                                goopTexture,
+                                tx, ty, 1, 1,
+                                x, y, floorPixelSizeX, floorPixelSizeY
+                            );
+                        } else if (map[cellY] && map[cellY][cellX] === 5) {
+                            const index = getGrassTextureIndex(cellX, cellY);
+                            const grassTexture = grassTextures[index];
+
+                            const tx = Math.floor((floorX % 1) * grassTexture.width);
+                            const ty = Math.floor((floorY % 1) * grassTexture.height);
+
+                            ctx.drawImage(
+                                grassTexture,
+                                tx, ty, 1, 1,
+                                x, y, floorPixelSizeX, floorPixelSizeY
+                            );
+                        }
+                    }
                 }
             }
-        });
-    }
-    
-    canvas.addEventListener('mousedown', (e) => {
-        if (e.button === 0 && document.pointerLockElement === canvas) {
-            const weapon = currentWeapon;
-            if (!weapon.canShoot) {
-                return; // Cannot shoot while animating
+
+            function getGrassTextureIndex(x, y) {
+                return (x + y) % grassTextures.length;
             }
-    
-            if (weapon.ammo <= 0) {
-                console.log('Out of ammo!');
-                return;
+
+            function renderCeiling(wallTops) {
+                const floorPixelSizeX = floorPixelSize;
+                const floorPixelSizeY = floorPixelSize;
+
+                const rayDirX0 = Math.cos(player.angle - Math.PI / 3 / 2);
+                const rayDirY0 = Math.sin(player.angle - Math.PI / 3 / 2);
+                const rayDirX1 = Math.cos(player.angle + Math.PI / 3 / 2);
+                const rayDirY1 = Math.sin(player.angle + Math.PI / 3 / 2);
+
+                for (let x = 0; x < canvas.width; x += floorPixelSizeX) {
+                    const wallTopY = Math.floor(wallTops[x]);
+                    for (let y = 0; y < wallTopY; y += floorPixelSizeY) {
+                        const p = y - canvas.height / 2;
+                        const posZ = 0.5 * canvas.height;
+                        const rowDistance = posZ / -p; // Negative p for ceiling
+
+                        const floorStepX = rowDistance * (rayDirX1 - rayDirX0) / canvas.width;
+                        const floorStepY = rowDistance * (rayDirY1 - rayDirY0) / canvas.width;
+
+                        let floorX = player.x + rowDistance * (rayDirX0 + ((rayDirX1 - rayDirX0) * x / canvas.width));
+                        let floorY = player.y + rowDistance * (rayDirY0 + ((rayDirY1 - rayDirY0) * x / canvas.width));
+
+                        const cellX = Math.floor(floorX);
+                        const cellY = Math.floor(floorY);
+
+                        if (ceilingMap[cellY] && ceilingMap[cellY][cellX]) {
+                            const tx = Math.floor((floorX % 1) * ceilingTexture.width);
+                            const ty = Math.floor((floorY % 1) * ceilingTexture.height);
+
+                            ctx.drawImage(
+                                ceilingTexture,
+                                tx, ty, 1, 1,
+                                x, y, floorPixelSizeX, floorPixelSizeY
+                            );
+                        }
+                    }
+                }
             }
-    
-            weapon.isAnimating = true;
-            weapon.frame = 0;
-            weapon.reversing = false;
-            weapon.lastFrameTime = Date.now();
-            weapon.canShoot = false; // Prevent shooting until animation ends
-    
-            muzzleFlash.isAnimating = true;
-            muzzleFlash.frame = 0;
-            muzzleFlash.lastFrameTime = Date.now();
-    
-            shootingSound.currentTime = 0; 
-            shootingSound.play();
-    
-            shoot(); // Call the shoot function
-        }
-    });
-    
-    // Editor state variables
-    let editorMode = false;
-    let editorStartPos = {x: 1.5, y: 1.5}; 
-    const editorDialog = document.querySelector('.map-editor-dialog');
-    const editorCanvas = document.getElementById('editorCanvas');
-    const editorCtx = editorCanvas.getContext('2d');
-    const editorControls = document.querySelector('.editor-controls');
-    const textEditor = document.querySelector('.text-editor');
-    const toggleTextEditorBtn = document.getElementById('toggleTextEditor');
-    
-    // Editor view controls
-    let zoomLevel = 1;
-    const minZoomLevel = 0.5;
-    const maxZoomLevel = 3;
-    let isPanning = false;
-    let panStartX = 0;
-    let panStartY = 0;
-    let panOffsetX = 0;
-    let panOffsetY = 0;
-    
-    // Editor drawing state
-    let isDrawing = false;
-    let currentTool = 'draw';
-    let lineStartX = null;
-    let lineStartY = null;
-    
-    const konamiCode = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright'];
-    let konamiIndex = 0;
-    
-    window.addEventListener('keydown', (e) => {
-      if (e.key.toLowerCase() === konamiCode[konamiIndex]) {
-        konamiIndex++;
-        if (konamiIndex === konamiCode.length) {
-          konamiIndex = 0;
-          editorDialog.style.display = 'block';
-          if (document.pointerLockElement === canvas) {
-            document.exitPointerLock();
-          }
-          initializeEditor();
-        }
-      } else {
-        konamiIndex = 0;
-      }
-    });
-    
-    function initializeEditor() {
-        editorCanvas.width = Math.min(window.innerWidth * 0.6, window.innerHeight * 0.6);
-        editorCanvas.height = editorCanvas.width;
-    
-        cellSize = 32 * zoomLevel;
-    
-        maxEditorOffsetX = Math.max(0, map[0].length * cellSize - editorCanvas.width);
-        maxEditorOffsetY = Math.max(0, map.length * cellSize - editorCanvas.height);
-    
-        editorOffsetX = Math.min(editorOffsetX, maxEditorOffsetX);
-        editorOffsetY = Math.min(editorOffsetY, maxEditorOffsetY);
-    
-        // Initialize editor controls
-        document.getElementById('editorSkyboxSelect').value = currentSkyboxName;
-        document.getElementById('gameSkyboxSelect').value = currentSkyboxName;
-        document.getElementById('zoomLevelDisplay').textContent = Math.round(zoomLevel * 100) + '%';
-    
-        // Add editor event listeners
-        editorCanvas.addEventListener('wheel', onEditorWheel);
-        editorCanvas.addEventListener('mousedown', onEditorMouseDown);
-        editorCanvas.addEventListener('mousemove', onEditorMouseMove);
-        editorCanvas.addEventListener('mouseup', onEditorMouseUp);
-        editorCanvas.addEventListener('mouseleave', onEditorMouseUp);
-        editorCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
-        window.addEventListener('keydown', onEditorKeyDown);
-    
-        // Initialize tool buttons
-        document.getElementById('drawToolButton').addEventListener('click', () => setActiveTool('draw'));
-        document.getElementById('eraseToolButton').addEventListener('click', () => setActiveTool('erase'));
-        document.getElementById('fillToolButton').addEventListener('click', () => setActiveTool('fill'));
-        document.getElementById('lineToolButton').addEventListener('click', () => setActiveTool('line'));
-    
-        drawEditorGrid();
-    }
-    
-    function onEditorWheel(e) {
-        e.preventDefault();
-        const delta = e.deltaY < 0 ? 0.1 : -0.1;
-        zoomLevel = Math.min(maxZoomLevel, Math.max(minZoomLevel, zoomLevel + delta));
-        cellSize = 32 * zoomLevel;
-        document.getElementById('zoomLevelDisplay').textContent = Math.round(zoomLevel * 100) + '%';
-    
-        maxEditorOffsetX = Math.max(0, map[0].length * cellSize - editorCanvas.width);
-        maxEditorOffsetY = Math.max(0, map.length * cellSize - editorCanvas.height);
-    
-        editorOffsetX = Math.min(editorOffsetX, maxEditorOffsetX);
-        editorOffsetY = Math.min(editorOffsetY, maxEditorOffsetY);
-    
-        drawEditorGrid();
-    }
-    
-    function onEditorMouseDown(e) {
-        const rect = editorCanvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-    
-        if (e.button === 2) { // Right-click for panning
-            isPanning = true;
-            panStartX = mouseX;
-            panStartY = mouseY;
-        } else if (e.button === 0) { // Left-click for drawing
-            isDrawing = true;
-            if (currentTool === 'line') {
-                lineStartX = mouseX + editorOffsetX;
-                lineStartY = mouseY + editorOffsetY;
-            } else {
-                handleDrawing(e);
+            
+            function draw() {
+                const bobOffset = player.bobAmount;
+
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw skybox that tiles perfectly
+                const skyWidth = currentSkybox.width;
+                const skyHeight = currentSkybox.height;
+                const skyAspectRatio = skyWidth / skyHeight;
+                const skyImageWidth = skyAspectRatio * canvas.height;
+
+                let skyOffsetX = (player.angle / (2 * Math.PI)) * skyImageWidth;
+                skyOffsetX = skyOffsetX % skyImageWidth;
+                if (skyOffsetX < 0) skyOffsetX += skyImageWidth;
+
+                for (let x = -skyOffsetX; x < canvas.width; x += skyImageWidth) {
+                    ctx.drawImage(currentSkybox, x, 0, skyImageWidth, canvas.height);
+                }
+
+                ctx.fillStyle = '#666';
+                ctx.fillRect(0, canvas.height / 2, canvas.width, canvas.height / 2);
+                
+                const FOV = Math.PI / 3;
+                const rayCount = canvas.width;
+                const rayStep = FOV / rayCount;
+
+                const wallBottoms = [];
+                const wallTops = []; // New array to store wall top positions
+                ctx.imageSmoothingEnabled = false;
+                
+                for (let i = 0; i < rayCount; i++) {
+                    const rayAngle = player.angle - FOV / 2 + rayStep * i;
+                    const { distance, hitX, wallType, doorProgress, isGoop, goopDistance, isPool, poolDistance } = castRay(rayAngle); 
+
+                    let wallHeight = canvas.height / distance;
+                    const textureX = Math.floor(hitX * wallTexture.width);
+                    
+                    const brightness = Math.min(1, 1 / (distance * 0.2));
+                    ctx.globalAlpha = brightness;
+
+                    if (isGoop) {
+                        const floorHeight = canvas.height / goopDistance;
+                        ctx.drawImage(
+                            goopTexture,
+                            textureX, 0,
+                            1, goopTexture.height,
+                            i,
+                            (canvas.height + floorHeight) / 2,
+                            1,
+                            canvas.height - ((canvas.height + floorHeight) / 2)
+                        );
+                    }
+
+                    if (isPool) {
+                        const floorHeight = canvas.height / poolDistance;
+                        
+                        const poolAnimationSpeed = 200; 
+                        const poolFrame = Math.floor(Date.now() / poolAnimationSpeed) % poolTextures.length;
+                        const textureToUse = poolTextures[poolFrame];
+
+                        ctx.drawImage(
+                            textureToUse,
+                            textureX, 0,
+                            1, textureToUse.height,
+                            i,
+                            (canvas.height + floorHeight) / 2,
+                            1,
+                            canvas.height - ((canvas.height + floorHeight) / 2)
+                        );
+                    }
+
+                    const texture = wallType === 'door' ? doorTexture : 
+                                    wallType === 2 ? poolWallTexture : 
+                                    wallTexture;
+
+                    let wallTopY = (canvas.height - wallHeight) / 2;
+                    let wallBottomY = (canvas.height + wallHeight) / 2;
+
+                    if (wallType === 'door' && doorProgress !== undefined) {
+                        // The door lowers down as it opens
+                        let shift = doorProgress * wallHeight;
+                        wallTopY += shift;
+                        wallBottomY += shift;
+
+                        // Allow the door to go slightly below floor level
+                        if (doorProgress >= 1) {
+                            wallTopY += wallHeight * 0.1;
+                            wallBottomY += wallHeight * 0.1;
+                        }
+
+                        wallHeight = wallBottomY - wallTopY;
+                    }
+
+                    ctx.drawImage(
+                        texture,
+                        textureX, 0,
+                        1, texture.height,
+                        i,
+                        wallTopY,
+                        1,
+                        wallHeight
+                    );
+
+                    wallBottoms[i] = wallBottomY;
+                    wallTops[i] = wallTopY; // Store wall top position
+
+                    ctx.globalAlpha = 1;
+                }
+                
+                renderCeiling(wallTops); // Call the ceiling rendering function
+                renderFloor(wallBottoms);
+
+                // Draw enemies
+                enemies.forEach(enemy => {
+                    const dx = enemy.x - player.x;
+                    const dy = enemy.y - player.y;
+
+                    const distance = Math.hypot(dx, dy);
+                    let enemyAngle = Math.atan2(dy, dx) - player.angle;
+
+                    if (enemyAngle < -Math.PI) enemyAngle += 2 * Math.PI;
+                    if (enemyAngle > Math.PI) enemyAngle -= 2 * Math.PI;
+
+                    const FOV = Math.PI / 3;
+                    if (Math.abs(enemyAngle) < FOV / 2) {
+                        const rayAngle = player.angle + enemyAngle;
+                        const { distance: wallDistance } = castRay(rayAngle);
+
+                        if (distance < wallDistance) {
+                            const screenX = (canvas.width / 2) * (1 + Math.tan(enemyAngle) / Math.tan(FOV / 2));
+                            const baseSpriteSize = (canvas.height / distance) * 0.7;
+                            let spriteSize = baseSpriteSize;
+                            const wallHeight = canvas.height / distance;
+                            const wallBottomY = (canvas.height + wallHeight) / 2;
+                            const spriteY = wallBottomY - spriteSize;
+
+                            if (enemy.state === 'dying') {
+                                const progress = enemy.deathAnimationTime / enemy.deathAnimationDuration;
+                                spriteSize *= (1 - progress);
+                                ctx.globalAlpha = 1 - progress;
+                            }
+
+                            const frameWidth = enemySpriteSheet.width / 5;
+                            const frameHeight = enemySpriteSheet.height / 6;
+                            const sx = enemy.spriteFrameX * frameWidth;
+                            const sy = enemy.spriteFrameY * frameHeight;
+
+                            ctx.drawImage(
+                                enemySpriteSheet,
+                                sx, sy, frameWidth, frameHeight,
+                                screenX - spriteSize / 2,
+                                spriteY,
+                                spriteSize,
+                                spriteSize
+                            );
+
+                            ctx.globalAlpha = 1;
+                        }
+                    }
+                });
+
+                // Draw projectiles
+                projectiles.forEach(projectile => {
+                    const dx = projectile.x - player.x;
+                    const dy = projectile.y - player.y;
+                    const distance = Math.hypot(dx, dy);
+
+                    let projectileAngle = Math.atan2(dy, dx) - player.angle;
+
+                    if (projectileAngle < -Math.PI) projectileAngle += 2 * Math.PI;
+                    if (projectileAngle > Math.PI) projectileAngle -= 2 * Math.PI;
+
+                    const FOV = Math.PI / 3;
+                    if (Math.abs(projectileAngle) < FOV / 2) {
+                        const rayAngle = player.angle + projectileAngle;
+                        const { distance: wallDistance } = castRay(rayAngle);
+
+                        if (distance < wallDistance) {
+                            const screenX = (canvas.width / 2) * (1 + Math.tan(projectileAngle) / Math.tan(FOV / 2));
+                            const spriteSize = (canvas.height / distance) * 0.2;
+
+                            const wallHeight = canvas.height / distance;
+                            const wallBottomY = (canvas.height + wallHeight) / 2;
+                            const spriteY = wallBottomY - spriteSize;
+
+                const frameWidth = muzzleFlashSprite.width / 4;
+                const frameHeight = muzzleFlashSprite.height;
+
+                ctx.save();
+                ctx.filter = 'hue-rotate(180deg)';
+                ctx.globalAlpha = 0.8;
+
+                ctx.drawImage(
+                    muzzleFlashSprite,
+                    projectile.frame * frameWidth, 0,
+                    frameWidth, frameHeight,
+                    screenX - spriteSize / 2,
+                    spriteY,
+                    spriteSize,
+                    spriteSize
+                );
+
+                ctx.restore();
+
+                        }
+                    }
+                });
+                
+                // Draw ammunition crates
+                ammoCrates.forEach(crate => {
+                    if (crate.collected) return;
+                    const dx = crate.x - player.x;
+                    const dy = crate.y - player.y;
+
+                    const distance = Math.hypot(dx, dy);
+
+                    // Calculate angle between the player's view and the crate
+                    let crateAngle = Math.atan2(dy, dx) - player.angle;
+
+                    // Normalize the angle to be between -PI and PI
+                    if (crateAngle < -Math.PI) crateAngle += 2 * Math.PI;
+                    if (crateAngle > Math.PI) crateAngle -= 2 * Math.PI;
+
+                    // Check if the crate is within the field of view
+                    const FOV = Math.PI / 3;
+                    if (Math.abs(crateAngle) < FOV / 2) {
+                        // Cast a ray to the crate to check for wall occlusion
+                        const rayAngle = player.angle + crateAngle;
+                        const { distance: wallDistance } = castRay(rayAngle);
+
+                        if (distance < wallDistance) {
+                            // Crate is visible, draw it
+                            const screenX = (canvas.width / 2) * (1 + Math.tan(crateAngle) / Math.tan(FOV / 2));
+
+                            // Size of the sprite (make it smaller)
+                            const spriteSize = (canvas.height / distance) * 0.3;
+
+                            // Position the sprite on the floor
+                            const wallHeight = canvas.height / distance;
+                            const wallBottomY = (canvas.height + wallHeight) / 2;
+                            const spriteY = wallBottomY - spriteSize;
+
+                            ctx.drawImage(
+                                ammoCrateSprite,
+                                screenX - spriteSize / 2,
+                                spriteY,
+                                spriteSize,
+                                spriteSize
+                            );
+                        }
+                    }
+                });
+                
+                const minimapSize = 100;
+                const cellSize = minimapSize / map.length;
+                
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillRect(0, 0, minimapSize, minimapSize);
+                
+                for(let y = 0; y < map.length; y++) {
+                    for(let x = 0; x < map[y].length; x++) {
+                        const tile = map[y][x];
+                        if(tile === 1) {
+                            ctx.fillStyle = '#fff';
+                        } else if(tile === 2) {
+                            ctx.fillStyle = '#a52a2a';
+                        } else if (tile === 3) {
+                            ctx.fillStyle = '#808080';
+                        } else if (tile === 4) {
+                            ctx.fillStyle = '#44f';
+                        } else if (tile === 5) {
+                            ctx.fillStyle = '#228B22';
+                        } else if (tile === 'D') {
+                            ctx.fillStyle = '#888';
+                        } else {
+                            continue;
+                        }
+                        ctx.fillRect(
+                            x * cellSize,
+                            y * cellSize,
+                            cellSize,
+                            cellSize
+                        );
+                        if (enemyMap[y][x]) {
+                            ctx.fillStyle = '#f00'; // Red for enemy spawn locations
+                            ctx.fillRect(
+                                x * cellSize,
+                                y * cellSize,
+                                cellSize,
+                                cellSize
+                            );
+                        }
+                        if (ammoCrateMap[y][x]) {
+                            ctx.fillStyle = '#ff0'; // Yellow for ammo crates
+                            ctx.fillRect(
+                                x * cellSize,
+                                y * cellSize,
+                                cellSize,
+                                cellSize
+                            );
+                        }
+                    }
+                }
+
+                // Draw enemies on minimap
+                enemies.forEach(enemy => {
+                    ctx.fillStyle = 'red';
+                    ctx.beginPath();
+                    ctx.arc(
+                        enemy.x * cellSize,
+                        enemy.y * cellSize,
+                        3,
+                        0,
+                        Math.PI * 2
+                    );
+                    ctx.fill();
+                });
+                
+                ctx.fillStyle = 'red';
+                ctx.beginPath();
+                ctx.arc(
+                    player.x * cellSize,
+                    player.y * cellSize,
+                    3,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
+
+                drawWeapon();
+                drawMuzzleFlash();
+
+                // Draw crosshair
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(canvas.width / 2 - 10, canvas.height / 2);
+                ctx.lineTo(canvas.width / 2 + 10, canvas.height / 2);
+                ctx.moveTo(canvas.width / 2, canvas.height / 2 - 10);
+                ctx.lineTo(canvas.width / 2, canvas.height / 2 + 10);
+                ctx.stroke();
             }
-        }
-    }
-    
-    function onEditorMouseMove(e) {
-        const rect = editorCanvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-    
-        if (isPanning) {
-            const dx = mouseX - panStartX;
-            const dy = mouseY - panStartY;
-            panStartX = mouseX;
-            panStartY = mouseY;
-    
-            editorOffsetX = Math.max(0, Math.min(maxEditorOffsetX, editorOffsetX - dx));
-            editorOffsetY = Math.max(0, Math.min(maxEditorOffsetY, editorOffsetY - dy));
-            drawEditorGrid();
-        } else if (isDrawing && currentTool !== 'line') {
-            handleDrawing(e);
-        }
-    }
-    
-    function onEditorMouseUp(e) {
-        isDrawing = false;
-        isPanning = false;
-        if (currentTool === 'line' && lineStartX !== null && lineStartY !== null) {
-            const rect = editorCanvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left + editorOffsetX;
-            const mouseY = e.clientY - rect.top + editorOffsetY;
-    
-            const x0 = Math.floor(lineStartX / cellSize);
-            const y0 = Math.floor(lineStartY / cellSize);
-            const x1 = Math.floor(mouseX / cellSize);
-            const y1 = Math.floor(mouseY / cellSize);
-    
-            drawLineOnMap(x0, y0, x1, y1);
-    
-            lineStartX = null;
-            lineStartY = null;
-            drawEditorGrid();
-        }
-    }
-    
-    function setActiveTool(tool) {
-        currentTool = tool;
-        const toolButtons = ['drawToolButton', 'eraseToolButton', 'fillToolButton', 'lineToolButton'];
-        toolButtons.forEach(buttonId => {
-            const button = document.getElementById(buttonId);
-            if (buttonId === tool + 'ToolButton') {
-                button.classList.add('active');
-            } else {
-                button.classList.remove('active');
+
+
+            
+
+            function update(deltaTime) {
+                player.velocityX *= player.friction;
+                player.velocityY *= player.friction;
+
+                // Update bobbing
+                if (Math.abs(player.velocityX) > 0.001 || Math.abs(player.velocityY) > 0.001) {
+                    player.bobTime += deltaTime * 0.01;
+                    player.bobAmount = Math.sin(player.bobTime) * 5;
+                } else {
+                    player.bobAmount *= 0.9;
+                }
+
+                // Update projectiles with deltaTime
+                projectiles = projectiles.filter(projectile => {
+                    projectile.update(deltaTime);
+                    return projectile.active;
+                });
+
+                // Check for ammunition crate collection
+                ammoCrates.forEach(crate => {
+                    if (crate.collected) return;
+                    const dx = player.x - crate.x;
+                    const dy = player.y - crate.y;
+                    const distance = Math.hypot(dx, dy);
+                    if (distance < 0.5) {
+                        crate.collected = true;
+                        // Update ammoCrateMap
+                        const x = Math.floor(crate.x);
+                        const y = Math.floor(crate.y);
+                        ammoCrateMap[y][x] = false;
+                        weapons.pistol.ammo += 10;
+                        weapons.shotgun.ammo += 10;
+                        updateHUD();
+                        screenFlash.trigger();
+                        ammoPickupSound.play();
+                    }
+                });
+
+                // Update enemy positions and states
+                enemies.forEach(enemy => {
+                    enemy.update(player, deltaTime);
+                });
+
+                // Remove enemies that are dead
+                enemies = enemies.filter(enemy => enemy.state !== 'dead');
+
+                if(keys['w']) {
+                    player.velocityX += Math.cos(player.angle) * player.acceleration;
+                    player.velocityY += Math.sin(player.angle) * player.acceleration;
+                }
+                if(keys['s']) {
+                    player.velocityX -= Math.cos(player.angle) * player.acceleration;
+                    player.velocityY -= Math.sin(player.angle) * player.acceleration;
+                }
+                if(keys['a']) {
+                    player.velocityX += Math.cos(player.angle - Math.PI/2) * player.acceleration;
+                    player.velocityY += Math.sin(player.angle - Math.PI/2) * player.acceleration;
+                }
+                if(keys['d']) {
+                    player.velocityX += Math.cos(player.angle + Math.PI/2) * player.acceleration;
+                    player.velocityY += Math.sin(player.angle + Math.PI/2) * player.acceleration;
+                }
+
+                const newX = player.x + player.velocityX;
+                const newY = player.y + player.velocityY;
+
+                if (
+                    isPassable(map[Math.floor(newY)][Math.floor(player.x)]) 
+                ) {
+                    player.y = newY;
+                }
+                if (
+                    isPassable(map[Math.floor(player.y)][Math.floor(newX)]) 
+                ) {
+                    player.x = newX;
+                }
+
+                screenFlash.update();
             }
-        });
-    }
-    
-    function handleDrawing(e) {
-        const rect = editorCanvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left + editorOffsetX;
-        const mouseY = e.clientY - rect.top + editorOffsetY;
-    
-        const x = Math.floor(mouseX / cellSize);
-        const y = Math.floor(mouseY / cellSize);
-    
-        if (x < 0 || x >= map[0].length || y < 0 || y >= map.length) return;
-    
-        undoStack.push({
-            map: JSON.parse(JSON.stringify(map)),
-            ceilingMap: JSON.parse(JSON.stringify(ceilingMap)),
-            enemyMap: JSON.parse(JSON.stringify(enemyMap)),
-            ammoCrateMap: JSON.parse(JSON.stringify(ammoCrateMap)),
-            editorStartPos: { x: editorStartPos.x, y: editorStartPos.y }
-        });
-        redoStack = [];
-    
-        const tileType = document.getElementById('editorTileType').value;
-    
-        if (currentTool === 'draw') {
-            if (tileType === 'S') {
+
+            function isPassable(tile) {
+                return tile === 0 || tile === 3 || tile === 5;
+            }
+
+            
+
+            function gameLoop(timestamp) {
+                if (!lastFrameTime) lastFrameTime = timestamp;
+                const deltaTime = timestamp - lastFrameTime;
+                lastFrameTime = timestamp;
+
+                if (player.health > 0) {
+                    update(deltaTime);
+                    updateDoors();
+                    draw();
+                    screenFlash.draw();
+                    requestAnimationFrame(gameLoop);
+                } else {
+                    ctx.fillStyle = 'red';
+                    ctx.font = '48px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
+                }
+            }
+
+            canvas.addEventListener('click', () => {
+                try {
+                    canvas.requestPointerLock();
+                    // Start background music when the game starts
+                    if (backgroundMusic.paused) {
+                        backgroundMusic.play();
+                    }
+                } catch (error) {
+                    console.error('Error requesting pointer lock:', error);
+                }
+            });
+
+            
+
+            function resizeWeaponCanvas() {
+                weaponCanvas.width = window.innerWidth * 0.9;
+                weaponCanvas.height = window.innerHeight * 0.5;
+            }
+            window.addEventListener('resize', resizeWeaponCanvas);
+            resizeWeaponCanvas();
+
+            function drawWeapon() {
+                weaponCtx.clearRect(0, 0, weaponCanvas.width, weaponCanvas.height);
+
+                const bobOffset = player.bobAmount;
+                const weapon = currentWeapon;
+                const frameWidth = weapon.sprite.width / weapon.totalFrames;
+                const frameHeight = weapon.sprite.height;
+
+                if (weapon.isAnimating) {
+                    const currentTime = Date.now();
+                    if (currentTime - weapon.lastFrameTime > weapon.animationSpeed) {
+                        if (!weapon.reversing) {
+                            weapon.frame++;
+                            if (weapon.frame >= weapon.totalFrames - 1) {
+                                weapon.reversing = true;
+                            }
+                        } else {
+                            weapon.frame--;
+                            if (weapon.frame <= 0) {
+                                weapon.frame = 0;
+                                weapon.reversing = false;
+                                weapon.isAnimating = false;
+                                weapon.canShoot = true;  // Allow shooting again
+                            }
+                        }
+                        weapon.lastFrameTime = currentTime;
+                    }
+                }
+
+                const scale = weaponCanvas.height / frameHeight;
+                const scaledWidth = frameWidth * scale;
+                const scaledHeight = frameHeight * scale;
+
+                weaponCtx.drawImage(
+                    weapon.sprite,
+                    weapon.frame * frameWidth, 0,
+                    frameWidth, frameHeight,
+                    (weaponCanvas.width - scaledWidth) / 2,
+                    weaponCanvas.height - scaledHeight + bobOffset,
+                    scaledWidth, scaledHeight
+                );
+            }
+
+            function updateHUD() {
+                document.getElementById('health-value').textContent = player.health + '%';
+                const healthBar = document.querySelector('.health-bar');
+                if (player.health <= 20) {
+                    healthBar.style.color = 'red';
+                } else {
+                    healthBar.style.color = 'white';
+                }
+                const weapon = currentWeapon;
+                if (weapon.ammo === Infinity) {
+                    document.getElementById('ammo-value').textContent = '∞';
+                } else {
+                    document.getElementById('ammo-value').textContent = weapon.ammo;
+                }
+            }
+
+            function shoot() {
+                const weapon = currentWeapon;
+                if (weapon.ammo <= 0) {
+                    console.log('Out of ammo!');
+                    return;
+                }
+
+                if (weapon.ammo !== Infinity) {
+                    weapon.ammo--;
+                    updateHUD();
+                }
+
+                let enemyHit = false;
+
+                enemies.forEach(enemy => {
+                    // Allow shooting enemies that are not dead or dying
+                    if (enemy.state === 'dead' || enemy.state === 'dying') return;
+
+                    const dx = enemy.x - player.x;
+                    const dy = enemy.y - player.y;
+                    const distance = Math.hypot(dx, dy);
+
+                    let enemyAngle = Math.atan2(dy, dx) - player.angle;
+                    if (enemyAngle < -Math.PI) enemyAngle += 2 * Math.PI;
+                    if (enemyAngle > Math.PI) enemyAngle -= 2 * Math.PI;
+
+                    const FOV = Math.PI / 3;
+                    if (Math.abs(enemyAngle) < FOV / 2) {
+                        const rayAngle = player.angle + enemyAngle;
+                        const { distance: wallDistance } = castRay(rayAngle);
+
+                        if (distance < wallDistance) {
+                            const screenX = (canvas.width / 2) * (1 + Math.tan(enemyAngle) / Math.tan(FOV / 2));
+                            const hitZoneSize = 100;
+
+                            if (Math.abs(screenX - canvas.width / 2) < hitZoneSize / 2) {
+                                enemy.health -= weapon.damage;
+                                if (enemy.health <= 0) {
+                                    enemy.state = 'dying';
+                                    enemy.deathAnimationTime = 0;
+                                }
+                                enemyHit = true;
+                                return;
+                            }
+                        }
+                    }
+                });
+            }
+
+            canvas.addEventListener('mousedown', (e) => {
+                if (e.button === 0 && document.pointerLockElement === canvas) {
+                    const weapon = currentWeapon;
+                    if (!weapon.canShoot) {
+                        return; // Cannot shoot while animating
+                    }
+
+                    if (weapon.ammo <= 0) {
+                        console.log('Out of ammo!');
+                        return;
+                    }
+
+                    weapon.isAnimating = true;
+                    weapon.frame = 0;
+                    weapon.reversing = false;
+                    weapon.lastFrameTime = Date.now();
+                    weapon.canShoot = false; // Prevent shooting until animation ends
+
+                    muzzleFlash.isAnimating = true;
+                    muzzleFlash.frame = 0;
+                    muzzleFlash.lastFrameTime = Date.now();
+
+                    shootingSound.currentTime = 0; 
+                    shootingSound.play();
+
+                    shoot(); // Call the shoot function
+                }
+            });
+
+            
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key.toLowerCase() === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    konamiIndex = 0;
+                    editorDialog.style.display = 'block';
+                    if (document.pointerLockElement === canvas) {
+                    document.exitPointerLock();
+                    }
+                    initializeEditor();
+                }
+                } else {
+                konamiIndex = 0;
+                }
+            });
+
+            function initializeEditor() {
+                editorCanvas.width = Math.min(window.innerWidth * 0.6, window.innerHeight * 0.6);
+                editorCanvas.height = editorCanvas.width;
+
+                cellSize = 32 * zoomLevel;
+
+                maxEditorOffsetX = Math.max(0, map[0].length * cellSize - editorCanvas.width);
+                maxEditorOffsetY = Math.max(0, map.length * cellSize - editorCanvas.height);
+
+                editorOffsetX = Math.min(editorOffsetX, maxEditorOffsetX);
+                editorOffsetY = Math.min(editorOffsetY, maxEditorOffsetY);
+
+                // Initialize editor controls
+                document.getElementById('editorSkyboxSelect').value = currentSkyboxName;
+                document.getElementById('gameSkyboxSelect').value = currentSkyboxName;
+                document.getElementById('zoomLevelDisplay').textContent = Math.round(zoomLevel * 100) + '%';
+
+                // Add editor event listeners
+                editorCanvas.addEventListener('wheel', onEditorWheel);
+                editorCanvas.addEventListener('mousedown', onEditorMouseDown);
+                editorCanvas.addEventListener('mousemove', onEditorMouseMove);
+                editorCanvas.addEventListener('mouseup', onEditorMouseUp);
+                editorCanvas.addEventListener('mouseleave', onEditorMouseUp);
+                editorCanvas.addEventListener('contextmenu', (e) => e.preventDefault());
+                window.addEventListener('keydown', onEditorKeyDown);
+
+                // Initialize tool buttons
+                document.getElementById('drawToolButton').addEventListener('click', () => setActiveTool('draw'));
+                document.getElementById('eraseToolButton').addEventListener('click', () => setActiveTool('erase'));
+                document.getElementById('fillToolButton').addEventListener('click', () => setActiveTool('fill'));
+                document.getElementById('lineToolButton').addEventListener('click', () => setActiveTool('line'));
+
+                drawEditorGrid();
+            }
+
+            function onEditorWheel(e) {
+                e.preventDefault();
+                const delta = e.deltaY < 0 ? 0.1 : -0.1;
+                zoomLevel = Math.min(maxZoomLevel, Math.max(minZoomLevel, zoomLevel + delta));
+                cellSize = 32 * zoomLevel;
+                document.getElementById('zoomLevelDisplay').textContent = Math.round(zoomLevel * 100) + '%';
+
+                maxEditorOffsetX = Math.max(0, map[0].length * cellSize - editorCanvas.width);
+                maxEditorOffsetY = Math.max(0, map.length * cellSize - editorCanvas.height);
+
+                editorOffsetX = Math.min(editorOffsetX, maxEditorOffsetX);
+                editorOffsetY = Math.min(editorOffsetY, maxEditorOffsetY);
+
+                drawEditorGrid();
+            }
+
+            function onEditorMouseDown(e) {
+                const rect = editorCanvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                if (e.button === 2) { // Right-click for panning
+                    isPanning = true;
+                    panStartX = mouseX;
+                    panStartY = mouseY;
+                } else if (e.button === 0) { // Left-click for drawing
+                    isDrawing = true;
+                    if (currentTool === 'line') {
+                        lineStartX = mouseX + editorOffsetX;
+                        lineStartY = mouseY + editorOffsetY;
+                    } else {
+                        handleDrawing(e);
+                    }
+                }
+            }
+
+            function onEditorMouseMove(e) {
+                const rect = editorCanvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                if (isPanning) {
+                    const dx = mouseX - panStartX;
+                    const dy = mouseY - panStartY;
+                    panStartX = mouseX;
+                    panStartY = mouseY;
+
+                    editorOffsetX = Math.max(0, Math.min(maxEditorOffsetX, editorOffsetX - dx));
+                    editorOffsetY = Math.max(0, Math.min(maxEditorOffsetY, editorOffsetY - dy));
+                    drawEditorGrid();
+                } else if (isDrawing && currentTool !== 'line') {
+                    handleDrawing(e);
+                }
+            }
+
+            function onEditorMouseUp(e) {
+                isDrawing = false;
+                isPanning = false;
+                if (currentTool === 'line' && lineStartX !== null && lineStartY !== null) {
+                    const rect = editorCanvas.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left + editorOffsetX;
+                    const mouseY = e.clientY - rect.top + editorOffsetY;
+
+                    const x0 = Math.floor(lineStartX / cellSize);
+                    const y0 = Math.floor(lineStartY / cellSize);
+                    const x1 = Math.floor(mouseX / cellSize);
+                    const y1 = Math.floor(mouseY / cellSize);
+
+                    drawLineOnMap(x0, y0, x1, y1);
+
+                    lineStartX = null;
+                    lineStartY = null;
+                    drawEditorGrid();
+                }
+            }
+
+            function setActiveTool(tool) {
+                currentTool = tool;
+                const toolButtons = ['drawToolButton', 'eraseToolButton', 'fillToolButton', 'lineToolButton'];
+                toolButtons.forEach(buttonId => {
+                    const button = document.getElementById(buttonId);
+                    if (buttonId === tool + 'ToolButton') {
+                        button.classList.add('active');
+                    } else {
+                        button.classList.remove('active');
+                    }
+                });
+            }
+
+            function handleDrawing(e) {
+                const rect = editorCanvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left + editorOffsetX;
+                const mouseY = e.clientY - rect.top + editorOffsetY;
+
+                const x = Math.floor(mouseX / cellSize);
+                const y = Math.floor(mouseY / cellSize);
+
+                if (x < 0 || x >= map[0].length || y < 0 || y >= map.length) return;
+
+                undoStack.push({
+                    map: JSON.parse(JSON.stringify(map)),
+                    ceilingMap: JSON.parse(JSON.stringify(ceilingMap)),
+                    enemyMap: JSON.parse(JSON.stringify(enemyMap)),
+                    ammoCrateMap: JSON.parse(JSON.stringify(ammoCrateMap)),
+                    editorStartPos: { x: editorStartPos.x, y: editorStartPos.y }
+                });
+                redoStack = [];
+
+                const tileType = document.getElementById('editorTileType').value;
+
+                if (currentTool === 'draw') {
+                    if (tileType === 'S') {
+                        editorStartPos.x = x + 0.5;
+                        editorStartPos.y = y + 0.5;
+                        document.getElementById('startPosDisplay').textContent = `X: ${editorStartPos.x.toFixed(1)}, Y: ${editorStartPos.y.toFixed(1)}`;
+                    } else if (tileType === 'C') {
+                        ceilingMap[y][x] = !ceilingMap[y][x];
+                    } else if (tileType === 'E') {
+                        enemyMap[y][x] = !enemyMap[y][x];
+                    } else if (tileType === 'A') {
+                        ammoCrateMap[y][x] = !ammoCrateMap[y][x];
+                    } else if (tileType === 'D') {
+                        map[y][x] = 'D';
+                        updateWallTypes();
+                    } else {
+                        map[y][x] = parseInt(tileType);
+                        updateWallTypes();
+                    }
+                } else if (currentTool === 'erase') {
+                    map[y][x] = 0;
+                    ceilingMap[y][x] = false;
+                    enemyMap[y][x] = false;
+                    ammoCrateMap[y][x] = false;
+                    updateWallTypes();
+                }
+
+                drawEditorGrid();
+            }
+
+            function drawLineOnMap(x0, y0, x1, y1) {
+                const dx = Math.abs(x1 - x0);
+                const dy = -Math.abs(y1 - y0);
+                const sx = x0 < x1 ? 1 : -1;
+                const sy = y0 < y1 ? 1 : -1;
+                let err = dx + dy;
+
+                while (true) {
+                    if (x0 < 0 || x0 >= map[0].length || y0 < 0 || y0 >= map.length) break;
+                    const tileType = document.getElementById('editorTileType').value;
+                    if (tileType === 'S') {
+                        editorStartPos.x = x0 + 0.5;
+                        editorStartPos.y = y0 + 0.5;
+                        document.getElementById('startPosDisplay').textContent = `X: ${editorStartPos.x.toFixed(1)}, Y: ${editorStartPos.y.toFixed(1)}`;
+                    } else if (tileType === 'C') {
+                        ceilingMap[y0][x0] = !ceilingMap[y0][x0];
+                    } else if (tileType === 'E') {
+                        enemyMap[y0][x0] = !enemyMap[y0][x0];
+                    } else if (tileType === 'A') {
+                        ammoCrateMap[y0][x0] = !ammoCrateMap[y0][x0];
+                    } else if (tileType === 'D') {
+                        map[y0][x0] = 'D';
+                        updateWallTypes();
+                    } else {
+                        map[y0][x0] = parseInt(tileType);
+                        updateWallTypes();
+                    }
+
+                    if (x0 === x1 && y0 === y1) break;
+                    const e2 = 2 * err;
+                    if (e2 >= dy) {
+                        err += dy;
+                        x0 += sx;
+                    }
+                    if (e2 <= dx) {
+                        err += dx;
+                        y0 += sy;
+                    }
+                }
+            }
+
+            // Event listener for the game controls skybox select
+            document.getElementById('gameSkyboxSelect').addEventListener('change', (e) => {
+                currentSkyboxName = e.target.value;
+                currentSkybox = skyboxImages[currentSkyboxName];
+            });
+
+            // Event listener for the map editor skybox select
+            document.getElementById('editorSkyboxSelect').addEventListener('change', (e) => {
+                currentSkyboxName = e.target.value;
+                currentSkybox = skyboxImages[currentSkyboxName];
+            });
+
+            function drawEditorGrid() {
+                editorCtx.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
+
+                const startX = Math.floor(editorOffsetX / cellSize);
+                const startY = Math.floor(editorOffsetY / cellSize);
+                const endX = Math.min(startX + Math.ceil(editorCanvas.width / cellSize) + 1, map[0].length);
+                const endY = Math.min(startY + Math.ceil(editorCanvas.height / cellSize) + 1, map.length);
+
+                for (let y = startY; y < endY; y++) {
+                for (let x = startX; x < endX; x++) {
+                    const screenX = x * cellSize - editorOffsetX;
+                    const screenY = y * cellSize - editorOffsetY;
+
+                    editorCtx.strokeStyle = '#333';
+                    editorCtx.strokeRect(screenX, screenY, cellSize, cellSize);
+
+                    switch (map[y][x]) {
+                    case 1:
+                        editorCtx.fillStyle = '#fff';
+                        break;
+                    case 'D':
+                        editorCtx.fillStyle = '#888';
+                        editorCtx.fillRect(screenX, screenY, cellSize, cellSize);
+                        editorCtx.fillStyle = '#000';
+                        editorCtx.textAlign = 'center';
+                        editorCtx.textBaseline = 'middle';
+                        editorCtx.fillText('D', screenX + cellSize / 2, screenY + cellSize / 2);
+                        break;
+                    case 2:
+                        editorCtx.fillStyle = '#a52a2a';
+                        break;
+                    case 3:
+                        editorCtx.fillStyle = '#808080';
+                        break;
+                    case 4:
+                        editorCtx.fillStyle = '#44f';
+                        break;
+                    case 5:
+                        editorCtx.fillStyle = '#228B22'; // Green for grass
+                        break;
+                    case 'A':
+                        editorCtx.fillStyle = '#ff0'; // Yellow for ammo crate
+                        break;
+                    default:
+                        editorCtx.fillStyle = '#000';
+                    }
+                    editorCtx.fillRect(screenX, screenY, cellSize, cellSize);
+
+                    if (ceilingMap[y][x]) {
+                    editorCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    editorCtx.font = `${cellSize / 2}px Arial`;
+                    editorCtx.textAlign = 'center';
+                    editorCtx.textBaseline = 'middle';
+                    editorCtx.fillText('C', screenX + cellSize / 2, screenY + cellSize / 2);
+                    }
+                    if (enemyMap[y][x]) {
+                    editorCtx.fillStyle = 'rgba(255, 0, 0, 0.8)';
+                    editorCtx.font = `${cellSize / 2}px Arial`;
+                    editorCtx.textAlign = 'center';
+                    editorCtx.textBaseline = 'middle';
+                    editorCtx.fillText('E', screenX + cellSize / 2, screenY + cellSize / 2);
+                    }
+                    if (ammoCrateMap[y][x]) {
+                    editorCtx.fillStyle = 'rgba(255, 255, 0, 0.8)'; // Visually indicate ammo crates
+                    editorCtx.font = `${cellSize / 2}px Arial`;
+                    editorCtx.textAlign = 'center';
+                    editorCtx.textBaseline = 'middle';
+                    editorCtx.fillText('A', screenX + cellSize / 2, screenY + cellSize / 2);
+                    }
+                }
+                }
+
+                const startPosX = editorStartPos.x * cellSize - editorOffsetX;
+                const startPosY = editorStartPos.y * cellSize - editorOffsetY;
+                editorCtx.fillStyle = '#0f0';
+                editorCtx.beginPath();
+                editorCtx.arc(
+                startPosX,
+                startPosY,
+                cellSize / 3,
+                0,
+                Math.PI * 2
+                );
+                editorCtx.fill();
+            }
+
+            editorCanvas.addEventListener('click', (e) => {
+                const rect = editorCanvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left + editorOffsetX;
+                const mouseY = e.clientY - rect.top + editorOffsetY;
+
+                const x = Math.floor(mouseX / cellSize);
+                const y = Math.floor(mouseY / cellSize);
+
+                if (x < 0 || x >= map[0].length || y < 0 || y >= map.length) return;
+
+                undoStack.push({
+                map: JSON.parse(JSON.stringify(map)),
+                ceilingMap: JSON.parse(JSON.stringify(ceilingMap)),
+                enemyMap: JSON.parse(JSON.stringify(enemyMap)),
+                ammoCrateMap: JSON.parse(JSON.stringify(ammoCrateMap)),
+                editorStartPos: { x: editorStartPos.x, y: editorStartPos.y }
+                });
+                redoStack = [];
+
+                const tileType = document.getElementById('editorTileType').value;
+                if (tileType === 'S') {
                 editorStartPos.x = x + 0.5;
                 editorStartPos.y = y + 0.5;
-                document.getElementById('startPosDisplay').textContent = `X: ${editorStartPos.x.toFixed(1)}, Y: ${editorStartPos.y.toFixed(1)}`;
-            } else if (tileType === 'C') {
+                document.getElementById('startPosDisplay').textContent =
+                    `X: ${editorStartPos.x.toFixed(1)}, Y: ${editorStartPos.y.toFixed(1)}`;
+                } else if (tileType === 'C') {
                 ceilingMap[y][x] = !ceilingMap[y][x];
-            } else if (tileType === 'E') {
+                } else if (tileType === 'E') {
                 enemyMap[y][x] = !enemyMap[y][x];
-            } else if (tileType === 'A') {
+                } else if (tileType === 'A') {
                 ammoCrateMap[y][x] = !ammoCrateMap[y][x];
-            } else if (tileType === 'D') {
+                } else if (tileType === 'D') {
                 map[y][x] = 'D';
                 updateWallTypes();
-            } else {
+                } else {
                 map[y][x] = parseInt(tileType);
                 updateWallTypes();
-            }
-        } else if (currentTool === 'erase') {
-            map[y][x] = 0;
-            ceilingMap[y][x] = false;
-            enemyMap[y][x] = false;
-            ammoCrateMap[y][x] = false;
-            updateWallTypes();
-        }
-    
-        drawEditorGrid();
-    }
-    
-    function drawLineOnMap(x0, y0, x1, y1) {
-        const dx = Math.abs(x1 - x0);
-        const dy = -Math.abs(y1 - y0);
-        const sx = x0 < x1 ? 1 : -1;
-        const sy = y0 < y1 ? 1 : -1;
-        let err = dx + dy;
-    
-        while (true) {
-            if (x0 < 0 || x0 >= map[0].length || y0 < 0 || y0 >= map.length) break;
-            const tileType = document.getElementById('editorTileType').value;
-            if (tileType === 'S') {
-                editorStartPos.x = x0 + 0.5;
-                editorStartPos.y = y0 + 0.5;
-                document.getElementById('startPosDisplay').textContent = `X: ${editorStartPos.x.toFixed(1)}, Y: ${editorStartPos.y.toFixed(1)}`;
-            } else if (tileType === 'C') {
-                ceilingMap[y0][x0] = !ceilingMap[y0][x0];
-            } else if (tileType === 'E') {
-                enemyMap[y0][x0] = !enemyMap[y0][x0];
-            } else if (tileType === 'A') {
-                ammoCrateMap[y0][x0] = !ammoCrateMap[y0][x0];
-            } else if (tileType === 'D') {
-                map[y0][x0] = 'D';
+                }
+
+                drawEditorGrid();
+            });
+
+            document.querySelector('.close-editor').addEventListener('click', () => {
+                editorDialog.style.display = 'none';
+                // Remove the keydown event listener when closing editor
+                window.removeEventListener('keydown', onEditorKeyDown);
+            });
+
+            document.getElementById('newMap').addEventListener('click', () => {
+                const width = parseInt(document.getElementById('mapWidth').value);
+                const height = parseInt(document.getElementById('mapHeight').value);
+                
+                map.length = 0;
+                ceilingMap.length = 0; // Reset ceilingMap
+                enemyMap.length = 0; // Reset enemyMap
+                ammoCrateMap.length = 0; // Reset ammoCrateMap
+                
+                for(let y = 0; y < height; y++) {
+                map.push(new Array(width).fill(0));
+                ceilingMap.push(new Array(width).fill(false)); // Initialize ceilingMap
+                enemyMap.push(new Array(width).fill(false)); // Initialize enemyMap
+                ammoCrateMap.push(new Array(width).fill(false)); // Initialize ammoCrateMap
+                }
+                
+                for(let x = 0; x < width; x++) {
+                map[0][x] = 1;
+                map[height-1][x] = 1;
+                }
+                for(let y = 0; y < height; y++) {
+                map[y][0] = 1;
+                map[y][width-1] = 1;
+                }
+                
                 updateWallTypes();
-            } else {
-                map[y0][x0] = parseInt(tileType);
+
+                maxEditorOffsetX = Math.max(0, map[0].length * cellSize - editorCanvas.width);
+                maxEditorOffsetY = Math.max(0, map.length * cellSize - editorCanvas.height);
+
+                editorOffsetX = Math.min(editorOffsetX, maxEditorOffsetX);
+                editorOffsetY = Math.min(editorOffsetY, maxEditorOffsetY);
+
+                currentSkyboxName = 'sunny';
+                currentSkybox = skyboxImages[currentSkyboxName];
+                document.getElementById('editorSkyboxSelect').value = currentSkyboxName;
+
+                initializeEnemies(); // Initialize enemies with new map
+                initializeAmmoCrates(); // Initialize ammo crates with new map
+                drawEditorGrid();
+            });
+
+            document.getElementById('applyEditorMap').addEventListener('click', () => {
+                currentSkyboxName = document.getElementById('editorSkyboxSelect').value;
+                currentSkybox = skyboxImages[currentSkyboxName];
+
+                if (editorStartPos.x < 0.5 || editorStartPos.x > map[0].length - 0.5 ||
+                    editorStartPos.y < 0.5 || editorStartPos.y > map.length - 0.5) {
+                alert('Start position is out of bounds. Please set a valid start position.');
+                return;
+                }
+                player.x = editorStartPos.x;
+                player.y = editorStartPos.y;
+
+                initializeEnemies(); // Initialize enemies with updated map
+                initializeAmmoCrates(); // Initialize ammo crates with updated map
+                editorDialog.style.display = 'none';
+            });
+
+            document.getElementById('applyMapText').addEventListener('click', () => {
+                const mapTextArea = document.getElementById('mapText');
+                try {
+                const newMap = mapTextArea.value.trim().split('\n').map(row =>
+                    row.trim().split('').map(cell => (isNaN(cell) ? cell : parseInt(cell)))
+                );
+
+                if (newMap.length < 3 || newMap[0].length < 3) {
+                    throw new Error('Map too small');
+                }
+
+                while (map.length > 0) map.pop();
+                while (ceilingMap.length > 0) ceilingMap.pop(); // Reset ceilingMap
+                while (enemyMap.length > 0) enemyMap.pop(); // Reset enemyMap
+                while (ammoCrateMap.length > 0) ammoCrateMap.pop(); // Reset ammoCrateMap
+
+                newMap.forEach(row => {
+                    map.push([...row]);
+                    ceilingMap.push(row.map(() => false)); // Reset ceilings
+                    enemyMap.push(row.map(() => false)); // Reset enemies
+                    ammoCrateMap.push(row.map(() => false)); // Reset ammo crates
+                });
                 updateWallTypes();
-            }
-    
-            if (x0 === x1 && y0 === y1) break;
-            const e2 = 2 * err;
-            if (e2 >= dy) {
-                err += dy;
-                x0 += sx;
-            }
-            if (e2 <= dx) {
-                err += dx;
-                y0 += sy;
-            }
-        }
-    }
-    
-    // Event listener for the game controls skybox select
-    document.getElementById('gameSkyboxSelect').addEventListener('change', (e) => {
-        currentSkyboxName = e.target.value;
-        currentSkybox = skyboxImages[currentSkyboxName];
-    });
-    
-    // Event listener for the map editor skybox select
-    document.getElementById('editorSkyboxSelect').addEventListener('change', (e) => {
-        currentSkyboxName = e.target.value;
-        currentSkybox = skyboxImages[currentSkyboxName];
-    });
-    
-    function drawEditorGrid() {
-      editorCtx.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
-    
-      const startX = Math.floor(editorOffsetX / cellSize);
-      const startY = Math.floor(editorOffsetY / cellSize);
-      const endX = Math.min(startX + Math.ceil(editorCanvas.width / cellSize) + 1, map[0].length);
-      const endY = Math.min(startY + Math.ceil(editorCanvas.height / cellSize) + 1, map.length);
-    
-      for (let y = startY; y < endY; y++) {
-        for (let x = startX; x < endX; x++) {
-          const screenX = x * cellSize - editorOffsetX;
-          const screenY = y * cellSize - editorOffsetY;
-    
-          editorCtx.strokeStyle = '#333';
-          editorCtx.strokeRect(screenX, screenY, cellSize, cellSize);
-    
-          switch (map[y][x]) {
-            case 1:
-              editorCtx.fillStyle = '#fff';
-              break;
-            case 'D':
-              editorCtx.fillStyle = '#888';
-              editorCtx.fillRect(screenX, screenY, cellSize, cellSize);
-              editorCtx.fillStyle = '#000';
-              editorCtx.textAlign = 'center';
-              editorCtx.textBaseline = 'middle';
-              editorCtx.fillText('D', screenX + cellSize / 2, screenY + cellSize / 2);
-              break;
-            case 2:
-              editorCtx.fillStyle = '#a52a2a';
-              break;
-            case 3:
-              editorCtx.fillStyle = '#808080';
-              break;
-            case 4:
-              editorCtx.fillStyle = '#44f';
-              break;
-            case 5:
-              editorCtx.fillStyle = '#228B22'; // Green for grass
-              break;
-            case 'A':
-              editorCtx.fillStyle = '#ff0'; // Yellow for ammo crate
-              break;
-            default:
-              editorCtx.fillStyle = '#000';
-          }
-          editorCtx.fillRect(screenX, screenY, cellSize, cellSize);
-    
-          if (ceilingMap[y][x]) {
-            editorCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            editorCtx.font = `${cellSize / 2}px Arial`;
-            editorCtx.textAlign = 'center';
-            editorCtx.textBaseline = 'middle';
-            editorCtx.fillText('C', screenX + cellSize / 2, screenY + cellSize / 2);
-          }
-          if (enemyMap[y][x]) {
-            editorCtx.fillStyle = 'rgba(255, 0, 0, 0.8)';
-            editorCtx.font = `${cellSize / 2}px Arial`;
-            editorCtx.textAlign = 'center';
-            editorCtx.textBaseline = 'middle';
-            editorCtx.fillText('E', screenX + cellSize / 2, screenY + cellSize / 2);
-          }
-          if (ammoCrateMap[y][x]) {
-            editorCtx.fillStyle = 'rgba(255, 255, 0, 0.8)'; // Visually indicate ammo crates
-            editorCtx.font = `${cellSize / 2}px Arial`;
-            editorCtx.textAlign = 'center';
-            editorCtx.textBaseline = 'middle';
-            editorCtx.fillText('A', screenX + cellSize / 2, screenY + cellSize / 2);
-          }
-        }
-      }
-    
-      const startPosX = editorStartPos.x * cellSize - editorOffsetX;
-      const startPosY = editorStartPos.y * cellSize - editorOffsetY;
-      editorCtx.fillStyle = '#0f0';
-      editorCtx.beginPath();
-      editorCtx.arc(
-        startPosX,
-        startPosY,
-        cellSize / 3,
-        0,
-        Math.PI * 2
-      );
-      editorCtx.fill();
-    }
-    
-    editorCanvas.addEventListener('click', (e) => {
-      const rect = editorCanvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left + editorOffsetX;
-      const mouseY = e.clientY - rect.top + editorOffsetY;
-    
-      const x = Math.floor(mouseX / cellSize);
-      const y = Math.floor(mouseY / cellSize);
-    
-      if (x < 0 || x >= map[0].length || y < 0 || y >= map.length) return;
-    
-      undoStack.push({
-        map: JSON.parse(JSON.stringify(map)),
-        ceilingMap: JSON.parse(JSON.stringify(ceilingMap)),
-        enemyMap: JSON.parse(JSON.stringify(enemyMap)),
-        ammoCrateMap: JSON.parse(JSON.stringify(ammoCrateMap)),
-        editorStartPos: { x: editorStartPos.x, y: editorStartPos.y }
-      });
-      redoStack = [];
-    
-      const tileType = document.getElementById('editorTileType').value;
-      if (tileType === 'S') {
-        editorStartPos.x = x + 0.5;
-        editorStartPos.y = y + 0.5;
-        document.getElementById('startPosDisplay').textContent =
-          `X: ${editorStartPos.x.toFixed(1)}, Y: ${editorStartPos.y.toFixed(1)}`;
-      } else if (tileType === 'C') {
-        ceilingMap[y][x] = !ceilingMap[y][x];
-      } else if (tileType === 'E') {
-        enemyMap[y][x] = !enemyMap[y][x];
-      } else if (tileType === 'A') {
-        ammoCrateMap[y][x] = !ammoCrateMap[y][x];
-      } else if (tileType === 'D') {
-        map[y][x] = 'D';
-        updateWallTypes();
-      } else {
-        map[y][x] = parseInt(tileType);
-        updateWallTypes();
-      }
-    
-      drawEditorGrid();
-    });
-    
-    document.querySelector('.close-editor').addEventListener('click', () => {
-      editorDialog.style.display = 'none';
-      // Remove the keydown event listener when closing editor
-      window.removeEventListener('keydown', onEditorKeyDown);
-    });
-    
-    document.getElementById('newMap').addEventListener('click', () => {
-      const width = parseInt(document.getElementById('mapWidth').value);
-      const height = parseInt(document.getElementById('mapHeight').value);
-      
-      map.length = 0;
-      ceilingMap.length = 0; // Reset ceilingMap
-      enemyMap.length = 0; // Reset enemyMap
-      ammoCrateMap.length = 0; // Reset ammoCrateMap
-      
-      for(let y = 0; y < height; y++) {
-        map.push(new Array(width).fill(0));
-        ceilingMap.push(new Array(width).fill(false)); // Initialize ceilingMap
-        enemyMap.push(new Array(width).fill(false)); // Initialize enemyMap
-        ammoCrateMap.push(new Array(width).fill(false)); // Initialize ammoCrateMap
-      }
-      
-      for(let x = 0; x < width; x++) {
-        map[0][x] = 1;
-        map[height-1][x] = 1;
-      }
-      for(let y = 0; y < height; y++) {
-        map[y][0] = 1;
-        map[y][width-1] = 1;
-      }
-      
-      updateWallTypes();
-    
-      maxEditorOffsetX = Math.max(0, map[0].length * cellSize - editorCanvas.width);
-      maxEditorOffsetY = Math.max(0, map.length * cellSize - editorCanvas.height);
-    
-      editorOffsetX = Math.min(editorOffsetX, maxEditorOffsetX);
-      editorOffsetY = Math.min(editorOffsetY, maxEditorOffsetY);
-    
-      currentSkyboxName = 'sunny';
-      currentSkybox = skyboxImages[currentSkyboxName];
-      document.getElementById('editorSkyboxSelect').value = currentSkyboxName;
-    
-      initializeEnemies(); // Initialize enemies with new map
-      initializeAmmoCrates(); // Initialize ammo crates with new map
-      drawEditorGrid();
-    });
-    
-    document.getElementById('applyEditorMap').addEventListener('click', () => {
-      currentSkyboxName = document.getElementById('editorSkyboxSelect').value;
-      currentSkybox = skyboxImages[currentSkyboxName];
-    
-      if (editorStartPos.x < 0.5 || editorStartPos.x > map[0].length - 0.5 ||
-          editorStartPos.y < 0.5 || editorStartPos.y > map.length - 0.5) {
-        alert('Start position is out of bounds. Please set a valid start position.');
-        return;
-      }
-      player.x = editorStartPos.x;
-      player.y = editorStartPos.y;
-    
-      initializeEnemies(); // Initialize enemies with updated map
-      initializeAmmoCrates(); // Initialize ammo crates with updated map
-      editorDialog.style.display = 'none';
-    });
-    
-    document.getElementById('applyMapText').addEventListener('click', () => {
-      const mapTextArea = document.getElementById('mapText');
-      try {
-        const newMap = mapTextArea.value.trim().split('\n').map(row =>
-          row.trim().split('').map(cell => (isNaN(cell) ? cell : parseInt(cell)))
-        );
-    
-        if (newMap.length < 3 || newMap[0].length < 3) {
-          throw new Error('Map too small');
-        }
-    
-        while (map.length > 0) map.pop();
-        while (ceilingMap.length > 0) ceilingMap.pop(); // Reset ceilingMap
-        while (enemyMap.length > 0) enemyMap.pop(); // Reset enemyMap
-        while (ammoCrateMap.length > 0) ammoCrateMap.pop(); // Reset ammoCrateMap
-    
-        newMap.forEach(row => {
-          map.push([...row]);
-          ceilingMap.push(row.map(() => false)); // Reset ceilings
-          enemyMap.push(row.map(() => false)); // Reset enemies
-          ammoCrateMap.push(row.map(() => false)); // Reset ammo crates
-        });
-        updateWallTypes();
-        initializeEnemies(); // Initialize enemies with new map
-        initializeAmmoCrates(); // Initialize ammo crates with new map
-    
-        drawEditorGrid();
-      } catch (error) {
-        alert('Invalid map format! Use only numbers (0-4, E) and consistent row lengths.');
-      }
-    });
-    
-    document.getElementById('copyMapCode').addEventListener('click', () => {
-      const mapData = {
-        map: map,
-        ceilingMap: ceilingMap,
-        enemyMap: enemyMap,
-        ammoCrateMap: ammoCrateMap, // Include ammoCrateMap
-        editorStartPos: editorStartPos,
-        skybox: currentSkyboxName // Store the skybox name
-      };
-      const mapCode = JSON.stringify(mapData);
-      const mapCodeArea = document.getElementById('mapCodeArea');
-      mapCodeArea.value = mapCode;
-      mapCodeArea.select();
-      document.execCommand('copy');
-      alert('Map code copied to clipboard.');
-    });
-    
-    document.getElementById('loadMapCode').addEventListener('click', () => {
-      const mapCodeArea = document.getElementById('mapCodeArea');
-      try {
-        const mapData = JSON.parse(mapCodeArea.value);
-        loadMapFromCode(mapData);
-        alert('Map loaded successfully.');
-      } catch (error) {
-        alert('Invalid map code.');
-      }
-    });
-    
-    function loadMapFromCode(mapData) {
-        while (map.length > 0) map.pop();
-        mapData.map.forEach(row => map.push([...row]));
-    
-        while (ceilingMap.length > 0) ceilingMap.pop();
-        if (mapData.ceilingMap) {
-            mapData.ceilingMap.forEach(row => ceilingMap.push([...row]));
-        } else {
-            for (let y = 0; y < map.length; y++) {
-                ceilingMap[y] = [];
-                for (let x = 0; x < map[y].length; x++) {
-                    ceilingMap[y][x] = false;
+                initializeEnemies(); // Initialize enemies with new map
+                initializeAmmoCrates(); // Initialize ammo crates with new map
+
+                drawEditorGrid();
+                } catch (error) {
+                alert('Invalid map format! Use only numbers (0-4, E) and consistent row lengths.');
                 }
-            }
-        }
-    
-        while (enemyMap.length > 0) enemyMap.pop();
-        if (mapData.enemyMap) {
-            mapData.enemyMap.forEach(row => enemyMap.push([...row]));
-        } else {
-            for (let y = 0; y < map.length; y++) {
-                enemyMap[y] = [];
-                for (let x = 0; x < map[y].length; x++) {
-                    enemyMap[y][x] = false;
+            });
+
+            document.getElementById('copyMapCode').addEventListener('click', () => {
+                const mapData = {
+                map: map,
+                ceilingMap: ceilingMap,
+                enemyMap: enemyMap,
+                ammoCrateMap: ammoCrateMap, // Include ammoCrateMap
+                editorStartPos: editorStartPos,
+                skybox: currentSkyboxName // Store the skybox name
+                };
+                const mapCode = JSON.stringify(mapData);
+                const mapCodeArea = document.getElementById('mapCodeArea');
+                mapCodeArea.value = mapCode;
+                mapCodeArea.select();
+                document.execCommand('copy');
+                alert('Map code copied to clipboard.');
+            });
+
+            document.getElementById('loadMapCode').addEventListener('click', () => {
+                const mapCodeArea = document.getElementById('mapCodeArea');
+                try {
+                const mapData = JSON.parse(mapCodeArea.value);
+                loadMapFromCode(mapData);
+                alert('Map loaded successfully.');
+                } catch (error) {
+                alert('Invalid map code.');
                 }
-            }
-        }
-    
-        while (ammoCrateMap.length > 0) ammoCrateMap.pop();
-        if (mapData.ammoCrateMap) {
-            mapData.ammoCrateMap.forEach(row => ammoCrateMap.push([...row]));
-        } else {
-            for (let y = 0; y < map.length; y++) {
-                ammoCrateMap[y] = [];
-                for (let x = 0; x < map[y].length; x++) {
-                    ammoCrateMap[y][x] = false;
+            });
+
+            function loadMapFromCode(mapData) {
+                while (map.length > 0) map.pop();
+                mapData.map.forEach(row => map.push([...row]));
+
+                while (ceilingMap.length > 0) ceilingMap.pop();
+                if (mapData.ceilingMap) {
+                    mapData.ceilingMap.forEach(row => ceilingMap.push([...row]));
+                } else {
+                    for (let y = 0; y < map.length; y++) {
+                        ceilingMap[y] = [];
+                        for (let x = 0; x < map[y].length; x++) {
+                            ceilingMap[y][x] = false;
+                        }
+                    }
                 }
+
+                while (enemyMap.length > 0) enemyMap.pop();
+                if (mapData.enemyMap) {
+                    mapData.enemyMap.forEach(row => enemyMap.push([...row]));
+                } else {
+                    for (let y = 0; y < map.length; y++) {
+                        enemyMap[y] = [];
+                        for (let x = 0; x < map[y].length; x++) {
+                            enemyMap[y][x] = false;
+                        }
+                    }
+                }
+
+                while (ammoCrateMap.length > 0) ammoCrateMap.pop();
+                if (mapData.ammoCrateMap) {
+                    mapData.ammoCrateMap.forEach(row => ammoCrateMap.push([...row]));
+                } else {
+                    for (let y = 0; y < map.length; y++) {
+                        ammoCrateMap[y] = [];
+                        for (let x = 0; x < map[y].length; x++) {
+                            ammoCrateMap[y][x] = false;
+                        }
+                    }
+                }
+
+                editorStartPos = { ...mapData.editorStartPos };
+                currentSkyboxName = mapData.skybox || 'sunny';
+                currentSkybox = skyboxImages[currentSkyboxName];
+
+                // Update maximum offsets after loading new map
+                maxEditorOffsetX = Math.max(0, map[0].length * cellSize - editorCanvas.width);
+                maxEditorOffsetY = Math.max(0, map.length * cellSize - editorCanvas.height);
+                
+                editorOffsetX = Math.min(editorOffsetX, maxEditorOffsetX);
+                editorOffsetY = Math.min(editorOffsetY, maxEditorOffsetY);
+
+                updateWallTypes();
+                initializeEnemies();
+                initializeAmmoCrates();
+
+                drawEditorGrid();
             }
-        }
-    
-        editorStartPos = { ...mapData.editorStartPos };
-        currentSkyboxName = mapData.skybox || 'sunny';
-        currentSkybox = skyboxImages[currentSkyboxName];
-    
-        // Update maximum offsets after loading new map
-        maxEditorOffsetX = Math.max(0, map[0].length * cellSize - editorCanvas.width);
-        maxEditorOffsetY = Math.max(0, map.length * cellSize - editorCanvas.height);
-        
-        editorOffsetX = Math.min(editorOffsetX, maxEditorOffsetX);
-        editorOffsetY = Math.min(editorOffsetY, maxEditorOffsetY);
-    
-        updateWallTypes();
-        initializeEnemies();
-        initializeAmmoCrates();
-    
-        drawEditorGrid();
-    }
-    
-    // Add editor key controls function
-    function onEditorKeyDown(e) {
-      const scrollAmount = 10; // Adjust the scroll speed as needed
-      switch (e.key) {
-        case 'ArrowUp':
-          editorOffsetY = Math.max(0, editorOffsetY - scrollAmount);
-          break;
-        case 'ArrowDown':
-          editorOffsetY = Math.min(maxEditorOffsetY, editorOffsetY + scrollAmount);
-          break;
-        case 'ArrowLeft':
-          editorOffsetX = Math.max(0, editorOffsetX - scrollAmount);
-          break;
-        case 'ArrowRight':
-          editorOffsetX = Math.min(maxEditorOffsetX, editorOffsetX + scrollAmount);
-          break;
-        default:
-          return; // Ignore other keys
-      }
-      e.preventDefault(); // Prevent default scrolling behavior
-      drawEditorGrid();
-    }
-    
-    window.requestAnimationFrame(gameLoop);
-    
-    </script>
+
+            // Add editor key controls function
+            function onEditorKeyDown(e) {
+                const scrollAmount = 10; // Adjust the scroll speed as needed
+                switch (e.key) {
+                case 'ArrowUp':
+                    editorOffsetY = Math.max(0, editorOffsetY - scrollAmount);
+                    break;
+                case 'ArrowDown':
+                    editorOffsetY = Math.min(maxEditorOffsetY, editorOffsetY + scrollAmount);
+                    break;
+                case 'ArrowLeft':
+                    editorOffsetX = Math.max(0, editorOffsetX - scrollAmount);
+                    break;
+                case 'ArrowRight':
+                    editorOffsetX = Math.min(maxEditorOffsetX, editorOffsetX + scrollAmount);
+                    break;
+                default:
+                    return; // Ignore other keys
+                }
+                e.preventDefault(); // Prevent default scrolling behavior
+                drawEditorGrid();
+            }
+
+            window.requestAnimationFrame(gameLoop);
+        </script>
     </body>
-    </html>
+</html>
