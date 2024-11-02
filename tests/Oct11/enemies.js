@@ -574,7 +574,7 @@ function moveEnemies(delta) {
             const teleportDistance = 700; // Distance from center to teleport to
             enemy.position.x = Math.cos(angle) * teleportDistance;
             enemy.position.z = Math.sin(angle) * teleportDistance;
-            enemy.position.y = 0;
+            enemy.position.y = 1; // Set slightly above ground to avoid immediate teleport
             return; // Skip rest of movement logic for this frame
         }
 
@@ -699,8 +699,7 @@ function moveEnemies(delta) {
                 }
             }
 
-            // Animate the enemy
-            animateHumanoid(enemy, delta);
+            // Removed the redundant animateHumanoid call here
         }
 
         // Animate the enemy
