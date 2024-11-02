@@ -199,6 +199,7 @@ function onDocumentKeyUp(event) {
     }
 }
 
+
 // Add keyup event listener
 document.addEventListener('keyup', onDocumentKeyUp, false);
 
@@ -510,13 +511,7 @@ function createFriendlyNPC(color = 0x00ff00, name = 'Friendly NPC', dialogue = '
     return npc;
 }
 
-function getRandomPositionOutsideTown(minDistance, maxDistance) {
-    let angle = Math.random() * 2 * Math.PI;
-    let distance = minDistance + Math.random() * (maxDistance - minDistance);
-    let x = Math.cos(angle) * distance;
-    let z = Math.sin(angle) * distance;
-    return { x: x, z: z };
-}
+
         
 function toggleFullscreenMap() {
     const fullscreenMap = document.getElementById('fullscreenMap');
@@ -601,6 +596,8 @@ function onWindowResize() {
     minimapCamera.bottom = -200;
     minimapCamera.updateProjectionMatrix();
 }
+
+
 
 initMap();
 init();

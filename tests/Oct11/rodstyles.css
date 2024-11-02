@@ -1242,28 +1242,33 @@ textarea:focus {
     border-radius: 10px;
     width: 80%;
     max-width: 800px;
-    position: relative;
+    max-height: 90vh; /* Limits height to prevent overflow */
+    overflow: hidden; /* Ensures no additional scroll within the modal itself */
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
     border: 2px solid #FFD700;
-    overflow-y: auto;
-    transition: all 0.3s ease;
 }
 
-/* Close Button for Music Modal */
+/* Music Modal Close Button */
 #musicModal .close-button {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
+    top: 15px;
+    right: 15px;
+    background-color: #FF0000; /* Bright red background */
     border: none;
-    font-size: 24px;
-    color: #fff;
+    color: #FFFFFF; /* White text */
+    font-size: 28px; /* Larger font size for visibility */
+    padding: 10px;
+    border-radius: 50%; /* Circular button */
     cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7); /* Shadow for added prominence */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transition */
 }
 
 #musicModal .close-button:hover {
-    color: #FFD700;
+    background-color: #CC0000; /* Darker red on hover */
+    transform: scale(1.1); /* Slight enlargement on hover */
 }
+
 
 /* Music Controls */
 .music-controls {
@@ -1344,6 +1349,37 @@ textarea:focus {
     background-color: #218838;
     transform: scale(1.05);
 }
+
+/* Now Playing Control Bar */
+.now-playing {
+    position: fixed;
+    bottom: 20px;
+    right: 160px; /* Positioned just left of the Open Music button */
+    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+    color: #FFD700; /* Gold color for visibility */
+    padding: 10px 15px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    z-index: 1200;
+}
+
+#playPauseButton {
+    background: none;
+    border: none;
+    color: #FFFFFF;
+    font-size: 20px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+#playPauseButton:hover {
+    transform: scale(1.2); /* Slight enlargement on hover */
+}
+
 
 /* ======================= */
 /*        Responsive       */

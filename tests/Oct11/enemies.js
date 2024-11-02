@@ -181,17 +181,15 @@ const enemyTypes = {
     }
 };
 // Initialize Enemies
+// Updated spawn distance in initEnemies
 function initEnemies() {
-    const minDistance = 600; // Ensure enemies spawn further away
-    const maxDistance = 1200;
-
     const enemyTypesKeys = Object.keys(enemyTypes);
-
     enemyTypesKeys.forEach(type => {
-        const enemyCount = 5; // Define how many of each type you want
+        const enemyCount = 5; // Define the number of each type
 
         for (let i = 0; i < enemyCount; i++) {
-            let position = getRandomPositionOutsideTown(600, 1200);
+            // Adjust spawn range here
+            let position = getRandomPositionOutsideTown(800, 2000); // Increase minimum distance from settlement
             const enemy = createEnemy(position.x, 0, position.z, type);
             enemies.push(enemy);
             scene.add(enemy);
@@ -199,11 +197,9 @@ function initEnemies() {
     });
 }
 
-
-
 // Function to check if enemies are in the safe zone
 function checkEnemiesInSafeZone() {
-    const safeZoneRadius = 300; // Radius of the safe zone
+    const safeZoneRadius = 600; // Updated radius to keep them further away
 
     enemies.forEach((enemy) => {
         if (enemy.userData.isDead) return;
@@ -214,7 +210,7 @@ function checkEnemiesInSafeZone() {
 
         if (distanceFromCenter < safeZoneRadius) {
             const angle = Math.random() * Math.PI * 2;
-            const teleportDistance = 500;
+            const teleportDistance = 1000; // Increased distance to move them further out
             enemy.position.x = Math.cos(angle) * teleportDistance;
             enemy.position.z = Math.sin(angle) * teleportDistance;
             enemy.position.y = 0; 
@@ -222,16 +218,14 @@ function checkEnemiesInSafeZone() {
     });
 }
 
-// Function to get a random position outside the town
-function getRandomPositionOutsideTown(minDistance, maxDistance) {
-    // Ensure minDistance is greater than the town radius
-    let angle = Math.random() * 2 * Math.PI;
-    let distance = minDistance + Math.random() * (maxDistance - minDistance);
-    let x = Math.cos(angle) * distance;
-    let z = Math.sin(angle) * distance;
+// Function to get a random position outside the town with adjusted distances
+function getRandomPositionOutsideTown(minDistance = 800, maxDistance = 1500) {
+    const angle = Math.random() * Math.PI * 2;
+    const distance = Math.random() * (maxDistance - minDistance) + minDistance;
+    const x = Math.cos(angle) * distance;
+    const z = Math.sin(angle) * distance;
     return { x: x, z: z };
 }
-
 
 // When spawning enemies
 let position = getRandomPositionOutsideTown(600, 1200); // Enemies spawn between 600 and 1200 units away
@@ -288,7 +282,6 @@ function spawnEntities() {
 
 // Function to create an enemy
 function createEnemy(x, y, z, type) {
-
     // Select a random type if undefined or invalid
     if (!enemyTypes[type]) {
         // If the type is invalid or undefined, select a random type
@@ -321,13 +314,16 @@ function createEnemy(x, y, z, type) {
     // Initialize movement direction
     enemy.userData.direction = new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
 
-    // Assign patterns and other properties to child meshes
+    // Apply patterns and other properties to child meshes
     enemy.traverse(child => {
         if (child.isMesh) {
             child.userData.name = enemy.userData.name;
             child.userData.pattern = enemy.userData.pattern;
             child.userData.height = enemy.userData.height;
             child.userData.bodyShape = enemy.userData.bodyShape;
+
+            // Apply the specific pattern to each child mesh
+            applyPattern(child, pattern);
         }
     });
 
@@ -338,53 +334,223 @@ function createEnemy(x, y, z, type) {
     return enemy;
 }
 
+function maintainEnemyCount() {
+    const activeEnemies = enemies.filter(enemy => !enemy.userData.isDead).length;
+    const enemiesToSpawn = 100 - activeEnemies;
+    const enemyTypesKeys = Object.keys(enemyTypes);
+
+    for (let i = 0; i < enemiesToSpawn; i++) {
+        let position = getRandomPositionOutsideTown(800, 2000); // Increased minimum spawn distance
+        let type = enemyTypesKeys[Math.floor(Math.random() * enemyTypesKeys.length)];
+        let enemy = createEnemy(position.x, 0, position.z, type);
+        enemies.push(enemy);
+        scene.add(enemy);
+    }
+}
+
+
 // Function to apply patterns to enemy meshes
 function applyPattern(mesh, pattern) {
-    switch(pattern) {
+    switch (pattern) {
         case 'striped':
-            // Apply striped texture or material
-            mesh.material = new THREE.MeshBasicMaterial({ 
+            // Striped Pattern: Alternating stripes on the material
+            mesh.material = new THREE.MeshPhongMaterial({
                 color: mesh.material.color,
-                wireframe: false
+                map: generateStripedTexture(),
+                shininess: 50,
             });
-            // Additional pattern logic here...
             break;
+
         case 'spotted':
-            // Apply spotted texture or material
-            mesh.material = new THREE.MeshBasicMaterial({ 
+            // Spotted Pattern: Spots on the material
+            mesh.material = new THREE.MeshLambertMaterial({
                 color: mesh.material.color,
-                wireframe: false
+                map: generateSpottedTexture(),
             });
-            // Additional pattern logic here...
             break;
+
         case 'scaly':
-            // Apply scaly texture or material
-            mesh.material = new THREE.MeshBasicMaterial({ 
+            // Scaly Pattern: Use a bump map to simulate scales
+            mesh.material = new THREE.MeshStandardMaterial({
                 color: mesh.material.color,
-                wireframe: false
+                bumpMap: generateScalyTexture(),
+                bumpScale: 0.1,
             });
-            // Additional pattern logic here...
             break;
+
         case 'plain':
-            // Plain material, no pattern
+            // Plain Pattern: Basic material without textures or details
+            mesh.material = new THREE.MeshBasicMaterial({
+                color: mesh.material.color,
+            });
             break;
+
         case 'spiky':
-            // Apply spiky texture or geometry modifications
+            // Spiky Pattern: Adds spiky geometry details
+            mesh.material = new THREE.MeshToonMaterial({
+                color: mesh.material.color,
+                map: generateSpikyTexture(),
+            });
             break;
+
         case 'geometric':
-            // Apply geometric patterns
+            // Geometric Pattern: Adds grid or hexagonal shapes
+            mesh.material = new THREE.MeshLambertMaterial({
+                color: mesh.material.color,
+                map: generateGeometricTexture(),
+            });
             break;
+
         case 'dotted':
-            // Apply dotted patterns
+            // Dotted Pattern: Small dots spread across the material
+            mesh.material = new THREE.MeshPhongMaterial({
+                color: mesh.material.color,
+                map: generateDottedTexture(),
+            });
             break;
+
         case 'camouflage':
-            // Apply camouflage patterns
+            // Camouflage Pattern: Camo-like blending texture
+            mesh.material = new THREE.MeshStandardMaterial({
+                color: mesh.material.color,
+                map: generateCamouflageTexture(),
+            });
             break;
+
         default:
-            // Default pattern
+            // Fallback for undefined patterns
+            mesh.material = new THREE.MeshBasicMaterial({
+                color: mesh.material.color,
+            });
             break;
     }
 }
+
+function generateStripedTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+
+    for (let i = 0; i < canvas.width; i += 8) {
+        if ((i / 8) % 2 === 0) ctx.fillRect(i, 0, 8, canvas.height);
+    }
+
+    return new THREE.CanvasTexture(canvas);
+}
+
+function generateSpottedTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+
+    for (let i = 0; i < 20; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    return new THREE.CanvasTexture(canvas);
+}
+
+function generateScalyTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+
+    for (let y = 0; y < canvas.height; y += 8) {
+        for (let x = (y / 8) % 2 === 0 ? 0 : 4; x < canvas.width; x += 8) {
+            ctx.beginPath();
+            ctx.arc(x, y, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    return new THREE.CanvasTexture(canvas);
+}
+
+function generateSpikyTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+
+    for (let i = 0; i < 10; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + 5, y + 10);
+        ctx.lineTo(x - 5, y + 10);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    return new THREE.CanvasTexture(canvas);
+}
+
+function generateGeometricTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+
+    for (let x = 0; x < canvas.width; x += 12) {
+        for (let y = 0; y < canvas.height; y += 12) {
+            ctx.fillRect(x, y, 6, 6);
+        }
+    }
+
+    return new THREE.CanvasTexture(canvas);
+}
+
+function generateDottedTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+
+    for (let x = 0; x < canvas.width; x += 8) {
+        for (let y = 0; y < canvas.height; y += 8) {
+            ctx.beginPath();
+            ctx.arc(x, y, 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    return new THREE.CanvasTexture(canvas);
+}
+
+function generateCamouflageTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+
+    const colors = ['#3B5323', '#78866B', '#4B5320', '#78866B'];
+    for (let i = 0; i < 10; i++) {
+        ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const w = Math.random() * 20 + 10;
+        const h = Math.random() * 20 + 10;
+        ctx.fillRect(x, y, w, h);
+    }
+
+    return new THREE.CanvasTexture(canvas);
+}
+
+
 
 // Function to apply body shapes to enemy humanoids
 function applyBodyShape(humanoid, bodyShape) {
@@ -440,7 +606,7 @@ function moveEnemies(delta) {
         const threatRange = 100;
         const attackRange = 10;
         const enemySpeed = globalEnemySpeed; // Speed when chasing the player
-        const wanderingSpeed = enemySpeed * 0.5; // Enemies move slower during wandering
+        const wanderingSpeed = enemySpeed * 1; // Enemies move slower during wandering
 
         // Calculate direction and distance to the player
         const directionToPlayer = new THREE.Vector3().subVectors(player.position, enemy.position);
@@ -485,7 +651,7 @@ function moveEnemies(delta) {
                 enemy.userData.homePosition = enemy.position.clone();
             }
 
-            const maxWanderRadius = 600; // Increased from 300 to 600
+            const maxWanderRadius = 3000; // Increased from 300 to 600
 
             // Initialize direction if not set
             if (!enemy.userData.direction || enemy.userData.direction.length() === 0) {
@@ -664,19 +830,7 @@ function createBloodPool(position) {
     scene.add(bloodPool);
 }
 
-function maintainEnemyCount() {
-    const activeEnemies = enemies.filter(enemy => !enemy.userData.isDead).length;
-    const enemiesToSpawn = 100 - activeEnemies;
-    const enemyTypesKeys = Object.keys(enemyTypes); // All enemy types
 
-    for (let i = 0; i < enemiesToSpawn; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let type = enemyTypesKeys[Math.floor(Math.random() * enemyTypesKeys.length)]; // Random enemy type
-        let enemy = createEnemy(position.x, 0, position.z, type);
-        enemies.push(enemy);
-        scene.add(enemy);
-    }
-}
 
 
 
