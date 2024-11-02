@@ -15,13 +15,22 @@ function renderCharacterSprite() {
 
     // Clone the player model and apply visual changes based on stats
     const playerClone = player.clone();
-
-    // Example Visual Changes Based on Stats
+    if (!playerClone) {
+        console.warn('playerClone is undefined.');
+        return; // Exit the function if playerClone isn't created
+    }
+    
     // Mana Effect: Blend color based on mana
     const manaRatio = Math.min(characterStats.mana / 100, 1); // Assuming 100 is max mana
     const baseColor = new THREE.Color(0x0000ff); // Base color blue
     const blendedColor = baseColor.clone().lerp(new THREE.Color(0xffffff), manaRatio); // Blend towards white as mana increases
-    playerClone.body.material.color.set(blendedColor);
+    playerClone.traverse((child) => {
+        if (child.material) {
+            child.material.color.set(blendedColor);
+        }
+    });
+    
+    
 
     // Karma Effect: Add halo or aura
     if (characterStats.karma > 50) {
@@ -75,9 +84,12 @@ function addHaloEffect(playerClone) {
         const haloMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
         const halo = new THREE.Mesh(haloGeometry, haloMaterial);
         halo.rotation.x = Math.PI / 2;
-        playerClone.add(halo);
-        playerClone.halo = halo;
-    }
+        
+        if (halo instanceof THREE.Object3D) {
+            playerClone.add(halo);
+            playerClone.halo = halo;
+        }
+    }    
 }
 
 function addDarkAuraEffect(playerClone) {
@@ -86,7 +98,10 @@ function addDarkAuraEffect(playerClone) {
         const auraMaterial = new THREE.MeshBasicMaterial({ color: 0x8B0000, transparent: true, opacity: 0.5 });
         const aura = new THREE.Mesh(auraGeometry, auraMaterial);
         aura.position.y = 10;
-        playerClone.add(aura);
-        playerClone.aura = aura;
-    }
+    
+        if (aura instanceof THREE.Object3D) {
+            playerClone.add(aura);
+            playerClone.aura = aura;
+        }
+    }    
 }

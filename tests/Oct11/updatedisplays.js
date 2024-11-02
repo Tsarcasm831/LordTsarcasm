@@ -42,7 +42,8 @@ function updateDisplay() {
     renderCharacterSprite(); // Update the character sprite in the inventory
 }
 
-
+function renderCharacterSprite() {
+}
 
 updateGoldDisplay();
 updateHealthDisplay();

@@ -39,27 +39,34 @@ function createGroundAndSafeZone(scene, enemyWalls) {
     groundShape.holes.push(holePath);
 
     const groundGeometry = new THREE.ShapeGeometry(groundShape);
-    
-    // Create texture loader
-    const textureLoader = new THREE.TextureLoader();
-    
-    // Load the ground texture with proper error handling
-    const groundTexture = textureLoader.load(
-        'images/ground.png',
-        function(texture) {
-            // Success callback
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(50, 50); // Adjust the repeat values to scale the texture appropriately
-            texture.needsUpdate = true;
-        },
-        undefined, // Progress callback (optional)
-        function(error) {
-            console.error('Error loading ground texture:', error);
-        }
-    );
 
-    // Create material with the loaded texture
+    // Create a CanvasTexture as a replacement for the ground texture
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const context = canvas.getContext('2d');
+    
+    // Fill with a base color
+    context.fillStyle = '#654321'; // Example ground color
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Optional: Add grid pattern for texture effect
+    context.strokeStyle = '#4c3a2b';
+    for (let i = 0; i < canvas.width; i += 16) {
+        context.moveTo(i, 0);
+        context.lineTo(i, canvas.height);
+        context.moveTo(0, i);
+        context.lineTo(canvas.width, i);
+    }
+    context.stroke();
+
+    // Create a Three.js texture from the canvas
+    const groundTexture = new THREE.CanvasTexture(canvas);
+    groundTexture.wrapS = THREE.RepeatWrapping;
+    groundTexture.wrapT = THREE.RepeatWrapping;
+    groundTexture.repeat.set(50, 50);
+
+    // Create material with the generated CanvasTexture
     const groundMaterial = new THREE.MeshLambertMaterial({
         map: groundTexture,
         side: THREE.DoubleSide
@@ -92,6 +99,7 @@ function createGroundAndSafeZone(scene, enemyWalls) {
 
     return { ground, safeZoneGround, safeZoneBarrier };
 }
+
 
 function createSafeZoneWall(width, height, depth, x, y, z) {
     const wallGeometry = new THREE.BoxGeometry(width, height, depth);
