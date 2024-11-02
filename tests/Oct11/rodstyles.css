@@ -733,8 +733,68 @@ body, html {
 /*         Help Window     */
 /* ======================= */
 /* ======================= */
-/*        Help Window      */
+/*         Help Window     */
 /* ======================= */
+
+#helpWindow {
+    position: fixed;
+    top: 5%; /* Closer to the top to allow more content visibility */
+    left: 50%;
+    transform: translateX(-50%);
+    display: none; /* Hidden by default */
+    z-index: 1000; /* Ensure it's above other elements */
+    background-color: rgba(0, 0, 0, 0.85); /* Slightly more opaque */
+    width: 90%; /* Cover a larger portion of the screen width */
+    max-width: 900px; /* Set a strict maximum width */
+    height: auto; /* Automatically adjust height based on content */
+    max-height: 85vh; /* Limit height, but make it taller */
+    padding: 25px; /* More padding for content readability */
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    overflow-y: hidden; /* Removes the vertical scrollbar */
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth transition */
+}
+
+/* Display the help window when needed */
+#helpWindow.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0); /* Center alignment */
+}
+
+/* Animations for smooth appearance and fade-out */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-10px); }
+}
+
+/* Close Button Styling */
+#helpWindow .close-button {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background-color: #ff4c4c;
+    border: none;
+    color: white;
+    font-size: 24px;
+    padding: 5px 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#helpWindow .close-button:hover,
+#helpWindow .close-button:focus {
+    background-color: #ff0000;
+    outline: none;
+}
 
 
 /* Content Layout */
