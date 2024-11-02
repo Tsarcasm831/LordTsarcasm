@@ -1,185 +1,123 @@
 const enemyTypes = {
-    'red': {
+    'humans': {
         color: 0xff0000,
-        texture: 'textures/enemies/red.png',
+        texture: 'textures/enemies/humans.png',
         pattern: 'striped',
         height: 1.8,
         bodyShape: 'muscular',
         damageRate: 2.5,
-        name: 'Red Warrior'
+        name: 'Human'
     },
-    'blue': {
+    'tal_ehn': {
         color: 0x0000ff,
-        texture: 'textures/enemies/blue.png',
+        texture: 'textures/enemies/tal_ehn.png',
         pattern: 'spotted',
         height: 1.6,
         bodyShape: 'slim',
         damageRate: 3.0,
-        name: 'Blue Archer'
+        name: "Tal'Ehn"
     },
-    'green': {
+    'anthromorph': {
         color: 0x00ff00,
-        texture: 'textures/enemies/green.png',
+        texture: 'textures/enemies/anthromorph.png',
         pattern: 'scaly',
         height: 1.7,
         bodyShape: 'stocky',
         damageRate: 2.8,
-        name: 'Green Guardian'
+        name: 'Anthromorph'
     },
-    'yellow': {
+    'avianos': {
         color: 0xffff00,
-        texture: 'textures/enemies/yellow.png',
+        texture: 'textures/enemies/avianos.png',
         pattern: 'plain',
         height: 1.5,
         bodyShape: 'average',
         damageRate: 3.2,
-        name: 'Yellow Mage'
+        name: 'Avianos'
     },
-    'purple': {
+    'behemoth': {
         color: 0x800080,
-        texture: 'textures/enemies/purple.png',
+        texture: 'textures/enemies/behemoth.png',
         pattern: 'spiky',
         height: 1.9,
         bodyShape: 'tall',
         damageRate: 3.5,
-        name: 'Purple Assassin'
+        name: 'Behemoth'
     },
-    'orange': {
+    'chiropteran': {
         color: 0xffa500,
-        texture: 'textures/enemies/orange.png',
+        texture: 'textures/enemies/chiropteran.png',
         pattern: 'striped',
         height: 1.75,
         bodyShape: 'muscular',
         damageRate: 2.8,
-        name: 'Orange Knight'
+        name: 'Chiropteran'
     },
-    'cyan': {
+    'dengar_charger': {
         color: 0x00ffff,
-        texture: 'textures/enemies/cyan.png',
+        texture: 'textures/enemies/dengar_charger.png',
         pattern: 'geometric',
         height: 1.65,
         bodyShape: 'slim',
         damageRate: 3.0,
-        name: 'Cyan Paladin'
+        name: 'Dengar Charger'
     },
-    'magenta': {
+    'kilrathi': {
         color: 0xff00ff,
-        texture: 'textures/enemies/magenta.png',
+        texture: 'textures/enemies/kilrathi.png',
         pattern: 'dotted',
         height: 1.7,
         bodyShape: 'average',
         damageRate: 3.2,
-        name: 'Magenta Sorcerer'
+        name: 'Kilrathi'
     },
-    'lime': {
+    'prometheus_ai': {
         color: 0x32cd32,
-        texture: 'textures/enemies/lime.png',
+        texture: 'textures/enemies/prometheus_ai.png',
         pattern: 'camouflage',
         height: 1.6,
         bodyShape: 'stocky',
         damageRate: 2.6,
-        name: 'Lime Ranger'
+        name: 'Prometheus AI'
     },
-    'black': {
+    'talorian': {
         color: 0x000000,
-        texture: 'textures/enemies/black.png',
+        texture: 'textures/enemies/talorian.png',
         pattern: 'plain',
         height: 1.8,
         bodyShape: 'muscular',
         damageRate: 3.5,
-        name: 'Black Knight'
+        name: 'Talorian'
     },
-    'white': {
+    'tana_rhe': {
         color: 0xffffff,
-        texture: 'textures/enemies/white.png',
+        texture: 'textures/enemies/tana_rhe.png',
         pattern: 'spotted',
         height: 1.7,
         bodyShape: 'tall',
         damageRate: 3.0,
-        name: 'White Mage'
+        name: "T'ana'Rhe"
     },
-    'grey': {
+    'vyraxus': {
         color: 0x808080,
-        texture: 'textures/enemies/grey.png',
+        texture: 'textures/enemies/vyraxus.png',
         pattern: 'scaly',
         height: 1.65,
         bodyShape: 'average',
         damageRate: 2.9,
-        name: 'Grey Guardian'
+        name: 'Vyraxus'
     },
-    'brown': {
+    'xithrian': {
         color: 0xa52a2a,
-        texture: 'textures/enemies/brown.png',
+        texture: 'textures/enemies/xithrian.png',
         pattern: 'geometric',
         height: 1.75,
         bodyShape: 'stocky',
         damageRate: 2.7,
-        name: 'Brown Ranger'
-    },
-    'pink': {
-        color: 0xffc0cb,
-        texture: 'textures/enemies/pink.png',
-        pattern: 'dotted',
-        height: 1.6,
-        bodyShape: 'slim',
-        damageRate: 3.1,
-        name: 'Pink Sorcerer'
-    },
-    'teal': {
-        color: 0x008080,
-        texture: 'textures/enemies/teal.png',
-        pattern: 'striped',
-        height: 1.8,
-        bodyShape: 'muscular',
-        damageRate: 3.3,
-        name: 'Teal Paladin'
-    },
-    'maroon': {
-        color: 0x800000,
-        texture: 'textures/enemies/maroon.png',
-        pattern: 'plain',
-        height: 1.7,
-        bodyShape: 'tall',
-        damageRate: 3.4,
-        name: 'Maroon Assassin'
-    },
-    'navy': {
-        color: 0x000080,
-        texture: 'textures/enemies/navy.png',
-        pattern: 'spiky',
-        height: 1.75,
-        bodyShape: 'muscular',
-        damageRate: 3.2,
-        name: 'Navy Knight'
-    },
-    'olive': {
-        color: 0x808000,
-        texture: 'textures/enemies/olive.png',
-        pattern: 'camouflage',
-        height: 1.65,
-        bodyShape: 'stocky',
-        damageRate: 2.8,
-        name: 'Olive Ranger'
-    },
-    'silver': {
-        color: 0xc0c0c0,
-        texture: 'textures/enemies/silver.png',
-        pattern: 'geometric',
-        height: 1.7,
-        bodyShape: 'average',
-        damageRate: 3.1,
-        name: 'Silver Paladin'
-    },
-    'gold': {
-        color: 0xffd700,
-        texture: 'textures/enemies/gold.png',
-        pattern: 'dotted',
-        height: 1.8,
-        bodyShape: 'tall',
-        damageRate: 3.6,
-        name: 'Gold Sorcerer'
+        name: 'Xithrian'
     }
 };
+
 // Initialize Enemies
 // Updated spawn distance in initEnemies
 function initEnemies() {
