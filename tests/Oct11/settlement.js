@@ -109,3 +109,67 @@ function createSettlementWalls() {
     scene.add(southGate);
     enemyWalls.push(southGate);  // Only add to enemyWalls
 }
+
+function createStructure() {
+    const building = new THREE.Group();
+
+    const wallMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+    const wallThickness = 2;
+    const wallHeight = 30;
+    const wallLength = 50;
+	const wallColor = 0x8B4513;
+
+    const frontWallShape = new THREE.Shape();
+    frontWallShape.moveTo(-wallLength / 2, 0);
+    frontWallShape.lineTo(wallLength / 2, 0);
+    frontWallShape.lineTo(wallLength / 2, wallHeight);
+    frontWallShape.lineTo(-wallLength / 2, wallHeight);
+    frontWallShape.lineTo(-wallLength / 2, 0);
+
+    const doorWidth = 10;
+    const doorHeight = 20;
+    const doorX = -doorWidth / 2;
+    const doorY = 0;
+
+    const doorHole = new THREE.Path();
+    doorHole.moveTo(doorX, doorY);
+    doorHole.lineTo(doorX + doorWidth, doorY);
+    doorHole.lineTo(doorX + doorWidth, doorY + doorHeight);
+    doorHole.lineTo(doorX, doorY + doorHeight);
+    doorHole.lineTo(doorX, doorY);
+    frontWallShape.holes.push(doorHole);
+
+    const frontWallGeometry = new THREE.ShapeGeometry(frontWallShape);
+    const frontWall = new THREE.Mesh(frontWallGeometry, wallMaterial);
+    frontWall.position.z = -wallLength / 2;
+    building.add(frontWall);
+
+    const backWallGeometry = new THREE.BoxGeometry(wallLength, wallHeight, wallThickness);
+    const backWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+    backWall.position.z = wallLength / 2;
+    backWall.position.y = wallHeight / 2;
+    building.add(backWall);
+
+    const leftWallGeometry = new THREE.BoxGeometry(wallThickness, wallHeight, wallLength);
+    const leftWall = new THREE.Mesh(leftWallGeometry, wallMaterial);
+    leftWall.position.x = -wallLength / 2;
+    leftWall.position.y = wallHeight / 2;
+    building.add(leftWall);
+
+    const rightWallGeometry = new THREE.BoxGeometry(wallThickness, wallHeight, wallLength);
+    const rightWall = new THREE.Mesh(rightWallGeometry, wallMaterial);
+    rightWall.position.x = wallLength / 2;
+    rightWall.position.y = wallHeight / 2;
+    building.add(rightWall);
+
+    const roofGeometry = new THREE.ConeGeometry(35, 15, 4);
+    const roofMaterial = new THREE.MeshLambertMaterial({ color: 0x654321 });
+    const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+    roof.rotation.y = Math.PI / 4;
+    roof.position.y = wallHeight + 7.5;
+    building.add(roof);
+
+    building.userData.walls = [frontWall, backWall, leftWall, rightWall];
+
+    return building;
+}

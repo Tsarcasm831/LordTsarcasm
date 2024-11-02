@@ -143,4 +143,60 @@ const terrainSettings = {
 // Initialize the terrain generator
 const terrainGenerator = new TerrainGenerator(scene, terrainSettings);
 
+// Function to add diverse plants to the terrain
+function addPlantsToTerrain() {
+    const numElements = 3000; // Total number of natural elements
 
+    const elementTypes = [
+        {
+            // Tree
+            geometry: new THREE.ConeGeometry(20, 200, 20),
+            material: new THREE.MeshLambertMaterial({ color: 0x228B22 }),
+            yOffset: 5,
+        },
+        {
+            geometry: new THREE.CylinderGeometry(0.5, 0.5, 5, 8),
+            material: new THREE.MeshLambertMaterial({ color: 0x8B4513 }),
+            yOffset: 2.5,
+        },
+        {
+            geometry: new THREE.SphereGeometry(3, 8, 8),
+            material: new THREE.MeshLambertMaterial({ color: 0x006400 }),
+            yOffset: 3,
+        },
+        {
+            //Large Bush
+            geometry: new THREE.SphereGeometry(4, 12, 13),
+            material: new THREE.MeshLambertMaterial({ color: 0x006400 }),
+            yOffset: 3,
+        },
+        {
+            //Rock
+            geometry: new THREE.DodecahedronGeometry(3, 2),
+            material: new THREE.MeshLambertMaterial({ color: 0x808080 }),
+            yOffset: 3,
+        },
+    ];
+
+    for (let i = 0; i < numElements; i++) {
+        const typeIndex = Math.floor(Math.random() * elementTypes.length);
+        const element = new THREE.Mesh(
+            elementTypes[typeIndex].geometry,
+            elementTypes[typeIndex].material
+        );
+
+        // Random position within the terrain bounds, avoiding the safe zone
+        let x = Math.random() * 10000 - 5000;
+        let z = Math.random() * 10000 - 5000;
+        while (Math.sqrt(x * x + z * z) < 800) { // Ensure elements are not in the safe zone
+            x = Math.random() * 10000 - 5000;
+            z = Math.random() * 10000 - 5000;
+        }
+
+        element.position.set(x, elementTypes[typeIndex].yOffset, z);
+        element.rotation.y = Math.random() * Math.PI * 2; // Random rotation
+        scene.add(element);
+    }
+}
+
+addPlantsToTerrain();

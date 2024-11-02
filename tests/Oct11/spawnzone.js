@@ -295,4 +295,4 @@ function addPlantsToTerrain() {
     }
 }
 
-addPlantsToTerrain(); // Call the function to add plants and rocks
+addPlantsToTerrain();
