@@ -13,49 +13,56 @@
             <canvas id="mapCanvas"></canvas>
             <button onclick="closeFullscreenMap()" style="position: absolute; top: 10px; right: 10px; z-index: 201;">Close Map</button>
         </div>
+
+        <!-- Open Help Button -->
+        <button id="openHelp" class="open-help-button" aria-haspopup="dialog" aria-controls="helpWindow">
+            Help
+        </button>
         
-        <!-- Help Window -->
-        <div id="helpWindow">
-            <button id="closeHelp">X</button>
-            <div class="content">
-                <div class="left-column">
-                    <h2>Latest Updates</h2>
-                    <p><strong>Version 0.3.3</strong></p>
-                    <ul class="updates">
-                        <li>Fixed Bestiary Images</li>
-                        <li>Implemented Music Page</li>
-                        <li>Fixed Bestiary View</li>
-                        <li>Minor Bugfixes</li>
-                        <li>Randomized Enemy Movement</li>
-                        <li>MUSIC PAGE IS LIVE!!! - HIT M</li>
-                    </ul>
-                    <h3><strong>Admin Info:</strong></h3>
-                    <p><strong>Admin Password:</strong> ltwelcome1</p>
-                </div>
-                <div class="right-column">
-                    <h3>Key Bindings:</h3>
-                    <ul class="keybindings">
-                        <li><strong>I</strong> or <strong>B</strong>: Open/Close Inventory</li>
-                        <li><strong>C</strong>: Open/Close Character Stats</li>
-                        <li><strong>Q</strong>: Open/Close Quest Log</li>
-                        <li><strong>T</strong>: Start Teleportation</li>
-                        <li><strong>A</strong>: Rotate Camera Left</li>
-                        <li><strong>D</strong>: Rotate Camera Right</li>
-                        <li><strong>`</strong>: Open/Close Admin Console</li>
-                        <li><strong>H</strong>: Open/Close Help Window</li>
-                        <li><strong>Y</strong>: Open/Close Bestiary</li>
-                        <li><strong>M</strong>: Music Page Linked To Game</li>
-                    </ul>
-        
-                    <h3>Planned Fixes:</h3>
-                    <ul class="features">
-                        <li>WIP</li>
-                        <!-- <li>More NPCs</li>
-                        <li>Fix Item ToolTips</li> -->
-                    </ul>
+        <!-- Help Window Modal -->
+        <div id="helpWindow" class="modal" role="dialog" aria-labelledby="helpWindowTitle" aria-modal="true" aria-hidden="true">
+            <div class="modal-content">
+                <button id="closeHelp" class="close-button" aria-label="Close Help Window">&times;</button>
+                <h2 id="helpWindowTitle">Help & Information</h2>
+                <div class="content">
+                    <div class="left-column">
+                        <h3>Latest Updates</h3>
+                        <p><strong>Version 0.3.4</strong></p>
+                        <h3><strong>Admin Info:</strong></h3>
+                        <p>Admin Password: ltwelcome1</p>
+                        <ul class="updates">
+                            <li>Added "The Machine" - AI</li>
+                            <li>Improved Music Page</li>
+                            <li>Fixed duplicate functions</li>
+                            <li>Minor Bugfixes</li>
+                        </ul>
+                    </div>
+                    <div class="right-column">
+                        <h3>Key Bindings</h3>
+                        <ul class="keybindings">
+                            <li><strong>I</strong> or <strong>B</strong>: Open/Close Inventory</li>
+                            <li><strong>C</strong>: Open/Close Character Stats</li>
+                            <li><strong>Q</strong>: Open/Close Quest Log</li>
+                            <li><strong>T</strong>: Start Teleportation</li>
+                            <li><strong>A</strong>: Rotate Camera Left</li>
+                            <li><strong>D</strong>: Rotate Camera Right</li>
+                            <li><strong>`</strong>: Open/Close Admin Console</li>
+                            <li><strong>H</strong>: Open/Close Help Window</li>
+                            <li><strong>Y</strong>: Open/Close Bestiary</li>
+                            <li><strong>M</strong>: Open Music Page</li>
+                        </ul>
+                        <h3>Planned Fixes</h3>
+                        <ul class="features">
+                            <li>Work in Progress (WIP)</li>
+                            <!-- Uncomment and add more planned fixes as needed -->
+                            <li>More NPCs</li>
+                            <li>Fix Item ToolTips</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
+
         
         
 
@@ -662,21 +669,138 @@
         <script src="characterCreation.js"></script> 
         <!-- <script src="characterSprite.js"></script> -->
         <script src="updatedisplays.js"></script>
+        <script>
+            // Audio Widget Toggle Script
+            document.addEventListener('DOMContentLoaded', function() {
+                const audioWidgetContainer = document.getElementById('audioWidgetContainer');
+                const toggleButton = document.getElementById('toggleAudioWidget');
         
+                // Initialize button based on the initial state
+                if (audioWidgetContainer.classList.contains('minimized')) {
+                    toggleButton.textContent = '+';
+                    toggleButton.title = 'Maximize Audio Widget';
+                } else {
+                    toggleButton.textContent = '_';
+                    toggleButton.title = 'Minimize Audio Widget';
+                }
         
-        
+                toggleButton.addEventListener('click', function() {
+                    audioWidgetContainer.classList.toggle('minimized');
+                    
+                    // Change the button symbol based on state
+                    if (audioWidgetContainer.classList.contains('minimized')) {
+                        toggleButton.textContent = '+';
+                        toggleButton.title = 'Maximize Audio Widget';
+                    } else {
+                        toggleButton.textContent = '_';
+                        toggleButton.title = 'Minimize Audio Widget';
+                    }
+                });
+            });
 
+            // Help Window Script
+            document.addEventListener('DOMContentLoaded', function() {
+                const helpWindow = document.getElementById('helpWindow');
+                const openHelpButton = document.getElementById('openHelp'); // Button to open help
+                const closeHelpButton = document.getElementById('closeHelp');
+                const focusableElementsString = 'a[href], area[href], input:not([disabled]), select:not([disabled]), ' +
+                    'textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]';
+                let focusableElements;
+                let firstFocusableElement;
+                let lastFocusableElement;
+                let previousActiveElement = null;
 
-        
-    
-        <!-- /* Audio Widget Container */
-        <div id="audioWidgetContainer">
+                // Function to open the Help Window
+                function openHelpWindow() {
+                    helpWindow.classList.add('show');
+                    helpWindow.setAttribute('aria-hidden', 'false');
+                    // Save the previously focused element
+                    previousActiveElement = document.activeElement;
+                    // Find all focusable elements inside the modal
+                    focusableElements = helpWindow.querySelectorAll(focusableElementsString);
+                    firstFocusableElement = focusableElements[0];
+                    lastFocusableElement = focusableElements[focusableElements.length - 1];
+                    // Set focus to the first focusable element
+                    if (firstFocusableElement) firstFocusableElement.focus();
+                    // Prevent background scrolling
+                    document.body.classList.add('modal-open');
+                }
+
+                // Function to close the Help Window
+                function closeHelpWindow() {
+                    helpWindow.classList.remove('show');
+                    helpWindow.classList.add('hide');
+                    helpWindow.setAttribute('aria-hidden', 'true');
+                    // Remove hide class after animation
+                    helpWindow.addEventListener('animationend', function handleAnimationEnd() {
+                        helpWindow.classList.remove('hide');
+                        helpWindow.removeEventListener('animationend', handleAnimationEnd);
+                    });
+                    // Restore focus to the previously focused element
+                    if (previousActiveElement) {
+                        previousActiveElement.focus();
+                    }
+                    // Allow background scrolling
+                    document.body.classList.remove('modal-open');
+                }
+
+                // Event listener for opening the Help Window
+                if (openHelpButton) {
+                    openHelpButton.addEventListener('click', openHelpWindow);
+                }
+
+                // Event listener for closing the Help Window
+                if (closeHelpButton) {
+                    closeHelpButton.addEventListener('click', closeHelpWindow);
+                }
+
+                // Close the modal when clicking outside the modal content
+                helpWindow.addEventListener('click', function(event) {
+                    if (event.target === helpWindow) {
+                        closeHelpWindow();
+                    }
+                });
+
+                // Handle keyboard navigation and Esc key
+                helpWindow.addEventListener('keydown', function(event) {
+                    const isTabPressed = (event.key === 'Tab' || event.keyCode === 9);
+                    const isEscPressed = (event.key === 'Escape' || event.keyCode === 27);
+
+                    if (isEscPressed) {
+                        closeHelpWindow();
+                        return;
+                    }
+
+                    if (!isTabPressed) {
+                        return;
+                    }
+
+                    // If Shift + Tab
+                    if (event.shiftKey) {
+                        if (document.activeElement === firstFocusableElement) {
+                            event.preventDefault();
+                            lastFocusableElement.focus();
+                        }
+                    } else { // Tab
+                        if (document.activeElement === lastFocusableElement) {
+                            event.preventDefault();
+                            firstFocusableElement.focus();
+                        }
+                    }
+                });
+            });
+
+        </script>        
+        <!-- Audio Widget Container -->
+        <div id="audioWidgetContainer" class="minimized">
             <iframe id="audio_iframe" 
                 src="https://widget.synthflow.ai/widget/v2/1730479220818x147425180103026180/1730479218515x247472567511716860" 
                 allow="microphone" 
                 scrolling="no"
                 title="Audio Control Widget">
             </iframe>
-        </div> -->
+            <!-- Minimize/Maximize Button -->
+            <button id="toggleAudioWidget" class="toggle-button">_</button>
+        </div>
     </body>
 </html>
