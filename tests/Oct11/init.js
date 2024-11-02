@@ -158,8 +158,15 @@ function init() {
         walls.push(...structure.userData.walls);
 		structures.push(structure);
 
-        // Select a random NPC from npcData
-        const npcInfo = npcData[Math.floor(Math.random() * npcData.length)];
+
+        // Usage example
+        const npcInfo = getRandomNPC();
+        if (npcInfo) {
+            console.log(npcInfo);
+        } else {
+            console.log("No more unique NPCs left to select.");
+        }
+
 
         // Create the NPC with the selected data
         const npc = createFriendlyNPC(0x00ff00, npcInfo.name, npcInfo.dialogue);

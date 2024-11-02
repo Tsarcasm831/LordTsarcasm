@@ -398,7 +398,25 @@ function createQuadruped(color = 0x996633) {
 
     return group;
 }
+// Create an array to track previously selected NPCs
+let selectedNPCs = [];
 
+// Function to select a random NPC that hasn't been selected before
+function getRandomNPC() {
+    if (selectedNPCs.length === npcData.length) {
+        console.log("All NPCs have been selected.");
+        return null; // All NPCs have already been selected
+    }
+
+    let npc;
+    do {
+        npc = npcData[Math.floor(Math.random() * npcData.length)];
+    } while (selectedNPCs.includes(npc));
+
+    // Add the selected NPC to the array
+    selectedNPCs.push(npc);
+    return npc;
+}
 // Combined createHumanoid function
 function createHumanoid(color, texture, pattern, height, bodyShape) {
     const group = new THREE.Group();
