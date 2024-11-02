@@ -183,11 +183,6 @@ function onDocumentKeyDown(event) {
     }
 }
 
-document.getElementById('closeHelp').addEventListener('click', function() {
-    document.getElementById('helpWindow').style.display = 'none';
-    helpWindowOpen = false; // Ensure the variable tracks the state properly
-});
-
 function onDocumentKeyUp(event) {
     if (event.key.toLowerCase() === 'a') {
         rotateLeft = false;
@@ -199,6 +194,10 @@ function onDocumentKeyUp(event) {
     }
 }
 
+document.getElementById('closeHelp').addEventListener('click', function() {
+    document.getElementById('helpWindow').style.display = 'none';
+    helpWindowOpen = false; // Ensure the variable tracks the state properly
+});
 
 // Add keyup event listener
 document.addEventListener('keyup', onDocumentKeyUp, false);
@@ -474,6 +473,7 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
 
     return group;
 }
+const npc = createHumanoid(color);
 
 function animateHumanoid(humanoid, delta) {
     if (humanoid.isAttacking) {

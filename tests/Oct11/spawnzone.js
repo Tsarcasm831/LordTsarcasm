@@ -22,35 +22,70 @@ function createSpawnZone(scene, walls, enemyWalls, structures, friendlies, npcDa
 }
 
 function createGroundAndSafeZone(scene, enemyWalls) {
-    // Load the ground texture
-    const groundTexture = new THREE.TextureLoader().load('textures/ground.png');
+    const groundShape = new THREE.Shape();
+    groundShape.moveTo(-5000, -5000);
+    groundShape.lineTo(5000, -5000);
+    groundShape.lineTo(5000, 5000);
+    groundShape.lineTo(-5000, 5000);
+    groundShape.lineTo(-5000, -5000);
+
+    const safeZoneSize = 600;
+    const holePath = new THREE.Path();
+    holePath.moveTo(-safeZoneSize, -safeZoneSize);
+    holePath.lineTo(-safeZoneSize, safeZoneSize);
+    holePath.lineTo(safeZoneSize, safeZoneSize);
+    holePath.lineTo(safeZoneSize, -safeZoneSize);
+    holePath.lineTo(-safeZoneSize, -safeZoneSize);
+    groundShape.holes.push(holePath);
+
+    const groundGeometry = new THREE.ShapeGeometry(groundShape);
+
+    // Create a CanvasTexture as a replacement for the ground texture
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const context = canvas.getContext('2d');
+    
+    // Fill with a base color
+    context.fillStyle = '#654321'; // Example ground color
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Optional: Add grid pattern for texture effect
+    context.strokeStyle = '#4c3a2b';
+    for (let i = 0; i < canvas.width; i += 16) {
+        context.moveTo(i, 0);
+        context.lineTo(i, canvas.height);
+        context.moveTo(0, i);
+        context.lineTo(canvas.width, i);
+    }
+    context.stroke();
+
+    // Create a Three.js texture from the canvas
+    const groundTexture = new THREE.CanvasTexture(canvas);
     groundTexture.wrapS = THREE.RepeatWrapping;
     groundTexture.wrapT = THREE.RepeatWrapping;
-    groundTexture.repeat.set(50, 50); // Adjust tiling as needed
+    groundTexture.repeat.set(50, 50);
 
-    // Create material with the ground texture
+    // Create material with the generated CanvasTexture
     const groundMaterial = new THREE.MeshLambertMaterial({
         map: groundTexture,
         side: THREE.DoubleSide
     });
 
-    // Use a large PlaneGeometry to simulate a skybox effect for the ground
-    const groundGeometry = new THREE.PlaneGeometry(10000, 10000);
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2; // Rotate to make it horizontal
-    ground.position.y = 0;
+    ground.rotation.x = -Math.PI / 2;
     ground.name = 'ground';
     scene.add(ground);
 
-    // Optional: Safe zone ground with a different texture or color
+    // Create safe zone ground
     const safeZoneGroundGeometry = new THREE.PlaneGeometry(1200, 1200);
     const safeZoneGroundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
     const safeZoneGround = new THREE.Mesh(safeZoneGroundGeometry, safeZoneGroundMaterial);
     safeZoneGround.rotation.x = -Math.PI / 2;
-    safeZoneGround.position.y = 0.1; // Slight offset to avoid z-fighting with ground
+    safeZoneGround.position.y = 0.1;
     scene.add(safeZoneGround);
 
-    // Create an invisible barrier for safe zone
+    // Create invisible barrier for safe zone
     const safeZoneBarrierGeometry = new THREE.BoxGeometry(1200, 50, 1200);
     const safeZoneBarrierMaterial = new THREE.MeshBasicMaterial({ 
         color: 0x000000, 
@@ -64,7 +99,6 @@ function createGroundAndSafeZone(scene, enemyWalls) {
 
     return { ground, safeZoneGround, safeZoneBarrier };
 }
-
 
 
 function createSafeZoneWall(width, height, depth, x, y, z) {
