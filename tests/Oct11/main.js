@@ -415,21 +415,25 @@ function createQuadruped(color = 0x996633) {
     return group;
 }
 
-function createHumanoid(color) {
+// Combined createHumanoid function
+function createHumanoid(color, texture, pattern, height, bodyShape) {
     const group = new THREE.Group();
 
+    // Body
     const bodyGeometry = new THREE.BoxGeometry(5, 10, 2);
     const bodyMaterial = new THREE.MeshLambertMaterial({ color });
-    const body = new THREE.Mesh(new THREE.BoxGeometry(5, 10, 2), bodyMaterial);
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
     body.position.y = 10;
     group.add(body);
 
+    // Head
     const headGeometry = new THREE.BoxGeometry(3, 3, 3);
     const headMaterial = new THREE.MeshLambertMaterial({ color });
-    const head = new THREE.Mesh(new THREE.BoxGeometry(3, 3, 3), headMaterial);
+    const head = new THREE.Mesh(headGeometry, headMaterial);
     head.position.y = 17;
     group.add(head);
 
+    // Arms
     const armGeometry = new THREE.BoxGeometry(1, 8, 1);
     const armMaterial = new THREE.MeshLambertMaterial({ color });
     const leftArm = new THREE.Mesh(armGeometry, armMaterial);
@@ -439,6 +443,7 @@ function createHumanoid(color) {
     rightArm.position.set(3.5, 10, 0);
     group.add(rightArm);
 
+    // Legs
     const legGeometry = new THREE.BoxGeometry(2, 10, 2);
     const legMaterial = new THREE.MeshLambertMaterial({ color });
     const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
@@ -448,6 +453,7 @@ function createHumanoid(color) {
     rightLeg.position.set(1, 5, 0);
     group.add(rightLeg);
 
+    // Assign Parts for Animation
     group.head = head;
     group.body = body;
     group.leftArm = leftArm;
@@ -455,21 +461,35 @@ function createHumanoid(color) {
     group.leftLeg = leftLeg;
     group.rightLeg = rightLeg;
 
+    // Animation Properties
     group.animationTime = 0;
     group.animationSpeed = 10.0;
     group.isMoving = false;
     group.isAttacking = false;
     group.attackTime = 0;
 
+    // User Data
     group.userData = {
         name: 'Friendly NPC',
         health: 100,
         dialogue: 'Hello!',
-        weight: 1
+        weight: 1,
+        type: 'friendly' // Default type
     };
+
+    // Apply Body Shape
+    applyBodyShape(group, bodyShape);
+
+    // Apply Pattern
+    group.traverse(child => {
+        if (child.isMesh) {
+            applyPattern(child, pattern);
+        }
+    });
 
     return group;
 }
+
 
 function animateHumanoid(humanoid, delta) {
     if (humanoid.isAttacking) {

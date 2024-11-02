@@ -258,19 +258,81 @@ body, html {
     max-height: 500px;
 }
 
-.inventory-slot {
-    width: 50px;
-    height: 50px;
-    border: 1px solid #fff;
-    background: rgba(255, 255, 255, 0.1);
-    position: relative;
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+    position: fixed;
+    top: 240px; /* Adjusted to move below the map */
+    right: 20px;
+    padding: 10px;
+    background-color: var(--primary-color);
+    color: #2c2c2c;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    z-index: 1100; /* Increased z-index to be above the map */
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-.inventory-slot:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+.dark-mode-toggle:hover {
+    background-color: #e6c200;
+    transform: scale(1.05);
 }
+
+
+#notificationContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: var(--z-index-tooltip);
+}
+
+.notification {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: var(--text-color);
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transform: translateX(100%);
+    animation: slideIn 0.5s forwards, fadeOut 0.5s 3.5s forwards;
+}
+
+.notification.success {
+    background-color: rgba(40, 167, 69, 0.9); /* Green */
+    color: #fff;
+}
+
+.notification.error {
+    background-color: rgba(220, 53, 69, 0.9); /* Red */
+    color: #fff;
+}
+
+.notification.warning {
+    background-color: rgba(255, 193, 7, 0.9); /* Yellow */
+    color: #2c2c2c;
+}
+
+.notification.info {
+    background-color: rgba(23, 162, 184, 0.9); /* Blue */
+    color: #fff;
+}
+
+
+@keyframes slideIn {
+    to { 
+        opacity: 1; 
+        transform: translateX(0); 
+    }
+}
+
+@keyframes fadeOut {
+    to { 
+        opacity: 0; 
+        transform: translateX(100%); 
+    }
+}
+
 
 /* NPC Popup */
 #npcPopup {
@@ -396,44 +458,6 @@ body, html {
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
 }
-
-
-/* Chest Popup */
-#chestPopup {
-    position: absolute;
-    width: 800px;
-    max-height: 90%;
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    padding: 20px;
-    border: 2px solid #aaa;
-    z-index: 10;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    overflow-y: auto;
-    display: none;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-}
-
-#chestInventoryContainer {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-#chestPopup .inventoryGrid {
-    max-height: 400px;
-    overflow-y: auto;
-    display: grid;
-    grid-template-columns: repeat(7, 50px);
-    grid-auto-rows: 50px;
-    gap: 2px;
-    margin-top: 10px;
-}
-
-
 
 
 /* ======================= */
@@ -942,44 +966,6 @@ textarea:focus {
     background-color: #e6c200;
 }
 
-/* ======================= */
-/*       Chest Popup       */
-/* ======================= */
-
-/* Chest Popup Styles */
-#chestPopup {
-    position: absolute;
-    width: 800px;
-    max-height: 90%;
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    padding: 20px;
-    border: 2px solid #aaa;
-    z-index: 10;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    overflow-y: auto;
-    display: none;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-}
-
-#chestInventoryContainer {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap; /* Allow wrapping if necessary */
-}
-
-#chestPopup .inventoryGrid {
-    max-height: 400px;
-    overflow-y: auto;
-    display: grid;
-    grid-template-columns: repeat(7, 50px); /* Adjust columns as needed */
-    grid-auto-rows: 50px;
-    gap: 2px;
-    margin-top: 10px;
-}
 
 
 /* ======================= */
@@ -1033,12 +1019,14 @@ textarea:focus {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.9); /* Enhanced shadow for better depth */
 }
 
+/* Flexible Bestiary Content Grid */
 .bestiary-content {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Responsive columns */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     padding: 20px;
 }
+
 
 /* Creature Card Styles */
 .creature-card {
@@ -1265,20 +1253,16 @@ textarea:focus {
 #musicModal .close-button {
     position: absolute;
     top: 10px;
-    right: 25px;
-    color: #aaa;
-    font-size: 28px;
-    font-weight: bold;
-    background: none;
+    right: 10px;
+    background: transparent;
     border: none;
+    font-size: 24px;
+    color: #fff;
     cursor: pointer;
 }
 
-#musicModal .close-button:hover,
-#musicModal .close-button:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
+#musicModal .close-button:hover {
+    color: #FFD700;
 }
 
 /* Music Controls */
@@ -2207,6 +2191,19 @@ button {
         width: 35px;  /* Even smaller width */
         height: 35px; /* Even smaller height */
     }
+}
+
+.fullscreen-map {
+    display: none;
+    /* Add other styles as needed */
+}
+
+.close-map-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 201;
+    /* Add other styles as needed */
 }
 
 

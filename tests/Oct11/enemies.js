@@ -1,167 +1,24 @@
 
 // Initialize Enemies
 function initEnemies() {
-    // Spawn Red Enemies (Regular)
-    for (let i = 0; i < 10; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let enemy = createEnemy(position.x, 0, position.z, 'red');
-        enemies.push(enemy);
-        scene.add(enemy);
-    }
+    // Define the min and max distances from the center where enemies can spawn
+    const minDistance = 600; // Increased from 300 to ensure enemies spawn further away
+    const maxDistance = 1200; // Adjust as needed
 
-    // Spawn Blue Enemies
-    for (let i = 0; i < 3; i++) { // Adjust the number as desired
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let blueEnemy = createEnemy(position.x, 0, position.z, 'blue');
-        enemies.push(blueEnemy);
-        scene.add(blueEnemy);
-    }
+    const enemyTypes = Object.keys(enemyTypes);
 
-    // Spawn Green Enemies
-    for (let i = 0; i < 5; i++) { // Adding more enemy types
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let greenEnemy = createEnemy(position.x, 0, position.z, 'green');
-        enemies.push(greenEnemy);
-        scene.add(greenEnemy);
-    }
+    enemyTypes.forEach(type => {
+        const enemyCount = getEnemyCountForType(type); // Define how many of each type you want
 
-    // Spawn Yellow Enemies
-    for (let i = 0; i < 4; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let yellowEnemy = createEnemy(position.x, 0, position.z, 'yellow');
-        enemies.push(yellowEnemy);
-        scene.add(yellowEnemy);
-    }
-
-    // Spawn Purple Enemies
-    for (let i = 0; i < 2; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let purpleEnemy = createEnemy(position.x, 0, position.z, 'purple');
-        enemies.push(purpleEnemy);
-        scene.add(purpleEnemy);
-    }
-
-    // Spawn Orange Enemies
-    for (let i = 0; i < 6; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let orangeEnemy = createEnemy(position.x, 0, position.z, 'orange');
-        enemies.push(orangeEnemy);
-        scene.add(orangeEnemy);
-    }
-
-    // Spawn Cyan Enemies
-    for (let i = 0; i < 3; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let cyanEnemy = createEnemy(position.x, 0, position.z, 'cyan');
-        enemies.push(cyanEnemy);
-        scene.add(cyanEnemy);
-    }
-
-    // Spawn Magenta Enemies
-    for (let i = 0; i < 4; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let magentaEnemy = createEnemy(position.x, 0, position.z, 'magenta');
-        enemies.push(magentaEnemy);
-        scene.add(magentaEnemy);
-    }
-
-    // Spawn Lime Enemies
-    for (let i = 0; i < 5; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let limeEnemy = createEnemy(position.x, 0, position.z, 'lime');
-        enemies.push(limeEnemy);
-        scene.add(limeEnemy);
-    }
-
-    // Spawn Additional Enemy Types with Unique Properties
-    // Black Enemies
-    for (let i = 0; i < 3; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let blackEnemy = createEnemy(position.x, 0, position.z, 'black');
-        enemies.push(blackEnemy);
-        scene.add(blackEnemy);
-    }
-
-    // White Enemies
-    for (let i = 0; i < 3; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let whiteEnemy = createEnemy(position.x, 0, position.z, 'white');
-        enemies.push(whiteEnemy);
-        scene.add(whiteEnemy);
-    }
-
-    // Grey Enemies
-    for (let i = 0; i < 4; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let greyEnemy = createEnemy(position.x, 0, position.z, 'grey');
-        enemies.push(greyEnemy);
-        scene.add(greyEnemy);
-    }
-
-    // Brown Enemies
-    for (let i = 0; i < 2; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let brownEnemy = createEnemy(position.x, 0, position.z, 'brown');
-        enemies.push(brownEnemy);
-        scene.add(brownEnemy);
-    }
-
-    // Pink Enemies
-    for (let i = 0; i < 3; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let pinkEnemy = createEnemy(position.x, 0, position.z, 'pink');
-        enemies.push(pinkEnemy);
-        scene.add(pinkEnemy);
-    }
-
-    // Teal Enemies
-    for (let i = 0; i < 3; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let tealEnemy = createEnemy(position.x, 0, position.z, 'teal');
-        enemies.push(tealEnemy);
-        scene.add(tealEnemy);
-    }
-
-    // Maroon Enemies
-    for (let i = 0; i < 2; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let maroonEnemy = createEnemy(position.x, 0, position.z, 'maroon');
-        enemies.push(maroonEnemy);
-        scene.add(maroonEnemy);
-    }
-
-    // Navy Enemies
-    for (let i = 0; i < 2; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let navyEnemy = createEnemy(position.x, 0, position.z, 'navy');
-        enemies.push(navyEnemy);
-        scene.add(navyEnemy);
-    }
-
-    // Olive Enemies
-    for (let i = 0; i < 3; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let oliveEnemy = createEnemy(position.x, 0, position.z, 'olive');
-        enemies.push(oliveEnemy);
-        scene.add(oliveEnemy);
-    }
-
-    // Silver Enemies
-    for (let i = 0; i < 2; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let silverEnemy = createEnemy(position.x, 0, position.z, 'silver');
-        enemies.push(silverEnemy);
-        scene.add(silverEnemy);
-    }
-
-    // Gold Enemies
-    for (let i = 0; i < 2; i++) {
-        let position = getRandomPositionOutsideTown(300, 1000);
-        let goldEnemy = createEnemy(position.x, 0, position.z, 'gold');
-        enemies.push(goldEnemy);
-        scene.add(goldEnemy);
-    }
+        for (let i = 0; i < enemyCount; i++) {
+            let position = getRandomPositionOutsideTown(minDistance, maxDistance);
+            let enemy = createEnemy(position.x, 0, position.z, type);
+            enemies.push(enemy);
+            scene.add(enemy);
+        }
+    });
 }
+
 
 // Function to check if enemies are in the safe zone
 function checkEnemiesInSafeZone() {
@@ -428,40 +285,38 @@ function createEnemy(x, y, z, type) {
         }
     };
 
-    // If the provided type is invalid or undefined, select a random type
+    // Select a random type if undefined or invalid
     if (!enemyTypes[type]) {
         const types = Object.keys(enemyTypes);
         type = types[Math.floor(Math.random() * types.length)];
     }
 
-    // Destructure the properties from the selected enemy type
+    // Destructure properties
     const { color, texture, pattern, height, bodyShape, damageRate, name } = enemyTypes[type];
 
-    // Create the enemy's visual representation (assuming createHumanoid returns a parent Object3D)
+    // Create humanoid with all parameters
     const enemy = createHumanoid(color, texture, pattern, height, bodyShape);
 
-    // Set the enemy's position in the scene
+    // Set position
     enemy.position.set(x, y, z);
 
-    // Assign userData properties for game logic and tooltip functionality
-    enemy.userData.type = 'hostile';
-    enemy.userData.name = name; // Critical for tooltip display
-    enemy.userData.isDead = false; 
-    enemy.userData.hasBeenLooted = false;
-    enemy.userData.deathTime = 0;
-    enemy.userData.direction = new THREE.Vector3(
-        Math.random() - 0.5,
-        0,
-        Math.random() - 0.5
-    ).normalize();
-    enemy.isMoving = true; 
-    enemy.userData.damageRate = damageRate;
-    enemy.userData.pattern = pattern;
-    enemy.userData.height = height;
-    enemy.userData.bodyShape = bodyShape;
+    // Assign userData properties
+    enemy.userData = {
+        type: 'hostile',
+        name: name,
+        health: 100,
+        isDead: false,
+        hasBeenLooted: false,
+        deathTime: 0,
+        direction: new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize(),
+        damageRate: damageRate,
+        pattern: pattern,
+        height: height,
+        bodyShape: bodyShape
+    };
 
-    // **Set userData.name and other properties on all child meshes**
-    enemy.traverse(function(child) {
+    // Assign patterns and other properties to child meshes
+    enemy.traverse(child => {
         if (child.isMesh) {
             child.userData.name = enemy.userData.name;
             child.userData.pattern = enemy.userData.pattern;
@@ -470,11 +325,9 @@ function createEnemy(x, y, z, type) {
         }
     });
 
-    // Add the enemy to the scene
-    scene.add(enemy);
-
-    // Add the enemy to the enemies array for raycasting and other game logic
+    // Add to enemies array and scene
     enemies.push(enemy);
+    scene.add(enemy);
 
     return enemy;
 }
@@ -626,7 +479,7 @@ function moveEnemies(delta) {
                 enemy.userData.homePosition = enemy.position.clone();
             }
 
-            const maxWanderRadius = 300; // Expanded wander radius by triple
+            const maxWanderRadius = 600; // Increased from 300 to 600
 
             // Initialize direction if not set
             if (!enemy.userData.direction) {
@@ -698,13 +551,10 @@ function moveEnemies(delta) {
                     }
                 }
             }
-
-            // Removed the redundant animateHumanoid call here
         }
-
-        // Animate the enemy
-        animateHumanoid(enemy, delta);
-    });
+            // Animate the enemy
+            animateHumanoid(enemy, delta);
+        });
 }
 
 function attackEnemy(enemy) {

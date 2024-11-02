@@ -408,7 +408,7 @@ function renderBestiary() {
             creatureCard.classList.add('creature-card');
 
             creatureCard.innerHTML = `
-                <img src="${creature.highResImage.src}" alt="${creature.name}" class="creature-image">
+                <img src="${creature.highResImage.src}" alt="${creature.name}" class="creature-image" loading="lazy">
                 <div class="creature-info">
                     <h3>${creature.name}</h3>
                     <p>${creature.description}</p>
@@ -444,7 +444,7 @@ function displayRaceDetails(creatureKey) {
 
     detailsContent.innerHTML = `
         <div class="creature-detail-header">
-            <img src="${creature.highResImage.src}" alt="${creature.name}" class="creature-detail-image">
+            <img src="${creature.highResImage.src}" alt="${creature.name}" class="creature-detail-image" loading="lazy">
             <div class="stats-container">
                 ${generateStatsHTML(creature.stats)}
             </div>

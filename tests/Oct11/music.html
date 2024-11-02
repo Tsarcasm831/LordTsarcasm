@@ -420,12 +420,12 @@
     <div class="container current-obsession">
         <h2>Stuck In My Head</h2>
         <div class="spotify-links">
-            <iframe src="https://open.spotify.com/embed/track/5TU1cWjUGyVKjSnIIxRSEf" width="300" height="80"></iframe>
-            <iframe src="https://open.spotify.com/embed/track/44NQYaCbgHKuOISQRmNdVN" width="300" height="80"></iframe>
-            <iframe src="https://open.spotify.com/embed/track/7jFyzgoUQ10PTYhuC5vXHA" width="300" height="80"></iframe>
-            <iframe src="https://open.spotify.com/embed/track/3vxMfMNjD8k0ozmuVDu0Ai" width="300" height="80"></iframe>
-            <iframe src="https://open.spotify.com/embed/album/4mLuzYF9sqsZ6AmZMu9tkx" width="300" height="80"></iframe>
-            <iframe src="https://open.spotify.com/embed/album/59nyBhIhYXd2rVkSrmwVi5" width="300" height="80"></iframe>
+            <iframe src="https://open.spotify.com/embed/track/5TU1cWjUGyVKjSnIIxRSEf" width="300" height="80" loading="lazy"></iframe>
+            <iframe src="https://open.spotify.com/embed/track/44NQYaCbgHKuOISQRmNdVN" width="300" height="80" loading="lazy"></iframe>
+            <iframe src="https://open.spotify.com/embed/track/7jFyzgoUQ10PTYhuC5vXHA" width="300" height="80" loading="lazy"></iframe>
+            <iframe src="https://open.spotify.com/embed/track/3vxMfMNjD8k0ozmuVDu0Ai" width="300" height="80" loading="lazy"></iframe>
+            <iframe src="https://open.spotify.com/embed/album/4mLuzYF9sqsZ6AmZMu9tkx" width="300" height="80" loading="lazy"></iframe>
+            <iframe src="https://open.spotify.com/embed/album/59nyBhIhYXd2rVkSrmwVi5" width="300" height="80" loading="lazy"></iframe>
             
             
             
@@ -448,21 +448,21 @@
             <h2>Artist's Top Picks</h2>
             <div class="album-grid">
                 <div class="album-card" onclick="openModal('success-modal')">
-                    <img src="images/Success the Obsession.png" alt="Success the Obsession" class="album-cover">
+                    <img src="images/Success the Obsession.png" alt="Success the Obsession" class="album-cover" loading="lazy">
                     <div class="album-info">
                         <div class="album-title">Success the Obsession</div>
                         <div class="album-details">Single - 2024</div>
                     </div>
                 </div>
                 <div class="album-card" onclick="openModal('svt-modal')">
-                    <img src="images/svt.png" alt="SVT" class="album-cover">
+                    <img src="images/svt.png" alt="SVT" class="album-cover" loading="lazy">
                     <div class="album-info">
                         <div class="album-title">SVT</div>
                         <div class="album-details">Single - 2024</div>
                     </div>
                 </div>
                 <div class="album-card" onclick="openModal('hellstrom-modal')">
-                    <img src="images/hellstrom.png" alt="Hellstrom" class="album-cover">
+                    <img src="images/hellstrom.png" alt="Hellstrom" class="album-cover" loading="lazy">
                     <div class="album-info">
                         <div class="album-title">Hellstrom</div>
                         <div class="album-details">Album - 2024</div>
@@ -917,7 +917,7 @@
 
                 newReleasesSet += `
                     <div class="album-card" onclick="openModal('${album.id}')">
-                        <img src="${imgPath}" alt="${album.title}" class="album-cover">
+                        <img src="${imgPath}" alt="${album.title}" class="album-cover" loading="lazy">
                         <div class="album-info">
                             <div class="album-title">${album.title}</div>
                             <div class="album-details">${album.details}</div>
@@ -930,7 +930,7 @@
                     <div id="${album.id}" class="modal">
                         <div class="modal-content">
                             <span class="close" onclick="closeModal('${album.id}')">&times;</span>
-                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover">
+                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover" loading="lazy">
                             <div class="modal-album-title">${album.title}</div>
                             <div class="modal-album-details">${album.details}</div>
                             <div class="modal-description">
@@ -956,7 +956,7 @@
                 // Adjusted to include caption for hovering effect
                 const imgElement = `
                     <div class="hero-image">
-                        <img src="${imgPath}" alt="${album.title}" class="album-cover">
+                        <img src="${imgPath}" alt="${album.title}" class="album-cover" loading="lazy">
                         <div class="hero-caption">
                             <div class="hero-album-title">${album.title}</div>
                         </div>
@@ -966,7 +966,7 @@
                 imageSet += imgElement;
                 albumGrid.append(`
                     <div class="album-card" onclick="openModal('${album.id}')">
-                        <img src="${imgPath}" alt="${album.title}" class="album-cover">
+                        <img src="${imgPath}" alt="${album.title}" class="album-cover" loading="lazy">
                         <div class="album-info">
                             <div class="album-title">${album.title}</div>
                             <div class="album-details">${album.details}</div>
@@ -979,7 +979,7 @@
                     <div id="${album.id}" class="modal">
                         <div class="modal-content">
                             <span class="close" onclick="closeModal('${album.id}')">&times;</span>
-                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover">
+                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover" loading="lazy">
                             <div class="modal-album-title">${album.title}</div>
                             <div class="modal-album-details">${album.details}</div>
                             <div class="modal-description">
@@ -1038,7 +1038,7 @@
                     <div id="${album.id}" class="modal" style="display: none;">
                         <div class="modal-content">
                             <span class="close" onclick="closeModal('${album.id}')">&times;</span>
-                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover">
+                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover" loading="lazy">
                             <div class="modal-album-title">${album.title}</div>
                             <div class="modal-album-details">${album.details}</div>
                             <div class="modal-description">
@@ -1084,7 +1084,7 @@
 <div id="tear-down-walls-modal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal('tear-down-walls-modal')">&times;</span>
-        <img src="images/tear-down-walls.png" alt="Tear Down Walls" class="modal-album-cover">
+        <img src="images/tear-down-walls.png" alt="Tear Down Walls" class="modal-album-cover" loading="lazy">
         <div class="modal-album-title">Tear Down Walls</div>
         <div class="modal-album-details">Coming Soon - Album</div>
         <div class="modal-description">
@@ -1097,7 +1097,7 @@
 <div id="whats-your-confection-modal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal('whats-your-confection-modal')">&times;</span>
-        <img src="images/whats-your-confection.png" alt="What's Your Confection?" class="modal-album-cover">
+        <img src="images/whats-your-confection.png" alt="What's Your Confection?" class="modal-album-cover" loading="lazy">
         <div class="modal-album-title">What's Your Confection?</div>
         <div class="modal-album-details">Coming Soon - Single</div>
         <div class="modal-description">
@@ -1110,7 +1110,7 @@
 <div id="i-could-modal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal('i-could-modal')">&times;</span>
-        <img src="images/icould.png" alt="I could... I could..." class="modal-album-cover">
+        <img src="images/icould.png" alt="I could... I could..." class="modal-album-cover" loading="lazy">
         <div class="modal-album-title">I could... I could...</div>
         <div class="modal-album-details">Coming Soon - Single</div>
         <div class="modal-description">
@@ -1123,7 +1123,7 @@
 <div id="still-believe-modal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal('still-believe-modal')">&times;</span>
-        <img src="images/still-believe.png" alt="Still Believe" class="modal-album-cover">
+        <img src="images/still-believe.png" alt="Still Believe" class="modal-album-cover" loading="lazy">
         <div class="modal-album-title">Still Believe</div>
         <div class="modal-album-details">Coming Soon - Single</div>
         <div class="modal-description">
