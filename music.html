@@ -456,10 +456,7 @@
     <div class="coming-soon-sidebar">
         <h3>Coming Soon</h3>
         <ul>
-            <li><a href="#" onclick="openModal('tear-down-walls-modal')">Tear Down The Walls</a></li>
-            <li><a href="#" onclick="openModal('confection-modal')">What's Your Confection?</a></li>
             <li><a href="#" onclick="openModal('stillbelieve-modal')">Still Believe</a></li>
-            <li><a href="#" onclick="openModal('icould-modal')">I Could.. I Could...</a></li>
             <li><a href="#" onclick="openModal('stranger-modal')">Stranger</a></li>
         </ul>
     </div>
@@ -473,7 +470,7 @@
     </div>
 
     <div class="container new-releases">
-        <h2>NEW/PLANNED RELEASES</h2>
+        <h2>UPCOMING RELEASES</h2>
         <div class="album-grid" id="newReleasesGrid">
             <!-- New Release album cards will be dynamically added here -->
         </div>
@@ -558,15 +555,29 @@
             
             const scheduledReleasesData = [
                 { 
-                    id: 'icould-modal', 
-                    title: 'I Could... I Could...', 
-                    image: 'icould.png', 
+                    id: 'walls-modal', 
+                    title: 'Tear Down Walls', 
+                    image: 'tear-down-walls.png', 
                     details: 'Single - 2024 - 1 song', 
-                    description: 'A powerful anthem that inspires listeners to keep believing in themselves and their dreams.',
+                    description: 'A powerful anthem that inspires listeners to break down barriers and build connections with others.',
                     songList: `
                         <ul>
                             <audio controls controlsList="nodownload">
-                                <source src="music/icouldicould.mp3" type="audio/mpeg">
+                                <source src="music/Tear Down Walls.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </ul>`,
+                },
+                { 
+                    id: 'bleed-modal', 
+                    title: 'Watch Me Bleed', 
+                    image: 'Watch-Me-Bleed.webp', 
+                    details: 'Single - 2024 - 1 song', 
+                    description: 'This song is a powerful anthem of self-liberation and resilience, urging listeners to confront their inner barriers and embrace vulnerability. It opens by acknowledging the tendency to build emotional walls as protection against pain, only to find these defenses also block out joy and growth. The chorus calls for courage—to tear down these walls and breathe freely, assuring that strength and healing lie on the other side. With soaring melodies and a climactic guitar solo, the song emphasizes that true freedom comes from facing fears, letting in light, and discovering one\’s inner strength.',
+                    songList: `
+                        <ul>
+                            <audio controls controlsList="nodownload">
+                                <source src="music/Watch Me Bleed.mp3" type="audio/mpeg">
                                 Your browser does not support the audio element.
                             </audio>
                         </ul>`,
@@ -574,52 +585,6 @@
             ];
 
             const newReleasesData = [
-                {
-                    id: 'hellstrom-modal',
-                    title: 'Hellstrom',
-                    image: 'hellstrom.png',
-                    details: 'Hellstrom - Album - 18 songs', 
-                    description: 'An intense and raw album that pushes the boundaries of genre and sound, inspired by themes of chaos, power, and transformation.',
-                    songList: `
-                        <ul>
-                            <li>S.V.T. (Out in the Cold) - 2024 Version</li>
-                            <li>Sands of Time</li>
-                            <li>Puppet on a Wire - 2024 Version</li>
-                            <li>This Ain't Paradise - 2024 Version</li>
-                            <li>Patterns and Atoms</li>
-                            <li>Barely There</li>
-                            <li>Citizen of the World</li>
-                            <li>City of Shadows</li>
-                            <li>Disappointing Again</li>
-                            <li>Stars and Scars</li>
-                            <li>Candles in the Dark</li>
-                            <li>Completely</li>
-                            <li>Just an Update...</li>
-                            <li>Infinity</li>
-                            <li>Empty Little Soul - 2024 Version</li>
-                            <li>The Story Grows Old</li>
-                            <li>Timeline</li>
-                            <li>Routine</li>
-                        </ul>`,
-                    spotify: 'https://open.spotify.com/album/59nyBhIhYXd2rVkSrmwVi5?go=1', 
-                    youtube: 'https://www.youtube.com/watch?v=I2SwOWN1W4I&list=OLAK5uy_lPDbLufGyGPRRUdhaiWtn3E73KMRKXkfM', 
-                    apple: 'https://music.apple.com/us/album/1771582650?app=music&at=1l3vpUI&ct=LFV_8ae31fe85997b4a3c828e98bdd413c58&itscg=30440&itsct=catchall_p4&lId=211350774&cId=none&sr=4&src=Linkfire&ls=1'
-                },
-
-                { 
-                    id: 'bad-day-modal', 
-                    title: 'Bad Day', 
-                    image: 'badday.png', 
-                    details: 'Single - 2024 - 1 song', 
-                    description: '"I feel better when I\'ve had a bad day." A powerful anthem for anyone who has ever felt overwhelmed by life.', 
-                    songList: `
-                        <ul>
-                            <audio controls controlsList="nodownload">
-                                <source src="music/badday.mp3" type="audio/mpeg">
-                                Your browser does not support the audio element.
-                            </audio>
-                        </ul>`,
-                },
                 { 
                     id: 'atlas-modal', 
                     title: 'Atlas Alone', 
@@ -651,35 +616,6 @@
                             </audio>
                         </ul>
                         `,
-                },
-                { 
-                    id: 'ptwig-modal', 
-                    title: 'Play This When I\'m Gone', 
-                    image: 'ptwig.png', 
-                    details: 'Single - 2024 - 1 song', 
-                    description: 'A hauntingly beautiful track that captures the essence of loss and longing, leaving a lasting impact on the listener.', 
-                    songList: `
-                        <ul>
-                            <audio controls controlsList="nodownload">
-                                <source src="music/ptwig.mp3" type="audio/mpeg">
-                                Your browser does not support the audio element.
-                            </audio>
-                        </ul>
-                        `,
-                },
-                { 
-                    id: 'walls-modal', 
-                    title: 'Tear Down Walls', 
-                    image: 'tear-down-walls.png', 
-                    details: 'Single - 2024 - 1 song', 
-                    description: 'A powerful anthem that inspires listeners to break down barriers and build connections with others.',
-                    songList: `
-                        <ul>
-                            <audio controls controlsList="nodownload">
-                                <source src="music/Tear Down Walls.mp3" type="audio/mpeg">
-                                Your browser does not support the audio element.
-                            </audio>
-                        </ul>`,
                 },
                 { 
                     id: 'confection-modal', 
@@ -742,6 +678,49 @@
                             </audio>
                             <li><a href="https://open.spotify.com/track/3pQY0y3fzJd6WY8azPqaLf?si=69fed89524ae422a">Original Track</a></li>
                             <li><a href="https://open.spotify.com/artist/47s2i6XVeEU4bk6nAcOwUb?si=qohHd1T9StC2jzlpjmf_Gg">Ricardo Abyssal Spotify</a></li>
+                        </ul>
+                        `,
+                },
+                { 
+                    id: 'bad-day-modal', 
+                    title: 'Bad Day', 
+                    image: 'badday.png', 
+                    details: 'Single - 2024 - 1 song', 
+                    description: '"I feel better when I\'ve had a bad day." A powerful anthem for anyone who has ever felt overwhelmed by life.', 
+                    songList: `
+                        <ul>
+                            <audio controls controlsList="nodownload">
+                                <source src="music/badday.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </ul>`,
+                },
+                { 
+                    id: 'icould-modal', 
+                    title: 'I Could... I Could...', 
+                    image: 'icould.png', 
+                    details: 'Single - 2024 - 1 song', 
+                    description: 'A powerful anthem that inspires listeners to keep believing in themselves and their dreams.',
+                    songList: `
+                        <ul>
+                            <audio controls controlsList="nodownload">
+                                <source src="music/icouldicould.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </ul>`,
+                },
+                { 
+                    id: 'ptwig-modal', 
+                    title: 'Play This When I\'m Gone', 
+                    image: 'ptwig.png', 
+                    details: 'Single - 2024 - 1 song', 
+                    description: 'A hauntingly beautiful track that captures the essence of loss and longing, leaving a lasting impact on the listener.', 
+                    songList: `
+                        <ul>
+                            <audio controls controlsList="nodownload">
+                                <source src="music/ptwig.mp3" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
                         </ul>
                         `,
                 },
