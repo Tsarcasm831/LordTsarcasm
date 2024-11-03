@@ -12,33 +12,72 @@
         /* Hero section with scrolling background */
         .hero {
             position: relative;
-            height: 350px;
+            height: 60px; /* Further reduced height */
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
             text-align: center;
             padding: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 20px; /* Adjusted bottom margin */
             overflow: hidden;
         }
+
+        .hero-background img {
+            height: 100%;
+            min-height: 100px; /* Ensure images don’t get too small */
+            max-width: none;
+            width: auto;
+            flex: none;
+        }
+
 
         /* Adjusted to make the scrolling images scroll endlessly without jumping */
         .hero-background {
             position: absolute;
             top: 0;
             left: 0;
-            height: 100%;
+            height: 60%;
             display: flex;
             animation: scrollBackground 40s linear infinite;
         }
 
-        .hero-background img {
-            height: 80%;
-            max-width: none;
-            width: auto;
-            flex: none;
+        .stuck-in-my-head-sidebar {
+            position: fixed;
+            top: 65%; /* Adjusted alignment to move it higher */
+            left: 0;
+            transform: translateY(-50%);
+            background-color: rgba(51, 51, 51, 0.9);
+            padding: 15px;
+            width: 14%; /* Narrower width */
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+            z-index: 1000;
         }
+
+
+        .stuck-in-my-head-sidebar h3 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 10px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .stuck-in-my-head-sidebar iframe {
+            width: 100%; /* Set to full width within the reduced sidebar */
+            height: 80px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+
+
+        .stuck-in-my-head-sidebar .spotify-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
 
         /* Adjusted keyframes for seamless infinite scrolling */
         @keyframes scrollBackground {
@@ -102,7 +141,7 @@
         }
 
         .modal-content {
-            max-width: 40%;
+            max-width: 50%;
             max-height: 70%;
             margin: 5% auto;
             padding: 20px;
@@ -111,7 +150,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
             text-align: center;
             color: #fff;
-            overflow: auto;
+            overflow: hidden;
         }
 
         /* Spotify element */
@@ -458,9 +497,16 @@
         <ul>
             <li><a href="#" onclick="openModal('stillbelieve-modal')">Still Believe</a></li>
             <li><a href="#" onclick="openModal('stranger-modal')">Stranger</a></li>
+            <li><a href="#" onclick="openModal('walls-modal')">Tear Down The Walls</a></li>
+            <li><a href="#" onclick="openModal('bleed-modal')">Watch Me Bleed</a></li>
+            <li><a href="#" onclick="openModal('atlas-modal')">Atlas Alone</a></li>
         </ul>
     </div>
-    
+    <div class="hero">
+        <div class="hero-background" id="heroBackground">
+            <!-- Images will be dynamically inserted here -->
+        </div>
+    </div>
     <!-- Scheduled Releases Section -->
     <div class="container scheduled-releases">
         <h2>SCHEDULED RELEASES</h2>
@@ -469,33 +515,24 @@
         </div>
     </div>
 
-    <div class="container new-releases">
+    <!-- <div class="container new-releases">
         <h2>UPCOMING RELEASES</h2>
         <div class="album-grid" id="newReleasesGrid">
-            <!-- New Release album cards will be dynamically added here -->
+
         </div>
-    </div>
+    </div> -->
     
 
-    <div class="hero">
-        <div class="hero-background" id="heroBackground">
-            <!-- Images will be dynamically inserted here -->
-        </div>
-    </div>
+    
 
-    <div class="container current-obsession">
+    <div class="stuck-in-my-head-sidebar">
         <h2>Stuck In My Head</h2>
         <div class="spotify-links">
             <iframe src="https://open.spotify.com/embed/track/5TU1cWjUGyVKjSnIIxRSEf" width="300" height="80"></iframe>
             <iframe src="https://open.spotify.com/embed/track/44NQYaCbgHKuOISQRmNdVN" width="300" height="80"></iframe>
-            <iframe src="https://open.spotify.com/embed/track/7jFyzgoUQ10PTYhuC5vXHA" width="300" height="80"></iframe>
             <iframe src="https://open.spotify.com/embed/track/3vxMfMNjD8k0ozmuVDu0Ai" width="300" height="80"></iframe>
-            <iframe src="https://open.spotify.com/embed/album/4mLuzYF9sqsZ6AmZMu9tkx" width="300" height="80"></iframe>
-            <iframe src="https://open.spotify.com/embed/album/59nyBhIhYXd2rVkSrmwVi5" width="300" height="80"></iframe>
-            
-            
-            
-            
+            <iframe src="https://open.spotify.com/embed/track/6kdbmxs4hLdlqEm96HitTu" width="300" height="80"></iframe>
+            <iframe src="https://open.spotify.com/embed/track/1XJ2dZEyekVREzrqJEb75Q" width="300" height="80"></iframe>
         </div>
     </div>
 
