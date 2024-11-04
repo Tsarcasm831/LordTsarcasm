@@ -1071,7 +1071,7 @@
                 const imgPath = imageFolder + album.image;
                 scheduledReleasesSet += `
                     <div class="album-card" onclick="openModal('${album.id}')">
-                        <img src="${imgPath}" alt="${album.title}" class="album-cover">
+                        <img src="${imgPath}" alt="${album.title}" class="album-cover" loading="lazy">
                         <div class="album-info">
                             <div class="album-title">${album.title}</div>
                             <div class="album-details">${album.details}</div>
@@ -1084,7 +1084,7 @@
                     <div id="${album.id}" class="modal">
                         <div class="modal-content">
                             <span class="close" onclick="closeModal('${album.id}')">&times;</span>
-                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover">
+                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover" loading="lazy">
                             <div class="modal-album-title">${album.title}</div>
                             <div class="modal-album-details">${album.details}</div>
                             <div class="modal-description">
@@ -1111,7 +1111,7 @@
 
                 newReleasesSet += `
                     <div class="album-card" onclick="openModal('${album.id}')">
-                        <img src="${imgPath}" alt="${album.title}" class="album-cover">
+                        <img src="${imgPath}" alt="${album.title}" class="album-cover" loading="lazy">
                         <div class="album-info">
                             <div class="album-title">${album.title}</div>
                             <div class="album-details">${album.details}</div>
@@ -1124,7 +1124,7 @@
                     <div id="${album.id}" class="modal">
                         <div class="modal-content">
                             <span class="close" onclick="closeModal('${album.id}')">&times;</span>
-                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover">
+                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover" loading="lazy">
                             <div class="modal-album-title">${album.title}</div>
                             <div class="modal-album-details">${album.details}</div>
                             <div class="modal-description">
@@ -1150,7 +1150,7 @@
                 // Adjusted to include caption for hovering effect
                 const imgElement = `
                     <div class="hero-image">
-                        <img src="${imgPath}" alt="${album.title}" class="album-cover">
+                        <img src="${imgPath}" alt="${album.title}" class="album-cover" loading="lazy">
                         <div class="hero-caption">
                             <div class="hero-album-title">${album.title}</div>
                         </div>
@@ -1160,7 +1160,7 @@
                 imageSet += imgElement;
                 albumGrid.append(`
                     <div class="album-card" onclick="openModal('${album.id}')">
-                        <img src="${imgPath}" alt="${album.title}" class="album-cover">
+                        <img src="${imgPath}" alt="${album.title}" class="album-cover" loading="lazy">
                         <div class="album-info">
                             <div class="album-title">${album.title}</div>
                             <div class="album-details">${album.details}</div>
@@ -1173,7 +1173,7 @@
                     <div id="${album.id}" class="modal">
                         <div class="modal-content">
                             <span class="close" onclick="closeModal('${album.id}')">&times;</span>
-                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover">
+                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover" loading="lazy">
                             <div class="modal-album-title">${album.title}</div>
                             <div class="modal-album-details">${album.details}</div>
                             <div class="modal-description">
@@ -1232,7 +1232,7 @@
                     <div id="${album.id}" class="modal" style="display: none;">
                         <div class="modal-content">
                             <span class="close" onclick="closeModal('${album.id}')">&times;</span>
-                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover">
+                            <img src="${imgPath}" alt="${album.title}" class="modal-album-cover" loading="lazy">
                             <div class="modal-album-title">${album.title}</div>
                             <div class="modal-album-details">${album.details}</div>
                             <div class="modal-description">
