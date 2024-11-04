@@ -130,8 +130,23 @@
         </div>
 
         <div id="inventory">
+            <div id="inventoryCloseButton" onclick="closeInventory()">✖</div>
             <h2>Inventory</h2>
             <div id="playerDetails">
+                <div id="playerStatsBars">
+                    <div class="stat-bar">
+                        <span>Level</span>
+                        <div class="bar"><div class="fill" id="levelBar"></div></div>
+                    </div>
+                    <div class="stat-bar">
+                        <span>Health</span>
+                        <div class="bar"><div class="fill" id="healthBar"></div></div>
+                    </div>
+                    <div class="stat-bar">
+                        <span>Gold</span>
+                        <div class="bar"><div class="fill" id="goldBar"></div></div>
+                    </div>
+                </div>
                 <img id="playerImage" src="images/player_image.webp" alt="Player" />
                 <div id="playerStats">
                     <p>Level: <span id="playerLevel">1</span></p>
@@ -405,7 +420,7 @@
             let inventoryOpen = false; // Inventory state
             let statsOpen = false; // Character stats state
             let destination = null; // Destination for teleportation
-            let speed = 1.0; // Player movement speed
+            let speed = 3.0; // Player movement speed
             let minimapCamera; // Minimap camera
             let enemies = []; // List of enemies
             let gold = 0; // Gold amount

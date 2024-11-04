@@ -278,6 +278,11 @@ function generateStatsHTML(stats) {
         .join('');
 }
 
+function closeInventory() {
+    inventoryOpen = false; // Set the flag to false
+    document.getElementById("inventory").style.display = "none";
+}
+
 
 setupInventoryTabs();
 generateInventorySlots();

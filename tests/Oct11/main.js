@@ -84,6 +84,7 @@ function animate() {
 }
 
 function onDocumentKeyDown(event) {
+    // Close menus based on key presses when already open
     if (inventoryOpen || statsOpen || adminConsoleOpen) {
         if (inventoryOpen && (event.key.toLowerCase() === 'i' || event.key.toLowerCase() === 'b')) {
             inventoryOpen = false;
@@ -93,22 +94,13 @@ function onDocumentKeyDown(event) {
             document.getElementById('stats').style.display = 'none';
         } else if (adminConsoleOpen && event.key === '`') {
             closeAdminConsole();
+        } else if (event.key === 'Escape') { // Esc closes all open menus
+            closeAllMenus();
         }
-        return;
-				
-    }
-			
-    if (event.key === 'Escape') { // Handle Esc key
-        closeAllMenus();
-        return;
+        return; // Stop further execution if a menu is closed
     }
 
-	if (event.key.toLowerCase() === 'y') {
-        openBestiary();
-        return;
-    }
-
-
+    // Handle specific menu toggle keys
     if (event.key.toLowerCase() === 'i' || event.key.toLowerCase() === 'b') {
         inventoryOpen = !inventoryOpen;
         document.getElementById('inventory').style.display = inventoryOpen ? 'block' : 'none';
@@ -130,21 +122,14 @@ function onDocumentKeyDown(event) {
         return;
     }
 
-
-	// Handle toggling of admin window
-    if (event.key === '`') {
-        if (!isAdminLoggedIn) {
-            openAdminConsole();
-        } else {
-            closeAdminConsole();
-        }
-        return;
-    }
-
-	// Handle toggling of help window
     if (event.key.toLowerCase() === 'h') {
         helpWindowOpen = !helpWindowOpen;
         document.getElementById('helpWindow').style.display = helpWindowOpen ? 'block' : 'none';
+        return;
+    }
+
+    if (event.key.toLowerCase() === 'y') {
+        openBestiary();
         return;
     }
 
@@ -158,20 +143,21 @@ function onDocumentKeyDown(event) {
         return;
     }
 
+    // Ensure teleporting or looting blocks further action
     if (isTeleporting || isLooting) return;
 
     if (event.key.toLowerCase() === 't') {
         if (!isTeleporting) {
             startTeleportation();
         }
+        return;
     }
-            
+
     if (event.key.toLowerCase() === 'q') {
         questLogOpen = !questLogOpen;
         document.getElementById('questLog').style.display = questLogOpen ? 'block' : 'none';
         return;
     }
-
 
     if (event.key.toLowerCase() === 'k') {
         if (document.getElementById('skillTree').style.display === 'block') {
@@ -182,6 +168,7 @@ function onDocumentKeyDown(event) {
         return;
     }
 }
+
 
 function onDocumentKeyUp(event) {
     if (event.key.toLowerCase() === 'a') {
