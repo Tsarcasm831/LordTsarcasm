@@ -79,8 +79,7 @@ function init() {
 
         
 
-    // Help Window Open on Start
-    helpWindowOpen = true;
+
     document.getElementById('helpWindow').style.display = 'block';
 
     const groundShape = new THREE.Shape();

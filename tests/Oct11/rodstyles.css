@@ -950,44 +950,28 @@ textarea:focus {
     outline-offset: 2px;
 }
 
-/* Help Button */
+/* Help Button Styling */
 .open-help-button {
-    position: absolute;
-    left: 20px;
-    top: 20px;
+    position: fixed;
+    bottom: 20px;
+    right: 150px; /* Adjust right position to be next to Open Music */
     padding: 10px 20px;
-    background-color: #0073e6;
-    color: #fff;
+    background-color: red; /* Red background */
+    color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 16px;
     z-index: 1100;
-    font-size: 16px;
-    transition: background-color 0.3s, transform 0.2s;
+    animation: flash 1s infinite; /* Flashing effect */
 }
 
-.open-help-button:hover {
-    background-color: #005bb5;
-    transform: scale(1.05);
+/* Flashing Animation */
+@keyframes flash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }
 
-/* In-Game Console */
-.game-console {
-    position: fixed;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: #ffd700; /* Gold text for high contrast */
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 16px;
-    z-index: 1000;
-    text-align: center;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    width: 60%;
-    max-width: 800px;
-}
 
 
 /* ======================= */

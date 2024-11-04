@@ -21,8 +21,7 @@
         <!-- <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle Dark Mode">🌙</button> -->
      
 
-       <!-- Help Button (already exists, update CSS as needed) -->
-        <button id="openHelp" class="open-help-button">Help</button>
+
 
         <!-- In-Game Message Console -->
         <div id="gameConsole" class="game-console">
@@ -118,7 +117,7 @@
             </div>
         </div>
 
-        <!-- New Button to Open Music Page -->
+        <button id="openHelp" class="open-help-button" onclick="toggleHelpWindow()">Help</button>
         <button id="openMusic" class="open-music-button">Open Music</button>
 
         <!-- Music Modal -->
@@ -129,12 +128,6 @@
 
             </div>
         </div>
-
-        <!-- Now Playing Controls -->
-        <div id="nowPlaying" class="now-playing">
-            <span id="trackTitle">Now Playing: None</span>
-            <button id="playPauseButton" onclick="togglePlayPause()">▶️</button>
-        </div>      
 
         <div id="inventory">
             <h2>Inventory</h2>
@@ -772,6 +765,11 @@
                     }
                 });
             });
+
+            function toggleHelpWindow() {
+                const helpWindow = document.getElementById('helpWindow');
+                helpWindow.style.display = helpWindow.style.display === 'none' || helpWindow.style.display === '' ? 'flex' : 'none';
+            }
 
             // Help Window Script
             document.addEventListener('DOMContentLoaded', function() {
