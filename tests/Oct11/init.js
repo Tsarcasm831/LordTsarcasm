@@ -18,6 +18,41 @@ function initializeInventory() {
     }
 }
 
+function addSkyboxAboveGround() {
+    const skyboxSize = 10000; // Large enough to encompass the scene
+
+    // Load skybox textures (assuming paths to six images for each face of the cube)
+    const loader = new THREE.CubeTextureLoader();
+    const skyboxTexture = loader.load([
+        'textures/skybox_px.jpg', // Positive X
+        'textures/skybox_nx.jpg', // Negative X
+        'textures/skybox_py.jpg', // Positive Y
+        'textures/skybox_ny.jpg', // Negative Y
+        'textures/skybox_pz.jpg', // Positive Z
+        'textures/skybox_nz.jpg'  // Negative Z
+    ]);
+
+    // Set the scene background to the skybox texture
+    scene.background = skyboxTexture;
+
+    // Create a transparent plane that hovers above the ground as a marker
+    const groundHeight = 3; // 3px above current ground level
+    const geometry = new THREE.PlaneGeometry(skyboxSize, skyboxSize);
+    const material = new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        opacity: 0,
+        transparent: true
+    });
+    const skyPlane = new THREE.Mesh(geometry, material);
+
+    // Position the skybox slightly above the ground
+    skyPlane.position.y = groundHeight;
+    skyPlane.rotation.x = -Math.PI / 2; // Rotate to be parallel with ground
+
+    // Add the plane to the scene
+    scene.add(skyPlane);
+}
+
 function init() {
     // Disable right-click context menu
     document.addEventListener('contextmenu', function(event) {
@@ -147,7 +182,8 @@ function init() {
 
     shrineGroup.position.set(0, 0, 0);
     scene.add(shrineGroup);
-    
+    addSkyboxAboveGround();
+
     const structurePositions = [
         // Row 1 (z = 200)
         { x: -200, z: 200 },
