@@ -404,43 +404,104 @@ function getRandomNPC() {
     selectedNPCs.push(npc);
     return npc;
 }
+const npc = createHumanoid(color);
 
-// Combined createHumanoid function
+// Helper function for easing (optional)
+function easeInOutSine(t) {
+    return 0.5 * (1 - Math.cos(Math.PI * t));
+}
+
 function createHumanoid(color, texture, pattern, height, bodyShape) {
     const group = new THREE.Group();
 
-    // Define realistic colors
-    const skinColor = 0xf5cba7;  // Light skin tone
-    const hairColor = 0x4b3621;  // Dark brown for hair
-    const shirtColor = 0x1e90ff; // Blue shirt
-    const pantsColor = 0x556b2f; // Dark olive green shorts
-    const shoeColor = 0x333333;  // Dark gray for shoes
+    // Define color palettes for random selection
+    const skinColors = [
+        0xf5cba7, // Light skin tone
+        0xe0ac69, // Medium skin tone
+        0xd2b48c, // Tan
+        0xffdbac, // Fair
+        0xc68642  // Darker skin tone
+    ];
 
-    // Torso (Adjusted to fit between shirt and head)
-    const bodyMaterial = new THREE.MeshLambertMaterial({ color: skinColor });
-    const bodyGeometry = new THREE.BoxGeometry(5, 7, 2); // Shortened height of torso
-    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-    body.position.y = 11.5; // Positioned to align with shirt and head
+    const hairColors = [
+        0x4b3621, // Dark brown
+        0x2c1b18, // Black
+        0xa52a2a, // Brown
+        0xffd700, // Blonde
+        0x8b4513  // SaddleBrown
+    ];
+
+    // Clothing colors
+    const clothingColors = [
+        0x0000ff, // Blue
+        0xff0000, // Red
+        0x00ff00, // Green
+        0xffff00, // Yellow
+        0xffa500  // Orange
+    ];
+
+    // Helper function to get a random color from an array
+    const getRandomColor = (colorArray) => {
+        return colorArray[Math.floor(Math.random() * colorArray.length)];
+    };
+
+    // Randomly assign colors
+    const selectedSkinColor = getRandomColor(skinColors);
+    const selectedHairColor = getRandomColor(hairColors);
+    const selectedClothingColor = getRandomColor(clothingColors);
+
+    const skinMaterial = new THREE.MeshLambertMaterial({ color: selectedSkinColor });
+    const clothingMaterial = new THREE.MeshLambertMaterial({ color: selectedClothingColor });
+
+    // Torso
+    const bodyGeometry = new THREE.BoxGeometry(5, 7, 2);
+    const body = new THREE.Mesh(bodyGeometry, skinMaterial);
+    body.position.y = 11.5;
     group.add(body);
 
-    // Head (Positioned just above the shirt)
+    // Cover torso with clothing (1 unit bigger in all dimensions)
+    const bodyClothingGeometry = new THREE.BoxGeometry(6, 8, 3);
+    const bodyClothing = new THREE.Mesh(bodyClothingGeometry, clothingMaterial);
+    bodyClothing.position.copy(body.position);
+    group.add(bodyClothing);
+
+    // Lower Body (Pelvic Region)
+    const lowerBodyGeometry = new THREE.BoxGeometry(4, 3, 2.5);
+    const lowerBody = new THREE.Mesh(lowerBodyGeometry, skinMaterial);
+    lowerBody.position.set(0, 8.5, 0);
+    group.add(lowerBody);
+
+    // Cover lower body with clothing (1 unit bigger in all dimensions)
+    const lowerBodyClothingGeometry = new THREE.BoxGeometry(5, 4, 3.5);
+    const lowerBodyClothing = new THREE.Mesh(lowerBodyClothingGeometry, clothingMaterial);
+    lowerBodyClothing.position.copy(lowerBody.position);
+    group.add(lowerBodyClothing);
+
+    // Head
     const headGeometry = new THREE.BoxGeometry(3, 3, 3);
-    const headMaterial = new THREE.MeshLambertMaterial({ color: skinColor });
-    const head = new THREE.Mesh(headGeometry, headMaterial);
-    head.position.y = 18; // Positioned to rest on top of the shirt
+    const head = new THREE.Mesh(headGeometry, skinMaterial);
+    head.position.y = 18;
     group.add(head);
+
+    // Neck Joint (connecting head to torso)
+    const neckJoint = new THREE.Mesh(
+        new THREE.SphereGeometry(1, 16, 16),
+        skinMaterial
+    );
+    neckJoint.position.set(0, 15.5, 0);
+    group.add(neckJoint);
 
     // Hair
     const hairGeometry = new THREE.BoxGeometry(3.2, 0.5, 3.2);
-    const hairMaterial = new THREE.MeshLambertMaterial({ color: hairColor });
+    const hairMaterial = new THREE.MeshLambertMaterial({ color: selectedHairColor });
     const hair = new THREE.Mesh(hairGeometry, hairMaterial);
-    hair.position.y = 1.5;  // Slightly above head
+    hair.position.y = 1.5;
     head.add(hair);
 
     // Eyes
     const eyeGeometry = new THREE.SphereGeometry(0.2, 8, 8);
     const eyeMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
-    
+
     const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
     leftEye.position.set(-0.5, 0.5, 1.5);
     head.add(leftEye);
@@ -451,24 +512,58 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
 
     // Nose
     const noseGeometry = new THREE.BoxGeometry(0.2, 0.4, 0.2);
-    const nose = new THREE.Mesh(noseGeometry, bodyMaterial);
+    const nose = new THREE.Mesh(noseGeometry, skinMaterial);
     nose.position.set(0, 0, 1.6);
     head.add(nose);
 
-    // Arms (Adjusted to Swing from Shoulder)
-    const armGeometry = new THREE.BoxGeometry(1, 8, 1);
-    const armMaterial = new THREE.MeshLambertMaterial({ color: skinColor });
-    
+    // Pectorals (chest muscles)
+    const pectoralGeometry = new THREE.BoxGeometry(4.5, 1.5, 1);
+    const pectorals = new THREE.Mesh(pectoralGeometry, skinMaterial);
+    pectorals.position.set(0, 14, 1.1);
+    group.add(pectorals);
+
+    // Cover pectorals with clothing (1 unit bigger in all dimensions)
+    const pectoralClothingGeometry = new THREE.BoxGeometry(5.5, 2.5, 2);
+    const pectoralClothing = new THREE.Mesh(pectoralClothingGeometry, clothingMaterial);
+    pectoralClothing.position.copy(pectorals.position);
+    group.add(pectoralClothing);
+
+    // Arms (shortened)
+    const armGeometry = new THREE.BoxGeometry(1, 6, 1);  // Shortened length to 6
+    const armMaterial = new THREE.MeshLambertMaterial({ color: selectedSkinColor });
+
     const createArm = (side) => {
         const armGroup = new THREE.Group();
 
-        // Arm (entire length)
+        // Shoulder Joint (slightly larger for overlap)
+        const shoulderJoint = new THREE.Mesh(
+            new THREE.SphereGeometry(0.75, 16, 16),
+            skinMaterial
+        );
+        shoulderJoint.position.set(0, 0, 0);
+        armGroup.add(shoulderJoint);
+
+        // Cover shoulder joint with clothing
+        const shoulderClothing = new THREE.Mesh(
+            new THREE.SphereGeometry(1, 16, 16),
+            clothingMaterial
+        );
+        shoulderClothing.position.copy(shoulderJoint.position);
+        armGroup.add(shoulderClothing);
+
+        // Arm
         const arm = new THREE.Mesh(armGeometry, armMaterial);
-        arm.position.y = -4; // Position the arm to pivot from the shoulder
+        arm.position.y = -3;
         armGroup.add(arm);
 
+        // Cover arm with clothing (1 unit bigger in all dimensions)
+        const armClothingGeometry = new THREE.BoxGeometry(2, 7, 2);
+        const armClothing = new THREE.Mesh(armClothingGeometry, clothingMaterial);
+        armClothing.position.set(0, -3, 0);
+        armGroup.add(armClothing);
+
         // Position the entire arm group based on side
-        armGroup.position.set(side === 'left' ? -3.5 : 3.5, 15, 0); // Attach at shoulder level
+        armGroup.position.set(side === 'left' ? -3.5 : 3.5, 15, 0);
         return armGroup;
     };
 
@@ -478,61 +573,124 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     const rightArm = createArm('right');
     group.add(rightArm);
 
-    // Legs (Segmented into two parts with shorts and shoes)
-    const legMaterial = new THREE.MeshLambertMaterial({ color: skinColor });
-    const pantsMaterial = new THREE.MeshLambertMaterial({ color: pantsColor });
-    const shoeMaterial = new THREE.MeshLambertMaterial({ color: shoeColor });
+    // Legs with Knee Joints
+    const legMaterial = new THREE.MeshLambertMaterial({ color: selectedSkinColor });
 
-    const createLeg = () => {
+    const createLeg = (side) => {
         const legGroup = new THREE.Group();
 
-        // Top half of the leg (Invisible)
-        const upperLegGeometry = new THREE.BoxGeometry(2, 5, 2);
+        // Upper Leg Group
+        const upperLegGroup = new THREE.Group();
+
+        // Hip Joint
+        const hipJoint = new THREE.Mesh(
+            new THREE.SphereGeometry(0.8, 16, 16),
+            skinMaterial
+        );
+        hipJoint.position.set(0, 0, 0);
+        upperLegGroup.add(hipJoint);
+
+        // Cover hip joint with clothing
+        const hipClothing = new THREE.Mesh(
+            new THREE.SphereGeometry(1.3, 16, 16),
+            clothingMaterial
+        );
+        hipClothing.position.copy(hipJoint.position);
+        upperLegGroup.add(hipClothing);
+
+        // Upper Leg
+        const upperLegGeometry = new THREE.BoxGeometry(1.5, 4, 1.5);
         const upperLeg = new THREE.Mesh(upperLegGeometry, legMaterial);
-        upperLeg.position.y = 2.5;
-        upperLeg.visible = false; // Make the top half invisible
-        legGroup.add(upperLeg);
+        upperLeg.position.y = -2;
+        upperLegGroup.add(upperLeg);
 
-        // Bottom half of the leg (Visible)
-        const lowerLegGeometry = new THREE.BoxGeometry(2, 5, 2);
+        // Cover upper leg with clothing (1 unit bigger in all dimensions)
+        const upperLegClothingGeometry = new THREE.BoxGeometry(2.5, 5, 2.5);
+        const upperLegClothing = new THREE.Mesh(upperLegClothingGeometry, clothingMaterial);
+        upperLegClothing.position.copy(upperLeg.position);
+        upperLegGroup.add(upperLegClothing);
+
+        // Lower Leg Group
+        const lowerLegGroup = new THREE.Group();
+        lowerLegGroup.position.y = -4;
+
+        // Knee Joint
+        const kneeJoint = new THREE.Mesh(
+            new THREE.SphereGeometry(0.6, 16, 16),
+            skinMaterial
+        );
+        kneeJoint.position.set(0, 0, 0);
+        lowerLegGroup.add(kneeJoint);
+
+        // Cover knee joint with clothing
+        const kneeClothing = new THREE.Mesh(
+            new THREE.SphereGeometry(1.1, 16, 16),
+            clothingMaterial
+        );
+        kneeClothing.position.copy(kneeJoint.position);
+        lowerLegGroup.add(kneeClothing);
+
+        // Lower Leg
+        const lowerLegHeight = 3.5;
+        const lowerLegGeometry = new THREE.BoxGeometry(1.5, lowerLegHeight, 1.5);
         const lowerLeg = new THREE.Mesh(lowerLegGeometry, legMaterial);
-        lowerLeg.position.y = -2.5;
-        legGroup.add(lowerLeg);
+        lowerLeg.position.y = -lowerLegHeight / 2;
+        lowerLegGroup.add(lowerLeg);
 
-        // Longer shorts segment
-        const shortsGeometry = new THREE.BoxGeometry(2.1, 4, 2.1); // Lengthened shorts
-        const shorts = new THREE.Mesh(shortsGeometry, pantsMaterial);
-        shorts.position.y = 0.5; // Positioned to cover more of the leg
-        legGroup.add(shorts);
+        // Lower leg clothing (covering up to where the foot begins)
+        const lowerLegClothingGeometry = new THREE.BoxGeometry(2.5, lowerLegHeight + 1, 2.5);
+        const lowerLegClothing = new THREE.Mesh(lowerLegClothingGeometry, clothingMaterial);
+        lowerLegClothing.position.set(0, -lowerLegHeight / 2 - 0.5, 0);
+        lowerLegGroup.add(lowerLegClothing);
 
-        // Shoes at the bottom of each leg
-        const shoeGeometry = new THREE.BoxGeometry(2.5, 1, 2.5); // Larger than leg
-        const shoe = new THREE.Mesh(shoeGeometry, shoeMaterial);
-        shoe.position.y = -5.5; // Positioned at the end of the leg
-        legGroup.add(shoe);
+        // Foot
+        const footGeometry = new THREE.BoxGeometry(1.5, 1, 2);
+        const foot = new THREE.Mesh(footGeometry, legMaterial);
+        foot.position.set(0, -lowerLegHeight - 0.5, 0.25);
+        lowerLegGroup.add(foot);
+
+        // Cover foot with clothing (1 unit bigger in all dimensions)
+        const footClothingGeometry = new THREE.BoxGeometry(2.5, 2, 3);
+        const footClothing = new THREE.Mesh(footClothingGeometry, clothingMaterial);
+        footClothing.position.copy(foot.position);
+        lowerLegGroup.add(footClothing);
+
+        // Add lowerLegGroup to upperLegGroup
+        upperLegGroup.add(lowerLegGroup);
+
+        // Add upperLegGroup to legGroup
+        legGroup.add(upperLegGroup);
+
+        // Position the legGroup at hip position
+        legGroup.position.set(side === 'left' ? -1.5 : 1.5, 6.5, 0);
+
+        // Store references to upper and lower leg groups for animation
+        legGroup.upperLegGroup = upperLegGroup;
+        legGroup.lowerLegGroup = lowerLegGroup;
 
         return legGroup;
     };
 
-    // Positioning the legs slightly higher so shoes don't touch the ground
-    const leftLeg = createLeg();
-    leftLeg.position.set(-1.5, 6, 0); // Raised by 1 unit
+    const leftLeg = createLeg('left');
     group.add(leftLeg);
 
-    const rightLeg = createLeg();
-    rightLeg.position.set(1.5, 6, 0); // Raised by 1 unit
+    const rightLeg = createLeg('right');
     group.add(rightLeg);
 
-    // Shirt (Shortened to not overlap with shorts)
-    const shirtGeometry = new THREE.BoxGeometry(6, 8, 3); // Shortened height
-    const shirtMaterial = new THREE.MeshLambertMaterial({ color: shirtColor });
-    const shirt = new THREE.Mesh(shirtGeometry, shirtMaterial);
-    shirt.position.y = 12; // Positioned higher to avoid overlapping with shorts
-    group.add(shirt);
+    // Optional: Remove Pubic Hair if not needed
+    /*
+    const pubicHairGeometry = new THREE.PlaneGeometry(2, 1);
+    const pubicHairMaterial = new THREE.MeshLambertMaterial({ color: selectedHairColor, side: THREE.DoubleSide });
+    const pubicHair = new THREE.Mesh(pubicHairGeometry, pubicHairMaterial);
+    pubicHair.position.set(0, 6.8, 1.1);
+    pubicHair.rotation.x = Math.PI / 2;
+    group.add(pubicHair);
+    */
 
     // Assign Parts for Animation
     group.head = head;
     group.body = body;
+    group.lowerBody = lowerBody;
     group.leftArm = leftArm;
     group.rightArm = rightArm;
     group.leftLeg = leftLeg;
@@ -540,8 +698,8 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
 
     // Animation Properties
     group.animationTime = 0;
-    group.animationSpeed = 10.0;      // Default speed for general movements
-    group.armSwingSpeed = 0.5;        // 30% slower speed for arm swinging
+    group.animationSpeed = 1.0;
+    group.armSwingSpeed = 2.0;
     group.isMoving = false;
     group.isAttacking = false;
     group.attackTime = 0;
@@ -552,47 +710,84 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         health: 100,
         dialogue: 'Hello!',
         weight: 1,
-        type: 'friendly' // Default type
+        type: 'friendly'
     };
 
     // Apply Body Shape and Pattern if needed
-    applyBodyShape(group, bodyShape);
-    group.traverse(child => {
-        if (child.isMesh) {
-            applyPattern(child, pattern);
-        }
-    });
+    if (typeof applyBodyShape === 'function') {
+        applyBodyShape(group, bodyShape);
+    }
+    if (typeof applyPattern === 'function') {
+        group.traverse(child => {
+            if (child.isMesh) {
+                applyPattern(child, pattern);
+            }
+        });
+    }
+
+    // **Adjustment to Raise the Humanoid Higher**
+    // Shift the entire group upward so the bottom of the feet are above y = 0
+    group.position.y += 2.0; // Increased from 1.5 to 2.0 units
 
     return group;
 }
 
-const npc = createHumanoid(color);
 
-function animateHumanoid(humanoid, delta) {
-    if (humanoid.isAttacking) {
-        humanoid.attackTime += delta * humanoid.animationSpeed;
-        const angle = Math.sin(humanoid.attackTime * 20) * (Math.PI / 4);
 
-        humanoid.rightArm.rotation.x = -angle;
 
-        if (humanoid.attackTime > 0.5) {
-            humanoid.rightArm.rotation.x = 0;
-            humanoid.isAttacking = false;
-            humanoid.attackTime = 0;
-        }
-    } else if (humanoid.isMoving) {
-        humanoid.animationTime += delta * humanoid.animationSpeed;
-        const angle = Math.sin(humanoid.animationTime) * (Math.PI / 6);
 
-        humanoid.leftArm.rotation.x = angle;
-        humanoid.rightArm.rotation.x = -angle;
-        humanoid.leftLeg.rotation.x = -angle;
-        humanoid.rightLeg.rotation.x = angle;
+
+function animateHumanoid(humanoid, deltaTime) {
+    if (humanoid.isMoving) {
+        humanoid.animationTime += deltaTime * humanoid.animationSpeed * 3.5;
+
+        // Parameters
+        const swingAmplitude = 0.3;
+        const armSwingAmplitude = 0.2;
+        const kneeBendAmplitude = 0.7;
+        const headBobAmplitude = 0.05;
+        const bodyTiltAmplitude = 0.05;
+
+        // Compute swing angles
+        const swing = Math.sin(humanoid.animationTime * humanoid.armSwingSpeed);
+        const swingPositive = Math.max(0, swing);
+        const swingNegative = Math.max(0, -swing);
+
+        // Arms swing
+        humanoid.leftArm.rotation.x = swing * armSwingAmplitude;
+        humanoid.rightArm.rotation.x = -swing * armSwingAmplitude;
+
+        // Upper legs swing opposite to arms
+        humanoid.leftLeg.upperLegGroup.rotation.x = -swing * swingAmplitude;
+        humanoid.rightLeg.upperLegGroup.rotation.x = swing * swingAmplitude;
+
+        // Lower legs bend at the knee
+        humanoid.leftLeg.lowerLegGroup.rotation.x = swingNegative * kneeBendAmplitude;
+        humanoid.rightLeg.lowerLegGroup.rotation.x = swingPositive * kneeBendAmplitude;
+
+        // Foot rotation
+        humanoid.leftLeg.lowerLegGroup.children[2].rotation.x = swingNegative * 0.2;
+        humanoid.rightLeg.lowerLegGroup.children[2].rotation.x = swingPositive * 0.2;
+
+        // Slight body tilt
+        humanoid.body.rotation.z = swing * bodyTiltAmplitude;
+
+        // Head bobbing
+        const headBob = Math.abs(swing) * headBobAmplitude;
+        humanoid.head.position.y = 18 + headBob;
+
     } else {
+        // Reset rotations and positions when not moving
         humanoid.leftArm.rotation.x = 0;
         humanoid.rightArm.rotation.x = 0;
-        humanoid.leftLeg.rotation.x = 0;
-        humanoid.rightLeg.rotation.x = 0;
+        humanoid.leftLeg.upperLegGroup.rotation.x = 0;
+        humanoid.rightLeg.upperLegGroup.rotation.x = 0;
+        humanoid.leftLeg.lowerLegGroup.rotation.x = 0;
+        humanoid.rightLeg.lowerLegGroup.rotation.x = 0;
+        humanoid.leftLeg.lowerLegGroup.children[2].rotation.x = 0;
+        humanoid.rightLeg.lowerLegGroup.children[2].rotation.x = 0;
+        humanoid.body.rotation.z = 0;
+        humanoid.head.position.y = 18;
     }
 }
 

@@ -16,19 +16,28 @@ function closeNpcPopup() {
 }
 
 function openNpcAdminPopup(npc) {
-	currentNpc = npc;
-	document.getElementById('npcNameInput').value = npc.userData.name || '';
-	document.getElementById('npcHealthInput').value = npc.userData.health || 100;
-	document.getElementById('npcDialogueInput').value = npc.userData.dialogue || '';
+    currentNpc = npc;
+    document.getElementById('npcNameInput').value = npc.userData.name || '';
+    document.getElementById('npcHealthInput').value = npc.userData.health || 100;
+    document.getElementById('npcDialogueInput').value = npc.userData.dialogue || '';
 
-	// Set initial colors
-	document.getElementById('npcHeadColorInput').value = '#' + npc.head.material.color.getHexString();
-	document.getElementById('npcBodyColorInput').value = '#' + npc.body.material.color.getHexString();
-	document.getElementById('npcArmColorInput').value = '#' + npc.leftArm.material.color.getHexString();
-	document.getElementById('npcLegColorInput').value = '#' + npc.leftLeg.material.color.getHexString();
+    // Check if each part exists before accessing its color
+    if (npc.head && npc.head.material && npc.head.material.color) {
+        document.getElementById('npcHeadColorInput').value = '#' + npc.head.material.color.getHexString();
+    }
+    if (npc.body && npc.body.material && npc.body.material.color) {
+        document.getElementById('npcBodyColorInput').value = '#' + npc.body.material.color.getHexString();
+    }
+    if (npc.leftArm && npc.leftArm.material && npc.leftArm.material.color) {
+        document.getElementById('npcArmColorInput').value = '#' + npc.leftArm.material.color.getHexString();
+    }
+    if (npc.leftLeg && npc.leftLeg.material && npc.leftLeg.material.color) {
+        document.getElementById('npcLegColorInput').value = '#' + npc.leftLeg.material.color.getHexString();
+    }
 
-	document.getElementById('npcAdminPopup').style.display = 'block';
+    document.getElementById('npcAdminPopup').style.display = 'block';
 }
+
 
 function closeNpcAdminPopup() {
     document.getElementById('npcAdminPopup').style.display = 'none';
@@ -66,6 +75,8 @@ function saveNpcChanges() {
 		closeNpcAdminPopup();
 	}
 }
+
+// Existing code for NPC popup and admin popup remains...
 
 function openTradeInterface(npcInventory) {
     // Display the trade window modal

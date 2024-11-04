@@ -19,21 +19,17 @@ function initializeInventory() {
 }
 
 function addSkyboxAboveGround() {
+    // Define your desired sky color (e.g., light blue)
+    const skyColor = 0x87ceeb; // Hex code for light blue
+
+    // Set the scene background to the solid color
+    scene.background = new THREE.Color(skyColor);
+
+    // Optional: If you still need the skyPlane for markers or other purposes,
+    // adjust its material to have a visible color or keep it transparent as needed.
+
+    
     const skyboxSize = 10000; // Large enough to encompass the scene
-
-    // Load skybox textures (assuming paths to six images for each face of the cube)
-    const loader = new THREE.CubeTextureLoader();
-    const skyboxTexture = loader.load([
-        'textures/skybox_px.jpg', // Positive X
-        'textures/skybox_nx.jpg', // Negative X
-        'textures/skybox_py.jpg', // Positive Y
-        'textures/skybox_ny.jpg', // Negative Y
-        'textures/skybox_pz.jpg', // Positive Z
-        'textures/skybox_nz.jpg'  // Negative Z
-    ]);
-
-    // Set the scene background to the skybox texture
-    scene.background = skyboxTexture;
 
     // Create a transparent plane that hovers above the ground as a marker
     const groundHeight = 3; // 3px above current ground level
@@ -45,12 +41,81 @@ function addSkyboxAboveGround() {
     });
     const skyPlane = new THREE.Mesh(geometry, material);
 
-    // Position the skybox slightly above the ground
+    // Position the skyPlane slightly above the ground
     skyPlane.position.y = groundHeight;
     skyPlane.rotation.x = -Math.PI / 2; // Rotate to be parallel with ground
 
     // Add the plane to the scene
     scene.add(skyPlane);
+    
+
+    // If the skyPlane is no longer needed, you can remove or comment out the above code.
+}
+
+function addGroundPlane(scene, options = {}) {
+    // Destructure options with default values
+    const {
+        size = 10000,          // Size of the ground plane
+        color = 0x228B22,     // Default color: ForestGreen
+        textureURL = null,    // URL of the texture image (optional)
+        rotation = { x: -Math.PI / 2, y: 0, z: 0 }, // Default rotation to lie flat
+        position = { x: 0, y: 0, z: 0 },           // Default position at y = 0
+        receiveShadow = true, // Whether the ground receives shadows
+        name = 'ground',      // Name of the ground mesh
+        textureRepeat = { x: size / 100, y: size / 100 }, // Texture repeat values
+    } = options;
+
+    let material;
+
+    if (textureURL) {
+        // If a texture URL is provided, load and apply the texture
+        const textureLoader = new THREE.TextureLoader();
+        const texture = textureLoader.load(
+            textureURL,
+            (texture) => {
+                // Configure texture once it's loaded
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(textureRepeat.x, textureRepeat.y); // Adjust repetition based on textureRepeat
+                texture.encoding = THREE.sRGBEncoding;
+                texture.anisotropy = 16;
+
+                console.log('Ground texture loaded successfully');
+            },
+            undefined, // onProgress callback not needed
+            (error) => {
+                console.error('Error loading ground texture:', error);
+            }
+        );
+
+        material = new THREE.MeshLambertMaterial({ map: texture, side: THREE.DoubleSide });
+    } else {
+        // Use a solid color material
+        material = new THREE.MeshLambertMaterial({ color: color, side: THREE.DoubleSide });
+    }
+
+    // Create the ground geometry
+    const geometry = new THREE.PlaneGeometry(size, size);
+    const ground = new THREE.Mesh(geometry, material);
+    ground.name = name;
+
+    // Apply rotation to make the plane horizontal
+    ground.rotation.x = rotation.x;
+    ground.rotation.y = rotation.y;
+    ground.rotation.z = rotation.z;
+
+    // Position the ground in the scene
+    ground.position.set(position.x, position.y, position.z);
+
+    // Enable shadow receiving if needed
+    ground.receiveShadow = receiveShadow;
+
+    // Add the ground to the scene
+    scene.add(ground);
+
+    console.log('Ground plane added to the scene.');
+
+    return ground; // Return the ground mesh in case further modifications are needed
 }
 
 function init() {
@@ -75,83 +140,29 @@ function init() {
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
     directionalLight.position.set(0, 100, 0);
     scene.add(directionalLight);
-	addQuadrupeds();
-
-        
-
+    addQuadrupeds();
 
     document.getElementById('helpWindow').style.display = 'block';
 
-    const groundShape = new THREE.Shape();
-    groundShape.moveTo(-5000, -5000);
-    groundShape.lineTo(5000, -5000);
-    groundShape.lineTo(5000, 5000);
-    groundShape.lineTo(-5000, 5000);
-    groundShape.lineTo(-5000, -5000);
-
-    const safeZoneSize = 600;
-    const holePath = new THREE.Path();
-    holePath.moveTo(-safeZoneSize, -safeZoneSize);
-    holePath.lineTo(-safeZoneSize, safeZoneSize);
-    holePath.lineTo(safeZoneSize, safeZoneSize);
-    holePath.lineTo(safeZoneSize, -safeZoneSize);
-    holePath.lineTo(-safeZoneSize, -safeZoneSize);
-    groundShape.holes.push(holePath);
-
-    const groundGeometry = new THREE.ShapeGeometry(groundShape);
-    console.log(groundGeometry.attributes.uv); // Inspect UVs in the console
-
-    // Load the texture and apply it to the ground material
-    const textureLoader = new THREE.TextureLoader();
-    const groundTexture = textureLoader.load(
-        'ground.png',
-        (texture) => {
-            // Configure texture once it's loaded
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(50, 50); // Larger repeat values for more texture repetition
-            texture.encoding = THREE.sRGBEncoding;
-            texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-            
-            // Update the material with the loaded texture
-            groundMaterial.map = texture;
-            groundMaterial.needsUpdate = true;
-            
-            console.log('Ground texture loaded successfully');
-        },
-        undefined, // onProgress callback not needed
-        (error) => {
-            console.error('Error loading ground texture:', error);
-        }
-    );
-    
-    groundTexture.wrapS = THREE.RepeatWrapping;
-    groundTexture.wrapT = THREE.RepeatWrapping;
-    groundTexture.repeat.set(25, 25); // Adjust the repeat to scale the texture as desired
-
-
-    // const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
-
-    // ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    // ground.rotation.x = -Math.PI / 2;
-    // ground.name = 'ground';
-    // scene.add(ground);
-    const groundMaterial = new THREE.MeshLambertMaterial({
-        map: groundTexture,
-        side: THREE.DoubleSide
+    // Add the ground plane using the addGroundPlane function
+    ground = addGroundPlane(scene, {
+        size: 10000,
+        color: 0x8B4513, // SaddleBrown
+        rotation: { x: -Math.PI / 2, y: 0, z: 0 },
+        position: { x: 0, y: 0, z: 0 },
+        receiveShadow: true,
+        name: 'ground',
     });
-    ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2;
-    ground.name = 'ground';
-    scene.add(ground);
-    
+
+    // Add the safe zone ground
     const safeZoneGroundGeometry = new THREE.PlaneGeometry(1200, 1200);
     const safeZoneGroundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
     safeZoneGround = new THREE.Mesh(safeZoneGroundGeometry, safeZoneGroundMaterial);
     safeZoneGround.rotation.x = -Math.PI / 2;
-    safeZoneGround.position.y = 0.1;
+    safeZoneGround.position.y = 0.3;
     scene.add(safeZoneGround);
 
+    // Add the safe zone barrier
     const safeZoneBarrierGeometry = new THREE.BoxGeometry(1200, 50, 1200);
     const safeZoneBarrierMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
     const safeZoneBarrier = new THREE.Mesh(safeZoneBarrierGeometry, safeZoneBarrierMaterial);
@@ -161,7 +172,7 @@ function init() {
 
     const initialSettlementWalls = createSettlementWalls();
     scene.add(initialSettlementWalls);
-            
+
     const shrineGroup = new THREE.Group();
 
     const floorGeometry = new THREE.CircleGeometry(20, 32);
@@ -179,7 +190,7 @@ function init() {
     teleportPad.name = 'teleportPad';
     shrineGroup.add(teleportPad);
 
-    shrineGroup.position.set(0, 0, 0);
+    shrineGroup.position.set(0, 0.1, 0);
     scene.add(shrineGroup);
     addSkyboxAboveGround();
 
@@ -193,15 +204,13 @@ function init() {
         { x: 0, z: -200 },
         { x: 200, z: -200 },
     ];
-    
 
     structurePositions.forEach(pos => {
         const structure = createStructure();
         structure.position.set(pos.x, 0, pos.z);
         scene.add(structure);
         walls.push(...structure.userData.walls);
-		structures.push(structure);
-
+        structures.push(structure);
 
         // Usage example
         const npcInfo = getRandomNPC();
@@ -210,7 +219,6 @@ function init() {
         } else {
             console.log("No more unique NPCs left to select.");
         }
-
 
         // Create the NPC with the selected data
         const npc = createFriendlyNPC(0x00ff00, npcInfo.name, npcInfo.dialogue);
@@ -224,35 +232,35 @@ function init() {
     });
 
     player = createHumanoid(0x0000ff);
-    player.position.y = 0; 
+    player.position.y = 0;
     scene.add(player);
 
-	function checkEnemiesInSafeZone() {
-		const safeZoneRadius = 600; // Radius of the safe zone
+    function checkEnemiesInSafeZone() {
+        const safeZoneRadius = 600; // Radius of the safe zone
 
-		enemies.forEach((enemy) => {
-			if (enemy.userData.isDead) return;
+        enemies.forEach((enemy) => {
+            if (enemy.userData.isDead) return;
 
-			const distanceFromCenter = Math.sqrt(
-				enemy.position.x * enemy.position.x + enemy.position.z * enemy.position.z
-			);
+            const distanceFromCenter = Math.sqrt(
+                enemy.position.x * enemy.position.x + enemy.position.z * enemy.position.z
+            );
 
-			if (distanceFromCenter < safeZoneRadius) {
-				const angle = Math.random() * Math.PI * 2;
-				const teleportDistance = 1000;
-				enemy.position.x = Math.cos(angle) * teleportDistance;
-				enemy.position.z = Math.sin(angle) * teleportDistance;
-				enemy.position.y = 0; 
-			}
-		});
-	}
+            if (distanceFromCenter < safeZoneRadius) {
+                const angle = Math.random() * Math.PI * 2;
+                const teleportDistance = 1000;
+                enemy.position.x = Math.cos(angle) * teleportDistance;
+                enemy.position.z = Math.sin(angle) * teleportDistance;
+                enemy.position.y = 0;
+            }
+        });
+    }
 
     window.addEventListener('resize', onWindowResize, false);
     document.addEventListener('keydown', onDocumentKeyDown, false);
     canvas.addEventListener('mousedown', onDocumentMouseDown, false);
     canvas.addEventListener('mouseup', onDocumentMouseUp, false);
-
 }
+
     
 function initMap() {
     const mapCanvas = document.getElementById('mapCanvas');
