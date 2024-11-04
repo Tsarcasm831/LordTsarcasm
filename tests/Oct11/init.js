@@ -96,13 +96,21 @@ function init() {
     groundTexture.repeat.set(25, 25); // Adjust the repeat to scale the texture as desired
 
 
-    const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+    // const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
 
+    // ground = new THREE.Mesh(groundGeometry, groundMaterial);
+    // ground.rotation.x = -Math.PI / 2;
+    // ground.name = 'ground';
+    // scene.add(ground);
+    const groundMaterial = new THREE.MeshLambertMaterial({
+        map: groundTexture,
+        side: THREE.DoubleSide
+    });
     ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     ground.name = 'ground';
     scene.add(ground);
-
+    
     const safeZoneGroundGeometry = new THREE.PlaneGeometry(1200, 1200);
     const safeZoneGroundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
     safeZoneGround = new THREE.Mesh(safeZoneGroundGeometry, safeZoneGroundMaterial);

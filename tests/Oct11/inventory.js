@@ -1,13 +1,5 @@
 // inventory.js
 
-function initializeInventory() {
-    // Initialize inventory arrays and UI elements
-    playerInventory = [];
-    generateInventorySlots();
-    setupInventoryTabs();
-    updateInventoryDisplay();
-}
-
 function addItemToInventory(item) {
     playerInventory.push(item);
     updateInventoryDisplay();
