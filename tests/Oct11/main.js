@@ -411,6 +411,7 @@ function easeInOutSine(t) {
     return 0.5 * (1 - Math.cos(Math.PI * t));
 }
 
+// Create Humanoid Function
 function createHumanoid(color, texture, pattern, height, bodyShape) {
     const group = new THREE.Group();
 
@@ -459,8 +460,8 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     body.position.y = 11.5;
     group.add(body);
 
-    // Cover torso with clothing (1 unit bigger in all dimensions)
-    const bodyClothingGeometry = new THREE.BoxGeometry(6, 8, 3);
+    // Cover torso with clothing
+    const bodyClothingGeometry = new THREE.BoxGeometry(5.1, 7.1, 2.1);
     const bodyClothing = new THREE.Mesh(bodyClothingGeometry, clothingMaterial);
     bodyClothing.position.copy(body.position);
     group.add(bodyClothing);
@@ -468,11 +469,11 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     // Lower Body (Pelvic Region)
     const lowerBodyGeometry = new THREE.BoxGeometry(4, 3, 2.5);
     const lowerBody = new THREE.Mesh(lowerBodyGeometry, skinMaterial);
-    lowerBody.position.set(0, 8.5, 0);
+    lowerBody.position.set(0, 8.5, 0);  // Positioned below the torso
     group.add(lowerBody);
 
-    // Cover lower body with clothing (1 unit bigger in all dimensions)
-    const lowerBodyClothingGeometry = new THREE.BoxGeometry(5, 4, 3.5);
+    // Cover lower body with clothing
+    const lowerBodyClothingGeometry = new THREE.BoxGeometry(4.1, 3.1, 2.6);
     const lowerBodyClothing = new THREE.Mesh(lowerBodyClothingGeometry, clothingMaterial);
     lowerBodyClothing.position.copy(lowerBody.position);
     group.add(lowerBodyClothing);
@@ -522,8 +523,8 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     pectorals.position.set(0, 14, 1.1);
     group.add(pectorals);
 
-    // Cover pectorals with clothing (1 unit bigger in all dimensions)
-    const pectoralClothingGeometry = new THREE.BoxGeometry(5.5, 2.5, 2);
+    // Cover pectorals with clothing
+    const pectoralClothingGeometry = new THREE.BoxGeometry(4.6, 1.6, 1.1);
     const pectoralClothing = new THREE.Mesh(pectoralClothingGeometry, clothingMaterial);
     pectoralClothing.position.copy(pectorals.position);
     group.add(pectoralClothing);
@@ -540,27 +541,13 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
             new THREE.SphereGeometry(0.75, 16, 16),
             skinMaterial
         );
-        shoulderJoint.position.set(0, 0, 0);
+        shoulderJoint.position.set(0, 0, 0); // Origin at shoulder joint
         armGroup.add(shoulderJoint);
 
-        // Cover shoulder joint with clothing
-        const shoulderClothing = new THREE.Mesh(
-            new THREE.SphereGeometry(1, 16, 16),
-            clothingMaterial
-        );
-        shoulderClothing.position.copy(shoulderJoint.position);
-        armGroup.add(shoulderClothing);
-
-        // Arm
+        // Arm (entire length)
         const arm = new THREE.Mesh(armGeometry, armMaterial);
-        arm.position.y = -3;
+        arm.position.y = -3; // Adjusted for shortened length
         armGroup.add(arm);
-
-        // Cover arm with clothing (1 unit bigger in all dimensions)
-        const armClothingGeometry = new THREE.BoxGeometry(2, 7, 2);
-        const armClothing = new THREE.Mesh(armClothingGeometry, clothingMaterial);
-        armClothing.position.set(0, -3, 0);
-        armGroup.add(armClothing);
 
         // Position the entire arm group based on side
         armGroup.position.set(side === 'left' ? -3.5 : 3.5, 15, 0);
@@ -587,70 +574,48 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
             new THREE.SphereGeometry(0.8, 16, 16),
             skinMaterial
         );
-        hipJoint.position.set(0, 0, 0);
+        hipJoint.position.set(0, 0, 0); // At the top of upper leg
         upperLegGroup.add(hipJoint);
-
-        // Cover hip joint with clothing
-        const hipClothing = new THREE.Mesh(
-            new THREE.SphereGeometry(1.3, 16, 16),
-            clothingMaterial
-        );
-        hipClothing.position.copy(hipJoint.position);
-        upperLegGroup.add(hipClothing);
 
         // Upper Leg
         const upperLegGeometry = new THREE.BoxGeometry(1.5, 4, 1.5);
         const upperLeg = new THREE.Mesh(upperLegGeometry, legMaterial);
-        upperLeg.position.y = -2;
+        upperLeg.position.y = -2; // Centered at -2 (since height is 4)
         upperLegGroup.add(upperLeg);
 
-        // Cover upper leg with clothing (1 unit bigger in all dimensions)
-        const upperLegClothingGeometry = new THREE.BoxGeometry(2.5, 5, 2.5);
+        // Cover upper leg with clothing
+        const upperLegClothingGeometry = new THREE.BoxGeometry(1.6, 4.1, 1.6);
         const upperLegClothing = new THREE.Mesh(upperLegClothingGeometry, clothingMaterial);
         upperLegClothing.position.copy(upperLeg.position);
         upperLegGroup.add(upperLegClothing);
 
         // Lower Leg Group
         const lowerLegGroup = new THREE.Group();
-        lowerLegGroup.position.y = -4;
+        lowerLegGroup.position.y = -4; // Position at bottom of upper leg
 
         // Knee Joint
         const kneeJoint = new THREE.Mesh(
             new THREE.SphereGeometry(0.6, 16, 16),
             skinMaterial
         );
-        kneeJoint.position.set(0, 0, 0);
+        kneeJoint.position.set(0, 0, 0); // At the top of lower leg (relative to lowerLegGroup)
         lowerLegGroup.add(kneeJoint);
 
-        // Cover knee joint with clothing
-        const kneeClothing = new THREE.Mesh(
-            new THREE.SphereGeometry(1.1, 16, 16),
-            clothingMaterial
-        );
-        kneeClothing.position.copy(kneeJoint.position);
-        lowerLegGroup.add(kneeClothing);
-
-        // Lower Leg
-        const lowerLegHeight = 3.5;
+        // Lower Leg (Adjusted to stop where the foot begins)
+        const lowerLegHeight = 3.5; // Reduced from 4 to 3.5
         const lowerLegGeometry = new THREE.BoxGeometry(1.5, lowerLegHeight, 1.5);
         const lowerLeg = new THREE.Mesh(lowerLegGeometry, legMaterial);
-        lowerLeg.position.y = -lowerLegHeight / 2;
+        lowerLeg.position.y = -lowerLegHeight / 2; // Centered based on new height
         lowerLegGroup.add(lowerLeg);
-
-        // Lower leg clothing (covering up to where the foot begins)
-        const lowerLegClothingGeometry = new THREE.BoxGeometry(2.5, lowerLegHeight + 1, 2.5);
-        const lowerLegClothing = new THREE.Mesh(lowerLegClothingGeometry, clothingMaterial);
-        lowerLegClothing.position.set(0, -lowerLegHeight / 2 - 0.5, 0);
-        lowerLegGroup.add(lowerLegClothing);
 
         // Foot
         const footGeometry = new THREE.BoxGeometry(1.5, 1, 2);
         const foot = new THREE.Mesh(footGeometry, legMaterial);
-        foot.position.set(0, -lowerLegHeight - 0.5, 0.25);
+        foot.position.set(0, -lowerLegHeight - 0.5, 0.25); // Positioned at the bottom of the lower leg
         lowerLegGroup.add(foot);
 
-        // Cover foot with clothing (1 unit bigger in all dimensions)
-        const footClothingGeometry = new THREE.BoxGeometry(2.5, 2, 3);
+        // Cover foot with clothing
+        const footClothingGeometry = new THREE.BoxGeometry(1.6, 1.1, 2.1);
         const footClothing = new THREE.Mesh(footClothingGeometry, clothingMaterial);
         footClothing.position.copy(foot.position);
         lowerLegGroup.add(footClothing);
@@ -663,7 +628,7 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
 
         // Position the legGroup at hip position
         legGroup.position.set(side === 'left' ? -1.5 : 1.5, 6.5, 0);
-
+        
         // Store references to upper and lower leg groups for animation
         legGroup.upperLegGroup = upperLegGroup;
         legGroup.lowerLegGroup = lowerLegGroup;
@@ -682,7 +647,7 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     const pubicHairGeometry = new THREE.PlaneGeometry(2, 1);
     const pubicHairMaterial = new THREE.MeshLambertMaterial({ color: selectedHairColor, side: THREE.DoubleSide });
     const pubicHair = new THREE.Mesh(pubicHairGeometry, pubicHairMaterial);
-    pubicHair.position.set(0, 6.8, 1.1);
+    pubicHair.position.set(0, 6.8, 1.1); // Positioned to align with lower body region
     pubicHair.rotation.x = Math.PI / 2;
     group.add(pubicHair);
     */
@@ -725,14 +690,12 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         });
     }
 
-    // **Adjustment to Raise the Humanoid Higher**
-    // Shift the entire group upward so the bottom of the feet are above y = 0
-    group.position.y += 2.0; // Increased from 1.5 to 2.0 units
+    // **Adjustment to Raise the Humanoid**
+    // Shift the entire group upward so the bottom of the feet are at y = 0
+    group.position.y += 1.5;
 
     return group;
 }
-
-
 
 
 
