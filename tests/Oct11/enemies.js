@@ -176,7 +176,7 @@ function spawnEntities() {
     const quantity = parseInt(document.getElementById('entityQuantityInput').value);
 
     if (isNaN(quantity) || quantity <= 0) {
-        alert('Invalid quantity!');
+        console.log('Invalid quantity!');
         return;
     }
 
@@ -205,16 +205,16 @@ function spawnEntities() {
             walls.push(...structure.userData.walls);
         } else if (entityType === 'treasureChest') {
             createTreasureChest(spawnPosition.x, spawnPosition.y, spawnPosition.z);
-            alert('Treasure Chest spawned.');
+            console.log('Treasure Chest spawned.');
         } else if (entityType === 'settlement') {
             createSettlement(spawnPosition.x, spawnPosition.y, spawnPosition.z);
-            alert('Settlement spawned.');
+            console.log('Settlement spawned.');
         } else if (entityType === 'quadruped') {
             const quadruped = createQuadruped();
             quadruped.position.set(spawnPosition.x, spawnPosition.y, spawnPosition.z);
             quadrupeds.push(quadruped);
             scene.add(quadruped);
-            alert('Quadruped spawned.');
+            console.log('Quadruped spawned.');
         }
     }
 }
@@ -685,7 +685,7 @@ function attackEnemy(enemy) {
             defeatEnemy(enemy);
         }, 500); 
     } else {
-        alert('Enemy is too far away!');
+        console.log('Enemy is too far away!');
     }
 }
 
@@ -704,7 +704,7 @@ function enemyAttackPlayer(enemy, delta) {
     playerHealth -= actualDamage;
     if (playerHealth <= 0) {
         playerHealth = 0;
-        alert('You have been defeated!');
+        console.log('You have been defeated!');
         // Implement game over logic here
     }
     updateHealthDisplay();
@@ -732,7 +732,7 @@ function defeatEnemy(enemy) {
     addExperience(20);
     gold += 10;
     updateGoldDisplay();
-    alert('Enemy defeated! You gained 20 experience and 10 gold.');
+    console.log('Enemy defeated! You gained 20 experience and 10 gold.');
 
     enemy.isMoving = false;
     enemy.userData.isDead = true;
@@ -746,7 +746,7 @@ function damagePlayer(amount) {
     playerHealth -= actualDamage;
     if (playerHealth <= 0) {
         playerHealth = 0;
-        alert('You have been defeated!');
+        console.log('You have been defeated!');
         // Implement game over logic here
     }
     updateHealthDisplay();
@@ -775,7 +775,7 @@ function createBloodPool(position) {
 
 function lootEnemy(enemy) {
     if (enemy.userData.hasBeenLooted) {
-        alert('This enemy has already been looted.');
+        console.log('This enemy has already been looted.');
         return;
     }
 
@@ -840,5 +840,5 @@ function lootAllItems() {
     isLooting = false;
     document.getElementById('lootBarContainer').style.display = 'none';
     document.getElementById('lootBar').style.width = '0%';
-    alert('Items looted and added to your inventory.');
+    console.log('Items looted and added to your inventory.');
 }
