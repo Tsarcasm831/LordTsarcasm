@@ -66,3 +66,38 @@ function saveNpcChanges() {
 		closeNpcAdminPopup();
 	}
 }
+
+function openTradeInterface(npcInventory) {
+    // Display the trade window modal
+    const tradeWindow = document.getElementById('tradeWindow');
+    tradeWindow.style.display = 'block';
+
+    // Get the player and NPC inventory elements
+    const playerInventoryGrid = document.getElementById('playerInventoryGrid');
+    const npcInventoryGrid = document.getElementById('npcInventoryGrid');
+
+    // Populate the inventories
+    populateInventoryGrid(playerInventoryGrid, playerInventory);
+    populateInventoryGrid(npcInventoryGrid, npcInventory);
+
+    // Setup event listeners for trade functionality
+    setupTradeSlotEventListeners(playerInventoryGrid, playerInventory, npcInventory, npcInventoryGrid);
+}
+
+// Function to close trade interface
+function closeTradeInterface() {
+    const tradeWindow = document.getElementById('tradeWindow');
+    tradeWindow.style.display = 'none';
+}
+
+// Setup trade event listeners for slots
+function setupTradeSlotEventListeners(playerGrid, playerItems, npcItems, npcGrid) {
+    // Player's inventory click events
+    setupInventorySlotEventListeners(playerGrid, playerItems, npcItems, npcGrid);
+
+    // NPC's inventory click events
+    setupInventorySlotEventListeners(npcGrid, npcItems, playerItems, playerGrid);
+}
+
+// Open trade interface when clicking the "Trade" button in NPC popup
+document.getElementById('tradeButton').addEventListener('click', () => openTradeInterface(npcInventory));

@@ -10,25 +10,28 @@
     <body>
         <canvas id="gameCanvas"></canvas>
     
-
+        <!-- Audio Widget Container -->
+        <div id="audioWidgetContainer" class="minimized">
+            <iframe id="audio_iframe" 
+                src="https://widget.synthflow.ai/widget/v2/1730479220818x147425180103026180/1730479218515x247472567511716860" 
+                allow="microphone" 
+                scrolling="no"
+                title="Audio Control Widget" 
+                loading="lazy">
+            </iframe>
+            <!-- Minimize/Maximize Button -->
+            <button id="toggleAudioWidget" class="toggle-button">_</button>
+        </div>
         <!-- Fullscreen Map -->
         <div id="fullscreenMap" class="fullscreen-map">
             <canvas id="mapCanvas"></canvas>
             <button onclick="closeFullscreenMap()" class="close-map-button">Close Map</button>
         </div>        
 
-        <!-- Dark Mode Toggle Button -->
-        <!-- <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle Dark Mode">🌙</button> -->
-     
-
-
-
         <!-- In-Game Message Console -->
         <div id="gameConsole" class="game-console">
             <p id="consoleMessage">Welcome to the game!</p>
         </div>
-
-        
 
         <!-- Help Window Modal -->
         <div id="helpWindow" class="modal" role="dialog" aria-labelledby="helpWindowTitle" aria-modal="true" aria-hidden="true">
@@ -84,7 +87,6 @@
         </div>
 
 
-        
         <!-- Skill Tree Popup -->
         <div id="skillTree" style="display: none;">
             <h2>Skill Tree</h2>
@@ -225,13 +227,27 @@
             <button onclick="closeNpcPopup()">Close</button>
         </div>
 
-        <div id="lifeOrb">
-            <div id="lifeFill"></div>
-            <div id="lifeValue">100/100</div>
+        <!-- Health Orb -->
+        <div id="lifeOrb" class="orb">
+            <div id="lifeFill" class="orb-fill">
+                <div class="bubbles">
+                    <!-- Multiple bubble elements for animation -->
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                    <span class="bubble"></span>
+                </div>
+            </div>
+            <div id="lifeValue" class="orb-value">100%</div>
         </div>
 
-        <div id="energyOrb">
-            <div id="energyValue">1/1</div>
+        <!-- Energy Orb -->
+        <div id="energyOrb" class="orb">
+            <div id="energyFill" class="orb-fill">
+                <div class="liquid"></div>
+            </div>
+            <div id="energyValue" class="orb-value">100%</div>
         </div>
 
         <div id="teleportationBarContainer">
@@ -723,7 +739,55 @@
                     openMusicModal();
                 }
             });
-        
+
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const lifeOrb = document.getElementById('lifeOrb');
+                const energyOrb = document.getElementById('energyOrb');
+                const lifeFill = document.getElementById('lifeFill');
+                const energyFill = document.getElementById('energyFill');
+                const lifeValue = document.getElementById('lifeValue');
+                const energyValue = document.getElementById('energyValue');
+
+                // Example values (replace with actual game or application data)
+                let life = 75;    // Health percentage
+                let energy = 50;  // Energy percentage
+
+                // Function to update the orbs
+                function updateOrbs() {
+                    // Clamp values between 0 and 100
+                    life = Math.max(0, Math.min(100, life));
+                    energy = Math.max(0, Math.min(100, energy));
+
+                    // Update fill heights
+                    lifeFill.style.height = `${life}%`;
+                    energyFill.style.height = `${energy}%`;
+
+                    // Update displayed values
+                    lifeValue.textContent = `${life}%`;
+                    energyValue.textContent = `${energy}%`;
+                }
+
+                // Initialize orbs with initial values
+                updateOrbs();
+
+                // Example of updating values over time (for demonstration)
+                // In a real application, these updates would be triggered by game events or user actions
+                setInterval(() => {
+                    // Simulate changes in health and energy
+                    life += Math.floor(Math.random() * 10 - 5);    // Random change between -5 and +4
+                    energy += Math.floor(Math.random() * 10 - 5);  // Random change between -5 and +4
+
+                    // Ensure values stay within 0-100
+                    if (life < 0) life = 0;
+                    if (life > 100) life = 100;
+                    if (energy < 0) energy = 0;
+                    if (energy > 100) energy = 100;
+
+                    updateOrbs();
+                }, 3000); // Update every 3 seconds
+            });
+
         </script>
         <!-- <script src="terrain.js"></script> -->
         <script src="ground.js"></script>
@@ -935,17 +999,5 @@
             });
             
         </script>        
-        <!-- Audio Widget Container -->
-        <div id="audioWidgetContainer" class="minimized">
-            <iframe id="audio_iframe" 
-                src="https://widget.synthflow.ai/widget/v2/1730479220818x147425180103026180/1730479218515x247472567511716860" 
-                allow="microphone" 
-                scrolling="no"
-                title="Audio Control Widget" 
-                loading="lazy">
-            </iframe>
-            <!-- Minimize/Maximize Button -->
-            <button id="toggleAudioWidget" class="toggle-button">_</button>
-        </div>
     </body>
 </html>
