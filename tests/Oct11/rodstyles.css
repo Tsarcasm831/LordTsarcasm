@@ -2876,173 +2876,89 @@ button:focus {
 /*      Health & Energy Orbs*/
 /* ======================= */
 
-/* Common Orb Styles */
-.orb {
+/* Health Orb */
+#lifeOrb {
     position: absolute;
-    bottom: 20px; /* Adjust as needed */
-    width: 120px;
-    height: 120px;
+    bottom: 0px; /* Positioned above the hotbar */
+    left: calc(50% - 450px); /* Adjust based on hotbar width */
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle at center, #8B0000, #FF0000);
     border: 2px solid #fff;
     border-radius: 50%;
     overflow: hidden;
     z-index: 5;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-    background: radial-gradient(circle at center, #8B0000, #FF0000); /* Default for Health Orb */
-    transition: background 0.3s ease-in-out;
+    animation: bubble 2s infinite;
 }
 
-/* Positioning Orbs */
-#lifeOrb {
-    left: calc(50% - 150px); /* Adjust based on layout */
-    background: radial-gradient(circle at center, #8B0000, #FF0000);
-}
-
-#energyOrb {
-    right: calc(50% - 150px); /* Adjust based on layout */
-    background: radial-gradient(circle at center, #00008B, #0000FF);
-}
-
-/* Fill Styles */
-.orb-fill {
+#lifeFill {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 70%; /* Default fill height; will be dynamically adjusted */
-    background: transparent;
-    overflow: hidden;
+    height: 100%; /* Dynamically adjusted via JavaScript */
+    background: linear-gradient(to top, #FF4500, #8B0000);
     transition: height 0.3s ease-in-out;
 }
 
-/* Health Fill with Bubbles */
-#lifeFill {
-    background: linear-gradient(to top, rgba(255, 69, 0, 0.6), rgba(139, 0, 0, 0.6));
-    position: relative;
-}
-
-/* Bubbles Container */
-.bubbles {
-    position: absolute;
-    bottom: 10px;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-/* Individual Bubbles */
-.bubble {
-    position: absolute;
-    bottom: 0;
-    width: 8px;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 50%;
-    opacity: 0;
-    animation: rise 2s infinite ease-in-out;
-}
-
-.bubble:nth-child(1) {
-    left: 20%;
-    animation-delay: 0s;
-    width: 6px;
-    height: 6px;
-}
-
-.bubble:nth-child(2) {
-    left: 40%;
-    animation-delay: 0.5s;
-    width: 5px;
-    height: 5px;
-}
-
-.bubble:nth-child(3) {
-    left: 60%;
-    animation-delay: 1s;
-    width: 7px;
-    height: 7px;
-}
-
-.bubble:nth-child(4) {
-    left: 80%;
-    animation-delay: 1.5s;
-    width: 6px;
-    height: 6px;
-}
-
-.bubble:nth-child(5) {
-    left: 50%;
-    animation-delay: 0.25s;
-    width: 5px;
-    height: 5px;
-}
-
-/* Bubble Animation */
-@keyframes rise {
-    0% {
-        transform: translateY(0) scale(1);
-        opacity: 0.7;
-    }
-    50% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(-50px) scale(1.2);
-        opacity: 0;
-    }
-}
-
-/* Energy Fill with Liquid Wave */
-#energyFill {
-    background: linear-gradient(to top, rgba(0, 0, 255, 0.6), rgba(0, 0, 139, 0.6));
-    position: relative;
-    overflow: hidden;
-}
-
-/* Liquid Wave Effect */
-.liquid {
-    position: absolute;
-    bottom: 0;
-    left: -50%;
-    width: 200%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    opacity: 0.5;
-    animation: wave 4s linear infinite;
-}
-
-@keyframes wave {
-    0% {
-        transform: translateX(0) translateY(0);
-    }
-    50% {
-        transform: translateX(25%) translateY(-5px);
-    }
-    100% {
-        transform: translateX(0) translateY(0);
-    }
-}
-
-/* Value Display Styles */
-.orb-value {
+#lifeValue {
     position: absolute;
     top: 50%;
     width: 100%;
     text-align: center;
     color: #fff;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 16px;
     transform: translateY(-50%);
     z-index: 1;
     text-shadow: 1px 1px 2px #000;
 }
 
-/* Optional Hover Effects */
-.orb:hover {
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
-    cursor: pointer;
+/* Energy Orb */
+#energyOrb {
+    position: absolute;
+    bottom: 0px; /* Positioned above the hotbar */
+    right: calc(50% - 450px); /* Adjust based on hotbar width */
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle at center, #00008B, #0000FF);
+    border: 2px solid #fff;
+    border-radius: 50%;
+    overflow: hidden;
+    z-index: 5;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    animation: bubble 2s infinite;
 }
 
+#energyFill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; /* Dynamically adjusted via JavaScript */
+    background: linear-gradient(to top, #0000FF, #00008B);
+    transition: height 0.3s ease-in-out;
+}
+
+#energyValue {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+    transform: translateY(-50%);
+    z-index: 1;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* Bubble Animation for Orbs */
+@keyframes bubble {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
 
 /* ======================= */
 /*      Game Canvas        */
