@@ -950,27 +950,43 @@ textarea:focus {
     outline-offset: 2px;
 }
 
-/* Open Help Button Styling */
+/* Help Button */
 .open-help-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
+    position: absolute;
+    left: 20px;
+    top: 20px;
     padding: 10px 20px;
     background-color: #0073e6;
     color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    z-index: 1100; /* Above other elements */
-    transition: background-color 0.3s, transform 0.2s;
+    z-index: 1100;
     font-size: 16px;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-.open-help-button:hover,
-.open-help-button:focus {
+.open-help-button:hover {
     background-color: #005bb5;
     transform: scale(1.05);
-    outline: none;
+}
+
+/* In-Game Console */
+.game-console {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #ffd700; /* Gold text for high contrast */
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    z-index: 1000;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 60%;
+    max-width: 800px;
 }
 
 

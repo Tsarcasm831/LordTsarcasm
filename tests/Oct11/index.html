@@ -18,13 +18,16 @@
         </div>        
 
         <!-- Dark Mode Toggle Button -->
-        <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle Dark Mode">🌙</button>
+        <!-- <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle Dark Mode">🌙</button> -->
      
 
-        <!-- Open Help Button -->
-        <button id="openHelp" class="open-help-button" aria-haspopup="dialog" aria-controls="helpWindow">
-            Help
-        </button>
+       <!-- Help Button (already exists, update CSS as needed) -->
+        <button id="openHelp" class="open-help-button">Help</button>
+
+        <!-- In-Game Message Console -->
+        <div id="gameConsole" class="game-console">
+            <p id="consoleMessage">Welcome to the game!</p>
+        </div>
 
         
 
@@ -81,9 +84,7 @@
             </div>
         </div>
 
-        <div id="notificationContainer" aria-live="polite" aria-atomic="true">
-            <!-- Notifications will be injected here -->
-        </div>
+
         
         <!-- Skill Tree Popup -->
         <div id="skillTree" style="display: none;">
