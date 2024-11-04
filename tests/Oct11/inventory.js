@@ -14,20 +14,22 @@ function addItemToInventory(item) {
 }
 
 function updateInventoryDisplay() {
-    // Loop through all inventory tabs and update their grids
     for (let i = 1; i <= 6; i++) {
         const grid = document.getElementById(`inventoryGridTab${i}`);
-        grid.innerHTML = ''; // Clear existing items
-        playerInventory.forEach((invItem, index) => {
-            if (index < 56) { // Assuming each tab has 56 slots
-                const slot = document.createElement('div');
-                slot.classList.add('inventory-slot');
-                slot.innerText = invItem.name;
-                grid.appendChild(slot);
+        grid.innerHTML = ''; // Clear previous content
+        for (let j = 0; j < 56; j++) { // Ensures a full grid
+            const slot = document.createElement('div');
+            slot.classList.add('inventory-slot');
+            if (playerInventory[j]) {
+                slot.innerText = playerInventory[j].name;
+                slot.setAttribute('data-name', playerInventory[j].name);
+                slot.setAttribute('data-description', playerInventory[j].description || 'No description');
             }
-        });
+            grid.appendChild(slot);
+        }
     }
 }
+
 
 function loadInventory() {
     if (inventoryLoaded) {

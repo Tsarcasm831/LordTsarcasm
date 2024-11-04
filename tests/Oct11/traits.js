@@ -1,4 +1,4 @@
-// Define available traits
+// traits.js
 const availableTraits = [
     {
         name: 'Strong',

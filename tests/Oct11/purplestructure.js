@@ -1,5 +1,4 @@
-// JavaScript source code
-// Add a Purple Structure a Little Ways Away from Town
+// Add a purplestructure.js
     const purpleStructure = createPurpleStructure();
     purpleStructure.position.set(800, 0, -800); // Adjust position as desired
     scene.add(purpleStructure);

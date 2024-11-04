@@ -1,3 +1,4 @@
+//init.js
 function initializeInventory() {
     const tabs = document.querySelectorAll('.inventory-tab');
     const tabContents = document.querySelectorAll('.inventory-tab-content');

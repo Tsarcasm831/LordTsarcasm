@@ -1,3 +1,4 @@
+//enemies.js
 const enemyTypes = {
     'humans': {
         color: 0xff0000,

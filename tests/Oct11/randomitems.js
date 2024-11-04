@@ -1,3 +1,4 @@
+//randomitems.js
 function generateRandomItems(count) {
     const items = [
         // ----------------------

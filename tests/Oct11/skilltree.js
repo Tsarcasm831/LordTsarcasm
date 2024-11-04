@@ -1,4 +1,4 @@
-// Function to Open Skill Tree
+// skilltree.js
 function openSkillTree() {
     const skillTreeDiv = document.getElementById('skillTree');
     skillTreeDiv.style.display = 'block';

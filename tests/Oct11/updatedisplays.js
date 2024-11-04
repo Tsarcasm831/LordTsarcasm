@@ -1,3 +1,4 @@
+// updateDisplays.js
 function updateStatsDisplay() {
     document.getElementById('level').innerText = characterStats.level;
     document.getElementById('experience').innerText = characterStats.experience;

@@ -1,3 +1,4 @@
+//chest.js
 function openChestPopup(chest) {
 	currentOpenedChest = chest;
 	const chestPopup = document.getElementById('chestPopup');

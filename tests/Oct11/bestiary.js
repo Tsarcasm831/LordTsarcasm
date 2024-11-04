@@ -1,6 +1,4 @@
 // bestiary.js
-
-
 document.addEventListener('DOMContentLoaded', () => {
     initializeBestiary();
     setupEventListeners();

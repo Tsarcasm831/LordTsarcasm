@@ -1,3 +1,4 @@
+// teleport.js
 function startTeleportation() {
     isTeleporting = true;
     teleportProgress = 0;

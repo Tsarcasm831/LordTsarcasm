@@ -1,3 +1,4 @@
+// npc.js
 function openNpcPopup(npc) {
     if (npcPopupOpen) {
         closeNpcPopup();

@@ -21,6 +21,7 @@ function createSpawnZone(scene, walls, enemyWalls, structures, friendlies, npcDa
     };
 }
 
+
 function createGroundAndSafeZone(scene, enemyWalls) {
     const groundShape = new THREE.Shape();
     groundShape.moveTo(-5000, -5000);
@@ -134,35 +135,28 @@ function createShrine(scene) {
 }
 
 function createStructuresAndNPCs(scene, walls, structures, friendlies, npcData) {
-    const structurePositions = [
-        { x: 150, z: 150 },
-        { x: -150, z: 150 },
-        { x: 150, z: -150 },
-        { x: -150, z: -150 },
-        { x: 0, z: 200 },
-    ];
+    const buildingTypes = [1, 2, 3, 4, 5]; // Define 5 building types
+    const structurePositions = getSpawnZonePositions(); // Generate positions
 
-    structurePositions.forEach(pos => {
-        const structure = createStructure();
+    structurePositions.forEach((pos, index) => {
+        const type = buildingTypes[index % buildingTypes.length];
+        const structure = createBuilding(type);
         structure.position.set(pos.x, 0, pos.z);
         scene.add(structure);
         walls.push(...structure.userData.walls);
         structures.push(structure);
 
-        // Select a random NPC from npcData
-        const npcInfo = npcData[Math.floor(Math.random() * npcData.length)];
-
-        // Create the NPC with the selected data
-        const npc = createFriendlyNPC(0x00ff00, npcInfo.name, npcInfo.dialogue);
-
-        // Position the NPC at the structure's position
-        npc.position.copy(structure.position);
-
-        // Add the NPC to the scene and friendlies array
-        scene.add(npc);
-        friendlies.push(npc);
+        // NPC and other logic...
+        const npcInfo = getRandomNPC();
+        if (npcInfo) {
+            const npc = createFriendlyNPC(0x00ff00, npcInfo.name, npcInfo.dialogue);
+            npc.position.copy(structure.position);
+            scene.add(npc);
+            friendlies.push(npc);
+        }
     });
 }
+
 
 
 function createStructure() {

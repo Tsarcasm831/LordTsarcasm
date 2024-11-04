@@ -1,4 +1,4 @@
-// Function to open Admin Console
+// admin.js
 function openAdminConsole() {
     const adminConsole = document.getElementById('adminConsole');
     adminConsole.style.display = 'flex';
