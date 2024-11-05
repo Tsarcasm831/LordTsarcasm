@@ -1,11 +1,34 @@
-// admin.js
+// Open Admin Console - show only the Login tab
 function openAdminConsole() {
     const adminConsole = document.getElementById('adminConsole');
     adminConsole.style.display = 'flex';
     adminConsoleOpen = true;
 
-    // Reset to Login tab when opening
+    // Reset to Login tab when opening and hide other tabs
     setActiveAdminTab('adminLogin');
+    hideAdminTabsForLogin();
+}
+
+// Hide all tabs except "Login"
+function hideAdminTabsForLogin() {
+    const tabs = document.querySelectorAll('.admin-tabs .tab-button');
+    tabs.forEach(tab => {
+        if (tab.getAttribute('data-tab') !== 'adminLogin') {
+            tab.style.display = 'none'; // Hide other tabs
+        }
+    });
+}
+
+// Show all tabs except the Login tab after successful login
+function showAllAdminTabsExceptLogin() {
+    const tabs = document.querySelectorAll('.admin-tabs .tab-button');
+    tabs.forEach(tab => {
+        if (tab.getAttribute('data-tab') !== 'adminLogin') {
+            tab.style.display = 'inline-block'; // Display all tabs except "Login"
+        } else {
+            tab.style.display = 'none'; // Hide the "Login" tab
+        }
+    });
 }
 
 // Function to close Admin Console
@@ -64,15 +87,33 @@ function setupAdminTabs() {
     });
 }
 
-// Function to check Admin Password
+// Override tab activation for non-login tabs when not logged in
+function setActiveAdminTab(tabId) {
+    if (!isAdminLoggedIn && tabId !== 'adminLogin') {
+        alert('Please log in as admin to access this section.');
+        return;
+    }
+    // Existing tab-switching logic
+    const tabs = document.querySelectorAll('.admin-tabs .tab-button');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    const tabContents = document.querySelectorAll('.admin-tab-content');
+    tabContents.forEach(content => content.classList.remove('active'));
+
+    const activeTab = document.querySelector(`.admin-tabs .tab-button[data-tab="${tabId}"]`);
+    if (activeTab) activeTab.classList.add('active');
+    const activeContent = document.getElementById(tabId);
+    if (activeContent) activeContent.classList.add('active');
+}
+
+// Password Check Function
 function checkAdminPassword() {
     const passwordInput = document.getElementById('adminPassword').value;
-    if (passwordInput === 'ltwelcome1') { // Replace with secure authentication in production
+    if (passwordInput === '1234') { // Replace with secure authentication in production
         isAdminLoggedIn = true;
-        alert('Admin login successful!');
-        setActiveAdminTab('playerManagement'); // Redirect to Player Management or desired tab
-
-        // Attach event listeners for admin controls
+        
+        // Show all tabs except Login and switch to Player Management
+        showAllAdminTabsExceptLogin();
+        setActiveAdminTab('playerManagement');
         attachAdminEventListeners();
     } else {
         alert('Incorrect password!');
@@ -265,7 +306,8 @@ function handleHotbarSelection(slotNumber) {
     }
 }
 
-// Initialize Admin Tabs on DOM Content Loaded
+// Call `openAdminConsole` when initializing the console.
 document.addEventListener('DOMContentLoaded', () => {
     setupAdminTabs();
+    
 });

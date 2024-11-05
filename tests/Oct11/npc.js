@@ -7,6 +7,10 @@ function openNpcPopup(npc) {
     document.getElementById('npcPopup').querySelector('h2').innerText = npc.userData.name || 'Friendly NPC';
     document.getElementById('npcPopup').querySelector('p').innerText = npc.userData.dialogue || 'Hello, traveler! Stay awhile and listen...';
     document.getElementById('npcPopup').style.display = 'block';
+    
+    // Assign Trade Button to open trade interface
+    document.getElementById('tradeButton').onclick = () => openTradeInterface(npc.userData.inventory || generateRandomItems(10), npc.userData.gold || Math.floor(Math.random() * 500 + 100));
+    
     npcPopupOpen = true;
 }
 
@@ -78,28 +82,25 @@ function saveNpcChanges() {
 
 // Existing code for NPC popup and admin popup remains...
 
-function openTradeInterface(npcInventory) {
-    // Display the trade window modal
+function openTradeInterface(npcInventory, npcGold) {
     const tradeWindow = document.getElementById('tradeWindow');
     tradeWindow.style.display = 'block';
 
-    // Get the player and NPC inventory elements
-    const playerInventoryGrid = document.getElementById('playerInventoryGrid');
-    const npcInventoryGrid = document.getElementById('npcInventoryGrid');
+    // Populate NPC's inventory with items and gold
+    document.getElementById('npcGoldAmount').innerText = `Gold: ${npcGold}`;
+    populateInventoryGrid(document.getElementById('npcInventoryGrid'), npcInventory);
 
-    // Populate the inventories
-    populateInventoryGrid(playerInventoryGrid, playerInventory);
-    populateInventoryGrid(npcInventoryGrid, npcInventory);
+    // Populate Player's Inventory
+    populateInventoryGrid(document.getElementById('playerInventoryGrid'), playerInventory);
 
-    // Setup event listeners for trade functionality
-    setupTradeSlotEventListeners(playerInventoryGrid, playerInventory, npcInventory, npcInventoryGrid);
+    // Additional trade logic for transferring items and gold can be added here
 }
 
-// Function to close trade interface
+
 function closeTradeInterface() {
-    const tradeWindow = document.getElementById('tradeWindow');
-    tradeWindow.style.display = 'none';
+    document.getElementById('tradeWindow').style.display = 'none';
 }
+
 
 // Setup trade event listeners for slots
 function setupTradeSlotEventListeners(playerGrid, playerItems, npcItems, npcGrid) {

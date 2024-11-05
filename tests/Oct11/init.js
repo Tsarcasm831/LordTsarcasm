@@ -3,22 +3,24 @@ function initializeInventory() {
     const tabs = document.querySelectorAll('.inventory-tab');
     const tabContents = document.querySelectorAll('.inventory-tab-content');
 
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const tabId = tab.getAttribute('data-tab');
-            tabContents.forEach(content => {
-                content.style.display = content.id === tabId ? 'block' : 'none';
-            });
-        });
-    });
+    // Only show the first tab initially
+    if (tabContents.length > 0) tabContents[0].style.display = 'block';
 
-    // Show the first tab by default
-    if (tabContents.length > 0) {
-        tabContents[0].style.display = 'block';
-    }
+    // Set up listeners only for tabs not currently active
+    tabs.forEach((tab, index) => {
+        if (index !== 0) {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                tabContents.forEach(content => {
+                    content.style.display = content.id === tabId ? 'block' : 'none';
+                });
+            });
+        }
+    });
 }
 
-function addSkyboxAboveGround() {
+
+function addSky() {
     // Define your desired sky color (e.g., light blue)
     const skyColor = 0x87ceeb; // Hex code for light blue
 
@@ -58,7 +60,7 @@ function addGroundPlane(scene, options = {}) {
         size = 10000,          // Size of the ground plane
         color = 0x228B22,     // Default color: ForestGreen
         textureURL = null,    // URL of the texture image (optional)
-        rotation = { x: -Math.PI / 2, y: 0, z: 0 }, // Default rotation to lie flat
+        rotation = { x: -Math.PI / 2, y: -0.1, z: 0 }, // Default rotation to lie flat
         position = { x: 0, y: 0, z: 0 },           // Default position at y = 0
         receiveShadow = true, // Whether the ground receives shadows
         name = 'ground',      // Name of the ground mesh
@@ -142,7 +144,7 @@ function init() {
     scene.add(directionalLight);
     addQuadrupeds();
 
-    document.getElementById('helpWindow').style.display = 'block';
+    
 
     // Add the ground plane using the addGroundPlane function
     ground = addGroundPlane(scene, {
@@ -192,7 +194,7 @@ function init() {
 
     shrineGroup.position.set(0, 0.1, 0);
     scene.add(shrineGroup);
-    addSkyboxAboveGround();
+    addSky();
 
     const structurePositions = [
         // Row 1 (z = 200)
@@ -234,26 +236,7 @@ function init() {
     player = createHumanoid(0x0000ff);
     player.position.y = 0;
     scene.add(player);
-
-    function checkEnemiesInSafeZone() {
-        const safeZoneRadius = 600; // Radius of the safe zone
-
-        enemies.forEach((enemy) => {
-            if (enemy.userData.isDead) return;
-
-            const distanceFromCenter = Math.sqrt(
-                enemy.position.x * enemy.position.x + enemy.position.z * enemy.position.z
-            );
-
-            if (distanceFromCenter < safeZoneRadius) {
-                const angle = Math.random() * Math.PI * 2;
-                const teleportDistance = 1000;
-                enemy.position.x = Math.cos(angle) * teleportDistance;
-                enemy.position.z = Math.sin(angle) * teleportDistance;
-                enemy.position.y = 0;
-            }
-        });
-    }
+    
 
     window.addEventListener('resize', onWindowResize, false);
     document.addEventListener('keydown', onDocumentKeyDown, false);
@@ -261,8 +244,10 @@ function init() {
     canvas.addEventListener('mouseup', onDocumentMouseUp, false);
 }
 
-    
+let mapInitialized = false;  
 function initMap() {
+    if (mapInitialized) return;
+    mapInitialized = true;
     const mapCanvas = document.getElementById('mapCanvas');
     mapRenderer = new THREE.WebGLRenderer({ canvas: mapCanvas, alpha: true });
     mapRenderer.setSize(window.innerWidth, window.innerHeight);

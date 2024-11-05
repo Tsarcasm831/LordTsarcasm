@@ -1,4 +1,7 @@
 // main.js
+let shouldRenderMinimap = true; // Flag for conditional rendering
+let shouldRenderFullscreenMap = false; // Track if fullscreen map is open
+
 function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
@@ -17,7 +20,8 @@ function animate() {
     animateHumanoid(player, delta);
     moveEnemies(delta);
     animateDeadEnemies(delta);
-    moveQuadrupeds(delta); // Ensure quadrupeds are moving
+    moveQuadrupeds(delta);
+
     updateTeleportation(delta);
     updateLooting(delta);
 
@@ -37,11 +41,9 @@ function animate() {
     // Smoothly interpolate current angle towards target angle
     currentCameraAngle += (cameraTargetAngle - currentCameraAngle) * 0.1;
 
-
     // Update camera position based on current angle
     const cameraRadius = 100;
     const cameraHeight = 50;
-
     const cameraOffset = new THREE.Vector3(
         Math.sin(currentCameraAngle) * cameraRadius,
         cameraHeight,
@@ -51,7 +53,6 @@ function animate() {
     camera.position.copy(player.position).add(cameraOffset);
     camera.lookAt(player.position);
 
-
     // Render Main Scene
     renderer.clear();
     renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
@@ -59,26 +60,13 @@ function animate() {
     renderer.setScissorTest(false);
     renderer.render(scene, camera);
 
-    // Render Minimap
-    minimapCamera.position.x = player.position.x;
-    minimapCamera.position.z = player.position.z;
-
-    const minimapContainer = document.getElementById('minimapContainer');
-    const mapWidth = minimapContainer.clientWidth;
-    const mapHeight = minimapContainer.clientHeight;
-    const minimapRect = minimapContainer.getBoundingClientRect();
-    const canvasRect = renderer.domElement.getBoundingClientRect();
-    const minimapX = minimapRect.left - canvasRect.left;
-    const minimapY = minimapRect.top - canvasRect.top;
-
-    renderer.setViewport(minimapX, canvasRect.height - minimapY - mapHeight, mapWidth, mapHeight);
-    renderer.setScissor(minimapX, canvasRect.height - minimapY - mapHeight, mapWidth, mapHeight);
-    renderer.setScissorTest(true);
-    renderer.render(scene, minimapCamera);
+    // Render Minimap only when needed
+    if (shouldRenderMinimap) {
+        renderMinimap();
+    }
 
     // Render Fullscreen Map if visible
-    const fullscreenMap = document.getElementById('fullscreenMap');
-    if (fullscreenMap.style.display === 'block') {
+    if (shouldRenderFullscreenMap) {
         renderMap();
     }
 }
@@ -290,16 +278,48 @@ function saveStructureChanges() {
 	}
 }
 
-// Implement Map Rendering:
+// Separate the minimap rendering function
+function renderMinimap() {
+    minimapCamera.position.x = player.position.x;
+    minimapCamera.position.z = player.position.z;
+
+    const minimapContainer = document.getElementById('minimapContainer');
+    const mapWidth = minimapContainer.clientWidth;
+    const mapHeight = minimapContainer.clientHeight;
+    const minimapRect = minimapContainer.getBoundingClientRect();
+    const canvasRect = renderer.domElement.getBoundingClientRect();
+    const minimapX = minimapRect.left - canvasRect.left;
+    const minimapY = minimapRect.top - canvasRect.top;
+
+    renderer.setViewport(minimapX, canvasRect.height - minimapY - mapHeight, mapWidth, mapHeight);
+    renderer.setScissor(minimapX, canvasRect.height - minimapY - mapHeight, mapWidth, mapHeight);
+    renderer.setScissorTest(true);
+    renderer.render(scene, minimapCamera);
+}
+
+// Control minimap and fullscreen map rendering
+function toggleFullscreenMap() {
+    const fullscreenMap = document.getElementById('fullscreenMap');
+    if (fullscreenMap.style.display === 'none') {
+        fullscreenMap.style.display = 'block';
+        shouldRenderFullscreenMap = true; // Flag to render fullscreen map
+        renderMap();
+    } else {
+        fullscreenMap.style.display = 'none';
+        shouldRenderFullscreenMap = false;
+    }
+}
+
 function renderMap() {
     mapRenderer.render(mapScene, mapCamera);
-
-    // Optionally, add markers for player, enemies, etc.
     addMapMarkers();
 }
 
+let mapMarkersUpdated = false;
+
 function addMapMarkers() {
-    // Clear existing markers
+    if (mapMarkersUpdated) return;
+
     mapScene.children = mapScene.children.filter(child => !child.userData.isMapMarker);
 
     // Player Marker
@@ -312,7 +332,7 @@ function addMapMarkers() {
 
     // Enemy Markers
     enemies.forEach(enemy => {
-        if (!enemy.userData.isDead) { // Only mark active enemies
+        if (!enemy.userData.isDead) {
             const enemyMarkerGeometry = new THREE.SphereGeometry(5, 8, 8);
             const enemyMarkerMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
             const enemyMarker = new THREE.Mesh(enemyMarkerGeometry, enemyMarkerMaterial);
@@ -322,8 +342,9 @@ function addMapMarkers() {
         }
     });
 
-    // Add other markers as needed (e.g., friendly NPCs, settlements)
+    mapMarkersUpdated = true;
 }
+
 
 // Function to create a quadruped
 function createQuadruped(color = 0x996633) {
@@ -653,55 +674,76 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
 
 function animateHumanoid(humanoid, deltaTime) {
     if (humanoid.isMoving) {
-        humanoid.animationTime += deltaTime * humanoid.animationSpeed * 3;
+        humanoid.animationTime += deltaTime * humanoid.animationSpeed * 3.5;
 
-        // Parameters
-        const swingAmplitude = 0.3;
-        const armSwingAmplitude = 0.2;
-        const kneeBendAmplitude = 0.7;
-        const headBobAmplitude = 0.05;
-        const bodyTiltAmplitude = 0.05;
+        // Advanced parameters for realistic, side-view walking motion
+        const legSwingAmplitude = 0.55;
+        const armSwingAmplitude = 0.45;
+        const kneeBendAmplitude = 1.0;
+        const footRollAmplitude = 0.25;
+        const hipTiltAmplitude = 0.15;
+        const torsoTwistAmplitude = 0.08;
+        const bodyBobAmplitude = 0.08;
+        const headBobAmplitude = 0.1;
+        const forwardLean = 0.15;
+        const breathingAmplitude = 0.02;
 
-        // Compute swing angles
+        // Calculate swing phase with breathing sync for natural rhythm
         const swing = Math.sin(humanoid.animationTime * humanoid.armSwingSpeed);
         const swingPositive = Math.max(0, swing);
         const swingNegative = Math.max(0, -swing);
+        const breathing = Math.sin(humanoid.animationTime * 0.5) * breathingAmplitude;
 
-        // Arms swing
+        // **Dynamic Arm Swing** with shoulder sway and slight forward reach
         humanoid.leftArm.rotation.x = swing * armSwingAmplitude;
+        humanoid.leftArm.rotation.z = -swing * 0.2; // Natural shoulder sway
         humanoid.rightArm.rotation.x = -swing * armSwingAmplitude;
+        humanoid.rightArm.rotation.z = swing * 0.2;
 
-        // Upper legs swing opposite to arms
-        humanoid.leftLeg.upperLegGroup.rotation.x = -swing * swingAmplitude;
-        humanoid.rightLeg.upperLegGroup.rotation.x = swing * swingAmplitude;
+        // **Leg Swing** with distinct "lift" and "plant" phases, simulating weight
+        humanoid.leftLeg.upperLegGroup.rotation.x = -swing * legSwingAmplitude;
+        humanoid.rightLeg.upperLegGroup.rotation.x = swing * legSwingAmplitude;
 
-        // Lower legs bend at the knee
+        // **Adaptive Knee Bend** based on each leg’s phase in the walk
         humanoid.leftLeg.lowerLegGroup.rotation.x = swingNegative * kneeBendAmplitude;
         humanoid.rightLeg.lowerLegGroup.rotation.x = swingPositive * kneeBendAmplitude;
 
-        // Foot rotation
-        humanoid.leftLeg.lowerLegGroup.children[2].rotation.x = swingNegative * 0.2;
-        humanoid.rightLeg.lowerLegGroup.children[2].rotation.x = swingPositive * 0.2;
+        // **Heel-to-Toe Foot Roll** for smooth stepping motion
+        humanoid.leftLeg.lowerLegGroup.children[2].rotation.x = swingPositive * footRollAmplitude;
+        humanoid.rightLeg.lowerLegGroup.children[2].rotation.x = swingNegative * footRollAmplitude;
 
-        // Slight body tilt
-        humanoid.body.rotation.z = swing * bodyTiltAmplitude;
+        // **Hip Tilt and Drop** for weight shift and balance
+        humanoid.leftLeg.upperLegGroup.rotation.z = swing * hipTiltAmplitude;
+        humanoid.rightLeg.upperLegGroup.rotation.z = -swing * hipTiltAmplitude;
+        humanoid.leftLeg.upperLegGroup.position.y = 1 - swingPositive * 0.5; // Drop left hip when stepping with right leg
+        humanoid.rightLeg.upperLegGroup.position.y = 1 - swingNegative * 0.5; // Drop right hip when stepping with left leg
 
-        // Head bobbing
-        const headBob = Math.abs(swing) * headBobAmplitude;
-        humanoid.head.position.y = 18 + headBob;
+        // **Body Bob with Forward Lean** synced to breathing for lifelike effect
+        humanoid.body.position.y = 12 + Math.abs(swing) * bodyBobAmplitude + breathing; // Add breathing bob
+        humanoid.body.rotation.x = -forwardLean; // Forward tilt
+        humanoid.body.rotation.y = swing * torsoTwistAmplitude; // Subtle torso twist opposite to leg swing
+
+        // **Head Bob and Subtle Tilt** for enhanced balance correction
+        humanoid.head.position.y = 18 + Math.abs(swing) * headBobAmplitude + breathing * 0.5; // Add head bob synced to breathing
+        humanoid.head.rotation.x = swing * 0.05; // Head tilts forward with each step
+        humanoid.head.rotation.z = -swing * 0.02; // Slight sideways tilt for balance
 
     } else {
-        // Reset rotations and positions when not moving
-        humanoid.leftArm.rotation.x = 0;
-        humanoid.rightArm.rotation.x = 0;
-        humanoid.leftLeg.upperLegGroup.rotation.x = 0;
-        humanoid.rightLeg.upperLegGroup.rotation.x = 0;
+        // Reset limbs and torso/head positions if idle
+        humanoid.leftArm.rotation.set(0, 0, 0);
+        humanoid.rightArm.rotation.set(0, 0, 0);
+        humanoid.leftLeg.upperLegGroup.rotation.set(0, 0, 0);
+        humanoid.rightLeg.upperLegGroup.rotation.set(0, 0, 0);
         humanoid.leftLeg.lowerLegGroup.rotation.x = 0;
         humanoid.rightLeg.lowerLegGroup.rotation.x = 0;
         humanoid.leftLeg.lowerLegGroup.children[2].rotation.x = 0;
         humanoid.rightLeg.lowerLegGroup.children[2].rotation.x = 0;
-        humanoid.body.rotation.z = 0;
+        humanoid.leftLeg.upperLegGroup.position.y = 0;
+        humanoid.rightLeg.upperLegGroup.position.y = 0;
+        humanoid.body.position.y = 12;
+        humanoid.body.rotation.set(0, 0, 0);
         humanoid.head.position.y = 18;
+        humanoid.head.rotation.set(0, 0, 0);
     }
 }
 
@@ -712,9 +754,7 @@ function createFriendlyNPC(color = 0x00ff00, name = 'Friendly NPC', dialogue = '
     npc.userData.dialogue = dialogue;
     return npc;
 }
-
-
-        
+    
 function toggleFullscreenMap() {
     const fullscreenMap = document.getElementById('fullscreenMap');
     if (fullscreenMap.style.display === 'none') {

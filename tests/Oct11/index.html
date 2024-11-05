@@ -1,6 +1,6 @@
 ﻿<html>
     <head>
-        <title>Remnants of Destruction v0.3.6</title>
+        <title>Remnants of Destruction v0.3.9</title>
         <link rel="stylesheet" type="text/css" href="rodstyles.css">
         <!-- Include Three.js -->
         <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
@@ -41,9 +41,9 @@
                 <div class="content">
                     <div class="left-column">
                         <h3>Latest Updates</h3>
-                        <p><strong>Version 0.3.7</strong></p>
+                        <p><strong>Version 0.3.8</strong></p>
                         <!-- <h3><strong>Admin Info:</strong></h3>
-                        <p><strong>Admin Password: ltwelcome1</strong></p> -->
+                        <p><strong>Admin Password: 1234</strong></p> -->
                         <ul class="updates">
                             <li>Improved Help Window</li>
                             <li>Improved Music Page</li>
@@ -221,11 +221,23 @@
         </div>
 
         <div id="minimapContainer"></div>
+
         <div id="npcPopup" style="display: none;">
             <h2>Friendly NPC</h2>
             <p>Hello, traveler! Stay awhile and listen...</p>
+            <!-- Add Trade Button -->
+            <button id="tradeButton">Trade</button>
             <button onclick="closeNpcPopup()">Close</button>
         </div>
+
+        <div id="tradeWindow" class="modal">
+            <div id="npcInventoryGrid" class="inventory-tab-content"></div>
+            <p id="npcGoldAmount"></p>
+            <div id="playerInventoryGrid" class="inventory-tab-content"></div>
+            <button onclick="closeTradeInterface()">Close Trade</button>
+        </div>
+        
+        
 
         <!-- Health Orb -->
         <div id="lifeOrb" class="orb">

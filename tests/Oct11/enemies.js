@@ -136,9 +136,13 @@ function initEnemies() {
     });
 }
 
-// Function to check if enemies are in the safe zone
+let lastCheckTime = 0;
 function checkEnemiesInSafeZone() {
-    const safeZoneRadius = 600; // Updated radius to keep them further away
+    const now = Date.now();
+    if (now - lastCheckTime < 5000) return; // 5-second throttle
+    lastCheckTime = now;
+
+    const safeZoneRadius = 600; // Radius of the safe zone
 
     enemies.forEach((enemy) => {
         if (enemy.userData.isDead) return;
@@ -149,10 +153,10 @@ function checkEnemiesInSafeZone() {
 
         if (distanceFromCenter < safeZoneRadius) {
             const angle = Math.random() * Math.PI * 2;
-            const teleportDistance = 1000; // Increased distance to move them further out
+            const teleportDistance = 1000;
             enemy.position.x = Math.cos(angle) * teleportDistance;
             enemy.position.z = Math.sin(angle) * teleportDistance;
-            enemy.position.y = 0; 
+            enemy.position.y = 0;
         }
     });
 }
