@@ -132,7 +132,7 @@
         </div>
 
         <div id="inventory">
-            <div id="inventoryCloseButton" onclick="closeInventory()">✖</div>
+            <button id="inventoryCloseButton" aria-label="Close inventory" onclick="closeInventory()">✖</button>
             <h2>Inventory</h2>
             <div id="playerDetails">
                 <div id="playerStatsBars">
@@ -149,42 +149,70 @@
                         <div class="bar"><div class="fill" id="goldBar"></div></div>
                     </div>
                 </div>
-                <img id="playerImage" src="images/player_image.webp" alt="Player" />
+                <!-- Replace external image with placeholder -->
+                <img id="playerImage" src="images/flick.png" alt="Player Character" width="100" height="100" loading="lazy"/>
                 <div id="playerStats">
                     <p>Level: <span id="playerLevel">1</span></p>
                     <p>Health: <span id="playerHealth">100</span></p>
                     <p>Gold: <span id="goldAmount">0</span></p>
                 </div>
             </div>
-            <div id="inventoryTabs">
-                <button class="inventory-tab" data-tab="tab1">Tab 1</button>
-                <button class="inventory-tab" data-tab="tab2">Tab 2</button>
-                <button class="inventory-tab" data-tab="tab3">Tab 3</button>
-                <button class="inventory-tab" data-tab="tab4">Tab 4</button>
-                <button class="inventory-tab" data-tab="tab5">Tab 5</button>
-                <button class="inventory-tab" data-tab="tab6">Tab 6</button>
+            <div class="inventory-slot" 
+                data-name="Item Name" 
+                data-rarity="rare" 
+                data-description="Item description" 
+                data-stats='{"Attack": "+5", "Defense": "+3"}'>
             </div>
+            <nav id="inventoryTabs" role="tablist">
+                <button class="inventory-tab active" data-tab="tab1" role="tab" aria-selected="true" aria-controls="tab1">All</button>
+                <button class="inventory-tab" data-tab="tab2" role="tab" aria-selected="false" aria-controls="tab2">Equipment</button>
+                <button class="inventory-tab" data-tab="tab3" role="tab" aria-selected="false" aria-controls="tab3">Materials</button>
+                <button class="inventory-tab" data-tab="tab4" role="tab" aria-selected="false" aria-controls="tab4">Consumables</button>
+                <button class="inventory-tab" data-tab="tab5" role="tab" aria-selected="false" aria-controls="tab5">Quest</button>
+                <button class="inventory-tab" data-tab="tab6" role="tab" aria-selected="false" aria-controls="tab6">Misc</button>
+                <button class="inventory-tab" data-tab="tab7" role="tab" aria-selected="false" aria-controls="tab7">Special</button>
+            </nav>
+            
+            <!-- Inventory Grids -->
             <div id="inventoryTabsContent">
-                <div class="inventory-tab-content active" id="tab1">
+                <div class="inventory-tab-content active" id="tab1" role="tabpanel" aria-labelledby="tab1">
                     <div class="inventoryGrid" id="inventoryGridTab1"></div>
                 </div>
-                <div class="inventory-tab-content" id="tab2">
+                <div class="inventory-tab-content" id="tab2" role="tabpanel" aria-labelledby="tab2">
                     <div class="inventoryGrid" id="inventoryGridTab2"></div>
                 </div>
-                <div class="inventory-tab-content" id="tab3">
+                <div class="inventory-tab-content" id="tab3" role="tabpanel" aria-labelledby="tab3">
                     <div class="inventoryGrid" id="inventoryGridTab3"></div>
                 </div>
-                <div class="inventory-tab-content" id="tab4">
+                <div class="inventory-tab-content" id="tab4" role="tabpanel" aria-labelledby="tab4">
                     <div class="inventoryGrid" id="inventoryGridTab4"></div>
                 </div>
-                <div class="inventory-tab-content" id="tab5">
+                <div class="inventory-tab-content" id="tab5" role="tabpanel" aria-labelledby="tab5">
                     <div class="inventoryGrid" id="inventoryGridTab5"></div>
                 </div>
-                <div class="inventory-tab-content" id="tab6">
+                <div class="inventory-tab-content" id="tab6" role="tabpanel" aria-labelledby="tab6">
                     <div class="inventoryGrid" id="inventoryGridTab6"></div>
                 </div>
+                <div class="inventory-tab-content" id="tab7" role="tabpanel" aria-labelledby="tab7">
+                    <div class="inventoryGrid" id="inventoryGridTab7"></div>
+                </div>
             </div>
-        </div>
+            
+                
+            <div class="equipment-slots">
+                    <div class="equipment-slot slot-head" role="button" tabindex="0" aria-label="Head equipment slot">Head</div>
+                    <div class="equipment-slot slot-neck" role="button" tabindex="0" aria-label="Neck equipment slot">Neck</div>
+                    <div class="equipment-slot slot-shoulders" role="button" tabindex="0" aria-label="Shoulders equipment slot">Shoulders</div>
+                    <div class="equipment-slot slot-chest" role="button" tabindex="0" aria-label="Chest equipment slot">Chest</div>
+                    <div class="equipment-slot slot-ring1" role="button" tabindex="0" aria-label="Ring slot 1">Ring</div>
+                    <div class="equipment-slot slot-ring2" role="button" tabindex="0" aria-label="Ring slot 2">Ring</div>
+                    <div class="equipment-slot slot-belt" role="button" tabindex="0" aria-label="Belt equipment slot">Belt</div>
+                    <div class="equipment-slot slot-pants" role="button" tabindex="0" aria-label="Pants equipment slot">Pants</div>
+                    <div class="equipment-slot slot-boots" role="button" tabindex="0" aria-label="Boots equipment slot">Boots</div>
+                    <div class="equipment-slot slot-pet" role="button" tabindex="0" aria-label="Pet equipment slot">Pet</div>
+                </div>
+            
+            </div>
 
         <div id="stats">
             <h2>Character Stats</h2>
@@ -205,6 +233,10 @@
             <button onclick="increaseStat('mana')">Increase Mana</button> <!-- New Button -->
             <button onclick="increaseStat('karma')">Increase Karma</button> <!-- New Button -->
             <button onclick="increaseStat('reputation')">Increase Reputation</button> <!-- New Button -->
+        </div>
+
+        <div id="backgroundMusic">
+            <!-- Music player will be mounted here -->
         </div>
 
         <div id="hotbar">
@@ -486,7 +518,40 @@
             let activeDamageIntervals = new Map(); // Keep track of active damage intervals
             const collidableTerrainObjects = [];       
             let playerInventory = []; // Player inventory
-            
+            let currentHealth = 100;
+            let maxHealth = 100;
+            let currentMana = 100;
+            let maxMana = 100;
+
+            // Cache geometries and materials
+            const HumanoidCache = {
+                geometries: {
+                    body: new THREE.BoxGeometry(5, 7, 2),
+                    shirt: new THREE.BoxGeometry(6, 8, 3),
+                    pectorals: new THREE.BoxGeometry(4.5, 1.5, 1),
+                    lowerBody: new THREE.BoxGeometry(4, 3, 2.5),
+                    shorts: new THREE.BoxGeometry(5, 4, 3),
+                    head: new THREE.BoxGeometry(3, 3, 3),
+                    neckJoint: new THREE.SphereGeometry(1, 16, 16),
+                    hair: new THREE.BoxGeometry(3.2, 0.5, 3.2),
+                    eye: new THREE.SphereGeometry(0.2, 8, 8),
+                    nose: new THREE.BoxGeometry(0.2, 0.4, 0.2),
+                    arm: new THREE.BoxGeometry(1, 6, 1),
+                    shoulderJoint: new THREE.SphereGeometry(0.75, 16, 16),
+                    hipJoint: new THREE.SphereGeometry(0.8, 16, 16),
+                    kneeJoint: new THREE.SphereGeometry(0.6, 16, 16),
+                    upperLeg: new THREE.BoxGeometry(1.5, 4, 1.5),
+                    lowerLeg: new THREE.BoxGeometry(1.5, 4, 1.5),
+                    foot: new THREE.BoxGeometry(1.5, 0.5, 2),
+                    pubicHair: new THREE.PlaneGeometry(2, 1)
+                },
+                colors: {
+                    skin: [0xf5cba7, 0xe0ac69, 0xd2b48c, 0xffdbac, 0xc68642],
+                    hair: [0x4b3621, 0x2c1b18, 0xa52a2a, 0xffd700, 0x8b4513],
+                    clothing: [0x3333ff, 0xff3333, 0x33ff33, 0xffff33, 0xff33ff, 0x33ffff, 0xff9900]
+                },
+                materials: new Map()
+            };
             
             const npcData = [
                 { 
@@ -627,8 +692,6 @@
                 }
             ];
 
-
-
             // Player health and energy
             let playerHealth = 100;
             const playerMaxHealth = 100;
@@ -765,39 +828,29 @@
                 let life = 75;    // Health percentage
                 let energy = 50;  // Energy percentage
 
-                // Function to update the orbs
+                // Function to update the orbs visually
                 function updateOrbs() {
-                    // Clamp values between 0 and 100
-                    life = Math.max(0, Math.min(100, life));
-                    energy = Math.max(0, Math.min(100, energy));
+                    const lifeFill = document.getElementById('lifeFill');
+                    const energyFill = document.getElementById('energyFill');
+                    const lifeValue = document.getElementById('lifeValue');
+                    const energyValue = document.getElementById('energyValue');
 
-                    // Update fill heights
-                    lifeFill.style.height = `${life}%`;
-                    energyFill.style.height = `${energy}%`;
+                    // Calculate percentage for orbs
+                    const lifePercentage = (playerHealth / playerMaxHealth) * 100;
+                    const energyPercentage = (currentMana / maxMana) * 100;
 
-                    // Update displayed values
-                    lifeValue.textContent = `${life}%`;
-                    energyValue.textContent = `${energy}%`;
+                    // Update the heights and values of the orbs
+                    lifeFill.style.height = `${lifePercentage}%`;
+                    energyFill.style.height = `${energyPercentage}%`;
+
+                    lifeValue.textContent = `${Math.round(lifePercentage)}%`;
+                    energyValue.textContent = `${Math.round(energyPercentage)}%`;
                 }
 
                 // Initialize orbs with initial values
                 updateOrbs();
 
-                // Example of updating values over time (for demonstration)
-                // In a real application, these updates would be triggered by game events or user actions
-                setInterval(() => {
-                    // Simulate changes in health and energy
-                    life += Math.floor(Math.random() * 10 - 5);    // Random change between -5 and +4
-                    energy += Math.floor(Math.random() * 10 - 5);  // Random change between -5 and +4
-
-                    // Ensure values stay within 0-100
-                    if (life < 0) life = 0;
-                    if (life > 100) life = 100;
-                    if (energy < 0) energy = 0;
-                    if (energy > 100) energy = 100;
-
-                    updateOrbs();
-                }, 3000); // Update every 3 seconds
+                
             });
 
         </script>
@@ -828,6 +881,7 @@
         <!-- <script src="characterSprite.js"></script> -->
         <script src="updatedisplays.js"></script>
         <script src="clothing.js"></script>
+        <script src="backgroundMusic.js"></script>
         
         <script>
             // Audio Widget Toggle Script

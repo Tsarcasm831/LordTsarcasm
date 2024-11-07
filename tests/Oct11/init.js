@@ -206,7 +206,7 @@ function init() {
         { x: 0, z: -200 },
         { x: 200, z: -200 },
     ];
-
+    
     structurePositions.forEach(pos => {
         const structure = createStructure();
         structure.position.set(pos.x, 0, pos.z);
@@ -227,6 +227,7 @@ function init() {
 
         // Position the NPC at the structure's position
         npc.position.copy(structure.position);
+        npc.rotation.y = Math.PI;
 
         // Add the NPC to the scene and friendlies array
         scene.add(npc);

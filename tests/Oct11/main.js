@@ -453,6 +453,11 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         0x8b4513  // SaddleBrown
     ];
 
+    const clothingColors = [
+        0x3333ff, 0xff3333, 0x33ff33, 0xffff33, 0xff33ff, 0x33ffff, 0xff9900, 0x9900ff,
+        0x0099ff, 0xff0066, 0x00cc66, 0xcc33ff, 0x993333, 0x66ccff, 0xff6699, 0x66ff99, 0x9966ff
+    ];
+
     // Helper function to get a random color from an array
     const getRandomColor = (colorArray) => {
         return colorArray[Math.floor(Math.random() * colorArray.length)];
@@ -461,6 +466,7 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     // Randomly assign colors
     const selectedSkinColor = getRandomColor(skinColors);
     const selectedHairColor = getRandomColor(hairColors);
+    const selectedClothingColor = getRandomColor(clothingColors);
 
     // Torso
     const bodyMaterial = new THREE.MeshLambertMaterial({ color: selectedSkinColor });
@@ -469,12 +475,33 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     body.position.y = 11.5;
     group.add(body);
 
+    // Shirt (1px larger than torso)
+    const shirtMaterial = new THREE.MeshLambertMaterial({ color: selectedClothingColor });
+    const shirtGeometry = new THREE.BoxGeometry(6.5, 8.55, 3.5);
+    const shirt = new THREE.Mesh(shirtGeometry, shirtMaterial);
+    shirt.position.copy(body.position);
+    group.add(shirt);
+
+    // Cover pectorals with the shirt
+    const pectoralGeometry = new THREE.BoxGeometry(4.5, 1.5, 1);
+    const pectoralMaterial = shirtMaterial; // Ensure pectorals are covered by the shirt
+    const pectorals = new THREE.Mesh(pectoralGeometry, pectoralMaterial);
+    pectorals.position.set(0, 14, 1.1);
+    group.add(pectorals);
+
     // Lower Body (Pelvic Region)
     const lowerBodyGeometry = new THREE.BoxGeometry(4, 3, 2.5);
     const lowerBodyMaterial = new THREE.MeshLambertMaterial({ color: selectedSkinColor });
     const lowerBody = new THREE.Mesh(lowerBodyGeometry, lowerBodyMaterial);
-    lowerBody.position.set(0, 8.5, 0);  // Positioned below the torso
+    lowerBody.position.set(0, 8.5, 0);
     group.add(lowerBody);
+
+    // Shorts (1px larger than lower body)
+    const shortsMaterial = new THREE.MeshLambertMaterial({ color: selectedClothingColor });
+    const shortsGeometry = new THREE.BoxGeometry(5, 7, 3);
+    const shorts = new THREE.Mesh(shortsGeometry, shortsMaterial);
+    shorts.position.copy(lowerBody.position);
+    group.add(shorts);
 
     // Head
     const headGeometry = new THREE.BoxGeometry(3, 3, 3);
@@ -483,7 +510,7 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     head.position.y = 18;
     group.add(head);
 
-    // Neck Joint (connecting head to torso)
+    // Neck Joint
     const neckJoint = new THREE.Mesh(
         new THREE.SphereGeometry(1, 16, 16),
         new THREE.MeshStandardMaterial({ color: selectedSkinColor })
@@ -516,34 +543,24 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     nose.position.set(0, 0, 1.6);
     head.add(nose);
 
-    // Pectorals (chest muscles)
-    const pectoralGeometry = new THREE.BoxGeometry(4.5, 1.5, 1);
-    const pectoralMaterial = new THREE.MeshLambertMaterial({ color: selectedSkinColor });
-    const pectorals = new THREE.Mesh(pectoralGeometry, pectoralMaterial);
-    pectorals.position.set(0, 14, 1.1);
-    group.add(pectorals);
-
-    // Arms (shortened)
-    const armGeometry = new THREE.BoxGeometry(1, 6, 1);  // Shortened length to 6
+    // Arms
+    const armGeometry = new THREE.BoxGeometry(1, 6, 1);
     const armMaterial = new THREE.MeshLambertMaterial({ color: selectedSkinColor });
 
     const createArm = (side) => {
         const armGroup = new THREE.Group();
 
-        // Shoulder Joint (slightly larger for overlap)
         const shoulderJoint = new THREE.Mesh(
             new THREE.SphereGeometry(0.75, 16, 16),
             new THREE.MeshStandardMaterial({ color: selectedSkinColor })
         );
-        shoulderJoint.position.set(0, 0, 0); // Origin at shoulder joint
+        shoulderJoint.position.set(0, 0, 0);
         armGroup.add(shoulderJoint);
 
-        // Arm (entire length)
         const arm = new THREE.Mesh(armGeometry, armMaterial);
-        arm.position.y = -3; // Adjusted for shortened length
+        arm.position.y = -3;
         armGroup.add(arm);
 
-        // Position the entire arm group based on side
         armGroup.position.set(side === 'left' ? -3.5 : 3.5, 15, 0);
         return armGroup;
     };
@@ -559,58 +576,44 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
 
     const createLeg = (side) => {
         const legGroup = new THREE.Group();
-
-        // Upper Leg Group
         const upperLegGroup = new THREE.Group();
 
-        // Hip Joint
         const hipJoint = new THREE.Mesh(
             new THREE.SphereGeometry(0.8, 16, 16),
             new THREE.MeshStandardMaterial({ color: selectedSkinColor })
         );
-        hipJoint.position.set(0, 0, 0); // At the top of upper leg
+        hipJoint.position.set(0, 0, 0);
         upperLegGroup.add(hipJoint);
 
-        // Upper Leg
         const upperLegGeometry = new THREE.BoxGeometry(1.5, 4, 1.5);
         const upperLeg = new THREE.Mesh(upperLegGeometry, legMaterial);
-        upperLeg.position.y = -2; // Centered at -2 (since height is 4)
+        upperLeg.position.y = -2;
         upperLegGroup.add(upperLeg);
 
-        // Lower Leg Group
         const lowerLegGroup = new THREE.Group();
-        lowerLegGroup.position.y = -4; // Position at bottom of upper leg
+        lowerLegGroup.position.y = -4;
 
-        // Knee Joint
         const kneeJoint = new THREE.Mesh(
             new THREE.SphereGeometry(0.6, 16, 16),
             new THREE.MeshStandardMaterial({ color: selectedSkinColor })
         );
-        kneeJoint.position.set(0, 0, 0); // At the top of lower leg (relative to lowerLegGroup)
+        kneeJoint.position.set(0, 0, 0);
         lowerLegGroup.add(kneeJoint);
 
-        // Lower Leg
         const lowerLegGeometry = new THREE.BoxGeometry(1.5, 4, 1.5);
         const lowerLeg = new THREE.Mesh(lowerLegGeometry, legMaterial);
-        lowerLeg.position.y = -2; // Centered at -2 (since height is 4)
+        lowerLeg.position.y = -2;
         lowerLegGroup.add(lowerLeg);
 
-        // Foot
         const footGeometry = new THREE.BoxGeometry(1.5, 0.5, 2);
         const foot = new THREE.Mesh(footGeometry, legMaterial);
-        foot.position.set(0, -2.25, 0.25); // Positioned at the bottom of the lower leg
+        foot.position.set(0, -2.25, 0.25);
         lowerLegGroup.add(foot);
 
-        // Add lowerLegGroup to upperLegGroup
         upperLegGroup.add(lowerLegGroup);
-
-        // Add upperLegGroup to legGroup
         legGroup.add(upperLegGroup);
 
-        // Position the legGroup at hip position
         legGroup.position.set(side === 'left' ? -1.5 : 1.5, 6.5, 0);
-
-        // Store references to upper and lower leg groups for animation
         legGroup.upperLegGroup = upperLegGroup;
         legGroup.lowerLegGroup = lowerLegGroup;
 
@@ -627,7 +630,7 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     const pubicHairGeometry = new THREE.PlaneGeometry(2, 1);
     const pubicHairMaterial = new THREE.MeshLambertMaterial({ color: selectedHairColor, side: THREE.DoubleSide });
     const pubicHair = new THREE.Mesh(pubicHairGeometry, pubicHairMaterial);
-    pubicHair.position.set(0, 6.8, 1.1); // Positioned to align with lower body region
+    pubicHair.position.set(0, 6.8, 1.1);
     pubicHair.rotation.x = Math.PI / 2;
     group.add(pubicHair);
 
@@ -668,70 +671,117 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
             }
         });
     }
-    
+
     return group;
 }
 
 function animateHumanoid(humanoid, deltaTime) {
     if (humanoid.isMoving) {
+        // Adjust animation time with a smoother easing multiplier
         humanoid.animationTime += deltaTime * humanoid.animationSpeed * 3.5;
 
-        // Advanced parameters for realistic, side-view walking motion
-        const legSwingAmplitude = 0.55;
-        const armSwingAmplitude = 0.45;
-        const kneeBendAmplitude = 1.0;
-        const footRollAmplitude = 0.25;
-        const hipTiltAmplitude = 0.15;
-        const torsoTwistAmplitude = 0.08;
-        const bodyBobAmplitude = 0.08;
+        // Enhanced natural walking motion parameters
+        const legSwingAmplitude = 0.65;
+        const armSwingAmplitude = 0.55;
+        const kneeBendAmplitude = 1.1;
+        const footRollAmplitude = 0.35;
+        const hipSwayAmplitude = 0.1;
+        const torsoTwistAmplitude = 0.09;
+        const bodyBobAmplitude = 0.12;
         const headBobAmplitude = 0.1;
         const forwardLean = 0.15;
         const breathingAmplitude = 0.02;
+        const minorOffset = 0.005;
 
-        // Calculate swing phase with breathing sync for natural rhythm
+        // Calculate phase using a continuous sine wave for fluidity
         const swing = Math.sin(humanoid.animationTime * humanoid.armSwingSpeed);
         const swingPositive = Math.max(0, swing);
         const swingNegative = Math.max(0, -swing);
         const breathing = Math.sin(humanoid.animationTime * 0.5) * breathingAmplitude;
 
-        // **Dynamic Arm Swing** with shoulder sway and slight forward reach
-        humanoid.leftArm.rotation.x = swing * armSwingAmplitude;
-        humanoid.leftArm.rotation.z = -swing * 0.2; // Natural shoulder sway
-        humanoid.rightArm.rotation.x = -swing * armSwingAmplitude;
-        humanoid.rightArm.rotation.z = swing * 0.2;
+        // Add slight randomness for realism
+        const armOffset = Math.random() * minorOffset;
+        const legOffset = Math.random() * minorOffset;
 
-        // **Leg Swing** with distinct "lift" and "plant" phases, simulating weight
-        humanoid.leftLeg.upperLegGroup.rotation.x = -swing * legSwingAmplitude;
-        humanoid.rightLeg.upperLegGroup.rotation.x = swing * legSwingAmplitude;
+        // Arm movements - Reduced inward angles
+        humanoid.leftArm.rotation.x = (swing + armOffset) * armSwingAmplitude;
+        humanoid.leftArm.rotation.z = -0.15 + Math.max(0, swing) * 0.1; // Reduced inward angle
+        humanoid.rightArm.rotation.x = (-swing + armOffset) * armSwingAmplitude;
+        humanoid.rightArm.rotation.z = 0.15 - Math.max(0, -swing) * 0.1; // Reduced inward angle
 
-        // **Adaptive Knee Bend** based on each leg’s phase in the walk
+        /* Weapon animation placeholder
+        if (humanoid.equippedWeapon) {
+            // Weapon follows right arm movement with offset
+            const weaponRestAngle = -0.3; // Angle when standing still
+            const weaponSwingAmplitude = 0.4; // How much it swings while walking
+            
+            // Position weapon relative to right arm
+            humanoid.equippedWeapon.position.copy(humanoid.rightArm.position);
+            humanoid.equippedWeapon.position.y += 2; // Adjust grip position
+            humanoid.equippedWeapon.position.x += 1; // Offset from arm
+            
+            // Rotate weapon
+            humanoid.equippedWeapon.rotation.x = humanoid.rightArm.rotation.x;
+            humanoid.equippedWeapon.rotation.y = weaponRestAngle + swing * weaponSwingAmplitude;
+            humanoid.equippedWeapon.rotation.z = humanoid.rightArm.rotation.z;
+            
+            // Optional: Add slight weapon bob
+            const weaponBob = Math.sin(humanoid.animationTime * 2) * 0.05;
+            humanoid.equippedWeapon.position.y += weaponBob;
+            
+            // Update weapon matrix
+            humanoid.equippedWeapon.updateMatrixWorld(true);
+        }
+        */
+
+        // Leg movements - Forward/backward motion (x-axis)
+        humanoid.leftLeg.upperLegGroup.rotation.x = (-swing + legOffset) * legSwingAmplitude;
+        humanoid.rightLeg.upperLegGroup.rotation.x = (swing + legOffset) * legSwingAmplitude;
+
+        // Knee Bend - Only bend when leg is moving backward
         humanoid.leftLeg.lowerLegGroup.rotation.x = swingNegative * kneeBendAmplitude;
         humanoid.rightLeg.lowerLegGroup.rotation.x = swingPositive * kneeBendAmplitude;
 
-        // **Heel-to-Toe Foot Roll** for smooth stepping motion
+        // Foot Roll - Synchronize with leg movement
         humanoid.leftLeg.lowerLegGroup.children[2].rotation.x = swingPositive * footRollAmplitude;
         humanoid.rightLeg.lowerLegGroup.children[2].rotation.x = swingNegative * footRollAmplitude;
 
-        // **Hip Tilt and Drop** for weight shift and balance
-        humanoid.leftLeg.upperLegGroup.rotation.z = swing * hipTiltAmplitude;
-        humanoid.rightLeg.upperLegGroup.rotation.z = -swing * hipTiltAmplitude;
-        humanoid.leftLeg.upperLegGroup.position.y = 1 - swingPositive * 0.5; // Drop left hip when stepping with right leg
-        humanoid.rightLeg.upperLegGroup.position.y = 1 - swingNegative * 0.5; // Drop right hip when stepping with left leg
+        // Natural hip sway - Subtle side-to-side motion
+        const hipSway = Math.cos(humanoid.animationTime * humanoid.armSwingSpeed) * hipSwayAmplitude;
+        humanoid.leftLeg.upperLegGroup.position.y = 1 - swingPositive * 0.45 + minorOffset;
+        humanoid.rightLeg.upperLegGroup.position.y = 1 - swingNegative * 0.45 + minorOffset;
+        
+        // Body movement
+        humanoid.body.position.y = 12 + Math.abs(swing) * bodyBobAmplitude + breathing;
+        humanoid.body.rotation.x = -forwardLean;
+        humanoid.body.rotation.y = swing * torsoTwistAmplitude;
+        humanoid.body.rotation.z = hipSway * 0.5;
 
-        // **Body Bob with Forward Lean** synced to breathing for lifelike effect
-        humanoid.body.position.y = 12 + Math.abs(swing) * bodyBobAmplitude + breathing; // Add breathing bob
-        humanoid.body.rotation.x = -forwardLean; // Forward tilt
-        humanoid.body.rotation.y = swing * torsoTwistAmplitude; // Subtle torso twist opposite to leg swing
+        // Head movement
+        humanoid.head.position.y = 18 + Math.abs(swing) * headBobAmplitude + breathing * 0.5;
+        humanoid.head.rotation.x = swing * 0.06;
+        humanoid.head.rotation.z = hipSway * 0.3;
 
-        // **Head Bob and Subtle Tilt** for enhanced balance correction
-        humanoid.head.position.y = 18 + Math.abs(swing) * headBobAmplitude + breathing * 0.5; // Add head bob synced to breathing
-        humanoid.head.rotation.x = swing * 0.05; // Head tilts forward with each step
-        humanoid.head.rotation.z = -swing * 0.02; // Slight sideways tilt for balance
-
+        // Update shorts to follow leg movements
+        humanoid.traverse((child) => {
+            if (child.name.includes('Shorts')) {
+                if (child.name.includes('Left')) {
+                    child.rotation.x = humanoid.leftLeg.upperLegGroup.rotation.x * 0.8;
+                    child.rotation.z = humanoid.leftLeg.upperLegGroup.rotation.z * 0.8;
+                } else if (child.name.includes('Right')) {
+                    child.rotation.x = humanoid.rightLeg.upperLegGroup.rotation.x * 0.8;
+                    child.rotation.z = humanoid.rightLeg.upperLegGroup.rotation.z * 0.8;
+                }
+                child.updateMatrixWorld(true);
+            }
+            if (child.name.includes('Shirt')) {
+                child.updateMatrixWorld(true);
+            }
+        });
     } else {
-        // Reset limbs and torso/head positions if idle
-        humanoid.leftArm.rotation.set(0, 0, 0);
-        humanoid.rightArm.rotation.set(0, 0, 0);
+        // Reset to neutral positions when not moving
+        humanoid.leftArm.rotation.set(0, 0, -0.15);  // Reduced inward angle at rest
+        humanoid.rightArm.rotation.set(0, 0, 0.15);  // Reduced inward angle at rest
         humanoid.leftLeg.upperLegGroup.rotation.set(0, 0, 0);
         humanoid.rightLeg.upperLegGroup.rotation.set(0, 0, 0);
         humanoid.leftLeg.lowerLegGroup.rotation.x = 0;
@@ -744,6 +794,25 @@ function animateHumanoid(humanoid, deltaTime) {
         humanoid.body.rotation.set(0, 0, 0);
         humanoid.head.position.y = 18;
         humanoid.head.rotation.set(0, 0, 0);
+
+        /* Weapon reset placeholder
+        if (humanoid.equippedWeapon) {
+            // Reset weapon to default position
+            humanoid.equippedWeapon.position.copy(humanoid.rightArm.position);
+            humanoid.equippedWeapon.position.y += 2;
+            humanoid.equippedWeapon.position.x += 1;
+            humanoid.equippedWeapon.rotation.set(0, -0.3, 0.15);
+            humanoid.equippedWeapon.updateMatrixWorld(true);
+        }
+        */
+
+        // Reset shorts
+        humanoid.traverse((child) => {
+            if (child.name.includes('Shorts')) {
+                child.rotation.set(0, 0, 0);
+                child.updateMatrixWorld(true);
+            }
+        });
     }
 }
 

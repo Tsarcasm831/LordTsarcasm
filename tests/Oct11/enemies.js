@@ -745,14 +745,26 @@ function defeatEnemy(enemy) {
 
 function damagePlayer(amount) {
     if (playerInvulnerable) return; // Player is invulnerable
+
     const vitalityFactor = characterStats.vitality / 10; // Adjust as needed
     const actualDamage = Math.max(1, amount - vitalityFactor);
+
+    // Decrease player health
     playerHealth -= actualDamage;
     if (playerHealth <= 0) {
         playerHealth = 0;
         console.log('You have been defeated!');
         // Implement game over logic here
     }
+
+    // Optionally decrease mana as a consequence of taking damage
+    currentMana -= actualDamage * 0.1; // Adjust the multiplier as needed
+    if (currentMana < 0) currentMana = 0;
+
+    // Update health and mana orbs
+    updateOrbs();
+
+    // Update health display (if there's a specific UI update function)
     updateHealthDisplay();
 }
 
