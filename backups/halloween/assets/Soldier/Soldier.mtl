@@ -1,0 +1,196 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 18.07.2017 10:15:10
+
+newmtl head
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.5882 0.5882 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka D:\Praca\Moje 3D modely\Man_steam_scifi\textures\Head\head_Base_Color.png
+	map_Kd D:\Praca\Moje 3D modely\Man_steam_scifi\textures\Head\head_Base_Color.png
+
+newmtl body
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.5882 0.5882 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Body\Body_Base_Color.png
+	map_Kd D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Body\Body_Base_Color.png
+
+newmtl Arm
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.5882 0.5882 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Arm_armor\Arm_Base_Color.png
+	map_Kd D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Arm_armor\Arm_Base_Color.png
+
+newmtl leg
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.5882 0.5882 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Leg\leg_Base_Color.png
+	map_Kd D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Leg\leg_Base_Color.png
+
+newmtl Helmet
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.5882 0.5882 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Helmet\Helmet_Base_Color.png
+	map_Kd D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Helmet\Helmet_Base_Color.png
+
+newmtl Weapon_04
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.5882 0.5882 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka D:\Praca\Moje 3D modely\Man_steam_scifi\weapon\textures\04_Base_Color.png
+	map_Kd D:\Praca\Moje 3D modely\Man_steam_scifi\weapon\textures\04_Base_Color.png
+
+newmtl Weapon_01
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka D:\Praca\Moje 3D modely\Man_steam_scifi\weapon\textures\01_Base_Color.png
+	map_Kd D:\Praca\Moje 3D modely\Man_steam_scifi\weapon\textures\01_Base_Color.png
+
+newmtl wire_086086086
+	Ns 32.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.3373 0.3373 0.3373
+	Kd 0.3373 0.3373 0.3373
+	Ks 0.3500 0.3500 0.3500
+	Ke 0.0000 0.0000 0.0000
+
+newmtl Weapon_03
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.5882 0.5882 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka D:\Praca\Moje 3D modely\Man_steam_scifi\weapon\textures\03_Base_Color.png
+	map_Kd D:\Praca\Moje 3D modely\Man_steam_scifi\weapon\textures\03_Base_Color.png
+
+newmtl Weapon_02
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.5882 0.5882 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka D:\Praca\Moje 3D modely\Man_steam_scifi\weapon\textures\02_Base_Color.png
+	map_Kd D:\Praca\Moje 3D modely\Man_steam_scifi\weapon\textures\02_Base_Color.png
+
+newmtl glass_broken
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.5882 0.5882 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Glass_broken\glass_broken_Base_Color.png
+	map_Kd D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Glass_broken\glass_broken_Base_Color.png
+
+newmtl Glass
+	Ns 30.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5500 0.5500 0.5500
+	Kd 0.5500 0.5500 0.5500
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Glass\Glass_Base_Color.png
+	map_Kd D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Glass\Glass_Base_Color.png
+
+newmtl Torso_Armor
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Torso_armor\Torso_armor_Base_Color.png
+	map_Kd D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Torso_armor\Torso_armor_Base_Color.png
+
+newmtl parts
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.5882 0.5882 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Parts\Parts_Base_Color.png
+	map_Kd D:\Praca\Moje 3D modely\Man_steam_scifi\Soldier\MAX\textures\Parts\Parts_Base_Color.png

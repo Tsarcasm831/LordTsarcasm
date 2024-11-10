@@ -1,0 +1,2481 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
+
+        <style>
+            /* Reset and Base Styles */
+            body { 
+                margin: 0; 
+                overflow: hidden; 
+                background: linear-gradient(135deg, #1e3c72, #2a5298); /* Gradient background for depth */
+                font-family: 'Roboto', sans-serif; /* Modern, clean font */
+            }
+            canvas { 
+                display: block;
+            }
+
+            /* Info Panel */
+            #info {
+                position: absolute;
+                top: 6vh;
+                left: 2vw;
+                color: #f0f0f0;
+                font-family: 'Courier New', Courier, monospace;
+                background: rgba(0, 0, 0, 0.6); /* Dark semi-transparent background for readability */
+                padding: 1vh 1.5vh;
+                font-size: 1.6vh;
+                border-radius: 0.5vh;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                backdrop-filter: blur(5px);
+            }
+
+            /* Compass */
+            #compass {
+                position: absolute;
+                top: 2vh;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80vw;
+                height: 5vh; /* Increased height for better visibility */
+                background: rgba(0, 0, 0, 0.6);
+                border-radius: 2.5vh;
+                max-width: 1200px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            }
+
+            #compass-center {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 0.3vw;
+                height: 5vh;
+                background: linear-gradient(180deg, #ffeb3b, #fbc02d);
+                border-radius: 0.15vw;
+                z-index: 2;
+                box-shadow: 0 0 8px rgba(255, 235, 59, 0.7);
+            }
+
+            #compass-marker {
+                position: absolute;
+                top: 1vh;
+                left: 50%;
+                width: 3vh;
+                height: 3vh;
+                background: #ff5722;
+                border: 2px solid #fff;
+                border-radius: 50%;
+                transform: translateX(-50%);
+                box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+                transition: transform 0.3s ease;
+            }
+
+            /* Cardinal Markers */
+            .cardinal-marker {
+                position: absolute;
+                top: 1vh;
+                width: 3vh;
+                height: 3vh;
+                background: #ffffff;
+                border: 2px solid #ff5722;
+                border-radius: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #333;
+                font-family: 'Courier New', Courier, monospace;
+                font-weight: bold;
+                font-size: 1.6vh;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                transition: background 0.3s, transform 0.3s;
+            }
+
+            .cardinal-marker:hover {
+                background: #ff5722;
+                color: #fff;
+                transform: translateX(-50%) scale(1.1);
+            }
+
+            /* Pumpkin Marker */
+            .pumpkin-marker {
+                position: absolute;
+                top: 2vh;
+                width: 1.5vh;
+                height: 1.5vh;
+                background: radial-gradient(circle at 30% 30%, #ff9800, #f57c00);
+                border: 1px solid #e65100;
+                border-radius: 50%;
+                transform: translateX(-50%);
+                box-shadow: inset 0 0 4px rgba(0,0,0,0.5);
+            }
+
+            /* Hotbar */
+            #hotbar {
+                position: fixed;
+                bottom: 3vh;
+                left: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                gap: 1.2vw;
+                background: rgba(0, 0, 0, 0.8);
+                padding: 1.2vh 1.5vh;
+                border-radius: 1.2vh;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            }
+
+            /* Hotbar Slots */
+            .hotbar-slot {
+                width: 7vh;
+                height: 7vh;
+                background: rgba(255, 255, 255, 0.15);
+                border: 0.2vh solid rgba(255, 255, 255, 0.4);
+                border-radius: 0.7vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #ffffff;
+                font-family: 'Courier New', Courier, monospace;
+                position: relative;
+                transition: background 0.3s, transform 0.3s;
+                cursor: pointer;
+            }
+
+            .hotbar-slot:hover {
+                background: rgba(255, 255, 255, 0.25);
+                transform: scale(1.05);
+                border-color: #ff9800;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            }
+
+            /* Sprint Meter */
+            #sprint-meter {
+                position: fixed;
+                bottom: 11vh;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 35vw; /* Increased width for better visibility */
+                height: 1.5vh;
+                background: rgba(0, 0, 0, 0.8);
+                border-radius: 0.75vh;
+                overflow: hidden;
+                max-width: 350px;
+                box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            }
+
+            #sprint-fill {
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, #00c853, #b2ff59);
+                transition: width 0.2s ease-in-out;
+            }
+
+            /* Warning Message */
+            #warning-message {
+                position: fixed;
+                bottom: 14vh;
+                left: 50%;
+                transform: translateX(-50%);
+                color: #ffcc00;
+                font-family: 'Courier New', Courier, monospace;
+                background: rgba(0, 0, 0, 0.8);
+                padding: 1.2vh 2vh;
+                border-radius: 0.75vh;
+                display: none;
+                font-size: 2vh;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                animation: fadeIn 0.5s ease-in-out;
+            }
+
+            /* Mobile Controls */
+            .mobile-control {
+                display: none;
+                position: fixed;
+                width: 35vh; /* Increased size for better usability */
+                height: 35vh;
+                background: rgba(0, 0, 0, 0.6);
+                border-radius: 50%;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            }
+
+            #move-stick {
+                bottom: 4vh;
+                left: 4vh;
+            }
+
+            #look-stick {
+                bottom: 4vh;
+                right: 4vh;
+            }
+
+            .stick {
+                position: absolute;
+                width: 12vh; /* Increased size */
+                height: 12vh;
+                background: rgba(255, 255, 255, 0.9);
+                border-radius: 50%;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+            }
+
+            /* Mobile Buttons */
+            .mobile-button {
+                display: none;
+                position: fixed;
+                width: 12vh;
+                height: 12vh;
+                background: rgba(0, 0, 0, 0.6);
+                border-radius: 2vh;
+                color: #ffffff;
+                font-family: 'Courier New', Courier, monospace;
+                border: 0.3vh solid #ffffff;
+                cursor: pointer;
+                font-size: 2vh;
+                transition: background 0.3s, transform 0.3s;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            }
+
+            .mobile-button:hover {
+                background: rgba(255, 87, 34, 0.8);
+                transform: scale(1.1);
+            }
+
+            /* Sprint and Interact Buttons */
+            #sprint-button {
+                bottom: 26vh;
+                right: 4vh;
+            }
+
+            #interact-button {
+                bottom: 26vh;
+                left: 4vh;
+            }
+
+            /* Show Mobile Controls */
+            .show-mobile {
+                display: block !important;
+            }
+
+            /* Overlay */
+            #overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.95);
+                color: #ffffff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                flex-direction: column;
+                padding: 2vh 5vw;
+                box-sizing: border-box;
+                animation: fadeInOverlay 0.5s ease-in-out;
+            }
+
+            #overlay-content {
+                text-align: center;
+                max-width: 800px;
+            }
+
+            #overlay-content h1 {
+                font-size: 4.5vh;
+                margin-bottom: 1.5vh;
+                color: #ff9800;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            }
+
+            #overlay-content p {
+                font-size: 2.2vh;
+                margin-bottom: 3.5vh;
+                line-height: 1.6;
+                color: #f0f0f0;
+            }
+
+            /* Overlay Links */
+            #overlay-links a {
+                display: inline-block;
+                margin: 0.5vh 1vh;
+                padding: 0.8vh 2vh;
+                background: #ff9800;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 0.5vh;
+                transition: background 0.3s, transform 0.3s;
+                font-size: 1.8vh;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            }
+
+            #overlay-links a:hover {
+                background-color: #e65100;
+                transform: scale(1.05);
+            }
+
+            /* Start Button */
+            #start-button {
+                padding: 1.2vh 4vh;
+                font-size: 2.2vh;
+                background-color: #ff9800;
+                border: none;
+                border-radius: 0.6vh;
+                cursor: pointer;
+                transition: background-color 0.3s, transform 0.2s;
+                margin: 2vh auto 0;
+                display: block;
+                width: fit-content;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            }
+
+            #start-button:hover {
+                background-color: #e65100;
+                transform: scale(1.05);
+            }
+
+            /* Enemy Marker */
+            #enemy-marker {
+                position: absolute;
+                top: 0.7vh;
+                width: 3vh;
+                height: 3vh;
+                background: radial-gradient(circle, #ff1744, #d50000);
+                border: 2px solid #ffffff;
+                border-radius: 50%;
+                transform: translateX(-50%);
+                z-index: 3;
+                box-shadow: 0 0 8px rgba(255,23,68,0.7);
+            }
+
+            /* Enemy Timer */
+            #enemy-timer {
+                position: absolute;
+                top: 6vh;
+                left: 50%;
+                transform: translateX(-50%);
+                color: #ffcc00;
+                font-family: 'Courier New', Courier, monospace;
+                background: rgba(0, 0, 0, 0.8);
+                padding: 1.2vh 2vh;
+                border-radius: 0.75vh;
+                font-size: 2vh;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            }
+
+            /* Loading Bar Container */
+            #loading-bar-container {
+                width: 80%;
+                height: 3vh; /* Increased height for better visibility */
+                background-color: #444;
+                border-radius: 1.5vh;
+                overflow: hidden;
+                margin: 3vh auto;
+                position: relative;
+                box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+            }
+
+            /* Loading Bar */
+            #loading-bar {
+                width: 0%;
+                height: 100%;
+                background: linear-gradient(90deg, #ff5722, #ff9800, #ffc107);
+                background-size: 300% 100%;
+                animation: fluidFill 3s linear infinite;
+                transition: width 0.5s ease-in-out;
+            }
+
+            /* Loading Text */
+            #loading-text {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: #ffffff;
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 1.4vh;
+                white-space: nowrap;
+                pointer-events: none;
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+            }
+
+            /* Fluid Fill Animation */
+            @keyframes fluidFill {
+                0% {
+                    background-position: 0% 0%;
+                }
+                50% {
+                    background-position: 100% 0%;
+                }
+                100% {
+                    background-position: 0% 0%;
+                }
+            }
+
+            /* Play Button */
+            #play-button {
+                padding: 1.2vh 4vh;
+                font-size: 2.2vh;
+                background-color: #ff9800;
+                border: none;
+                border-radius: 0.6vh;
+                cursor: pointer;
+                transition: background-color 0.3s, transform 0.2s;
+                display: none; /* Hidden initially */
+                margin: 2vh auto 0;
+                display: block;
+                width: fit-content;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            }
+
+            /* Play Button Hover Effect */
+            #play-button:hover {
+                background-color: #e65100;
+                transform: scale(1.05);
+            }
+
+            /* Modal */
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 10001;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0,0,0,0.85);
+                animation: fadeInModal 0.5s ease-in-out;
+            }
+
+            .modal-content {
+                background-color: #2c2c2c;
+                margin: 10% auto;
+                padding: 2vh 3vh;
+                border: 1px solid #555;
+                width: 80%;
+                max-width: 600px;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                color: #f5f5f5;
+                border-radius: 1vh;
+                position: relative;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+            }
+
+            .close-button {
+                color: #bbb;
+                float: right;
+                font-size: 32px;
+                font-weight: bold;
+                position: absolute;
+                right: 20px;
+                top: 15px;
+                cursor: pointer;
+                transition: color 0.3s;
+            }
+
+            .close-button:hover,
+            .close-button:focus {
+                color: #ffffff;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+            .modal-content img {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                display: block;
+                margin: 0 auto 20px auto;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            }
+
+            .modal-content h2 {
+                text-align: center;
+                margin-bottom: 20px;
+                color: #ff9800;
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            }
+
+            .modal-content p {
+                font-size: 18px;
+                line-height: 1.6;
+                text-align: justify;
+            }
+
+            /* Overlay Links */
+            #overlay-links a {
+                display: inline-block;
+                margin: 0.5vh 1vh;
+                padding: 0.8vh 2vh;
+                background: #ff9800;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 0.5vh;
+                transition: background 0.3s, transform 0.3s;
+                font-size: 1.8vh;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            }
+
+            #overlay-links a:hover {
+                background-color: #e65100;
+                transform: scale(1.05);
+            }
+
+            /* Start Button */
+            #start-button {
+                padding: 1.2vh 4vh;
+                font-size: 2.2vh;
+                background-color: #ff9800;
+                border: none;
+                border-radius: 0.6vh;
+                cursor: pointer;
+                transition: background-color 0.3s, transform 0.2s;
+                margin: 2vh auto 0;
+                display: block;
+                width: fit-content;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            }
+
+            #start-button:hover {
+                background-color: #e65100;
+                transform: scale(1.05);
+            }
+
+            /* Enemy Marker */
+            #enemy-marker {
+                position: absolute;
+                top: 0.7vh;
+                width: 3vh;
+                height: 3vh;
+                background: radial-gradient(circle, #ff1744, #d50000);
+                border: 2px solid #ffffff;
+                border-radius: 50%;
+                transform: translateX(-50%);
+                z-index: 3;
+                box-shadow: 0 0 8px rgba(255,23,68,0.7);
+            }
+
+            /* Enemy Timer */
+            #enemy-timer {
+                position: absolute;
+                top: 6vh;
+                left: 50%;
+                transform: translateX(-50%);
+                color: #ffcc00;
+                font-family: 'Courier New', Courier, monospace;
+                background: rgba(0, 0, 0, 0.8);
+                padding: 1.2vh 2vh;
+                border-radius: 0.75vh;
+                font-size: 2vh;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            }
+
+            /* Loading Bar Container */
+            #loading-bar-container {
+                width: 80%;
+                height: 3vh; /* Increased height for better visibility */
+                background-color: #444;
+                border-radius: 1.5vh;
+                overflow: hidden;
+                margin: 3vh auto;
+                position: relative;
+                box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+            }
+
+            /* Loading Bar */
+            #loading-bar {
+                width: 0%;
+                height: 100%;
+                background: linear-gradient(90deg, #ff5722, #ff9800, #ffc107);
+                background-size: 300% 100%;
+                animation: fluidFill 3s linear infinite;
+                transition: width 0.5s ease-in-out;
+            }
+
+            /* Loading Text */
+            #loading-text {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: #ffffff;
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 1.4vh;
+                white-space: nowrap;
+                pointer-events: none;
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+            }
+
+            /* Fluid Fill Animation */
+            @keyframes fluidFill {
+                0% {
+                    background-position: 0% 0%;
+                }
+                50% {
+                    background-position: 100% 0%;
+                }
+                100% {
+                    background-position: 0% 0%;
+                }
+            }
+
+            /* Play Button */
+            #play-button {
+                padding: 1.2vh 4vh;
+                font-size: 2.2vh;
+                background-color: #ff9800;
+                border: none;
+                border-radius: 0.6vh;
+                cursor: pointer;
+                transition: background-color 0.3s, transform 0.2s;
+                display: none; /* Hidden initially */
+                margin: 2vh auto 0;
+                display: block;
+                width: fit-content;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            }
+
+            /* Play Button Hover Effect */
+            #play-button:hover {
+                background-color: #e65100;
+                transform: scale(1.05);
+            }
+
+            /* Modal */
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 10001;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0,0,0,0.85);
+                animation: fadeInModal 0.5s ease-in-out;
+            }
+
+            .modal-content {
+                background-color: #2c2c2c;
+                margin: 10% auto;
+                padding: 2vh 3vh;
+                border: 1px solid #555;
+                width: 80%;
+                max-width: 600px;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                color: #f5f5f5;
+                border-radius: 1vh;
+                position: relative;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+            }
+
+            .close-button {
+                color: #bbb;
+                float: right;
+                font-size: 32px;
+                font-weight: bold;
+                position: absolute;
+                right: 20px;
+                top: 15px;
+                cursor: pointer;
+                transition: color 0.3s;
+            }
+
+            .close-button:hover,
+            .close-button:focus {
+                color: #ffffff;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+            .modal-content img {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                display: block;
+                margin: 0 auto 20px auto;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            }
+
+            .modal-content h2 {
+                text-align: center;
+                margin-bottom: 20px;
+                color: #ff9800;
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            }
+
+            .modal-content p {
+                font-size: 18px;
+                line-height: 1.6;
+                text-align: justify;
+            }
+
+            /* Inventory Items */
+            #inventory-items {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+                grid-gap: 12px;
+                justify-content: center;
+                padding: 1vh 0;
+            }
+
+            .inventory-item {
+                width: 60px;
+                height: 60px;
+                background-color: #444;
+                border: 1px solid #666;
+                border-radius: 5px;
+                position: relative;
+                cursor: pointer;
+                transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            }
+
+            .inventory-item:hover {
+                border-color: #ff9800;
+                transform: scale(1.05);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            }
+
+            .inventory-item img {
+                width: 100%;
+                height: 100%;
+                border-radius: 3px;
+                object-fit: cover;
+            }
+
+            .item-tooltip {
+                display: none;
+                position: absolute;
+                top: -10px;
+                left: 70px;
+                background-color: rgba(0,0,0,0.85);
+                color: #fff;
+                padding: 10px;
+                border: 1px solid #888;
+                border-radius: 5px;
+                width: 220px;
+                z-index: 10002;
+                font-size: 14px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                white-space: normal;
+                text-align: left;
+            }
+
+            .inventory-item:hover .item-tooltip {
+                display: block;
+                animation: fadeInTooltip 0.3s ease-in-out;
+            }
+
+            /* Animations */
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            @keyframes fadeInOverlay {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            @keyframes fadeInModal {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            @keyframes fadeInTooltip {
+                from { opacity: 0; transform: translateX(10px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+
+            /* New Styles for Inventory Interface */
+
+            /* Inventory Modal Specific Styles */
+            .modal-content#inventory-content {
+                background-color: #1e1e1e;
+                border: 2px solid #333;
+                max-height: 80vh;
+                overflow-y: auto;
+                padding: 2vh 3vh;
+            }
+
+            /* Inventory Header */
+            #inventory-content h2 {
+                color: #ff9800;
+                font-size: 2.5vh;
+                margin-bottom: 1vh;
+                text-align: center;
+            }
+
+            /* Inventory Tabs */
+            #inventory-tabs {
+                display: flex;
+                justify-content: space-around;
+                margin-bottom: 1vh;
+                border-bottom: 1px solid #555;
+            }
+
+            .inventory-tab {
+                flex: 1;
+                padding: 1vh 0;
+                text-align: center;
+                background-color: #333;
+                color: #fff;
+                cursor: pointer;
+                transition: background-color 0.3s, color 0.3s;
+                border-right: 1px solid #444;
+            }
+
+            .inventory-tab:last-child {
+                border-right: none;
+            }
+
+            .inventory-tab.active {
+                background-color: #ff9800;
+                color: #000;
+                font-weight: bold;
+            }
+
+            .inventory-tab:hover {
+                background-color: #555;
+            }
+
+            /* Inventory Filter and Search */
+            #inventory-filter-search {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 1vh;
+            }
+
+            #inventory-search {
+                width: 60%;
+                padding: 0.5vh 1vh;
+                border: 1px solid #555;
+                border-radius: 3px;
+                background-color: #333;
+                color: #fff;
+                font-size: 1.4vh;
+            }
+
+            #inventory-search::placeholder {
+                color: #bbb;
+            }
+
+            #inventory-filter {
+                width: 35%;
+                padding: 0.5vh 1vh;
+                border: 1px solid #555;
+                border-radius: 3px;
+                background-color: #333;
+                color: #fff;
+                font-size: 1.4vh;
+            }
+
+            #inventory-filter option {
+                background-color: #333;
+                color: #fff;
+            }
+
+            /* Inventory Sort Options */
+            #inventory-sort {
+                margin-top: 1vh;
+                display: flex;
+                justify-content: flex-end;
+            }
+
+            #inventory-sort select {
+                padding: 0.5vh 1vh;
+                border: 1px solid #555;
+                border-radius: 3px;
+                background-color: #333;
+                color: #fff;
+                font-size: 1.4vh;
+            }
+
+            #inventory-sort select option {
+                background-color: #333;
+                color: #fff;
+            }
+
+            /* Responsive Design for Inventory */
+            @media (max-width: 768px) {
+                #inventory-screen .modal-content {
+                    width: 95%;
+                    margin: 5% auto;
+                }
+
+                #inventory-search, #inventory-filter {
+                    width: 100%;
+                    margin-bottom: 1vh;
+                }
+
+                #inventory-filter-search {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+
+                #inventory-sort {
+                    justify-content: center;
+                }
+
+                .inventory-tab {
+                    font-size: 1.4vh;
+                    padding: 0.8vh 0;
+                }
+            }
+        </style>
+
+    </head>
+    
+    <body>
+        
+        <!-- Overlay Starting Screen -->
+        <div id="overlay">
+            <div id="overlay-content">
+                <h1>Welcome to Pumpkin Quest Expanded - Lord Tsarcasm Edition!</h1>
+                <p>Credit for the original framework goes to @Thagnoth </p>
+                <p>THANKS SO MUCH!! (^_^) </p>
+                    <!-- <ul id="overlay-links">
+                        <li><a href="https://tsarcasm831.github.io/LordTsarcasm/projects.html" target="_blank">See My Other Stuff</a></li>
+                    </ul> -->
+                <!-- Loading Bar Container -->
+                <div id="loading-bar-container">
+                    <div id="loading-bar">
+                        <span id="loading-text">Loading 0%</span>
+                    </div>
+                </div>
+                    <!-- Play Button (Initially Hidden) -->
+                    <label style="display: block; margin: 1em 0;">
+                        <input type="checkbox" id="god-mode-toggle">
+                        Enable God Mode
+                    </label>
+                <button id="play-button" style="display: none;">Play Game</button>
+            </div>
+        </div>
+
+        <!-- Modal for Character Information -->
+        <div id="character-info" class="modal">
+            <div class="modal-content">
+                <span class="close-button" id="close-character-info">&times;</span>
+                <h2>Character Information</h2>
+                <img src="player-picture.png" alt="Player Picture" id="player-picture">
+                <p><strong>Health:</strong> <span id="player-health">100</span></p>
+                <p><strong>Stamina:</strong> <span id="player-stamina">100</span></p>
+                <p><strong>Level:</strong> <span id="player-level">1</span></p>
+                <p id="player-description">An adventurer on a quest to collect pumpkins.</p>
+            </div>
+        </div>
+
+        <!-- Modal for Inventory Screen -->
+        <div id="inventory-screen" class="modal">
+            <div class="modal-content" id="inventory-content">
+                <span class="close-button" id="close-inventory">&times;</span>
+                <h2>Inventory</h2>
+                
+                <!-- Filter and Search Section -->
+                <div id="inventory-filter-search">
+                    <input type="text" id="inventory-search" placeholder="Search items...">
+                    <select id="inventory-filter">
+                        <option value="all">All Categories</option>
+                        <option value="equipment">Equipment</option>
+                        <option value="consumables">Consumables</option>
+                        <option value="quest">Quest Items</option>
+                        <option value="materials">Materials</option>
+                        <option value="storage">Storage</option>
+                    </select>
+                </div>
+                
+                <!-- Tabs for Different Inventory Categories -->
+                <div id="inventory-tabs">
+                    <div class="inventory-tab active" data-tab="equipment">Equipment</div>
+                    <div class="inventory-tab" data-tab="consumables">Consumables</div>
+                    <div class="inventory-tab" data-tab="quest">Quest Items</div>
+                    <div class="inventory-tab" data-tab="materials">Materials</div>
+                    <div class="inventory-tab" data-tab="storage">Storage</div>
+                </div>
+                
+                <!-- Sorting Options -->
+                <div id="inventory-sort">
+                    <select id="inventory-sort-options">
+                        <option value="default">Sort By</option>
+                        <option value="name-asc">Name (A-Z)</option>
+                        <option value="name-desc">Name (Z-A)</option>
+                        <option value="rarity">Rarity</option>
+                        <option value="date-acquired">Date Acquired</option>
+                    </select>
+                </div>
+                
+                <!-- Inventory Items Grid -->
+                <div id="inventory-items">
+                    <!-- Example Inventory Item -->
+                    <div class="inventory-item">
+                        <img src="path-to-item-icon.png" alt="Item Name">
+                        <div class="item-tooltip">
+                            <strong>Item Name</strong><br>
+                            Description of the item goes here.<br>
+                            <em>Additional Attributes</em>
+                        </div>
+                    </div>
+                    <!-- Repeat .inventory-item as needed -->
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Modal for Game Information -->
+        <div id="info">Use WASD or Arrow Keys to move<br>Mouse to look around<br>Shift to sprint<br>E to interact<br>Search for all five pumpkins. Use the compass rose at the top of your screen to find them.<br><button id="mobile-toggle">Mobile Controls Mode</button></div>
+        
+        <!-- Admin Console -->
+        <div id="admin-console" class="modal">
+            <div class="modal-content">
+                <span class="close-button" id="close-admin-console">&times;</span>
+                <h2>Admin Console</h2>
+                <textarea id="console-input" rows="10" style="width: 100%;"></textarea>
+                <button id="execute-command">Execute</button>
+                <div id="console-output"></div>
+            </div>
+        </div>
+
+        <!-- Compass and Hotbar -->
+        <div id="compass">
+            <div id="compass-center"></div>
+            <div id="compass-marker"></div>
+            <div class="cardinal-marker" id="north-marker">N</div>
+            <div class="cardinal-marker" id="south-marker">S</div>
+            <div class="cardinal-marker" id="east-marker">E</div>
+            <div class="cardinal-marker" id="west-marker">W</div>
+            <div id="enemy-marker"></div>
+        </div>
+        <div id="hotbar">
+            <div class="hotbar-slot"></div>
+            <div class="hotbar-slot"></div>
+            <div class="hotbar-slot"></div>
+            <div class="hotbar-slot"></div>
+            <div class="hotbar-slot"></div>
+        </div>
+
+        <!-- Sprint Meter -->
+        <div id="sprint-meter">
+            <div id="sprint-fill"></div>
+        </div>
+
+        <!-- Enemy Timer -->
+        <div id="enemy-timer" style="display: none;">Time remaining: <span id="timer-value">20</span>s</div>
+
+        <!-- Warning Message -->
+        <div id="warning-message">The dark jack-o'-lantern awakens to find the pumpkin thief...</div>
+        <!-- Mobile Controls -->
+        <div id="move-stick" class="mobile-control">
+            <div class="stick"></div>
+            </div>
+            <div id="look-stick" class="mobile-control">
+            <div class="stick"></div>
+        </div>
+        <button id="sprint-button" class="mobile-button">Sprint</button>
+        <button id="interact-button" class="mobile-button">Interact</button>
+
+        <script>
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x000000, 0.15);
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setClearColor(0x000000);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            const listener = new THREE.AudioListener();
+            camera.add(listener);
+
+            let inventory = [];
+            const raycaster = new THREE.Raycaster();
+            let hoveredPumpkin = null;
+            let cursorRange = 3;
+
+            // Define the warning variable
+            const warning = document.getElementById('warning-message');
+
+
+            const GRAVITY = -20;
+            const JUMP_FORCE = 8;
+            const PLAYER_HEIGHT = 1.7;
+            const PLAYER_WIDTH = 0.6;
+            const PLAYER_DEPTH = 0.6;
+            let playerHealth = 100;
+            let playerLevel = 1;
+            let playerDescription = "An adventurer on a quest to collect pumpkins.";
+            const PLAYER_SPEED = 3.0;  // This is our "n" value
+            const ENEMY_SPEED = PLAYER_SPEED * 0.4; // Initial enemy speed is 0.4n
+            let playerVelocity = new THREE.Vector3();
+            let canJump = true;
+            // Enemy gives up after 20 seconds
+            let enemySpawnTime = 0; 
+
+            const playerGeometry = new THREE.BoxGeometry(PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_DEPTH);
+            const playerMaterial = new THREE.MeshBasicMaterial({
+                visible: false
+            });
+            const player = new THREE.Mesh(playerGeometry, playerMaterial);
+            scene.add(player);
+
+            const chunkSize = 20;
+            const tileSize = 1;
+            const loadedChunks = new Map();
+            const PUMPKIN_COLORS = {
+                orange: 0xff6600,
+                pink: 0xff66cc,
+                teal: 0x00cccc,
+                purple: 0x9933ff,
+                yellow: 0xffcc00
+            };
+
+            const pumpkins = new Map();
+            const enemySphere = new THREE.Group();
+            let enemyInitialized = false;
+            let enemySpawned = false;
+
+            const sound = new THREE.PositionalAudio(listener);
+            const audioLoader = new THREE.AudioLoader();
+            audioLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/Creepy%2C%20Ambient%2C%208-bit%2C%20drone%2C%20background%2C%20glitch.mp3', function(buffer) {
+                sound.setBuffer(buffer);
+                sound.setRefDistance(5);
+                sound.setRolloffFactor(2);
+                sound.setLoop(true);
+                sound.setVolume(0.15);
+                sound.setLoopStart(0);
+                sound.setLoopEnd(30);
+            });
+
+            const backgroundMusic = new THREE.Audio(listener);
+            const backgroundMusicLoader = new THREE.AudioLoader();
+            backgroundMusicLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/Anxiety_Panic.mp3', function(buffer) {
+                backgroundMusic.setBuffer(buffer);
+                backgroundMusic.setVolume(0.15);  // Reduced from 0.5
+                backgroundMusic.setLoop(true);
+            });
+
+            const dangerMusic = new THREE.Audio(listener);
+            const dangerMusicLoader = new THREE.AudioLoader();
+            dangerMusicLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/DangerMusic.mp3', function(buffer) {
+                dangerMusic.setBuffer(buffer);
+                dangerMusic.setVolume(0.15);  // Reduced from 0.5
+                dangerMusic.setLoop(true);
+            });
+
+            const collectionSound = new THREE.Audio(listener);
+            const victoryMusic = new THREE.Audio(listener);
+            const victoryMusicLoader = new THREE.AudioLoader();
+            victoryMusicLoader.load('https://file.garden/ZyQx4ztO7TTyC-0H/NSMB%20Overworld%20theme%20but%20in%20minor-XlO_3OVYkhs.mp4', function(buffer) {
+                victoryMusic.setBuffer(buffer);
+                victoryMusic.setVolume(0.25);  // Reduced from 1.0
+                victoryMusic.setLoop(true);
+            });
+            const collectionAudioLoader = new THREE.AudioLoader();
+            collectionAudioLoader.load('https://file.garden/ZyQx4ztO7TTyC-0H/Cinematic%20Boom%20-%20sound%20effect%20-%20%5BHigh%20quality%5D-dz6Lp_PyX_Q.mp4', function(buffer) {
+                collectionSound.setBuffer(buffer);
+                collectionSound.setVolume(0.5);
+            });
+
+            let enemySpeedMultiplier = 0.2; // Initial speed will be ENEMY_SPEED * 0.6
+            let pumpkinsCollected = 0;
+            let fifthPumpkinTime = 0;
+            let gameWon = false;
+            let isGameOver = false;
+            let isSpinning = false;
+            const SPIN_DURATION = 2000;
+            const SPIN_SPEED = Math.PI * 4;
+
+            const CHEAT_CODE = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a', 'Enter'];
+            let currentCheatSequence = [];
+
+            // Add mobile controls variables
+            let mobileControlsEnabled = false;
+            let moveStickActive = false;
+            let lookStickActive = false;
+            let moveStickOrigin = {x: 0, y: 0};
+            let lookStickOrigin = {x: 0, y: 0};
+            let currentMoveOffset = {x: 0, y: 0};
+            let currentLookOffset = {x: 0, y: 0};
+
+            const chunkGeometryCache = new Map();
+
+            const pumpkinMarkers = new Map();
+
+            const SPRINT_MULTIPLIER = 1.6;
+            const SPRINT_MAX_TIME = 10;
+            const SPRINT_RECHARGE_RATE = 1/0.6;
+
+            let musicStarted = false;
+
+            const keys = {
+                ArrowUp: false,
+                ArrowDown: false,
+                ArrowLeft: false,
+                ArrowRight: false,
+                w: false,
+                s: false,
+                a: false,
+                d: false,
+                shift: false
+            };
+
+            let sprintMeter = SPRINT_MAX_TIME;
+            let isSprinting = false;
+            let lastSprintRecharge = performance.now();
+
+            const tileColors = {
+                ground: 0x203020,
+                spawn: 0x800000,
+                tree: 0x201008  
+            };
+
+            const tileHeights = {
+                ground: 0.1,
+                spawn: 0.1,
+                tree: 6.0  
+            };
+
+            let pitch = 0;
+            let yaw = 0;
+
+            const moveSpeed = 3.0;
+
+            player.position.set(0, PLAYER_HEIGHT/2, 0);
+            camera.position.copy(player.position);
+            camera.position.y += PLAYER_HEIGHT/2;
+
+            // Clone the player's spawn position
+            const playerSpawnPosition = player.position.clone();
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(0, 1, 0);
+            scene.add(directionalLight);
+
+            // End Contrains
+
+
+            function createEnemySphere() {
+                // Load the OBJ model using OBJLoader
+                const loader = new THREE.OBJLoader();
+                loader.load('https://file.garden/Zy7B0LkdIVpGyzA1/Slender_Man_Lores.obj', function(object) {
+                    enemySphere.add(object);
+                    object.scale.set(0.01, 0.01, 0.01); // Adjust the scale if necessary
+                    object.position.set(0, 0, 0); // Set Y position to 0
+                    object.add(sound); // Add sound to the model
+                    scene.add(enemySphere);
+                    enemyInitialized = true;
+                }, undefined, function(error) {
+                    console.error('An error occurred while loading the model:', error);
+                });
+            }
+
+            function updateEnemyRotation() {
+                const enemyToPlayer = new THREE.Vector3();
+                enemyToPlayer.subVectors(player.position, enemySphere.position);
+                enemyToPlayer.y = 0;
+
+                const targetAngle = Math.atan2(enemyToPlayer.x, enemyToPlayer.z);
+                const currentAngle = enemySphere.rotation.y;
+
+                let angleDiff = targetAngle - currentAngle;
+
+                while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+                while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+
+                const maxRotation = (30 * Math.PI / 180) * (1/60);
+                const rotation = Math.sign(angleDiff) * Math.min(Math.abs(angleDiff), maxRotation);
+                
+                enemySphere.rotation.y += rotation;
+            }
+
+            function updateEnemy() {
+                if (!enemySpawned || gameWon || isGameOver) {
+                    return;
+                }
+
+                const elapsedSinceSpawn = (performance.now() - enemySpawnTime) / 1000;
+
+                if (elapsedSinceSpawn >= 20) {
+                    enemySpawned = false;
+                    scene.remove(enemySphere);
+                    sound.stop();
+                    dangerMusic.stop();
+                    if (backgroundMusic.buffer && !backgroundMusic.isPlaying) {
+                        backgroundMusic.play();
+                    }
+                    warning.textContent = "The dark jack-o'-lantern has given up the chase... for now.";
+                    const enemyTimer = document.getElementById('enemy-timer');
+                    enemyTimer.style.display = 'none';
+                    return;
+                }
+
+                // Update enemy timer display
+                const enemyTimer = document.getElementById('enemy-timer');
+                const timerValue = document.getElementById('timer-value');
+                const timeRemaining = Math.max(0, 20 - elapsedSinceSpawn);
+                enemyTimer.style.display = 'block';
+                timerValue.textContent = timeRemaining.toFixed(1);
+
+                const distanceToPlayer = enemySphere.position.distanceTo(player.position);
+                if (distanceToPlayer < 1 && !isGameOver) {
+                    triggerGameOver();
+                }
+
+                if (!enemyInitialized) {
+                    createEnemySphere();
+                }
+
+                // Calculate speed multiplier based on pumpkins collected
+                let speedMultiplier = 1.0; // Default to 1.0 * n
+                if (pumpkinsCollected >= 2) speedMultiplier = 1.1;  // 1.1 * n
+                if (pumpkinsCollected >= 3) speedMultiplier = 1.4;  // 1.4 * n
+                if (pumpkinsCollected >= 4) speedMultiplier = 1.7;  // 1.7 * n
+                if (pumpkinsCollected >= 5) speedMultiplier = 2.1;  // 2.1 * n
+
+                let currentSpeed = ENEMY_SPEED * speedMultiplier;
+
+                if (pumpkinsCollected === 5) {
+                    const elapsedTime = (performance.now() - fifthPumpkinTime) / 1000;
+                    const slowdownDuration = 30; // Total duration (25 + 5 seconds)
+                    const dropoffPoint = 25; // When rapid slowdown begins
+                    
+                    if (elapsedTime <= dropoffPoint) {
+                        currentSpeed *= Math.max(0, 1 - (elapsedTime / slowdownDuration));
+                    } else if (elapsedTime <= dropoffPoint + 5) {
+                        const remainingTime = elapsedTime - dropoffPoint;
+                        const speedAtDropoff = currentSpeed * (1 - (dropoffPoint / slowdownDuration));
+                        currentSpeed = speedAtDropoff * Math.max(0, 1 - (remainingTime / 5));
+                    } else {
+                        currentSpeed = 0;
+                    }
+
+                    if (currentSpeed <= 0) {
+                        triggerWin();
+                    }
+                }
+
+                enemySphere.position.y = player.position.y;
+
+                // Update enemy rotation to face the player
+                updateEnemyRotation();
+
+                // Corrected movement logic
+                const directionToPlayer = new THREE.Vector3();
+                directionToPlayer.subVectors(player.position, enemySphere.position);
+                directionToPlayer.y = 0; // Keep movement in the XZ plane
+                directionToPlayer.normalize();
+
+                enemySphere.position.add(directionToPlayer.multiplyScalar(currentSpeed * 0.03));
+            }
+
+
+
+            function triggerGameOver() {
+                isGameOver = true;
+                
+                // Exit pointer lock to release the mouse cursor
+                document.exitPointerLock();
+                
+                collectionSound.play();
+                backgroundMusic.stop();
+                dangerMusic.stop();
+                playerVelocity.set(0, 0, 0);
+
+                const cameraDirection = new THREE.Vector3(0, 0, -1);
+                cameraDirection.applyQuaternion(camera.quaternion);
+                const spawnPos = player.position.clone().add(cameraDirection.multiplyScalar(3));
+
+                enemySphere.position.copy(spawnPos);
+                enemySphere.position.y = player.position.y + PLAYER_HEIGHT / 2;
+
+                isSpinning = true;
+                const startTime = performance.now();
+
+                function spinAnimation() {
+                    const elapsed = performance.now() - startTime;
+                    if (elapsed < SPIN_DURATION) {
+                        enemySphere.rotation.y += SPIN_SPEED * (1/60);
+                        requestAnimationFrame(spinAnimation);
+                    } else {
+                        showGameOverScreen();
+                    }
+                }
+                spinAnimation();
+            }
+
+            function showGameOverScreen() {
+                const gameOverScreen = document.createElement('div');
+                gameOverScreen.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0,0,0,0.8);
+                    padding: 20px;
+                    border-radius: 10px;
+                    text-align: center;
+                    color: white;
+                    font-family: monospace;
+                `;
+                gameOverScreen.innerHTML = `
+                    <h1>GAME OVER</h1>
+                    <p>The dark jack-o'-lantern claims another victim... The next pumpkin thief should know to dodge! Tip: Its speed increases each time you anger it.</p>
+                    <button onclick="location.reload()" style="
+                        padding: 10px 20px;
+                        font-size: 16px;
+                        background: #ff6600;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                    ">Restart Game</button>
+                `;
+                document.body.appendChild(gameOverScreen);
+            }
+
+            function triggerCheatWin() {
+                currentCheatSequence = [];  // Reset the cheat code sequence
+
+                // Collect all remaining pumpkins
+                const remainingPumpkins = Array.from(pumpkins.keys());
+                for (const color of remainingPumpkins) {
+                    collectPumpkin(color);
+                }
+
+                // Ensure the enemy is spawned
+                if (!enemySpawned) {
+                    enemySpawned = true;
+                    enemySphere.position.set(0, PLAYER_HEIGHT, 0);
+                    sound.play();
+                    backgroundMusic.stop();
+                    dangerMusic.play();
+                }
+
+                // Set fifthPumpkinTime so the enemy's power wanes instantly
+                fifthPumpkinTime = performance.now() - 31 * 1000; // 31 seconds ago
+            }
+
+            
+            function collectPumpkin(color) {
+                const slots = document.querySelectorAll('.hotbar-slot');
+                for (let i = 0; i < slots.length; i++) {
+                    if (!slots[i].hasAttribute('data-pumpkin')) {
+                        const pumpkinGroup = pumpkins.get(color);
+                        if (pumpkinGroup) {
+                            const hexColor = PUMPKIN_COLORS[color].toString(16).padStart(6, '0');
+                            slots[i].style.backgroundColor = `#${hexColor}`; 
+                            slots[i].setAttribute('data-pumpkin', color);
+                            
+                            scene.remove(pumpkinGroup);
+                            pumpkins.delete(color);
+                            const marker = pumpkinMarkers.get(color);
+                            if (marker) {
+                                marker.remove();
+                                pumpkinMarkers.delete(color);
+                            }
+
+                            pumpkinsCollected++;
+
+                            const warning = document.getElementById('warning-message');
+                            warning.style.display = 'block';
+
+                            // Update warning messages and enemy speed based on pumpkins collected
+                            if (pumpkinsCollected === 1) {
+                                enemySpawned = true;
+                                enemySphere.position.set(0, PLAYER_HEIGHT, 0);
+                                sound.play();
+                                backgroundMusic.stop();
+                                dangerMusic.play();
+                                warning.textContent = "The dark jack-o'-lantern awakens to find the pumpkin thief... If you hear a hum approach, beware!";
+                            } else if (pumpkinsCollected === 2) {
+                                warning.textContent = "The dark jack-o'-lantern will not forgive you. You will not get away with this...";
+                                enemySpeedMultiplier = 1.1;
+                            } else if (pumpkinsCollected === 3) {
+                                warning.textContent = "You feel the trees watch you with pity. They have seen what's about to come so many times before...";
+                                enemySpeedMultiplier = 1.4;
+                            } else if (pumpkinsCollected === 4) {
+                                warning.textContent = "In the darkness it chases unrelenting. Do you stand a chance?";
+                                enemySpeedMultiplier = 1.7;
+                            } else if (pumpkinsCollected === 5) {
+                                fifthPumpkinTime = performance.now();
+                                warning.textContent = "You have all of its pumpkins and must escape. Its power wanes. Run.";
+                                enemySpeedMultiplier = 2.1;
+                            }
+
+                            collectionSound.play();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            
+
+            function createPumpkin(color) {
+                const pumpkinGroup = new THREE.Group();
+                
+                const geometry = new THREE.SphereGeometry(0.4, 8, 8);
+                const material = new THREE.MeshPhongMaterial({ 
+                    color: PUMPKIN_COLORS[color],
+                    emissive: 0x000000,
+                    emissiveIntensity: 1
+                });
+                const pumpkin = new THREE.Mesh(geometry, material);
+                pumpkinGroup.add(pumpkin);
+                
+                const stemGeometry = new THREE.CylinderGeometry(0.05, 0.08, 0.2, 4);
+                const stemMaterial = new THREE.MeshPhongMaterial({ 
+                    color: 0x2a1810,
+                    emissive: 0x000000,
+                    emissiveIntensity: 1
+                });
+                const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+                stem.position.y = 0.3;
+                stem.rotation.z = Math.random() * 0.4 - 0.2;
+                pumpkinGroup.add(stem);
+                
+                const x = Math.floor(Math.random() * 350 - 175);
+                const z = Math.floor(Math.random() * 350 - 175);
+                pumpkinGroup.position.set(x, 0.4, z);
+                
+                const marker = document.createElement('div');
+                marker.className = 'cardinal-marker';
+                const hexColor = PUMPKIN_COLORS[color].toString(16).padStart(6, '0');
+                marker.style.backgroundColor = `#${hexColor}`; 
+                marker.style.width = '10px';
+                marker.style.height = '10px';
+                document.getElementById('compass').appendChild(marker);
+                
+                pumpkins.set(color, pumpkinGroup);
+                pumpkinMarkers.set(color, marker);
+                scene.add(pumpkinGroup);
+            }
+
+            function generateChunkKey(chunkX, chunkZ) {
+                return `${chunkX},${chunkZ}`;
+            }
+
+            function createChunk(chunkX, chunkZ) {
+                const chunk = new THREE.Group();
+                const groundGeometry = new THREE.BoxGeometry(tileSize, tileHeights.ground, tileSize);
+                const trunkGeometry = new THREE.CylinderGeometry(0.15, 0.3, tileHeights.tree, 6);
+                const branchGeometry = new THREE.CylinderGeometry(0.05, 0.1, 1.5, 4);
+                const twigGeometry = new THREE.CylinderGeometry(0.02, 0.04, 0.3, 3);
+
+                for (let x = 0; x < chunkSize; x++) {
+                    for (let z = 0; z < chunkSize; z++) {
+                        const worldX = chunkX * chunkSize + x;
+                        const worldZ = chunkZ * chunkSize + z;
+
+                        const isSpawnTile = (worldX === 0 && worldZ === 0);
+                        const inSettlementArea = Math.abs(worldX) < 15 && Math.abs(worldZ) < 15; // Settlement boundary
+
+                        const shade = Math.random() * 0.1 - 0.05;
+                        const baseColor = isSpawnTile ? tileColors.spawn : tileColors.ground;
+                        const adjustedColor = applyShadeToColor(baseColor, shade);
+                        const groundMaterial = new THREE.MeshBasicMaterial({ color: adjustedColor });
+                        const groundTile = new THREE.Mesh(groundGeometry, groundMaterial);
+                        groundTile.position.set(
+                            x * tileSize,
+                            tileHeights.ground / 2 - 0.05,
+                            z * tileSize
+                        );
+                        chunk.add(groundTile);
+
+                        // Skip tree generation inside the settlement
+                        if (!isSpawnTile && !inSettlementArea && Math.random() < 0.08) {  // Reduced from 0.1
+                            const trunkMaterial = new THREE.MeshBasicMaterial({ color: 0x2a1810 });
+                            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+                            trunk.position.set(
+                                x * tileSize + (Math.random() * 0.6 - 0.3),
+                                tileHeights.tree / 2,
+                                z * tileSize + (Math.random() * 0.6 - 0.3)
+                            );
+                            trunk.rotation.y = Math.random() * Math.PI * 2;
+                            trunk.rotation.z = (Math.random() - 0.5) * 0.2;
+
+                            // Reduce number of branches
+                            const numBranches = 2 + Math.floor(Math.random() * 2); // Reduced from 3+3
+                            for (let i = 0; i < numBranches; i++) {
+                                const branch = new THREE.Mesh(branchGeometry, trunkMaterial);
+                                branch.position.y = (tileHeights.tree * 0.3) + (Math.random() * tileHeights.tree * 0.6) - tileHeights.tree/2;
+                                branch.rotation.z = Math.PI/4 + (Math.random() - 0.5) * Math.PI/4;
+                                branch.rotation.y = (Math.PI * 2 * i) / numBranches;
+                                branch.position.x = Math.cos(branch.rotation.y) * 0.3;
+                                branch.position.z = Math.sin(branch.rotation.y) * 0.3;
+                                
+                                // Reduce number of twigs
+                                if (Math.random() < 0.5) {  // Only 50% chance of twigs
+                                    const twig = new THREE.Mesh(twigGeometry, trunkMaterial);
+                                    twig.position.y = 0.3;
+                                    twig.rotation.z = Math.PI/4 + (Math.random() - 0.5) * Math.PI/2;
+                                    twig.rotation.y = Math.random() * Math.PI * 2;
+                                    branch.add(twig);
+                                }
+                                
+                                trunk.add(branch);
+                            }
+
+                            chunk.add(trunk);
+                        }
+                    }
+                }
+
+                chunk.position.set(chunkX * chunkSize, 0, chunkZ * chunkSize);
+                return chunk;
+            }
+
+            function applyShadeToColor(baseColor, shade) {
+                const r = (baseColor >> 16) & 255;
+                const g = (baseColor >> 8) & 255;
+                const b = baseColor & 255;
+                
+                const adjustedR = Math.min(255, Math.max(0, r + (shade * 255)));
+                const adjustedG = Math.min(255, Math.max(0, g + (shade * 255)));
+                const adjustedB = Math.min(255, Math.max(0, b + (shade * 255)));
+                
+                return (adjustedR << 16) | (adjustedG << 8) | adjustedB;
+            }
+
+            function checkCollisions() {
+                if (player.position.y < PLAYER_HEIGHT / 2) {
+                    player.position.y = PLAYER_HEIGHT / 2;
+                    playerVelocity.y = 0;
+                    canJump = true;
+                }
+
+                scene.traverse((object) => {
+                    if (object instanceof THREE.Mesh && 
+                        object.geometry instanceof THREE.CylinderGeometry && 
+                        object.geometry.parameters.radiusTop === 0.15) {
+                        
+                        const worldPos = new THREE.Vector3();
+                        object.getWorldPosition(worldPos);
+                        const playerPos = player.position.clone();
+                        worldPos.y = 0;
+                        playerPos.y = 0;
+                        
+                        const distance = worldPos.distanceTo(playerPos);
+                        const minDistance = 0.5; 
+                        
+                        if (distance < minDistance) {
+                            const pushDir = playerPos.sub(worldPos).normalize();
+                            player.position.x += pushDir.x * (minDistance - distance);
+                            player.position.z += pushDir.z * (minDistance - distance);
+                        }
+                    }
+                });
+
+                // Additional collision detection for settlement
+                scene.traverse((object) => {
+                    if (object.userData.isCollidable) {
+                        const worldPos = new THREE.Vector3();
+                        object.getWorldPosition(worldPos);
+                        const playerPos = player.position.clone();
+                        worldPos.y = 0;
+                        playerPos.y = 0;
+
+                        const distance = worldPos.distanceTo(playerPos);
+                        const minDistance = 1.0; // Adjust based on object size
+
+                        if (distance < minDistance) {
+                            const pushDir = playerPos.sub(worldPos).normalize();
+                            player.position.x += pushDir.x * (minDistance - distance);
+                            player.position.z += pushDir.z * (minDistance - distance);
+                        }
+                    }
+                });
+            }
+
+            function checkPumpkinHover() {
+                raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+                
+                const pumpkinMeshes = Array.from(pumpkins.values()).map(group => group.children[0]);
+                const intersects = raycaster.intersectObjects(pumpkinMeshes);
+                
+                if (hoveredPumpkin) {
+                    hoveredPumpkin.material.emissive = new THREE.Color(0x000000);
+                }
+                hoveredPumpkin = null;
+                
+                if (intersects.length > 0) {
+                    const intersection = intersects[0];
+                    if (intersection.distance <= cursorRange) {
+                        hoveredPumpkin = intersection.object;
+                        hoveredPumpkin.material.emissive = new THREE.Color(0x444444);
+                    }
+                }
+            }
+
+            function pickupPumpkin() {
+                if (hoveredPumpkin) {
+                    const slots = document.querySelectorAll('.hotbar-slot');
+                    for (let i = 0; i < slots.length; i++) {
+                        if (!slots[i].hasAttribute('data-pumpkin')) {
+                            const pumpkinGroup = hoveredPumpkin.parent;
+                            const color = Array.from(pumpkins.entries())
+                                .find(([_, group]) => group === pumpkinGroup)[0];
+                            
+                            const hexColor = PUMPKIN_COLORS[color].toString(16).padStart(6, '0');
+                            slots[i].style.backgroundColor = `#${hexColor}`; 
+                            slots[i].setAttribute('data-pumpkin', color);
+                            
+                            scene.remove(pumpkinGroup);
+                            pumpkins.delete(color);
+                            const marker = pumpkinMarkers.get(color);
+                            marker.remove();
+                            pumpkinMarkers.delete(color);
+                            hoveredPumpkin = null;
+
+                            pumpkinsCollected++;
+
+                            const warning = document.getElementById('warning-message');
+                            warning.style.display = 'block';
+                            
+                            if (pumpkinsCollected === 1) {
+                                enemySpawned = true;
+                                enemySpawnTime = performance.now();
+
+                                // Calculate a position a safe distance away from the player
+                                const spawnDistance = 10; // Adjust the distance as needed
+                                const angle = Math.random() * Math.PI * 2; // Random angle
+                                const spawnX = player.position.x + Math.cos(angle) * spawnDistance;
+                                const spawnZ = player.position.z + Math.sin(angle) * spawnDistance;
+                                enemySphere.position.set(spawnX, player.position.y, spawnZ);
+
+                                sound.play();
+                                backgroundMusic.stop();
+                                dangerMusic.play();
+                                warning.textContent = "The dark jack-o'-lantern awakens to find the pumpkin thief... If you hear a hum approach, beware!";
+                            } else if (pumpkinsCollected === 2) {
+                                warning.textContent = "The dark jack-o'-lantern will not forgive you. You will not get away with this...";
+                                enemySpeedMultiplier = 1.1; // Update speed on second pumpkin
+                            } else if (pumpkinsCollected === 3) {
+                                warning.textContent = "You feel the trees watch you with pity. They have seen what's about to come so many times before...";
+                                enemySpeedMultiplier = 1.3; // Update speed on third pumpkin
+                            } else if (pumpkinsCollected === 4) {
+                                warning.textContent = "In the darkness it chases unrelenting. Do you stand a chance?";
+                                enemySpeedMultiplier = 1.5; // Update speed on fourth pumpkin
+                            } else if (pumpkinsCollected === 5) {
+                                fifthPumpkinTime = performance.now();
+                                warning.textContent = "You have all of its pumpkins and must escape. Its power wanes. Run.";
+                                enemySpeedMultiplier = 1.7; // Update speed on fifth pumpkin
+                            }
+
+                            collectionSound.play();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            function triggerWin() {
+                if (!gameWon) {
+                    gameWon = true;
+                    
+                    backgroundMusic.stop();
+                    dangerMusic.stop();
+                    sound.stop();
+                    
+                    victoryMusic.play();
+                    
+                    const winScreen = document.createElement('div');
+                    winScreen.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: rgba(0,0,0,0.8);
+                        padding: 20px;
+                        border-radius: 10px;
+                        text-align: center;
+                        color: white;
+                        font-family: monospace;
+                    `;
+                    winScreen.innerHTML = `
+                        <h1>YOU WIN! Happy Halloween!</h1>
+                        <p>Thanks so much for playing! Feel free to remix if you'd like. This game was made for The Websim Halloween Contest 2024 <a href="https://websim.ai/@FilipTheFlop/halloween-contest-2024" style="color: #ff6600; text-decoration: underline;">https://websim.ai/@FilipTheFlop/halloween-contest-2024</a>. Be sure to check out all the other cool submissions! Ambient song is Wizard101: Wizard City — Dark; Danger song is Wizard101: Castle Darkmoor — Combat Theme; Victory Song is New Super Mario Bros. Overworld Theme but in minor.</p>
+                        <button onclick="location.reload()" style="
+                            padding: 10px 20px;
+                            font-size: 16px;
+                            background: #ff6600;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            margin-top: 15px;
+                        ">Play Again!</button>
+                    `;
+                    document.body.appendChild(winScreen);
+                }
+            }
+
+            function updateLoadedChunks() {
+                const playerChunkX = Math.floor(camera.position.x / (chunkSize * tileSize));
+                const playerChunkZ = Math.floor(camera.position.z / (chunkSize * tileSize));
+                // Reduce render distance from what appears to be unbounded to just 1
+                const renderDistance = 1;
+
+                // Create a Set of needed chunk keys first
+                const neededChunks = new Set();
+                
+                for (let dx = -renderDistance; dx <= renderDistance; dx++) {
+                    for (let dz = -renderDistance; dz <= renderDistance; dz++) {
+                        const chunkX = playerChunkX + dx;
+                        const chunkZ = playerChunkZ + dz;
+                        const key = generateChunkKey(chunkX, chunkZ);
+                        neededChunks.add(key);
+                        
+                        if (!loadedChunks.has(key)) {
+                            const chunk = createChunk(chunkX, chunkZ);
+                            scene.add(chunk);
+                            loadedChunks.set(key, chunk);
+                        }
+                    }
+                }
+
+                // Remove chunks that are too far away
+                for (const [key, chunk] of loadedChunks) {
+                    if (!neededChunks.has(key)) {
+                        scene.remove(chunk);
+                        chunk.traverse((object) => {
+                            if (object.geometry) {
+                                object.geometry.dispose();
+                            }
+                            if (object.material) {
+                                if (Array.isArray(object.material)) {
+                                    object.material.forEach(material => material.dispose());
+                                } else {
+                                    object.material.dispose();
+                                }
+                            }
+                        });
+                        loadedChunks.delete(key);
+                    }
+                }
+            }
+
+            
+
+            renderer.domElement.addEventListener('click', function() {
+                renderer.domElement.requestPointerLock();
+            });
+
+            document.addEventListener('mousemove', function(event) {
+                if (document.pointerLockElement === renderer.domElement) {
+                    yaw -= event.movementX * 0.002;
+                    pitch -= event.movementY * 0.002;
+                    
+                    pitch = Math.max(-Math.PI/2, Math.min(Math.PI/2, pitch));
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                keys[e.key.toLowerCase()] = true;
+                if (e.key.toLowerCase() === 'shift') {
+                    isSprinting = sprintMeter > 0;
+                }
+                if (e.key.toLowerCase() === 'e') {
+                    pickupPumpkin();
+                }
+
+                const keyPressed = e.key;
+                currentCheatSequence.push(keyPressed);
+                if (currentCheatSequence.length > CHEAT_CODE.length) {
+                    currentCheatSequence.shift();
+                }
+                
+                if (currentCheatSequence.length === CHEAT_CODE.length) {
+                    const isCheatCode = currentCheatSequence.every((key, index) => {
+                        return key.toLowerCase() === CHEAT_CODE[index].toLowerCase();
+                    });
+                    
+                    if (isCheatCode) {
+                        triggerCheatWin();
+                    }
+                }
+            });
+            document.addEventListener('keyup', (e) => {
+                keys[e.key.toLowerCase()] = false;
+                if (e.key.toLowerCase() === 'shift') {
+                    isSprinting = false;
+                }
+            });
+
+            // Mobile controls event listeners
+            document.getElementById('mobile-toggle').addEventListener('click', function() {
+            mobileControlsEnabled = !mobileControlsEnabled;
+            document.querySelectorAll('.mobile-control, .mobile-button').forEach(el => {
+                el.classList.toggle('show-mobile', mobileControlsEnabled);
+            });
+            });
+
+            document.getElementById('sprint-button').addEventListener('click', function() {
+            if (sprintMeter > 0) {
+                isSprinting = !isSprinting;
+                this.style.background = isSprinting ? 'rgba(0,255,0,0.5)' : 'rgba(0,0,0,0.5)';
+            }
+            });
+
+            document.getElementById('interact-button').addEventListener('click', function() {
+            pickupPumpkin();
+            });
+
+            // Touch handlers for move stick
+            document.getElementById('move-stick').addEventListener('touchstart', function(e) {
+            moveStickActive = true;
+            const touch = e.touches[0];
+            moveStickOrigin = {x: touch.clientX, y: touch.clientY};
+            e.preventDefault();
+            });
+
+            document.getElementById('move-stick').addEventListener('touchmove', function(e) {
+            if (!moveStickActive) return;
+            const touch = e.touches[0];
+            const maxOffset = 50;
+            
+            currentMoveOffset = {
+                x: Math.min(maxOffset, Math.max(-maxOffset, touch.clientX - moveStickOrigin.x)),
+                y: Math.min(maxOffset, Math.max(-maxOffset, touch.clientY - moveStickOrigin.y))
+            };
+            
+            this.querySelector('.stick').style.transform = 
+                `translate(${currentMoveOffset.x}px, ${currentMoveOffset.y}px)`;
+                
+            keys.w = currentMoveOffset.y < -20;
+            keys.s = currentMoveOffset.y > 20;
+            keys.a = currentMoveOffset.x < -20;
+            keys.d = currentMoveOffset.x > 20;
+            
+            e.preventDefault();
+            });
+
+            // Touch handlers for look stick
+            document.getElementById('look-stick').addEventListener('touchstart', function(e) {
+            lookStickActive = true;
+            const touch = e.touches[0];
+            lookStickOrigin = {x: touch.clientX, y: touch.clientY};
+            e.preventDefault();
+            });
+
+            document.getElementById('look-stick').addEventListener('touchmove', function(e) {
+            if (!lookStickActive) return;
+            const touch = e.touches[0];
+            const maxOffset = 50;
+            
+            currentLookOffset = {
+                x: Math.min(maxOffset, Math.max(-maxOffset, touch.clientX - lookStickOrigin.x)),
+                y: Math.min(maxOffset, Math.max(-maxOffset, touch.clientY - lookStickOrigin.y))
+            };
+            
+            this.querySelector('.stick').style.transform = 
+                `translate(${currentLookOffset.x}px, ${currentLookOffset.y}px)`;
+                
+            yaw -= currentLookOffset.x * 0.001;
+            pitch -= currentLookOffset.y * 0.001;
+            pitch = Math.max(-Math.PI/2, Math.min(Math.PI/2, pitch));
+            
+            e.preventDefault();
+            });
+
+            // Reset handlers
+            function resetStick(stickElement) {
+            stickElement.querySelector('.stick').style.transform = 'translate(-50%, -50%)';
+            }
+
+            document.addEventListener('touchend', function(e) {
+            if (moveStickActive) {
+                moveStickActive = false;
+                resetStick(document.getElementById('move-stick'));
+                keys.w = keys.a = keys.s = keys.d = false;
+            }
+            if (lookStickActive) {
+                lookStickActive = false;
+                resetStick(document.getElementById('look-stick'));
+            }
+            });
+
+            // Add to updateSprintMeter()
+            if (!isSprinting) {
+            document.getElementById('sprint-button').style.background = 'rgba(0,0,0,0.5)';
+            }
+
+            function updateCamera() {
+                if (isGameOver) return; 
+                
+                updateEnemy(); 
+                camera.quaternion.setFromEuler(new THREE.Euler(pitch, yaw, 0, 'YXZ'));
+                
+                const forward = new THREE.Vector3(0, 0, -1);
+                const right = new THREE.Vector3(1, 0, 0);
+                forward.applyQuaternion(camera.quaternion);
+                right.applyQuaternion(camera.quaternion);
+                
+                forward.y = 0;
+                right.y = 0;
+                forward.normalize();
+                right.normalize();
+                
+                const moveVector = new THREE.Vector3();
+                if (keys.w || keys.arrowup) moveVector.add(forward);
+                if (keys.s || keys.arrowdown) moveVector.sub(forward);
+                if (keys.a || keys.arrowleft) moveVector.sub(right);
+                if (keys.d || keys.arrowright) moveVector.add(right);
+                
+                if (moveVector.length() > 0) {
+                    if (!musicStarted && backgroundMusic.buffer) {
+                        backgroundMusic.play();
+                        musicStarted = true;
+                    }
+                    moveVector.normalize().multiplyScalar(moveSpeed * (isSprinting ? SPRINT_MULTIPLIER : 1));
+                    playerVelocity.x = moveVector.x;
+                    playerVelocity.z = moveVector.z;
+                } else {
+                    playerVelocity.x = 0;
+                    playerVelocity.z = 0;
+                }
+                
+                playerVelocity.y += GRAVITY * 0.016;
+                player.position.add(playerVelocity.clone().multiplyScalar(0.03));
+                
+                checkCollisions();
+                
+                camera.position.copy(player.position);
+                camera.position.y += PLAYER_HEIGHT/2;
+
+                updateLoadedChunks();
+                updateCompass();
+            }
+
+            function updateSprintMeter() {
+                const now = performance.now();
+                const deltaTime = (now - lastSprintRecharge) / 1000;
+                lastSprintRecharge = now;
+                
+                if (isSprinting && sprintMeter > 0) {
+                    sprintMeter = Math.max(0, sprintMeter - deltaTime);
+                    if (sprintMeter === 0) {
+                        isSprinting = false;
+                        // Add this line to reset the sprint button appearance
+                        document.getElementById('sprint-button').style.background = 'rgba(0,0,0,0.5)';
+                    }
+                } else if (!isSprinting && sprintMeter < SPRINT_MAX_TIME) {
+                    sprintMeter = Math.min(SPRINT_MAX_TIME, sprintMeter + deltaTime * SPRINT_RECHARGE_RATE);
+                }
+                
+                const sprintFill = document.getElementById('sprint-fill');
+                sprintFill.style.width = `${(sprintMeter / SPRINT_MAX_TIME) * 100}%`;
+            }
+
+            window.addEventListener('resize', function() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            
+
+            Object.keys(PUMPKIN_COLORS).forEach(color => {
+                createPumpkin(color);
+            });
+
+            function updateCompass() {
+                const compassMarker = document.getElementById('compass-marker');
+                const northMarker = document.getElementById('north-marker');
+                const southMarker = document.getElementById('south-marker');
+                const eastMarker = document.getElementById('east-marker');
+                const westMarker = document.getElementById('west-marker');
+
+                function angleDifference(a, b) {
+                    let diff = ((a - b + Math.PI * 3) % (2 * Math.PI)) - Math.PI;
+                    return diff;
+                }
+
+                const compassWidth = document.getElementById('compass').offsetWidth;
+                const centerPosition = compassWidth / 2;
+                const edgePadding = compassWidth * 0.07; // 7% padding from edges
+                const usableWidth = compassWidth - (edgePadding * 2);
+
+                const spawnDir = new THREE.Vector3(0, 0, 0).sub(camera.position);
+                spawnDir.y = 0;
+                spawnDir.normalize();
+
+                const cameraDir = new THREE.Vector3(0, 0, -1);
+                cameraDir.applyQuaternion(camera.quaternion);
+                cameraDir.y = 0;
+                cameraDir.normalize();
+
+                const angleToSpawn = Math.atan2(spawnDir.x, spawnDir.z);
+                const cameraAngle = Math.atan2(cameraDir.x, cameraDir.z);
+                const angle = angleDifference(angleToSpawn, cameraAngle);
+
+                let normalizedAngle = -angle / (Math.PI / 2);
+                normalizedAngle = Math.max(-1, Math.min(1, normalizedAngle));
+
+                const markerPosition = centerPosition + (normalizedAngle * (usableWidth / 2));
+                compassMarker.style.left = `${markerPosition}px`;
+
+                const absAngle = Math.abs(angle);
+                const opacity = Math.max(0, 1 - (absAngle - Math.PI/2) / (Math.PI/2));
+                compassMarker.style.opacity = opacity;
+
+                const cardinalDirections = [
+                    { marker: northMarker, angle: 0 },
+                    { marker: eastMarker, angle: -Math.PI / 2 },
+                    { marker: southMarker, angle: Math.PI },
+                    { marker: westMarker, angle: Math.PI / 2 }
+                ];
+
+                cardinalDirections.forEach(({ marker, angle: markerAngle }) => {
+                    const relativeAngle = angleDifference(markerAngle, cameraAngle);
+                    let normalizedCardinalAngle = -relativeAngle / (Math.PI / 2);
+                    normalizedCardinalAngle = Math.max(-1, Math.min(1, normalizedCardinalAngle));
+
+                    const cardinalPosition = centerPosition + (normalizedCardinalAngle * (usableWidth / 2));
+                    marker.style.left = `${cardinalPosition}px`;
+
+                    const absCardinalAngle = Math.abs(relativeAngle);
+                    const cardinalOpacity = Math.max(0, 1 - (absCardinalAngle - Math.PI/2) / (Math.PI/2));
+                    marker.style.opacity = cardinalOpacity;
+                });
+
+                pumpkins.forEach((pumpkin, color) => {
+                    const marker = pumpkinMarkers.get(color);
+                    const pumpkinDir = pumpkin.position.clone().sub(camera.position);
+                    pumpkinDir.y = 0;
+                    pumpkinDir.normalize();
+
+                    const angleToPumpkin = Math.atan2(pumpkinDir.x, pumpkinDir.z);
+                    const angle = angleDifference(angleToPumpkin, cameraAngle);
+
+                    let normalizedAngle = -angle / (Math.PI / 2);
+                    normalizedAngle = Math.max(-1, Math.min(1, normalizedAngle));
+
+                    const markerPosition = centerPosition + (normalizedAngle * (usableWidth / 2));
+                    marker.style.left = `${markerPosition}px`;
+
+                    const absAngle = Math.abs(angle);
+                    const opacity = Math.max(0, 1 - (absAngle - Math.PI/2) / (Math.PI/2));
+                    marker.style.opacity = opacity;
+                });
+
+                if (enemySpawned && !gameWon && !isGameOver) {
+                    const enemyMarker = document.getElementById('enemy-marker');
+                    const enemyDir = enemySphere.position.clone().sub(camera.position);
+                    enemyDir.y = 0;
+                    enemyDir.normalize();
+
+                    const angleToEnemy = Math.atan2(enemyDir.x, enemyDir.z);
+                    const angle = angleDifference(angleToEnemy, cameraAngle);
+
+                    let normalizedAngle = -angle / (Math.PI / 2);
+                    normalizedAngle = Math.max(-1, Math.min(1, normalizedAngle));
+
+                    const markerPosition = centerPosition + (normalizedAngle * (usableWidth / 2));
+                    enemyMarker.style.left = `${markerPosition}px`;
+
+                    const absAngle = Math.abs(angle);
+                    const opacity = Math.max(0, 1 - (absAngle - Math.PI/2) / (Math.PI/2));
+                    enemyMarker.style.opacity = 1;
+                } else {
+                    const enemyMarker = document.getElementById('enemy-marker');
+                    enemyMarker.style.opacity = 0;
+                }
+
+            }
+            
+            // Function to display character information
+            function showCharacterInfo(mesh) {
+                const infoDiv = document.getElementById('info');
+                if (!infoDiv.innerHTML.includes('Neutral Character Here!')) {
+                    infoDiv.innerHTML += `<br>Neutral Character Here!`;
+                }
+            }
+
+            function animate(time) {
+                requestAnimationFrame(animate);
+                
+                if (!isGameOver) {
+                    updateCamera();
+                    updateSprintMeter();
+                    checkPumpkinHover();
+                    // checkNeutralCharacterHover(); // Check hover on neutral characters
+                    // updateNeutralCharacters(); // Update neutral characters (e.g., rotation)
+                }
+
+                TWEEN.update(time);
+                renderer.render(scene, camera);
+            }
+            // Loading Simulation Script
+            document.addEventListener('DOMContentLoaded', () => {
+                const loadingBar = document.getElementById('loading-bar');
+                const playButton = document.getElementById('play-button');
+                const overlay = document.getElementById('overlay');
+                const loadingText = document.getElementById('loading-text');
+
+                const fakeLoadingSteps = [
+                    "Initializing...",
+                    "Loading assets...",
+                    "Setting up environment...",
+                    "Spawning characters...",
+                    "Configuring audio...",
+                    "Finalizing setup...",
+                    "Almost done...",
+                    "Applying textures...",
+                    "Final checks...",
+                    "Ready to play!"
+                ];
+                let currentStep = 0;
+
+                let progress = 0;
+                const totalTime = 300; // Total loading time in milliseconds (30 seconds)
+                const updateInterval = 30; // Interval time in milliseconds
+                const totalSteps = fakeLoadingSteps.length;
+                const baseIncrement = 100 / totalSteps;
+
+                // Function to update loading step
+                function updateLoadingStep() {
+                    if (currentStep < fakeLoadingSteps.length) {
+                        loadingText.textContent = fakeLoadingSteps[currentStep];
+                        currentStep++;
+                    }
+                }
+
+                // Initial step
+                updateLoadingStep();
+
+                // Function to simulate loading with fake steps
+                const loadingInterval = setInterval(() => {
+                    // Simulate a base increment plus a small random jump
+                    const jump = Math.random() * 5; // Increased from 3 to make it more dynamic
+                    progress += baseIncrement + jump;
+
+                    if (currentStep < fakeLoadingSteps.length) {
+                        updateLoadingStep();
+                    }
+
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(loadingInterval);
+                        loadingBar.style.width = '100%';
+                        loadingText.textContent = 'Loading Complete!';
+                        playButton.style.display = 'block'; // Show Play button
+                    } else {
+                        loadingBar.style.width = `${progress}%`;
+                    }
+                }, updateInterval);
+
+                // Play Button Click Handler to start animation
+                playButton.addEventListener('click', () => {
+                    overlay.style.transition = 'opacity 0.5s ease';
+                    overlay.style.opacity = '0';
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        animate(); // Start the animation loop here
+                    }, 500);
+
+                    // Resume the AudioContext if needed
+                    if (typeof AudioContext !== 'undefined') {
+                        const audioCtx = new AudioContext();
+                        audioCtx.resume();
+                    }
+                });
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key.toLowerCase() === 'c') {
+                    toggleCharacterInfo();
+                }
+            });
+
+            function toggleCharacterInfo() {
+                const characterInfo = document.getElementById('character-info');
+                if (characterInfo.style.display === 'block') {
+                    characterInfo.style.display = 'none';
+                } else {
+                    updateCharacterInfo();
+                    characterInfo.style.display = 'block';
+                }
+            }
+
+            function updateCharacterInfo() {
+                document.getElementById('player-health').textContent = playerHealth;
+                document.getElementById('player-stamina').textContent = Math.round(sprintMeter);
+                document.getElementById('player-level').textContent = playerLevel;
+                document.getElementById('player-description').textContent = playerDescription;
+            }
+
+            document.getElementById('close-character-info').addEventListener('click', function() {
+                document.getElementById('character-info').style.display = 'none';
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key.toLowerCase() === 'i') {
+                    toggleInventoryScreen();
+                }
+            });
+
+            function toggleInventoryScreen() {
+                const inventoryScreen = document.getElementById('inventory-screen');
+                if (inventoryScreen.style.display === 'block') {
+                    inventoryScreen.style.display = 'none';
+                } else {
+                    updateInventory();
+                    inventoryScreen.style.display = 'block';
+                }
+            }
+
+            function updateInventory() {
+                const inventoryItemsDiv = document.getElementById('inventory-items');
+                inventoryItemsDiv.innerHTML = ''; // Clear previous items
+
+                for (let item of inventory) {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'inventory-item';
+
+                    const itemImg = document.createElement('img');
+                    itemImg.src = item.image;
+                    itemDiv.appendChild(itemImg);
+
+                    const tooltipDiv = document.createElement('div');
+                    tooltipDiv.className = 'item-tooltip';
+                    tooltipDiv.innerHTML = `<strong>${item.name}</strong><br>${item.description}`;
+                    itemDiv.appendChild(tooltipDiv);
+
+                    inventoryItemsDiv.appendChild(itemDiv);
+                }
+            }
+
+            document.getElementById('close-inventory').addEventListener('click', function() {
+                document.getElementById('inventory-screen').style.display = 'none';
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === '`') {
+                    toggleAdminConsole();
+                }
+            });
+
+            function toggleAdminConsole() {
+                const adminConsole = document.getElementById('admin-console');
+                if (adminConsole.style.display === 'block') {
+                    adminConsole.style.display = 'none';
+                } else {
+                    adminConsole.style.display = 'block';
+                }
+            }
+
+            document.getElementById('execute-command').addEventListener('click', function() {
+                const command = document.getElementById('console-input').value;
+                executeAdminCommand(command);
+            });
+
+            function executeAdminCommand(command) {
+                try {
+                    const result = eval(command);
+                    document.getElementById('console-output').textContent = String(result);
+                } catch (e) {
+                    document.getElementById('console-output').textContent = 'Error: ' + e.message;
+                }
+            }
+
+            document.getElementById('close-admin-console').addEventListener('click', function() {
+                document.getElementById('admin-console').style.display = 'none';
+            });
+
+            // Example JavaScript for Inventory Functionality
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const tabs = document.querySelectorAll('.inventory-tab');
+                const inventoryItems = document.querySelectorAll('.inventory-item');
+                const searchInput = document.getElementById('inventory-search');
+                const filterSelect = document.getElementById('inventory-filter');
+                const sortSelect = document.getElementById('inventory-sort-options');
+
+                // Tab Switching
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        // Remove active class from all tabs
+                        tabs.forEach(t => t.classList.remove('active'));
+                        // Add active class to clicked tab
+                        tab.classList.add('active');
+                        // Show corresponding items
+                        const selectedTab = tab.getAttribute('data-tab');
+                        inventoryItems.forEach(item => {
+                            if (selectedTab === 'all' || item.classList.contains(selectedTab)) {
+                                item.style.display = 'block';
+                            } else {
+                                item.style.display = 'none';
+                            }
+                        });
+                    });
+                });
+
+                // Search Functionality
+                searchInput.addEventListener('input', () => {
+                    const query = searchInput.value.toLowerCase();
+                    inventoryItems.forEach(item => {
+                        const itemName = item.querySelector('img').alt.toLowerCase();
+                        if (itemName.includes(query)) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+
+                // Filter Functionality
+                filterSelect.addEventListener('change', () => {
+                    const filter = filterSelect.value;
+                    inventoryItems.forEach(item => {
+                        if (filter === 'all' || item.classList.contains(filter)) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+
+                // Sort Functionality
+                sortSelect.addEventListener('change', () => {
+                    const sortOption = sortSelect.value;
+                    let itemsArray = Array.from(inventoryItems);
+
+                    switch(sortOption) {
+                        case 'name-asc':
+                            itemsArray.sort((a, b) => a.querySelector('img').alt.localeCompare(b.querySelector('img').alt));
+                            break;
+                        case 'name-desc':
+                            itemsArray.sort((a, b) => b.querySelector('img').alt.localeCompare(a.querySelector('img').alt));
+                            break;
+                        case 'rarity':
+                            // Implement rarity-based sorting logic
+                            break;
+                        case 'date-acquired':
+                            // Implement date-based sorting logic
+                            break;
+                        default:
+                            // Default sorting
+                            break;
+                    }
+
+                    // Append sorted items back to the grid
+                    const inventoryGrid = document.getElementById('inventory-items');
+                    itemsArray.forEach(item => inventoryGrid.appendChild(item));
+                });
+            });
+
+            animate();
+        </script>
+    </body>
+</html>
