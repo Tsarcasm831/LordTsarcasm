@@ -1,0 +1,26 @@
+# Container Free Material
+newmtl ContainerMaterial
+Ka 1.000 1.000 1.000
+Kd 1.000 1.000 1.000
+Ks 0.000 0.000 0.000
+d 1.0
+Ns 0.0
+illum 2
+
+# Base color texture
+map_Kd https://file.garden/Zy7B0LkdIVpGyzA1/Container%20Free_BaseColor.png
+
+# Metallic texture
+map_Pm Container https://file.garden/Zy7B0LkdIVpGyzA1/Container%20Free_Metallic.png
+
+# Roughness texture
+map_Pr Container https://file.garden/Zy7B0LkdIVpGyzA1/Container%20Free_Roughness.png
+
+# Ambient Occlusion texture
+map_Ka Container https://file.garden/Zy7B0LkdIVpGyzA1/Container%20Free_Mixed_AO.png
+
+# Normal map texture (OpenGL format)
+map_Bump Container https://file.garden/Zy7B0LkdIVpGyzA1/Container%20Free_Normal_OpenGL.png
+
+# Emissive texture
+map_Ke TContainer https://file.garden/Zy7B0LkdIVpGyzA1/TContainer%20Free_Emissive.png

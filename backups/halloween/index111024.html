@@ -1017,7 +1017,7 @@
                 <div id="inventory-items">
                     <!-- Example Inventory Item -->
                     <div class="inventory-item">
-                        <img src="path-to-item-icon.png" alt="Item Name">
+                        <img src="player-picture.png" alt="Item Name">
                         <div class="item-tooltip">
                             <strong>Item Name</strong><br>
                             Description of the item goes here.<br>
@@ -1071,7 +1071,7 @@
         <div id="enemy-timer" style="display: none;">Time remaining: <span id="timer-value">20</span>s</div>
 
         <!-- Warning Message -->
-        <div id="warning-message">The dark jack-o'-lantern awakens to find the pumpkin thief...</div>
+        <div id="warning-message">The slenderman awakens to find the pumpkin thief...</div>
         <!-- Mobile Controls -->
         <div id="move-stick" class="mobile-control">
             <div class="stick"></div>
@@ -1174,7 +1174,7 @@
             const victoryMusicLoader = new THREE.AudioLoader();
             victoryMusicLoader.load('https://file.garden/ZyQx4ztO7TTyC-0H/NSMB%20Overworld%20theme%20but%20in%20minor-XlO_3OVYkhs.mp4', function(buffer) {
                 victoryMusic.setBuffer(buffer);
-                victoryMusic.setVolume(0.25);  // Reduced from 1.0
+                victoryMusic.setVolume(0.15);  // Reduced from 1.0
                 victoryMusic.setLoop(true);
             });
             const collectionAudioLoader = new THREE.AudioLoader();
@@ -1208,7 +1208,7 @@
 
             const pumpkinMarkers = new Map();
 
-            const SPRINT_MULTIPLIER = 1.6;
+            const SPRINT_MULTIPLIER = 2;
             const SPRINT_MAX_TIME = 10;
             const SPRINT_RECHARGE_RATE = 1/0.6;
 
@@ -1520,46 +1520,49 @@
             }
 
             
-
             function createPumpkin(color) {
                 const pumpkinGroup = new THREE.Group();
-                
-                const geometry = new THREE.SphereGeometry(0.4, 8, 8);
-                const material = new THREE.MeshPhongMaterial({ 
-                    color: PUMPKIN_COLORS[color],
-                    emissive: 0x000000,
-                    emissiveIntensity: 1
+
+                const objLoader = new THREE.OBJLoader();
+                const mtlLoader = new THREE.MTLLoader();
+
+                mtlLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/ContainerFree.mtl', function (materials) {
+                    materials.preload();
+
+                    // Clear any residual paths that may exist in the materials
+                    materials.materials.ContainerMaterial.map_Kd = null;
+
+                    objLoader.setMaterials(materials);
+                    objLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/ContainerFree.obj', function (object) {
+                        const scale = 0.5;
+                        object.scale.set(scale, scale, scale);
+
+                        object.traverse(function (child) {
+                            if (child instanceof THREE.Mesh) {
+                                child.material = new THREE.MeshStandardMaterial({
+                                    map: new THREE.TextureLoader().load('https://file.garden/Zy7B0LkdIVpGyzA1/Container%20Free_BaseColor.png'),
+                                    metalnessMap: new THREE.TextureLoader().load('https://file.garden/Zy7B0LkdIVpGyzA1/Container%20Free_Metallic.png'),
+                                    roughnessMap: new THREE.TextureLoader().load('https://file.garden/Zy7B0LkdIVpGyzA1/Container%20Free_Roughness.png'),
+                                    normalMap: new THREE.TextureLoader().load('https://file.garden/Zy7B0LkdIVpGyzA1/ContainerFree_Normal_OpenGL.png'),
+                                    aoMap: new THREE.TextureLoader().load('https://file.garden/Zy7B0LkdIVpGyzA1/Container%20Free_Mixed_AO.png'),
+                                    emissiveMap: new THREE.TextureLoader().load('https://file.garden/Zy7B0LkdIVpGyzA1/TContainerFree_Emissive.png'),
+                                    emissive: 0x000000,
+                                    emissiveIntensity: 1,
+                                    metalness: 0.5,
+                                    roughness: 0.5
+                                });
+                            }
+                        });
+
+                        pumpkinGroup.add(object);
+                        scene.add(pumpkinGroup);
+                    });
                 });
-                const pumpkin = new THREE.Mesh(geometry, material);
-                pumpkinGroup.add(pumpkin);
-                
-                const stemGeometry = new THREE.CylinderGeometry(0.05, 0.08, 0.2, 4);
-                const stemMaterial = new THREE.MeshPhongMaterial({ 
-                    color: 0x2a1810,
-                    emissive: 0x000000,
-                    emissiveIntensity: 1
-                });
-                const stem = new THREE.Mesh(stemGeometry, stemMaterial);
-                stem.position.y = 0.3;
-                stem.rotation.z = Math.random() * 0.4 - 0.2;
-                pumpkinGroup.add(stem);
-                
-                const x = Math.floor(Math.random() * 350 - 175);
-                const z = Math.floor(Math.random() * 350 - 175);
-                pumpkinGroup.position.set(x, 0.4, z);
-                
-                const marker = document.createElement('div');
-                marker.className = 'cardinal-marker';
-                const hexColor = PUMPKIN_COLORS[color].toString(16).padStart(6, '0');
-                marker.style.backgroundColor = `#${hexColor}`; 
-                marker.style.width = '10px';
-                marker.style.height = '10px';
-                document.getElementById('compass').appendChild(marker);
-                
-                pumpkins.set(color, pumpkinGroup);
-                pumpkinMarkers.set(color, marker);
-                scene.add(pumpkinGroup);
             }
+
+
+
+
 
             function generateChunkKey(chunkX, chunkZ) {
                 return `${chunkX},${chunkZ}`;

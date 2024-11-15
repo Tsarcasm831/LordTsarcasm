@@ -1,6 +1,6 @@
 # Blender 4.1.1
 # www.blender.org
-mtllib Container Free.mtl
+mtllib ContainerFree.mtl
 o Floor
 v 18.922861 3.799999 -8.255419
 v -28.942892 3.800000 -8.255419

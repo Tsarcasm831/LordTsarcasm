@@ -1,0 +1,174 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+    
+        <!-- External Libraries -->
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
+    
+        <!-- Link to external CSS -->
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    
+    
+    <body>
+        
+        <!-- Overlay Starting Screen -->
+        <div id="overlay">
+            <div id="overlay-content">
+                <h1>Welcome to Pumpkin Quest Expanded - Lord Tsarcasm Edition!</h1>
+                <p>Credit for the original framework goes to @Thagnoth </p>
+                <p>THANKS SO MUCH!! (^_^) </p>
+                    <!-- <ul id="overlay-links">
+                        <li><a href="https://tsarcasm831.github.io/LordTsarcasm/projects.html" target="_blank">See My Other Stuff</a></li>
+                    </ul> -->
+                <!-- Loading Bar Container -->
+                <div id="loading-bar-container">
+                    <div id="loading-bar">
+                        <span id="loading-text">Loading 0%</span>
+                    </div>
+                </div>
+                    <!-- Play Button (Initially Hidden) -->
+                    <label style="display: block; margin: 1em 0;">
+                        <input type="checkbox" id="god-mode-toggle">
+                        Enable God Mode
+                    </label>
+                <button id="play-button" style="display: none;">Play Game</button>
+            </div>
+        </div>
+
+        <!-- Modal for Character Information -->
+        <div id="character-info" class="modal">
+            <div class="modal-content">
+                <span class="close-button" id="close-character-info">&times;</span>
+                <h2>Character Information</h2>
+                <img src="player-picture.png" alt="Player Picture" id="player-picture">
+                <p><strong>Health:</strong> <span id="player-health">100</span></p>
+                <p><strong>Stamina:</strong> <span id="player-stamina">100</span></p>
+                <p><strong>Level:</strong> <span id="player-level">1</span></p>
+                <p id="player-description">An adventurer on a quest to collect pumpkins.</p>
+            </div>
+        </div>
+
+        <!-- Modal for Inventory Screen -->
+        <div id="inventory-screen" class="modal">
+            <div class="modal-content" id="inventory-content">
+                <span class="close-button" id="close-inventory">&times;</span>
+                <h2>Inventory</h2>
+                
+                <!-- Filter and Search Section -->
+                <div id="inventory-filter-search">
+                    <input type="text" id="inventory-search" placeholder="Search items...">
+                    <select id="inventory-filter">
+                        <option value="all">All Categories</option>
+                        <option value="equipment">Equipment</option>
+                        <option value="consumables">Consumables</option>
+                        <option value="quest">Quest Items</option>
+                        <option value="materials">Materials</option>
+                        <option value="storage">Storage</option>
+                    </select>
+                </div>
+                
+                <!-- Tabs for Different Inventory Categories -->
+                <div id="inventory-tabs">
+                    <div class="inventory-tab active" data-tab="equipment">Equipment</div>
+                    <div class="inventory-tab" data-tab="consumables">Consumables</div>
+                    <div class="inventory-tab" data-tab="quest">Quest Items</div>
+                    <div class="inventory-tab" data-tab="materials">Materials</div>
+                    <div class="inventory-tab" data-tab="storage">Storage</div>
+                </div>
+                
+                <!-- Sorting Options -->
+                <div id="inventory-sort">
+                    <select id="inventory-sort-options">
+                        <option value="default">Sort By</option>
+                        <option value="name-asc">Name (A-Z)</option>
+                        <option value="name-desc">Name (Z-A)</option>
+                        <option value="rarity">Rarity</option>
+                        <option value="date-acquired">Date Acquired</option>
+                    </select>
+                </div>
+                
+                <!-- Inventory Items Grid -->
+                <div id="inventory-items">
+                    <!-- Example Inventory Item -->
+                    <div class="inventory-item">
+                        <img src="player-picture.png" alt="Item Name">
+                        <div class="item-tooltip">
+                            <strong>Item Name</strong><br>
+                            Description of the item goes here.<br>
+                            <em>Additional Attributes</em>
+                        </div>
+                    </div>
+                    <!-- Repeat .inventory-item as needed -->
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Modal for Game Information -->
+        <div id="info">Use WASD or Arrow Keys to move<br>Mouse to look around<br>Shift to sprint<br>E to interact<br>Search for all five pumpkins. Use the compass rose at the top of your screen to find them.<br><button id="mobile-toggle">Mobile Controls Mode</button></div>
+        
+        <!-- Admin Console -->
+        <div id="admin-console" class="modal">
+            <div class="modal-content">
+                <span class="close-button" id="close-admin-console">&times;</span>
+                <h2>Admin Console</h2>
+                <textarea id="console-input" rows="10" style="width: 100%;"></textarea>
+                <button id="execute-command">Execute</button>
+                <div id="console-output"></div>
+            </div>
+        </div>
+
+        <!-- Compass and Hotbar -->
+        <div id="compass">
+            <div id="compass-center"></div>
+            <div id="compass-marker"></div>
+            <div class="cardinal-marker" id="north-marker">N</div>
+            <div class="cardinal-marker" id="south-marker">S</div>
+            <div class="cardinal-marker" id="east-marker">E</div>
+            <div class="cardinal-marker" id="west-marker">W</div>
+            <div id="enemy-marker"></div>
+        </div>
+        <div id="hotbar">
+            <div class="hotbar-slot"></div>
+            <div class="hotbar-slot"></div>
+            <div class="hotbar-slot"></div>
+            <div class="hotbar-slot"></div>
+            <div class="hotbar-slot"></div>
+        </div>
+
+        <!-- Sprint Meter -->
+        <div id="sprint-meter">
+            <div id="sprint-fill"></div>
+        </div>
+
+        <!-- Enemy Timer -->
+        <div id="enemy-timer" style="display: none;">Time remaining: <span id="timer-value">20</span>s</div>
+
+        <!-- Warning Message -->
+        <div id="warning-message">The slenderman awakens to find the pumpkin thief...</div>
+        <!-- Mobile Controls -->
+        <div id="move-stick" class="mobile-control">
+            <div class="stick"></div>
+            </div>
+            <div id="look-stick" class="mobile-control">
+            <div class="stick"></div>
+        </div>
+        <button id="sprint-button" class="mobile-button">Sprint</button>
+        <button id="interact-button" class="mobile-button">Interact</button>
+
+        <!-- Include the JavaScript files in order -->
+        <script src="js/assets.js"></script>
+        <script src="js/utils.js"></script>
+        <script src="js/gameLogic.js"></script>
+        <script src="js/events.js"></script>
+        <script src="js/ui.js"></script>
+        <script src="js/levels.js"></script>
+        <script src="js/main.js"></script>
+
+    </body>
+</html>
