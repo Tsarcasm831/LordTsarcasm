@@ -135,7 +135,6 @@
                 cursor: pointer;
                 z-index: 100;
             }
-            
             #settings-button {
                 position: fixed;
                 top: 110px; /* Position under map button */
@@ -148,7 +147,6 @@
                 cursor: pointer;
                 z-index: 100;
             }
-        
             #settings-modal {
                 display: none;
                 position: fixed;
@@ -162,20 +160,17 @@
                 border-radius: 10px;
                 z-index: 150;
             }
-        
             .settings-item {
                 margin: 15px 0;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
             }
-        
             #settings-modal h2 {
                 color: #FFD700;
                 margin-bottom: 20px;
                 text-align: center;
             }
-        
             #settings-modal button {
                 background: #FFD700;
                 color: black;
@@ -186,17 +181,14 @@
                 margin-top: 15px;
                 width: 100%;
             }
-        
             #settings-modal input[type="range"] {
                 width: 150px;
             }
-        
             #settings-modal input[type="checkbox"] {
                 width: 20px;
                 height: 20px;
                 cursor: pointer;
             }
-        
             #settings-modal label {
                 margin-right: 10px;
                 color: #FFD700;
@@ -521,126 +513,115 @@
             }
 
             /* Inventory Modal Styling */
-        #inventory-modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(145deg, #2b2b2b, #3c3c3c);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            z-index: 150;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.9), inset 0 0 10px #000;
-            font-family: 'Arial', sans-serif;
-            border: 3px solid #FFD700; /* Gold border for a premium look */
-        }
-
-        /* Header Styling */
-        #inventory-header {
-            font-size: 26px;
-            text-align: center;
-            margin-bottom: 20px;
-            color: #FFD700; /* Gold color */
-            font-weight: bold;
-            text-shadow: 1px 1px 8px rgba(255, 215, 0, 0.8);
-        }
-
-        /* Section Styling */
-        #equipment-section, #consumable-section, #grid-section {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 15px;
-        }
-
-        /* Slot Styling */
-        .equipment-slot, .consumable-slot, .grid-slot {
-            width: 55px;
-            height: 55px;
-            background: #1a1a1a;
-            border: 2px solid #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #aaa;
-            font-size: 12px;
-            text-align: center;
-            border-radius: 6px;
-            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.6), inset 0px 0px 8px rgba(255, 215, 0, 0.1);
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-
-        /* Highlighted Slot Styling */
-        .equipment-slot:hover, .consumable-slot:hover, .grid-slot:hover {
-            transform: scale(1.1);
-            box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.6), inset 0px 0px 12px rgba(255, 215, 0, 0.2);
-        }
-
-        /* Equipment Slot Specific Styling */
-        .equipment-slot {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #2e2e2e, #444444);
-            border: 2px solid #FFD700; /* Gold border for equipment */
-            font-weight: bold;
-            color: #FFD700;
-            text-shadow: 1px 1px 5px #FFD700;
-        }
-
-        /* Consumable Slot Styling */
-        #consumable-section .consumable-slot {
-            width: 60px;
-            height: 60px;
-            background: #262626;
-            border: 1px solid #FFD700;
-            color: #FFD700;
-        }
-
-        /* Grid Slot Section Styling */
-        #grid-section {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 5px;
-            border-top: 1px solid #555;
-            padding-top: 15px;
-            max-width: 350px;
-            margin: auto;
-        }
-
-        /* Character Stats */
-        #character-stats {
-            text-align: center;
-            font-size: 14px;
-            color: #FFD700;
-            padding-top: 10px;
-            font-weight: bold;
-            text-shadow: 0px 0px 5px rgba(255, 215, 0, 0.8);
-        }
-
-        /* Button Styling */
-        #inventory-modal button {
-            background: #FFD700;
-            color: black;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.2s, color 0.2s;
-            box-shadow: 0px 0px 8px rgba(255, 215, 0, 0.5);
-        }
-
-        #inventory-modal button:hover {
-            background: #fff;
-            color: #FFD700;
-            box-shadow: 0px 0px 12px rgba(255, 255, 255, 0.7);
-        }
-
+            #inventory-modal {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(145deg, #2b2b2b, #3c3c3c);
+                color: white;
+                padding: 20px;
+                border-radius: 12px;
+                z-index: 150;
+                width: 90%;
+                max-width: 600px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.9), inset 0 0 10px #000;
+                font-family: 'Arial', sans-serif;
+                border: 3px solid #FFD700; /* Gold border for a premium look */
+            }
+            /* Header Styling */
+            #inventory-header {
+                font-size: 26px;
+                text-align: center;
+                margin-bottom: 20px;
+                color: #FFD700; /* Gold color */
+                font-weight: bold;
+                text-shadow: 1px 1px 8px rgba(255, 215, 0, 0.8);
+            }
+            /* Section Styling */
+            #equipment-section, #consumable-section, #grid-section {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                justify-content: center;
+                margin-bottom: 15px;
+            }
+            /* Slot Styling */
+            .equipment-slot, .consumable-slot, .grid-slot {
+                width: 55px;
+                height: 55px;
+                background: #1a1a1a;
+                border: 2px solid #333;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: #aaa;
+                font-size: 12px;
+                text-align: center;
+                border-radius: 6px;
+                box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.6), inset 0px 0px 8px rgba(255, 215, 0, 0.1);
+                transition: transform 0.1s, box-shadow 0.1s;
+            }
+            /* Highlighted Slot Styling */
+            .equipment-slot:hover, .consumable-slot:hover, .grid-slot:hover {
+                transform: scale(1.1);
+                box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.6), inset 0px 0px 12px rgba(255, 215, 0, 0.2);
+            }
+            /* Equipment Slot Specific Styling */
+            .equipment-slot {
+                width: 70px;
+                height: 70px;
+                background: linear-gradient(135deg, #2e2e2e, #444444);
+                border: 2px solid #FFD700; /* Gold border for equipment */
+                font-weight: bold;
+                color: #FFD700;
+                text-shadow: 1px 1px 5px #FFD700;
+            }
+            /* Consumable Slot Styling */
+            #consumable-section .consumable-slot {
+                width: 60px;
+                height: 60px;
+                background: #262626;
+                border: 1px solid #FFD700;
+                color: #FFD700;
+            }
+            /* Grid Slot Section Styling */
+            #grid-section {
+                display: grid;
+                grid-template-columns: repeat(8, 1fr);
+                gap: 5px;
+                border-top: 1px solid #555;
+                padding-top: 15px;
+                max-width: 350px;
+                margin: auto;
+            }
+            /* Character Stats */
+            #character-stats {
+                text-align: center;
+                font-size: 14px;
+                color: #FFD700;
+                padding-top: 10px;
+                font-weight: bold;
+                text-shadow: 0px 0px 5px rgba(255, 215, 0, 0.8);
+            }
+            /* Button Styling */
+            #inventory-modal button {
+                background: #FFD700;
+                color: black;
+                border: none;
+                padding: 10px 20px;
+                font-size: 14px;
+                font-weight: bold;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background 0.2s, color 0.2s;
+                box-shadow: 0px 0px 8px rgba(255, 215, 0, 0.5);
+            }
+            #inventory-modal button:hover {
+                background: #fff;
+                color: #FFD700;
+                box-shadow: 0px 0px 12px rgba(255, 255, 255, 0.7);
+            }
         </style>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -968,20 +949,78 @@
                 }
             }
 
-
-
-            // Define 10 unique shop characters
+            // Define 10 unique shop characters with additional appearance properties
             const shopCharacters = [
-                { name: "Grizzle the Trader", message: "Looking for rare items?" },
-                { name: "Fern the Forager", message: "Only the finest herbs here." },
-                { name: "Zog the Alchemist", message: "Potions and brews for every need." },
-                { name: "Mira the Mystic", message: "I foresee a deal in your future." },
-                { name: "Tarn the Tinkerer", message: "Gadgets and gizmos aplenty!" },
-                { name: "Lira the Rogue", message: "Found these items... somewhere." },
-                { name: "Bard the Bard", message: "Tunes and trinkets for the daring." },
-                { name: "Zin the Warrior", message: "Arm yourself for the battles ahead." },
-                { name: "Nara the Herbalist", message: "Essences and elixirs, fresh from the forest." },
-                { name: "Slo the Smith", message: "Weapons forged in the finest flames." }
+                {
+                    name: "Grizzle the Trader",
+                    message: "Looking for rare items?",
+                    bodyType: "muscular",
+                    clothingStyle: "armor",
+                    accessories: ["helmet", "shield"]
+                },
+                {
+                    name: "Fern the Forager",
+                    message: "Only the finest herbs here.",
+                    bodyType: "slim",
+                    clothingStyle: "robe",
+                    accessories: ["staff", "herbPouch"]
+                },
+                {
+                    name: "Zog the Alchemist",
+                    message: "Potions and brews for every need.",
+                    bodyType: "average",
+                    clothingStyle: "labCoat",
+                    accessories: ["beaker", "goggles"]
+                },
+                {
+                    name: "Mira the Mystic",
+                    message: "I foresee a deal in your future.",
+                    bodyType: "ethereal",
+                    clothingStyle: "cloak",
+                    accessories: ["crystalBall", "amulet"]
+                },
+                {
+                    name: "Tarn the Tinkerer",
+                    message: "Gadgets and gizmos aplenty!",
+                    bodyType: "stocky",
+                    clothingStyle: "toolBelt",
+                    accessories: ["wrench", "gearHelmet"]
+                },
+                {
+                    name: "Lira the Rogue",
+                    message: "Found these items... somewhere.",
+                    bodyType: "lean",
+                    clothingStyle: "leatherArmor",
+                    accessories: ["daggers", "mask"]
+                },
+                {
+                    name: "Bard the Bard",
+                    message: "Tunes and trinkets for the daring.",
+                    bodyType: "average",
+                    clothingStyle: "colorfulGarments",
+                    accessories: ["lyre", "hat"]
+                },
+                {
+                    name: "Zin the Warrior",
+                    message: "Arm yourself for the battles ahead.",
+                    bodyType: "muscular",
+                    clothingStyle: "heavyArmor",
+                    accessories: ["sword", "shield"]
+                },
+                {
+                    name: "Nara the Herbalist",
+                    message: "Essences and elixirs, fresh from the forest.",
+                    bodyType: "slim",
+                    clothingStyle: "flowingRobe",
+                    accessories: ["herbBelt", "potionVials"]
+                },
+                {
+                    name: "Slo the Smith",
+                    message: "Weapons forged in the finest flames.",
+                    bodyType: "stocky",
+                    clothingStyle: "smithApron",
+                    accessories: ["hammer", "anvil"]
+                }
             ];
 
             let currentShopCharacter = null; // Holds the current room's shop character
@@ -993,8 +1032,8 @@
                 const randomCharacterIndex = Math.floor(Math.random() * shopCharacters.length);
                 currentShopCharacter = shopCharacters[randomCharacterIndex];
 
-                // Generate the character mesh
-                createShopCharacterMesh();
+                // Generate the character mesh with unique attributes
+                createShopCharacterMesh(currentShopCharacter);
 
                 // Load font and create name mesh
                 const loader = new THREE.FontLoader();
@@ -1008,9 +1047,11 @@
                     const textMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
                     const textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
-                    // Position name above head
+                    // Position name directly above head
                     textMesh.position.set(0, 2.2, 0);
-                    textMesh.rotation.y = Math.PI + 13; // Face the camera
+
+                    // Remove initial rotation to allow dynamic rotation towards camera
+                    // textMesh.rotation.y = Math.PI + 13; // Removed this line
 
                     currentShopCharacter.nameMesh = textMesh;
                     currentShopCharacter.mesh.add(textMesh); // Add name to character mesh
@@ -1020,150 +1061,352 @@
                 scene.add(currentShopCharacter.mesh);
             }
 
-            function createKeyMesh() {
-                const keyGroup = new THREE.Group();
-
-                // Shaft of the key
-                const shaftGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.8, 8);
-                const shaft = new THREE.Mesh(shaftGeometry, keyMaterial);
-                shaft.rotation.z = Math.PI / 2;
-                shaft.position.x = 0.4;
-                keyGroup.add(shaft);
-
-                // Bow of the key (handle)
-                const bowGeometry = new THREE.TorusGeometry(0.2, 0.05, 8, 16);
-                const bow = new THREE.Mesh(bowGeometry, keyMaterial);
-                bow.position.x = 0;
-                keyGroup.add(bow);
-
-                // Teeth of the key
-                const teethGeometry = new THREE.BoxGeometry(0.1, 0.2, 0.05);
-                const teeth = new THREE.Mesh(teethGeometry, keyMaterial);
-                teeth.position.x = 0.8;
-                teeth.position.y = -0.3;
-                keyGroup.add(teeth);
-
-                return keyGroup;
-            }
+            
 
 
 
             // Helper function to create a fully detailed, grounded shop character with clothing layers, body accessories, and varied posture
-            function createShopCharacterMesh() {
-                // Color palette for skin tones, clothing, and accessories
-                const colorPalette = {
-                    skinTones: [0xFFE0BD, 0xFFCD94, 0xD2B48C, 0x8B4513],
-                    clothingColors: [0x4B0082, 0x483D8B, 0x2F4F4F, 0x8B0000],
-                    accessoryColors: [0xBDB76B, 0x696969, 0xFFD700, 0xDAA520]
+            function createShopCharacterMesh(character) {
+                // Color palettes based on clothing styles
+                const colorPalettes = {
+                    armor: { primary: 0x555555, secondary: 0xFFD700 },
+                    robe: { primary: 0x4B0082, secondary: 0xFFFFFF },
+                    labCoat: { primary: 0xAAAAAA, secondary: 0x000000 },
+                    cloak: { primary: 0x2E0854, secondary: 0x8A2BE2 },
+                    toolBelt: { primary: 0x654321, secondary: 0xFFA500 },
+                    leatherArmor: { primary: 0x8B4513, secondary: 0xDAA520 },
+                    colorfulGarments: { primary: 0xFF69B4, secondary: 0x00FFFF },
+                    heavyArmor: { primary: 0x000000, secondary: 0xFFD700 },
+                    flowingRobe: { primary: 0x7B68EE, secondary: 0x00FF7F },
+                    smithApron: { primary: 0xA0522D, secondary: 0xFF4500 }
                 };
 
-                // Randomly select colors
-                const skinColor = colorPalette.skinTones[Math.floor(Math.random() * colorPalette.skinTones.length)];
-                const clothingColor = colorPalette.clothingColors[Math.floor(Math.random() * colorPalette.clothingColors.length)];
-                const accessoryColor = colorPalette.accessoryColors[Math.floor(Math.random() * colorPalette.accessoryColors.length)];
+                // Select colors based on clothing style
+                const primaryColor = colorPalettes[character.clothingStyle].primary;
+                const secondaryColor = colorPalettes[character.clothingStyle].secondary;
 
                 // Materials
-                const skinMaterial = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.8 });
-                const clothingMaterial = new THREE.MeshStandardMaterial({ color: clothingColor, roughness: 0.6 });
-                const accessoryMaterial = new THREE.MeshPhysicalMaterial({ color: accessoryColor, metalness: 0.3, roughness: 0.3 });
+                const skinMaterial = new THREE.MeshStandardMaterial({ color: 0xFFE0BD, roughness: 0.8 });
+                const clothingMaterial = new THREE.MeshStandardMaterial({ color: primaryColor, roughness: 0.6 });
+                const accessoryMaterial = new THREE.MeshPhysicalMaterial({ color: secondaryColor, metalness: 0.3, roughness: 0.3 });
 
                 // Create character group
                 const shopCharacter = new THREE.Group();
 
+                // Body Type Scaling
+                let bodyScale = 1;
+                switch (character.bodyType) {
+                    case "muscular":
+                        bodyScale = 1.2;
+                        break;
+                    case "slim":
+                        bodyScale = 0.9;
+                        break;
+                    case "stocky":
+                        bodyScale = 1.1;
+                        break;
+                    case "ethereal":
+                        bodyScale = 1.0;
+                        break;
+                    case "lean":
+                        bodyScale = 0.85;
+                        break;
+                    default:
+                        bodyScale = 1.0;
+                }
+
                 // Torso
-                const torsoGeometry = new THREE.CylinderGeometry(0.4, 0.6, 1.4, 32);
+                const torsoGeometry = new THREE.CylinderGeometry(0.4 * bodyScale, 0.6 * bodyScale, 1.4 * bodyScale, 32);
                 const torso = new THREE.Mesh(torsoGeometry, clothingMaterial);
                 torso.position.set(0, 0, 0);
                 shopCharacter.add(torso);
 
                 // Head
-                const headGeometry = new THREE.SphereGeometry(0.3, 32, 32);
+                const headGeometry = new THREE.SphereGeometry(0.3 * bodyScale, 32, 32);
                 const head = new THREE.Mesh(headGeometry, skinMaterial);
-                head.position.set(0, 1.0, 0); // Above torso
+                head.position.set(0, 1.0 * bodyScale, 0); // Above torso
                 torso.add(head);
 
-                // Hair
-                const hairGeometry = new THREE.SphereGeometry(0.35, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+                // Hair (optional based on body type or accessories)
+                const hairGeometry = new THREE.SphereGeometry(0.35 * bodyScale, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
                 const hair = new THREE.Mesh(hairGeometry, accessoryMaterial);
-                hair.position.set(0, 0.25, 0); // Relative to head
+                // Position the hair higher to prevent covering the eyes
+                hair.position.set(0, 0.3 * bodyScale, 0); // Increased Y position
+                hair.renderOrder = 1; // Render before eyes
                 head.add(hair);
 
                 // Eyes and mouth
-                const eyeGeometry = new THREE.SphereGeometry(0.04, 16, 16);
-                const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x111111 });
+                const eyeGeometry = new THREE.SphereGeometry(0.04 * bodyScale, 16, 16);
+                const eyeMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0x111111, 
+                    depthTest: false, // Ensure eyes are always visible
+                    transparent: true
+                });
                 const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                leftEye.position.set(-0.1, 0.1, 0.25);
+                leftEye.position.set(-0.1 * bodyScale, 0.1 * bodyScale, 0.25 * bodyScale);
+                leftEye.renderOrder = 2; // Render after hair and helmet
                 head.add(leftEye);
                 const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-                rightEye.position.set(0.1, 0.1, 0.25);
+                rightEye.position.set(0.1 * bodyScale, 0.1 * bodyScale, 0.25 * bodyScale);
+                rightEye.renderOrder = 2; // Render after hair and helmet
                 head.add(rightEye);
-                const mouthGeometry = new THREE.BoxGeometry(0.15, 0.05, 0.05);
+                const mouthGeometry = new THREE.BoxGeometry(0.15 * bodyScale, 0.05 * bodyScale, 0.05 * bodyScale);
                 const mouth = new THREE.Mesh(mouthGeometry, eyeMaterial);
-                mouth.position.set(0, -0.1, 0.3);
+                mouth.position.set(0, -0.1 * bodyScale, 0.3 * bodyScale);
+                mouth.renderOrder = 2; // Render after hair and helmet
                 head.add(mouth);
 
                 // Arms
-                const armGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.7);
+                const armLength = 0.7 * bodyScale;
+                const armGeometry = new THREE.CylinderGeometry(0.1 * bodyScale, 0.1 * bodyScale, armLength, 32);
                 const leftArm = new THREE.Mesh(armGeometry, clothingMaterial);
-                leftArm.position.set(-0.5, 0.2, 0);
+                leftArm.position.set(-0.5 * bodyScale, 0.2 * bodyScale, 0);
                 leftArm.rotation.z = Math.PI / 8;
                 torso.add(leftArm);
                 const rightArm = new THREE.Mesh(armGeometry, clothingMaterial);
-                rightArm.position.set(0.5, 0.2, 0);
+                rightArm.position.set(0.5 * bodyScale, 0.2 * bodyScale, 0);
                 rightArm.rotation.z = -Math.PI / 8;
                 torso.add(rightArm);
 
                 // Legs
-                const legGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.9);
+                const legLength = 0.9 * bodyScale;
+                const legGeometry = new THREE.CylinderGeometry(0.15 * bodyScale, 0.15 * bodyScale, legLength, 32);
                 const leftLeg = new THREE.Mesh(legGeometry, clothingMaterial);
-                leftLeg.position.set(-0.25, -1.15, 0);
+                leftLeg.position.set(-0.25 * bodyScale, -1.15 * bodyScale, 0);
                 torso.add(leftLeg);
                 const rightLeg = new THREE.Mesh(legGeometry, clothingMaterial);
-                rightLeg.position.set(0.25, -1.15, 0);
+                rightLeg.position.set(0.25 * bodyScale, -1.15 * bodyScale, 0);
                 torso.add(rightLeg);
 
                 // Shoes
-                const shoeGeometry = new THREE.BoxGeometry(0.2, 0.1, 0.3);
+                const shoeGeometry = new THREE.BoxGeometry(0.2 * bodyScale, 0.1 * bodyScale, 0.3 * bodyScale);
                 const leftShoe = new THREE.Mesh(shoeGeometry, accessoryMaterial);
-                leftShoe.position.set(-0.25, -1.6, 0.15);
+                leftShoe.position.set(-0.25 * bodyScale, -1.6 * bodyScale, 0.15 * bodyScale);
                 torso.add(leftShoe);
                 const rightShoe = new THREE.Mesh(shoeGeometry, accessoryMaterial);
-                rightShoe.position.set(0.25, -1.6, 0.15);
+                rightShoe.position.set(0.25 * bodyScale, -1.6 * bodyScale, 0.15 * bodyScale);
                 torso.add(rightShoe);
 
-                // Optional Accessories
-                const accessoryChoice = Math.random();
-                let accessory;
-
-                if (accessoryChoice < 0.33) {
-                    const scarfGeometry = new THREE.TorusGeometry(0.3, 0.05, 16, 32);
-                    accessory = new THREE.Mesh(scarfGeometry, accessoryMaterial);
-                    accessory.position.set(0, 0.8, 0);
-                    accessory.rotation.x = Math.PI / 2;
-                    torso.add(accessory);
-                } else if (accessoryChoice < 0.66) {
-                    const necklaceGeometry = new THREE.TorusGeometry(0.32, 0.02, 16, 32);
-                    accessory = new THREE.Mesh(necklaceGeometry, accessoryMaterial);
-                    accessory.position.set(0, 0.75, 0);
-                    torso.add(accessory);
-                } else {
-                    const hatGeometry = new THREE.CylinderGeometry(0.2, 0.4, 0.3, 32);
-                    accessory = new THREE.Mesh(hatGeometry, hair.material);
-                    accessory.position.set(0, 0.55, 0);
-                    hair.add(accessory);
-                }
+                // Optional Accessories based on character's accessories array
+                character.accessories.forEach(accessoryName => {
+                    switch (accessoryName) {
+                        case "helmet":
+                            addHelmet(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "shield":
+                            addShield(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "staff":
+                            addStaff(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "herbPouch":
+                            addHerbPouch(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "beaker":
+                            addBeaker(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "goggles":
+                            addGoggles(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "crystalBall":
+                            addCrystalBall(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "amulet":
+                            addAmulet(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "wrench":
+                            addWrench(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "gearHelmet":
+                            addGearHelmet(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "daggers":
+                            addDaggers(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "mask":
+                            addMask(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "lyre":
+                            addLyre(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "hat":
+                            addHat(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "sword":
+                            addSword(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "hammer":
+                            addHammer(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "anvil":
+                            addAnvil(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        case "potionVials":
+                            addPotionVials(shopCharacter, accessoryMaterial, bodyScale);
+                            break;
+                        default:
+                            console.warn(`Accessory "${accessoryName}" is not defined.`);
+                    }
+                });
 
                 // Position the character in the room
+                const charX = (Math.random() - 0.5) * (roomWidth - 4);
+                const charZ = (Math.random() - 0.5) * (roomDepth - 4);
                 shopCharacter.position.set(
-                    (Math.random() - 0.5) * (roomWidth - 4),
+                    charX,
                     FLOOR_HEIGHT - 0.3,
-                    (Math.random() - 0.5) * (roomDepth - 4)
+                    charZ
                 );
+
+                // Make the character face the center of the room (0,0,0)
+                shopCharacter.lookAt(new THREE.Vector3(0, shopCharacter.position.y, 0));
 
                 // Attach character to currentShopCharacter
                 currentShopCharacter.mesh = shopCharacter;
             }
 
+             // Helper functions to add accessories
+            function addHelmet(characterGroup, material, scale) {
+                const helmetGeometry = new THREE.SphereGeometry(0.35 * scale, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+                const helmet = new THREE.Mesh(helmetGeometry, material);
+                helmet.position.set(0, 1.05 * scale, 0);
+                characterGroup.add(helmet);
+            }
+
+            function addShield(characterGroup, material, scale) {
+                const shieldGeometry = new THREE.CircleGeometry(0.4 * scale, 32);
+                const shield = new THREE.Mesh(shieldGeometry, material);
+                shield.rotation.x = -Math.PI / 2;
+                shield.position.set(-0.6 * scale, 0.5 * scale, 0);
+                characterGroup.add(shield);
+            }
+
+            function addStaff(characterGroup, material, scale) {
+                const staffGeometry = new THREE.CylinderGeometry(0.05 * scale, 0.05 * scale, 1.0 * scale, 32);
+                const staff = new THREE.Mesh(staffGeometry, material);
+                staff.position.set(0.6 * scale, 0.5 * scale, 0);
+                characterGroup.add(staff);
+            }
+
+            function addHerbPouch(characterGroup, material, scale) {
+                const pouchGeometry = new THREE.SphereGeometry(0.15 * scale, 16, 16);
+                const pouch = new THREE.Mesh(pouchGeometry, material);
+                pouch.position.set(-0.4 * scale, 0.2 * scale, 0);
+                characterGroup.add(pouch);
+            }
+
+            function addBeaker(characterGroup, material, scale) {
+                const beakerGeometry = new THREE.CylinderGeometry(0.05 * scale, 0.05 * scale, 0.5 * scale, 16);
+                const beaker = new THREE.Mesh(beakerGeometry, material);
+                beaker.rotation.z = Math.PI / 2;
+                beaker.position.set(0.3 * scale, 0.8 * scale, 0);
+                characterGroup.add(beaker);
+            }
+
+            function addGoggles(characterGroup, material, scale) {
+                const gogglesGeometry = new THREE.SphereGeometry(0.05 * scale, 8, 8);
+                const goggles = new THREE.Mesh(gogglesGeometry, material);
+                goggles.position.set(-0.15 * scale, 0.05 * scale, 0.35 * scale);
+                characterGroup.add(goggles);
+            }
+
+            function addCrystalBall(characterGroup, material, scale) {
+                const crystalGeometry = new THREE.SphereGeometry(0.2 * scale, 32, 32);
+                const crystal = new THREE.Mesh(crystalGeometry, material);
+                crystal.position.set(0, 1.3 * scale, 0.1 * scale);
+                characterGroup.add(crystal);
+            }
+
+            function addAmulet(characterGroup, material, scale) {
+                const amuletGeometry = new THREE.TorusGeometry(0.1 * scale, 0.02 * scale, 16, 100);
+                const amulet = new THREE.Mesh(amuletGeometry, material);
+                amulet.position.set(0, 0.9 * scale, 0.3 * scale);
+                characterGroup.add(amulet);
+            }
+
+            function addWrench(characterGroup, material, scale) {
+                const wrenchGeometry = new THREE.BoxGeometry(0.2 * scale, 0.05 * scale, 0.05 * scale);
+                const wrench = new THREE.Mesh(wrenchGeometry, material);
+                wrench.position.set(-0.5 * scale, 0.3 * scale, 0.2 * scale);
+                wrench.rotation.z = Math.PI / 4;
+                characterGroup.add(wrench);
+            }
+
+            function addGearHelmet(characterGroup, material, scale) {
+                const gearGeometry = new THREE.TorusGeometry(0.2 * scale, 0.05 * scale, 16, 100);
+                const gearHelmet = new THREE.Mesh(gearGeometry, material);
+                gearHelmet.position.set(0, 1.05 * scale, 0.1 * scale);
+                gearHelmet.rotation.x = Math.PI / 2;
+                characterGroup.add(gearHelmet);
+            }
+
+            function addDaggers(characterGroup, material, scale) {
+                const daggerGeometry = new THREE.BoxGeometry(0.05 * scale, 0.5 * scale, 0.02 * scale);
+                const dagger1 = new THREE.Mesh(daggerGeometry, material);
+                dagger1.position.set(0.3 * scale, 0.5 * scale, 0.2 * scale);
+                dagger1.rotation.z = Math.PI / 6;
+                characterGroup.add(dagger1);
+
+                const dagger2 = new THREE.Mesh(daggerGeometry, material);
+                dagger2.position.set(-0.3 * scale, 0.5 * scale, 0.2 * scale);
+                dagger2.rotation.z = -Math.PI / 6;
+                characterGroup.add(dagger2);
+            }
+
+            function addMask(characterGroup, material, scale) {
+                const maskGeometry = new THREE.BoxGeometry(0.3 * scale, 0.15 * scale, 0.05 * scale);
+                const mask = new THREE.Mesh(maskGeometry, material);
+                mask.position.set(0, 0.05 * scale, 0.35 * scale);
+                characterGroup.add(mask);
+            }
+
+            function addLyre(characterGroup, material, scale) {
+                const lyreGeometry = new THREE.TorusGeometry(0.2 * scale, 0.05 * scale, 16, 100);
+                const lyre = new THREE.Mesh(lyreGeometry, material);
+                lyre.position.set(0, 0.8 * scale, -0.3 * scale);
+                characterGroup.add(lyre);
+            }
+
+            function addHat(characterGroup, material, scale) {
+                const hatGeometry = new THREE.ConeGeometry(0.2 * scale, 0.3 * scale, 32);
+                const hat = new THREE.Mesh(hatGeometry, material);
+                hat.position.set(0, 0.55 * scale, 0);
+                characterGroup.add(hat);
+            }
+
+            function addSword(characterGroup, material, scale) {
+                const swordGeometry = new THREE.BoxGeometry(0.05 * scale, 0.7 * scale, 0.02 * scale);
+                const sword = new THREE.Mesh(swordGeometry, material);
+                sword.position.set(0.4 * scale, 0.4 * scale, 0.2 * scale);
+                sword.rotation.z = Math.PI / 2;
+                characterGroup.add(sword);
+            }
+
+            function addHammer(characterGroup, material, scale) {
+                const hammerGeometry = new THREE.BoxGeometry(0.1 * scale, 0.5 * scale, 0.05 * scale);
+                const hammer = new THREE.Mesh(hammerGeometry, material);
+                hammer.position.set(-0.4 * scale, 0.4 * scale, 0.2 * scale);
+                hammer.rotation.z = -Math.PI / 4;
+                characterGroup.add(hammer);
+            }
+
+            function addAnvil(characterGroup, material, scale) {
+                const anvilGeometry = new THREE.BoxGeometry(0.5 * scale, 0.2 * scale, 0.3 * scale);
+                const anvil = new THREE.Mesh(anvilGeometry, material);
+                anvil.position.set(0, -0.2 * scale, 0.2 * scale);
+                characterGroup.add(anvil);
+            }
+
+            function addPotionVials(characterGroup, material, scale) {
+                const vialGeometry = new THREE.SphereGeometry(0.05 * scale, 16, 16);
+                const vial1 = new THREE.Mesh(vialGeometry, material);
+                vial1.position.set(0.2 * scale, 0.5 * scale, -0.3 * scale);
+                characterGroup.add(vial1);
+
+                const vial2 = new THREE.Mesh(vialGeometry, material);
+                vial2.position.set(-0.2 * scale, 0.5 * scale, -0.3 * scale);
+                characterGroup.add(vial2);
+            }
 
             // Check if the player is within interaction range of the shop character
             function checkShopInteraction() {
@@ -1190,6 +1433,32 @@
                 if (currentShopCharacter) {
                     showStatusMessage(`${currentShopCharacter.name}: "${currentShopCharacter.message}"`);
                 }
+            }
+
+            function createKeyMesh() {
+                const keyGroup = new THREE.Group();
+
+                // Shaft of the key
+                const shaftGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.8, 8);
+                const shaft = new THREE.Mesh(shaftGeometry, keyMaterial);
+                shaft.rotation.z = Math.PI / 2;
+                shaft.position.x = 0.4;
+                keyGroup.add(shaft);
+
+                // Bow of the key (handle)
+                const bowGeometry = new THREE.TorusGeometry(0.2, 0.05, 8, 16);
+                const bow = new THREE.Mesh(bowGeometry, keyMaterial);
+                bow.position.x = 0;
+                keyGroup.add(bow);
+
+                // Teeth of the key
+                const teethGeometry = new THREE.BoxGeometry(0.1, 0.2, 0.05);
+                const teeth = new THREE.Mesh(teethGeometry, keyMaterial);
+                teeth.position.x = 0.8;
+                teeth.position.y = -0.3;
+                keyGroup.add(teeth);
+
+                return keyGroup;
             }
 
             function showStatusMessage(message) {
@@ -1396,7 +1665,9 @@
 
                 if (currentShopCharacter && currentShopCharacter.mesh) {
                     scene.remove(currentShopCharacter.mesh);
-                    scene.remove(currentShopCharacter.nameMesh); // Remove name mesh as well
+                    if (currentShopCharacter.nameMesh) {
+                        scene.remove(currentShopCharacter.nameMesh); // Remove name mesh as well
+                    }
                     currentShopCharacter = null;
                 }
 
@@ -1450,37 +1721,37 @@
                     return "A shimmering golden sanctuary";
                 } else {
                     const prompts = [
-                        "A mystical enchanted forest",
-                        "An underwater coral reef",  
-                        "The surface of Mars",
-                        "Inside a futuristic space station",
-                        "A haunted abandoned mansion",
-                        "A crystal cave filled with gems",
-                        "An ancient Egyptian temple",
-                        "A steampunk workshop",
-                        "A medieval blacksmith shop",
-                        "An alien bazaar",
-                        "A frozen arctic wasteland",
-                        "A volcanic chamber",
-                        "A mysterious library",
-                        "A neon cyberpunk street",
-                        "The inside of a giant clock",
-                        "A laundromat for enchanted talking clothes",
-                        "A bouncy castle made entirely of clouds in the sky",
-                        "Inside the refrigerator of a very paranoid squirrel",
-                        "An overgrown jungle gym for extremely competitive fairies",
-                        "A 24/7 donut shop that serves exclusively to ghosts",
-                        "The bottom of a giant’s coffee mug, mid-sip",
-                        "A spaceship piloted by very organized ducks",
-                        "The floor of a wizard’s messy bathroom, with sentient soap",
-                        "An alien karaoke bar where everyone sings out of key",
-                        "The waiting room for reincarnation, with a really long line",
-                        "A medieval jousting arena, but everyone’s riding rubber chickens",
-                        "A cat-operated taxi service for woodland creatures",
-                        "A disco ball factory run by disco-loving robots",
-                        "The inner workings of a time-traveling vending machine",
-                        "A theme park for pet rocks, with rock-sized roller coasters"
+                        "An abandoned city overtaken by nature, where skyscrapers are draped in vines",
+                        "A deserted underground bunker, echoing with the remnants of humanity's last hopes",
+                        "A crumbling highway stretching through a wasteland of twisted metal and ash",
+                        "A radioactive swamp glowing under a sickly moonlight",
+                        "A ghost town once bustling with life, now haunted by the echoes of lost souls",
+                        "A ruined library filled with burned books and forgotten knowledge, with only a few pages left intact",
+                        "A rusted-out factory overrun by mutated creatures scavenging for scraps",
+                        "A collapsed skyscraper turned into a dangerous maze of broken glass and crumbling walls",
+                        "A decaying military base, now home to rogue scavengers and desperate survivors",
+                        "A desolate suburban neighborhood, where the last signs of life are wild animals prowling",
+                        "A cracked desert canyon, once a thriving metropolis, now nothing but dust and bones",
+                        "A submerged city, its crumbled streets now teeming with dangerous sea life",
+                        "A derelict train station where the last remaining trains rust in place, abandoned by the living",
+                        "A rusted-out airship slowly drifting in the sky, its crew long dead or missing",
+                        "A post-apocalyptic carnival, its rides long unmoving, but strange sounds still echo in the distance",
+                        "The remnants of a futuristic research lab, now overrun by mutated creatures and glowing spores",
+                        "An abandoned shopping mall, its once-bustling halls now a maze of wreckage and eerie silence",
+                        "A silent forest of mutated trees that have adapted to the toxic air, casting unnatural shadows",
+                        "An overgrown military graveyard, where soldiers' forgotten bones lie scattered among the weeds",
+                        "The remains of a collapsed bridge, where once prosperous cities are now divided by a poisoned river",
+                        "A hidden underground haven for survivors, surrounded by endless miles of hostile wilderness",
+                        "A crumbled mansion where wealthy survivors once lived, now home to dangerous, wild animals",
+                        "A lone survivor’s camp in the remains of a decimated city, surrounded by makeshift walls of scrap metal",
+                        "A secret vault deep underground, its contents long forgotten, only guarded by strange robotic sentries",
+                        "The last gas station on earth, its pumps rusted, and the land around it desolate and barren",
+                        "A forgotten bunker for an ancient civilization, now a chilling reminder of their fall",
+                        "A flooded subway system, where strange aquatic creatures swim beneath the broken tunnels",
+                        "The remnants of a vast military compound, where dangerous experimental weapons were once tested",
+                        "A crumbling theme park, its attractions overrun by mutated wildlife and the shadows of the past"
                     ];
+
                     return prompts[Math.floor(Math.random() * prompts.length)];
                 }
             }
@@ -1952,25 +2223,28 @@
                     if (camera.rotation.x < -maxPitch) camera.rotation.x = -maxPitch;
                 }
             
-                if (activeKeyMagnet) {
-                    currentKeys.forEach(key => {
-                        const directionToPlayer = new THREE.Vector3().subVectors(camera.position, key.position);
-                        key.position.add(directionToPlayer.normalize().multiplyScalar(0.1));
-                    });
-                }
+                // Handle key magnet and other active items
+                    if (activeKeyMagnet) {
+                        currentKeys.forEach(key => {
+                            const directionToPlayer = new THREE.Vector3().subVectors(camera.position, key.position);
+                            key.position.add(directionToPlayer.normalize().multiplyScalar(0.1));
+                        });
+                    }
 
-                // **Add the breathing animation tick here**
-                if (scene.userData.shopCharacterTick) {
-                    scene.userData.shopCharacterTick();
-                }
-            
-                // Check interactions with shop character
-                checkShopInteraction();
-            
-                // Check visibility of shop character's name
-                checkShopCharacterNameVisibility();
-            
-                renderer.render(scene, camera);
+                    // **Add the breathing animation tick here**
+                    if (scene.userData.shopCharacterTick) {
+                        scene.userData.shopCharacterTick();
+                    }
+
+                    // Check interactions with shop character
+                    checkShopInteraction();
+
+                    // **Make name tags face the camera**
+                    if (currentShopCharacter && currentShopCharacter.nameMesh) {
+                        currentShopCharacter.nameMesh.lookAt(camera.position.x, currentShopCharacter.nameMesh.position.y, camera.position.z);
+                    }
+
+                    renderer.render(scene, camera);
             }
             
             // Opens the shop popup and sets `isShopOpen` to true
