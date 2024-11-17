@@ -1,6 +1,6 @@
 <html>
     <head>
-        <base href=".">
+        
             <meta charset="utf-8"/>
             <title>Keymaster!</title>
         <style>
@@ -166,11 +166,13 @@
                 justify-content: space-between;
                 align-items: center;
             }
+        
             #settings-modal h2 {
                 color: #FFD700;
                 margin-bottom: 20px;
                 text-align: center;
             }
+        
             #settings-modal button {
                 background: #FFD700;
                 color: black;
@@ -181,14 +183,17 @@
                 margin-top: 15px;
                 width: 100%;
             }
+        
             #settings-modal input[type="range"] {
                 width: 150px;
             }
+        
             #settings-modal input[type="checkbox"] {
                 width: 20px;
                 height: 20px;
                 cursor: pointer;
             }
+        
             #settings-modal label {
                 margin-right: 10px;
                 color: #FFD700;
@@ -513,115 +518,126 @@
             }
 
             /* Inventory Modal Styling */
-            #inventory-modal {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: linear-gradient(145deg, #2b2b2b, #3c3c3c);
-                color: white;
-                padding: 20px;
-                border-radius: 12px;
-                z-index: 150;
-                width: 90%;
-                max-width: 600px;
-                box-shadow: 0 0 20px rgba(0, 0, 0, 0.9), inset 0 0 10px #000;
-                font-family: 'Arial', sans-serif;
-                border: 3px solid #FFD700; /* Gold border for a premium look */
-            }
-            /* Header Styling */
-            #inventory-header {
-                font-size: 26px;
-                text-align: center;
-                margin-bottom: 20px;
-                color: #FFD700; /* Gold color */
-                font-weight: bold;
-                text-shadow: 1px 1px 8px rgba(255, 215, 0, 0.8);
-            }
-            /* Section Styling */
-            #equipment-section, #consumable-section, #grid-section {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-                justify-content: center;
-                margin-bottom: 15px;
-            }
-            /* Slot Styling */
-            .equipment-slot, .consumable-slot, .grid-slot {
-                width: 55px;
-                height: 55px;
-                background: #1a1a1a;
-                border: 2px solid #333;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                color: #aaa;
-                font-size: 12px;
-                text-align: center;
-                border-radius: 6px;
-                box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.6), inset 0px 0px 8px rgba(255, 215, 0, 0.1);
-                transition: transform 0.1s, box-shadow 0.1s;
-            }
-            /* Highlighted Slot Styling */
-            .equipment-slot:hover, .consumable-slot:hover, .grid-slot:hover {
-                transform: scale(1.1);
-                box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.6), inset 0px 0px 12px rgba(255, 215, 0, 0.2);
-            }
-            /* Equipment Slot Specific Styling */
-            .equipment-slot {
-                width: 70px;
-                height: 70px;
-                background: linear-gradient(135deg, #2e2e2e, #444444);
-                border: 2px solid #FFD700; /* Gold border for equipment */
-                font-weight: bold;
-                color: #FFD700;
-                text-shadow: 1px 1px 5px #FFD700;
-            }
-            /* Consumable Slot Styling */
-            #consumable-section .consumable-slot {
-                width: 60px;
-                height: 60px;
-                background: #262626;
-                border: 1px solid #FFD700;
-                color: #FFD700;
-            }
-            /* Grid Slot Section Styling */
-            #grid-section {
-                display: grid;
-                grid-template-columns: repeat(8, 1fr);
-                gap: 5px;
-                border-top: 1px solid #555;
-                padding-top: 15px;
-                max-width: 350px;
-                margin: auto;
-            }
-            /* Character Stats */
-            #character-stats {
-                text-align: center;
-                font-size: 14px;
-                color: #FFD700;
-                padding-top: 10px;
-                font-weight: bold;
-                text-shadow: 0px 0px 5px rgba(255, 215, 0, 0.8);
-            }
-            /* Button Styling */
-            #inventory-modal button {
-                background: #FFD700;
-                color: black;
-                border: none;
-                padding: 10px 20px;
-                font-size: 14px;
-                font-weight: bold;
-                border-radius: 5px;
-                cursor: pointer;
-                transition: background 0.2s, color 0.2s;
-                box-shadow: 0px 0px 8px rgba(255, 215, 0, 0.5);
-            }
-            #inventory-modal button:hover {
-                background: #fff;
-                color: #FFD700;
-                box-shadow: 0px 0px 12px rgba(255, 255, 255, 0.7);
-            }
+        #inventory-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #2b2b2b, #3c3c3c);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            z-index: 150;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.9), inset 0 0 10px #000;
+            font-family: 'Arial', sans-serif;
+            border: 3px solid #FFD700; /* Gold border for a premium look */
+        }
+
+        /* Header Styling */
+        #inventory-header {
+            font-size: 26px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #FFD700; /* Gold color */
+            font-weight: bold;
+            text-shadow: 1px 1px 8px rgba(255, 215, 0, 0.8);
+        }
+
+        /* Section Styling */
+        #equipment-section, #consumable-section, #grid-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        /* Slot Styling */
+        .equipment-slot, .consumable-slot, .grid-slot {
+            width: 55px;
+            height: 55px;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #aaa;
+            font-size: 12px;
+            text-align: center;
+            border-radius: 6px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.6), inset 0px 0px 8px rgba(255, 215, 0, 0.1);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        /* Highlighted Slot Styling */
+        .equipment-slot:hover, .consumable-slot:hover, .grid-slot:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.6), inset 0px 0px 12px rgba(255, 215, 0, 0.2);
+        }
+
+        /* Equipment Slot Specific Styling */
+        .equipment-slot {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #2e2e2e, #444444);
+            border: 2px solid #FFD700; /* Gold border for equipment */
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 1px 1px 5px #FFD700;
+        }
+
+        /* Consumable Slot Styling */
+        #consumable-section .consumable-slot {
+            width: 60px;
+            height: 60px;
+            background: #262626;
+            border: 1px solid #FFD700;
+            color: #FFD700;
+        }
+
+        /* Grid Slot Section Styling */
+        #grid-section {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            border-top: 1px solid #555;
+            padding-top: 15px;
+            max-width: 350px;
+            margin: auto;
+        }
+
+        /* Character Stats */
+        #character-stats {
+            text-align: center;
+            font-size: 14px;
+            color: #FFD700;
+            padding-top: 10px;
+            font-weight: bold;
+            text-shadow: 0px 0px 5px rgba(255, 215, 0, 0.8);
+        }
+
+        /* Button Styling */
+        #inventory-modal button {
+            background: #FFD700;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            box-shadow: 0px 0px 8px rgba(255, 215, 0, 0.5);
+        }
+
+        #inventory-modal button:hover {
+            background: #fff;
+            color: #FFD700;
+            box-shadow: 0px 0px 12px rgba(255, 255, 255, 0.7);
+        }
+
         </style>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -634,12 +650,13 @@
         </div>
 
         <div id="title-screen">
-            <div id="title">Weird Walk 2!</div>
+            <div id="title">Weird Walk 3!</div>
             <div id="caption">
-                <span>Find the keys...</span> <span>and bring them back</span> <span>to the keymaster.</span>
+                <span>Find the keys...</span><span></span><span>and bring them back...</span><span></span><span>to the keymaster.</span> <span></span>
             </div>
             <div id="caption" style="margin-top: 20px;">
-                <span>Inspired by GreenSkull AI</span>
+                <span>Edited/Expanded by Lord Tsarcasm</span><span></span><span></span><br>
+                <span>Inspired by GreenSkull AI</span> <span>Remixed from websim.ai</span>
             </div>
         </div>
 
@@ -1139,16 +1156,16 @@
                 const eyeGeometry = new THREE.SphereGeometry(0.04 * bodyScale, 16, 16);
                 const eyeMaterial = new THREE.MeshBasicMaterial({ 
                     color: 0x111111, 
-                    depthTest: false, // Ensure eyes are always visible
+                    
                     transparent: true
                 });
                 const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
                 leftEye.position.set(-0.1 * bodyScale, 0.1 * bodyScale, 0.25 * bodyScale);
-                leftEye.renderOrder = 2; // Render after hair and helmet
+                
                 head.add(leftEye);
                 const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
                 rightEye.position.set(0.1 * bodyScale, 0.1 * bodyScale, 0.25 * bodyScale);
-                rightEye.renderOrder = 2; // Render after hair and helmet
+                
                 head.add(rightEye);
                 const mouthGeometry = new THREE.BoxGeometry(0.15 * bodyScale, 0.05 * bodyScale, 0.05 * bodyScale);
                 const mouth = new THREE.Mesh(mouthGeometry, eyeMaterial);

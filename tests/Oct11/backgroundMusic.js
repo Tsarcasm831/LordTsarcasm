@@ -10,7 +10,8 @@ class BackgroundMusicPlayer {
             './music/background/bg2.mp3',
             './music/background/bg3.mp3',
             './music/background/bg4.mp3',
-            './music/background/bg5.mp3'
+            './music/background/bg5.mp3',
+            './music/background/bg6.mp3',
         ];
         
         this.init();
