@@ -1,0 +1,206 @@
+/* ======================= */
+/*         Help Window     */
+/* ======================= */
+
+/* === Post-Apocalyptic Help Window Styling === */
+
+:root {
+    /* Color Palette */
+    --charcoal-black: #0a0a0a;
+    --dark-gray: #1a1a1a;
+    --rust-red: rgba(255, 40, 40, 0.8);
+    --fire-orange: #ff4500;
+    --burnt-amber: #ffa500;
+    --ashen-white: #e2e2e2;
+    --glow-red: rgba(255, 0, 0, 0.3);
+    --glow-orange: rgba(255, 69, 0, 0.5);
+
+    /* Font Settings */
+    --terminal-font: 'OCR A Std', monospace;
+
+    /* Animation Durations */
+    --flicker-duration: 2s;
+    --glitch-duration: 1.5s;
+    --close-glitch-duration: 1.2s;
+    --glitch-text-duration: 1.5s;
+}
+
+/* Main Help Window Container */
+#helpWindow {
+    position: fixed;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    z-index: 999;
+    background: linear-gradient(135deg, var(--charcoal-black), var(--dark-gray) 50%, var(--charcoal-black));
+    color: var(--ashen-white);
+    width: 90%;
+    max-width: 900px;
+    max-height: 80vh;
+    padding: 25px 30px;
+    border-radius: 12px;
+    border: 2px dashed var(--rust-red);
+    box-shadow: 
+        0 0 60px rgba(0, 0, 0, 0.9),
+        inset 0 0 15px var(--glow-red);
+    backdrop-filter: blur(8px) brightness(0.9);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    font-family: var(--terminal-font);
+    animation: 
+        flicker var(--flicker-duration) infinite alternate,
+        glitch var(--glitch-duration) infinite;
+    text-shadow: 
+        0 0 5px var(--glow-red), 
+        0 0 10px var(--glow-red);
+}
+
+/* Enhanced Flicker Effect */
+@keyframes flicker {
+    0% { opacity: 0.95; }
+    50% { opacity: 0.75; }
+    100% { opacity: 1; }
+}
+
+
+
+/* Show State with No Animation Interference */
+#helpWindow.show {
+    display: flex;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Stylized Close Button */
+#helpWindow .close-button {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    background-color: rgba(200, 0, 0, 0.85);
+    border: none;
+    color: #fff;
+    z-index: 1000;
+    font-size: 24px;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    animation: glitch-close var(--close-glitch-duration) infinite;
+    box-shadow: 0 0 8px var(--glow-red);
+}
+
+/* Close Button Glitch Animation */
+@keyframes glitch-close {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1) skewX(1deg); }
+    100% { transform: scale(1); }
+}
+
+#helpWindow .close-button:hover {
+    background-color: rgba(255, 0, 0, 1);
+    transform: scale(1.2);
+    box-shadow: 0 0 12px var(--glow-red);
+}
+
+/* Content Layout with Grunge Overlay */
+.content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 40px;
+    background: rgba(30, 30, 30, 0.6);
+    padding: 30px;
+    border-radius: 10px;
+    border: 1px solid var(--burnt-amber);
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    position: relative;
+    background-image: url('textures/grunge.png'); /* Optional: Add a grunge texture */
+    background-size: cover;
+}
+
+/* Columns with Distressed Alignment */
+.left-column,
+.right-column {
+    flex: 1 1 45%;
+    min-width: 250px;
+    transform: rotate(-0.75deg);
+    background: rgba(50, 50, 50, 0.4);
+    padding: 15px;
+    border: 1px dashed var(--rust-red);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+}
+
+/* Headings with Intense Glitch Effect */
+#helpWindow h2 {
+    text-align: center;
+    color: var(--fire-orange);
+    font-size: 2em;
+    text-shadow: 
+        3px 3px 15px rgba(0, 0, 0, 0.8), 
+        0 0 7px var(--rust-red);
+    margin: 0 0 25px;
+    animation: glitch-text var(--glitch-text-duration) infinite alternate;
+    position: relative;
+}
+
+@keyframes glitch-text {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05) skewX(-3deg); }
+    100% { transform: scale(1); }
+}
+
+#helpWindow h3 {
+    color: var(--burnt-amber);
+    font-size: 1.3em;
+    margin-bottom: 12px;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+    border-bottom: 1px solid var(--rust-red);
+    padding-bottom: 5px;
+}
+
+/* Additional Element Styling (Optional) */
+/* Example: Buttons within the help window */
+#helpWindow .action-button {
+    background-color: var(--rust-red);
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    margin-top: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 0 5px var(--glow-red);
+    animation: flicker 2s infinite alternate;
+}
+
+#helpWindow .action-button:hover {
+    background-color: rgba(255, 40, 40, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 0 10px var(--glow-red);
+}
+
+
+/* Help Button Styling */
+.open-help-button {
+    position: fixed;
+    bottom: 20px;
+    right: 150px; /* Adjust right position to be next to Open Music */
+    padding: 10px 20px;
+    background-color: red; /* Red background */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    z-index: 1100;
+    animation: flash 1s infinite; /* Flashing effect */
+}
+
+/* Flashing Animation */
+@keyframes flash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}

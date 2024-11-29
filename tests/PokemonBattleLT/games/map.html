@@ -1,0 +1,884 @@
+<html><head><base href="https://labs.landsurveyorsunited.com/map/hill/" target="_blank">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Split Screen Map with Geocoding and 3D View</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-fullscreen@1.0.2/dist/leaflet.fullscreen.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-fullscreen@1.0.2/dist/Leaflet.fullscreen.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-side-by-side@2.2.0/leaflet-side-by-side.min.js"></script>
+    <script src="https://unpkg.com/leaflet-plugins@3.3.1/control/Permalink.js"></script>
+    <script src="https://unpkg.com/leaflet-plugins@3.3.1/control/Permalink.Layer.js"></script>
+    <script src="https://unpkg.com/leaflet-plugins@3.3.1/control/Permalink.Marker.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBv_tBwqgUHsHw-6xebzvejK3dNcQgu1gk"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: calc(100% - 50px);
+            width: 100%;
+            transition: transform 0.5s ease;
+        }
+        .map-3d {
+            transform: perspective(1000px) rotateX(45deg);
+        }
+        .leaflet-control-layers-toggle {
+            width: 44px;
+            height: 44px;
+            background-size: 36px 36px;
+        }
+        #right-sidebar {
+            position: fixed;
+            right: -45%;
+            top: 50px;
+            width: 45%;
+            height: calc(100% - 50px);
+            background-color: rgba(30, 30, 30, 0.9);
+            transition: right 0.3s, width 0.3s;
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 1001;
+            overflow-y: auto;
+        }
+        #right-sidebar.open {
+            right: 0;
+        }
+        #right-sidebar.full-width {
+            width: 100%;
+        }
+        #close-right-sidebar, #expand-right-sidebar, #collapse-sidebar-content {
+            position: absolute;
+            top: 10px;
+            background-color: orange;
+            border: none;
+            color: black;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        #close-right-sidebar {
+            right: 10px;
+        }
+        #expand-right-sidebar {
+            right: 70px;
+        }
+        #collapse-sidebar-content {
+            right: 130px;
+        }
+        #lsu-logo {
+            background: transparent;
+            color: orange;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        #lsu-logo-img {
+            height: 30px;
+            margin-right: 10px;
+        }
+        #lsu-teach {
+            background: transparent;
+            color: orange;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        #toolbar {
+            height: 50px;
+            background-color: #1e1e1e;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            position: relative;
+            z-index: 1002;
+            justify-content: space-between;
+        }
+        .toolbar-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+        #add-pin-btn {
+            background-color: #111827;
+            border: 1px solid orange;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        #toggle-3d-btn {
+            background-color: #111827;
+            border: 1px solid orange;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .camera-btn {
+            background-color: #111827;
+            border: 1px solid orange;
+            color: white;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        #capture-fullscreen-btn {
+            background-color: #111827;
+            border: 1px solid orange;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        #geometa-block {
+            background-color: #2a2a2a;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        #sidebar-content {
+            margin-bottom: 20px;
+        }
+        #sign-in-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            color: orange;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 14px;
+        }
+        #bottom-panel {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: 80%;
+            background-color: rgba(30, 30, 30, 0.9);
+            transition: bottom 0.3s;
+            z-index: 1002;
+        }
+        #bottom-panel.open {
+            bottom: 0;
+        }
+        #close-bottom-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: orange;
+            border: none;
+            color: black;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        #popup-module {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #111827;
+            border: 1px solid orange;
+            padding: 20px;
+            z-index: 1010;
+            color: white;
+            max-width: 400px;
+            width: 90%;
+        }
+        #popup-module h2 {
+            color: orange;
+            font-family: "Prompt", sans-serif;
+        }
+        #post-point-btn {
+            background-color: transparent;
+            border: 1px solid orange;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .leaflet-control-scale {
+            position: fixed;
+            bottom: 40px;
+            left: 10px;
+            z-index: 1001;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px;
+            border: 1px solid orange;
+        }
+        .leaflet-control-scale-line {
+            color: black;
+            border-color: black;
+        }
+        .leaflet-popup-content-wrapper {
+            background: #111827;
+            border: 1px solid orange;
+            color: white;
+        }
+        .leaflet-popup-tip {
+            background: #111827;
+            border: 1px solid orange;
+        }
+        .leaflet-popup-content-wrapper .leaflet-popup-content {
+            color: white;
+        }
+        .sidebar-button {
+            background-color: #111827;
+            border: 1px solid orange;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        #street-view-panel {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background-color: rgba(30, 30, 30, 0.9);
+            transition: all 0.3s;
+            z-index: 1003;
+            border: 1px solid orange;
+        }
+        #street-view-panel.open {
+            bottom: 0;
+        }
+        #close-street-view {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: orange;
+            border: none;
+            color: black;
+            padding: 5px 10px;
+            cursor: pointer;
+            z-index: 1004;
+        }
+        #street-view {
+            width: 100%;
+            height: 100%;
+        }
+        #reposition-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1004;
+        }
+        .reposition-btn {
+            background-color: orange;
+            border: none;
+            color: black;
+            padding: 5px;
+            margin: 2px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        #controls {
+            padding: 10px;
+            color: white;
+        }
+        #controls input[type="range"] {
+            width: 100%;
+        }
+        #point-type-select-container {
+            margin-top: 10px;
+            color: white;
+            font-size: 14px;
+        }
+        #point-type-select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            background-color: #111827;
+            color: white;
+            border: 1px solid orange;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        #sticky-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(17, 24, 39, 0.8);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 10px;
+            border-top: 1px solid orange;
+            z-index: 1000;
+        }
+        #captured-image {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 20%;
+            border: 1px solid orange;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 1005;
+        }
+        #screen-record-panel {
+            display: none;
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(17, 24, 39, 0.8);
+            border: 1px solid orange;
+            padding: 10px;
+            resize: both;
+            overflow: auto;
+            min-width: 200px;
+            min-height: 150px;
+        }
+        #face-video {
+            width: 100%;
+            height: calc(100% - 30px);
+        }
+        #screen-record-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 5px;
+        }
+        #screen-record-controls button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        #screen-record-controls button:hover {
+            color: orange;
+        }
+    </style>
+    </head>
+    <body>
+    <div id="toolbar">
+        <img src="https://storage.ning.com/topology/rest/1.0/file/get/12222126291?profile=original" alt="Land Surveyors United Logo" id="lsu-logo-img">
+        <button id="add-pin-btn">+ Survey Point</button>
+        <button id="toggle-3d-btn">3D</button>
+        <div class="toolbar-center">
+            <a id="lsu-logo" href="https://landsurveyorsunited.com/hubs/learn" target="_blank">L.E.A.R.N</a>
+            <a id="lsu-teach" href="https://landsurveyorsunited.com/hubs/learn=join" target="_blank">T.E.A.C.H.</a>
+            <button id="sign-in-btn">Sign In</button>
+        </div>
+    </div>
+    <div id="map"></div>
+    <div id="right-sidebar">
+        <button id="close-right-sidebar">Close</button>
+        <button id="expand-right-sidebar">Expand</button>
+        <button id="collapse-sidebar-content">Toggle Content</button>
+        <div id="sidebar-content">
+            <div id="point-type-select-container">
+                <p>Choose the type of Survey Point you want to add:</p>
+                <select id="point-type-select">
+                    <option value="Survey Point">Survey Point</option>
+                    <option value="Marker">Marker</option>
+                    <option value="Monument">Monument</option>
+                    <option value="FOTD">FOTD</option>
+                    <option value="I Surveyed This">I Surveyed This</option>
+                    <option value="Property Corners">Property Corners</option>
+                    <option value="Section Corners">Section Corners</option>
+                    <option value="Quarter Section Corners">Quarter Section Corners</option>
+                    <option value="Primary Control Points">Primary Control Points</option>
+                    <option value="Secondary Control Points">Secondary Control Points</option>
+                    <option value="Traverse Points">Traverse Points</option>
+                    <option value="Benchmarks">Benchmarks (Elevation Points)</option>
+                    <option value="Spot Elevation Points">Spot Elevation Points</option>
+                    <option value="Contour Points">Contour Points</option>
+                    <option value="Breaklines">Breaklines</option>
+                    <option value="Centerline Points">Centerline Points</option>
+                    <option value="Offset Points">Offset Points</option>
+                    <option value="Cut/Fill Points">Cut/Fill Points</option>
+                    <option value="Grading Points">Grading Points</option>
+                    <option value="GPS Points">GPS Points (GNSS Control Points)</option>
+                    <option value="Triangulation Points">Triangulation Points</option>
+                    <option value="Datum Points">Datum Points</option>
+                    <option value="Lot Corners">Lot Corners</option>
+                    <option value="Subdivision Control Points">Subdivision Control Points</option>
+                    <option value="Edge of Right-of-Way Points">Edge of Right-of-Way Points</option>
+                    <option value="Centerline of Right-of-Way Points">Centerline of Right-of-Way Points</option>
+                    <option value="Shoreline Points">Shoreline Points</option>
+                    <option value="Stream/Watercourse Points">Stream/Watercourse Points</option>
+                    <option value="Floodplain Points">Floodplain Points</option>
+                    <option value="Utility Pole Points">Utility Pole Points</option>
+                    <option value="Manhole Points">Manhole Points</option>
+                    <option value="Pipeline Points">Pipeline Points</option>
+                    <option value="Tree Points">Tree Points</option>
+                    <option value="Building Corner Points">Building Corner Points</option>
+                    <option value="Fence Line Points">Fence Line Points</option>
+                    <option value="Monuments/Markers">Monuments/Markers</option>
+                </select>
+            </div>
+            <div id="geometa-block"></div>
+            <button id="copy-btn">Copy to Clipboard</button>
+            <p style="color: white;">Copy and Paste This Block of Code into the Post Below</p>
+        </div>
+        <iframe src="https://landsurveyorsunited.com/points/blogpost/new" width="100%" height="600px" style="border: none; margin-top: 20px;"></iframe>
+    </div>
+    <div id="bottom-panel">
+        <button id="close-bottom-panel">Close</button>
+        <iframe src="https://landsurveyorsunited.com/main/authorization/signIn?target=/my/profile" width="100%" height="100%" style="border: none; margin-top: 0;"></iframe>
+    </div>
+    <div id="popup-module">
+        <h2>Add Survey Point</h2>
+        <select id="point-type-select">
+            <option value="Survey Point">Survey Point</option>
+            <option value="Marker">Marker</option>
+            <option value="Monument">Monument</option>
+            <option value="FOTD">FOTD</option>
+            <option value="I Surveyed This">I Surveyed This</option>
+            <option value="Property Corners">Property Corners</option>
+            <option value="Section Corners">Section Corners</option>
+            <option value="Quarter Section Corners">Quarter Section Corners</option>
+            <option value="Primary Control Points">Primary Control Points</option>
+            <option value="Secondary Control Points">Secondary Control Points</option>
+            <option value="Traverse Points">Traverse Points</option>
+            <option value="Benchmarks">Benchmarks (Elevation Points)</option>
+            <option value="Spot Elevation Points">Spot Elevation Points</option>
+            <option value="Contour Points">Contour Points</option>
+            <option value="Breaklines">Breaklines</option>
+            <option value="Centerline Points">Centerline Points</option>
+            <option value="Offset Points">Offset Points</option>
+            <option value="Cut/Fill Points">Cut/Fill Points</option>
+            <option value="Grading Points">Grading Points</option>
+            <option value="GPS Points">GPS Points (GNSS Control Points)</option>
+            <option value="Triangulation Points">Triangulation Points</option>
+            <option value="Datum Points">Datum Points</option>
+            <option value="Lot Corners">Lot Corners</option>
+            <option value="Subdivision Control Points">Subdivision Control Points</option>
+            <option value="Edge of Right-of-Way Points">Edge of Right-of-Way Points</option>
+            <option value="Centerline of Right-of-Way Points">Centerline of Right-of-Way Points</option>
+            <option value="Shoreline Points">Shoreline Points</option>
+            <option value="Stream/Watercourse Points">Stream/Watercourse Points</option>
+            <option value="Floodplain Points">Floodplain Points</option>
+            <option value="Utility Pole Points">Utility Pole Points</option>
+            <option value="Manhole Points">Manhole Points</option>
+            <option value="Pipeline Points">Pipeline Points</option>
+            <option value="Tree Points">Tree Points</option>
+            <option value="Building Corner Points">Building Corner Points</option>
+            <option value="Fence Line Points">Fence Line Points</option>
+            <option value="Monuments/Markers">Monuments/Markers</option>
+        </select>
+        <p id="geocoded-address"></p>
+        <p id="coordinates"></p>
+        <button id="post-point-btn">Post Point</button>
+    </div>
+    <div id="street-view-panel">
+        <button id="close-street-view">Close</button>
+        <div id="street-view"></div>
+        <div id="reposition-controls">
+            <button id="reposition-top" class="reposition-btn">⬆️</button>
+            <button id="reposition-right" class="reposition-btn">➡️</button>
+            <button id="reposition-bottom" class="reposition-btn">⬇️</button>
+            <button id="reposition-left" class="reposition-btn">⬅️</button>
+        </div>
+    </div>
+    <div id="sticky-footer">
+        <span id="geolocation-info">Geolocation: Updating...</span>
+        <button id="capture-fullscreen-btn">📷</button>
+        <button id="screen-record-btn">🎥</button>
+    </div>
+    <div id="screen-record-panel">
+        <video id="face-video" autoplay muted></video>
+        <div id="screen-record-controls">
+            <button id="pause-record">⏸️</button>
+            <button id="stop-record">⏹️</button>
+            <button id="play-record">▶️</button>
+            <button id="download-record">⬇️</button>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var map = L.map('map', {
+            fullscreenControl: true,
+            permalink: true,
+            zoomControl: false
+        }).setView([0, 0], 2); // Start with a world view
+    
+        var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+    
+        var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Imagery &copy; Esri'
+        });
+    
+        var topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> contributors'
+        });
+    
+        var baseMaps = {
+            "OpenStreetMap": osmLayer,
+            "Satellite": satelliteLayer,
+            "Topographic": topoLayer
+        };
+    
+        L.control.layers(baseMaps, null, {
+            position: 'topright'
+        }).addTo(map);
+    
+        L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+    
+        L.control.scale({
+            position: 'bottomleft',
+            maxWidth: 200,
+            metric: true,
+            imperial: true,
+            updateWhenIdle: false
+        }).addTo(map);
+    
+        var leftLayer = osmLayer.addTo(map);
+        var rightLayer = satelliteLayer.addTo(map);
+    
+        if (typeof L.control.sideBySide === 'function') {
+            var sideBySideControl = L.control.sideBySide(leftLayer, rightLayer).addTo(map);
+    
+            function updateLayers(left, right) {
+                map.removeLayer(leftLayer);
+                map.removeLayer(rightLayer);
+                leftLayer = baseMaps[left].addTo(map);
+                rightLayer = baseMaps[right].addTo(map);
+                sideBySideControl.setLeftLayers(leftLayer);
+                sideBySideControl.setRightLayers(rightLayer);
+            }
+    
+            map.on('baselayerchange', function(e) {
+                if (map.hasLayer(leftLayer) && e.layer !== leftLayer) {
+                    updateLayers(e.name, rightLayer.options.attribution.includes('Esri') ? "Satellite" : "OpenStreetMap");
+                } else if (map.hasLayer(rightLayer) && e.layer !== rightLayer) {
+                    updateLayers(leftLayer.options.attribution.includes('OpenStreetMap') ? "OpenStreetMap" : "Satellite", e.name);
+                }
+            });
+        } else {
+            console.error('L.control.sideBySide is not available. The split-screen functionality will not work.');
+        }
+    
+        function openCamera(lat, lng) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'environment';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = document.createElement('img');
+                        img.src = event.target.result;
+                        img.style.maxWidth = '100%';
+                        img.style.height = 'auto';
+    
+                        const popup = L.popup()
+                            .setLatLng([lat, lng])
+                            .setContent(`
+                                <img src="${event.target.result}" style="max-width: 100%; height: auto;">
+                                <button class="camera-btn" onclick="openCamera(${lat}, ${lng})">📷 Retake Photo</button>
+                            `)
+                            .openOn(map);
+                        
+                        const streetViewPanel = document.getElementById('street-view-panel');
+                        const existingImage = document.getElementById('captured-image');
+                        if (existingImage) {
+                            existingImage.src = event.target.result;
+                        } else {
+                            const newImage = document.createElement('img');
+                            newImage.id = 'captured-image';
+                            newImage.src = event.target.result;
+                            streetViewPanel.appendChild(newImage);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        }
+    
+        // Make openCamera function globally accessible
+        window.openCamera = openCamera;
+    
+        function addMarkerWithAddress(lat, lng) {
+            var icon = L.icon({
+                iconUrl: 'https://storage.ning.com/topology/rest/1.0/file/get/12762356261?profile=RESIZE_584x',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            });
+    
+            var marker = L.marker([lat, lng], {icon: icon}).addTo(map);
+            
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(response => response.json())
+                .then(data => {
+                    var address = data.display_name;
+                    marker.bindPopup(`
+                        <b>Address:</b> ${address}<br>
+                        <button class="sidebar-button" onclick="showPopup(${lat}, ${lng}, '${address}')">Add a Point Here</button>
+                        <button class="sidebar-button" onclick="showStreetViewPanel(${lat}, ${lng})">View Street View</button>
+                        <button class="camera-btn" onclick="openCamera(${lat}, ${lng})">📷 Take Photo</button>
+                    `).openPopup();
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    
+        map.on('click', function(e) {
+            addMarkerWithAddress(e.latlng.lat, e.latlng.lng);
+        });
+    
+        document.getElementById('close-right-sidebar').addEventListener('click', function() {
+            document.getElementById('right-sidebar').classList.remove('open');
+        });
+    
+        document.getElementById('expand-right-sidebar').addEventListener('click', function() {
+            var sidebar = document.getElementById('right-sidebar');
+            sidebar.classList.toggle('full-width');
+            this.textContent = sidebar.classList.contains('full-width') ? 'Shrink' : 'Expand';
+        });
+    
+        document.getElementById('collapse-sidebar-content').addEventListener('click', function() {
+            var content = document.getElementById('sidebar-content');
+            content.style.display = content.style.display === 'none' ? 'block' : 'none';
+            this.textContent = content.style.display === 'none' ? 'Show Content' : 'Hide Content';
+        });
+    
+        function flyToUserLocation() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    map.flyTo([lat, lng], 13, {
+                        duration: 5 // Duration of flight in seconds
+                    });
+                    addMarkerWithAddress(lat, lng);
+                    updateGeolocation(lat, lng);
+                }, function(error) {
+                    console.error("Error: " + error.message);
+                    alert("Unable to retrieve your location. Please check your browser settings.");
+                });
+            } else {
+                alert("Geolocation is not supported by your browser.");
+            }
+        }
+    
+        function updateGeolocation(lat, lng) {
+            const geoInfo = document.getElementById('geolocation-info');
+            geoInfo.textContent = `Geolocation: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        }
+    
+        flyToUserLocation();
+    
+        let panorama;
+    
+        function initStreetView(lat, lng) {
+            const streetViewService = new google.maps.StreetViewService();
+            const panoramaOptions = {
+                position: { lat, lng },
+                pov: { heading: 0, pitch: 0 },
+                showRoadLabels: false,
+                addressControl: false,
+                linksControl: false,
+                panControl: false,
+                enableCloseButton: false,
+                zoomControl: false,
+                fullscreenControl: false
+            };
+    
+            panorama = new google.maps.StreetViewPanorama(
+                document.getElementById('street-view'),
+                panoramaOptions
+            );
+    
+            streetViewService.getPanorama({ location: { lat, lng }, radius: 50 }, (data, status) => {
+                if (status === 'OK') {
+                    panorama.setPosition(data.location.latLng);
+                } else {
+                    console.error('Street View data not found for this location.');
+                    alert('Street View is not available for this location.');
+                }
+            });
+        }
+    
+        function showStreetViewPanel(lat, lng) {
+            initStreetView(lat, lng);
+            document.getElementById('street-view-panel').classList.add('open');
+        }
+    
+        window.showStreetViewPanel = showStreetViewPanel;
+    
+        window.showPopup = function(lat, lng, address) {
+            const popup = document.getElementById('popup-module');
+            const addressElem = document.getElementById('geocoded-address');
+            const coordsElem = document.getElementById('coordinates');
+    
+            addressElem.textContent = `Address: ${address}`;
+            coordsElem.textContent = `Coordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            popup.style.display = 'block';
+        };
+    
+        document.getElementById('post-point-btn').addEventListener('click', function() {
+            hidePopup();
+            document.getElementById('right-sidebar').classList.add('open');
+        });
+    
+        function hidePopup() {
+            document.getElementById('popup-module').style.display = 'none';
+        };
+    
+        document.getElementById('sign-in-btn').addEventListener('click', function() {
+            document.getElementById('bottom-panel').classList.add('open');
+        });
+    
+        document.getElementById('close-bottom-panel').addEventListener('click', function() {
+            document.getElementById('bottom-panel').classList.remove('open');
+        });
+    
+        document.getElementById('add-pin-btn').addEventListener('click', function() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    addMarkerWithAddress(lat, lng);
+                    map.setView([lat, lng], 13);
+                    showStreetViewPanel(lat, lng);
+                }, function(error) {
+                    console.error("Error: " + error.message);
+                    alert("Unable to retrieve your location. Please check your browser settings.");
+                });
+            } else {
+                alert("Geolocation is not supported by your browser.");
+            }
+        });
+    
+        document.getElementById('copy-btn').addEventListener('click', function() {
+            var geometaBlock = document.getElementById('geometa-block');
+            var range = document.createRange();
+            range.selectNode(geometaBlock);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            alert('Geometa tags copied to clipboard!');
+        });
+    
+        document.getElementById('close-street-view').addEventListener('click', function() {
+            document.getElementById('street-view-panel').classList.remove('open');
+        });
+    
+        document.getElementById('reposition-top').addEventListener('click', function() {
+            const panel = document.getElementById('street-view-panel');
+            panel.className = 'top';
+        });
+    
+        document.getElementById('reposition-right').addEventListener('click', function() {
+            const panel = document.getElementById('street-view-panel');
+            panel.className = 'right';
+        });
+    
+        document.getElementById('reposition-bottom').addEventListener('click', function() {
+            const panel = document.getElementById('street-view-panel');
+            panel.className = 'open';
+        });
+    
+        document.getElementById('reposition-left').addEventListener('click', function() {
+            const panel = document.getElementById('street-view-panel');
+            panel.className = 'left';
+        });
+    
+        let is3DMode = false;
+        document.getElementById('toggle-3d-btn').addEventListener('click', function() {
+            is3DMode = !is3DMode;
+            if (is3DMode) {
+                document.getElementById('map').classList.add('map-3d');
+            } else {
+                document.getElementById('map').classList.remove('map-3d');
+            }
+        });
+    
+        const captureBtn = document.getElementById('capture-fullscreen-btn');
+        captureBtn.innerHTML = '📷';
+        captureBtn.style.color = 'white';
+    
+        // Screen recording feature
+        document.getElementById('screen-record-btn').addEventListener('click', startScreenRecording);
+    
+        let mediaRecorder;
+        let recordedChunks = [];
+    
+        function startScreenRecording() {
+            const screenRecordPanel = document.getElementById('screen-record-panel');
+            screenRecordPanel.style.display = 'block';
+    
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(faceStream => {
+                    const faceVideo = document.getElementById('face-video');
+                    faceVideo.srcObject = faceStream;
+    
+                    navigator.mediaDevices.getDisplayMedia({ video: true })
+                        .then(screenStream => {
+                            const combinedStream = new MediaStream([...screenStream.getTracks(), ...faceStream.getTracks()]);
+                            mediaRecorder = new MediaRecorder(combinedStream);
+    
+                            mediaRecorder.ondataavailable = event => {
+                                if (event.data.size > 0) {
+                                    recordedChunks.push(event.data);
+                                }
+                            };
+    
+                            mediaRecorder.start();
+    
+                            const controls = document.getElementById('screen-record-controls');
+                            controls.style.display = 'flex';
+                        })
+                        .catch(error => console.error('Error accessing screen:', error));
+                })
+                .catch(error => console.error('Error accessing camera:', error));
+        }
+    
+        document.getElementById('pause-record').addEventListener('click', () => mediaRecorder.pause());
+        document.getElementById('stop-record').addEventListener('click', () => mediaRecorder.stop());
+        document.getElementById('play-record').addEventListener('click', () => mediaRecorder.resume());
+        document.getElementById('download-record').addEventListener('click', () => {
+            const blob = new Blob(recordedChunks, { type: 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            document.body.appendChild(a);
+            a.style = 'display: none';
+            a.href = url;
+            a.download = 'screen-recording.mp4';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        });
+    });
+    </script>
+    </body></html>

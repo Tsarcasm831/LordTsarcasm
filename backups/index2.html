@@ -1,0 +1,2272 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <!-- Three.js Library -->
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+        <!-- Loaders -->
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+        <!-- Controls -->
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+        <!-- Tween.js Library -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+        
+        <style>
+            body { 
+                margin: 0; 
+                overflow: hidden; 
+            }
+            canvas { 
+                display: block;
+            }
+            #info {
+                position: absolute;
+                top: 6vh;
+                left: 2vw;
+                color: white;
+                font-family: monospace;
+                background: rgba(0,0,0,0.5);
+                padding: 1vh;
+                font-size: 1.5vh;  /* Reduced from 1.8vh */
+            }
+            #compass {
+                position: absolute;
+                top: 2vh;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80vw;
+                height: 4vh;
+                background: rgba(0,0,0,0.5);
+                border-radius: 2vh;
+                max-width: 1200px;
+            }
+            #compass-center {
+                position: absolute;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 0.2vw;
+                height: 4vh;
+                background: yellow;
+                z-index: 2;
+            }
+            #compass-marker {
+                position: absolute;
+                top: 0.7vh;
+                left: 50%;
+                width: 2.5vh;
+                height: 2.5vh;
+                background: #ff0000;
+                border-radius: 50%;
+                transform: translateX(-50%);
+            }
+            .cardinal-marker {
+                position: absolute;
+                top: 0.7vh;
+                width: 2.5vh;
+                height: 2.5vh;
+                background: #ffffff;
+                border-radius: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: black;
+                font-family: monospace;
+                font-weight: bold;
+                font-size: 1.5vh;
+            }
+            .pumpkin-marker {
+                position: absolute;
+                top: 1.4vh;
+                width: 1.2vh;
+                height: 1.2vh;
+                border-radius: 50%;
+                transform: translateX(-50%);
+            }
+            #hotbar {
+                position: fixed;
+                bottom: 3vh;
+                left: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                gap: 1vw;
+                background: rgba(0,0,0,0.7);
+                padding: 1vh;
+                border-radius: 1vh;
+            }
+            .hotbar-slot {
+                width: 6vh;
+                height: 6vh;
+                background: rgba(255,255,255,0.1);
+                border: 0.1vh solid rgba(255,255,255,0.3);
+                border-radius: 0.6vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-family: monospace;
+                position: relative;
+            }
+            #sprint-meter {
+                position: fixed;
+                bottom: 11vh;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 30vw;
+                height: 1.2vh;
+                background: rgba(0,0,0,0.7);
+                border-radius: 0.6vh;
+                overflow: hidden;
+                max-width: 300px;
+            }
+            #sprint-fill {
+                width: 100%;
+                height: 100%;
+                background: #00ff00;
+                transition: width 0.1s linear;
+            }
+            #warning-message {
+                position: fixed;
+                bottom: 14vh;
+                left: 50%;
+                transform: translateX(-50%);
+                color: #ff6600;
+                font-family: monospace;
+                background: rgba(0,0,0,0.7);
+                padding: 1vh;
+                border-radius: 0.6vh;
+                display: none;
+                font-size: 1.8vh;
+            }
+            .mobile-control {
+                display: none;
+                position: fixed;
+                width: 30vh;  /* Increased from 20vh */
+                height: 30vh;  /* Increased from 20vh */
+                background: rgba(0,0,0,0.5);
+                border-radius: 50%;
+            }
+            #move-stick {
+                bottom: 3vh;
+                left: 3vh;
+            }
+            #look-stick {
+                bottom: 3vh;
+                right: 3vh;
+            }
+            .stick {
+                position: absolute;
+                width: 10vh;  /* Increased from 7vh */
+                height: 10vh;  /* Increased from 7vh */
+                background: rgba(255,255,255,0.8);
+                border-radius: 50%;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .mobile-button {
+                display: none;
+                position: fixed;
+                width: 10vh;
+                height: 10vh;
+                background: rgba(0,0,0,0.5);
+                border-radius: 1.5vh;
+                color: white;
+                font-family: monospace;
+                border: 0.2vh solid white;
+                cursor: pointer;
+                font-size: 1.8vh;
+            }
+            #sprint-button {
+                bottom: 24vh;
+                right: 3vh;
+            }
+            #interact-button {
+                bottom: 24vh;
+                left: 3vh;
+            }
+            .show-mobile {
+                display: block !important;
+            }
+            #overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.95);
+                color: #ffffff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                flex-direction: column; /* Center content vertically */
+                padding: 2vh 4vw; /* Responsive padding */
+                box-sizing: border-box;
+            }
+            #overlay-content {
+                text-align: center;
+                max-width: 800px; /* Limit the width for better readability */
+            }
+            #overlay-content h1 {
+                font-size: 4vh;
+                margin-bottom: 1vh;
+            }
+            #overlay-content p {
+                font-size: 2vh;
+                margin-bottom: 3vh;
+            }
+            #overlay-links a:hover {
+                background-color: #e65c00;
+                transform: scale(1.05);
+            }
+            #start-button {
+                padding: 1vh 3vh;
+                font-size: 2vh;
+                background-color: #ff6600;
+                border: none;
+                border-radius: 0.5vh;
+                cursor: pointer;
+                transition: background-color 0.3s, transform 0.2s;
+            }
+            #start-button:hover {
+                background-color: #e65c00;
+                transform: scale(1.05);
+            }
+            #enemy-marker {
+                position: absolute;
+                top: 0.7vh;
+                width: 2.5vh;
+                height: 2.5vh;
+                background: #ff0000; /* red */
+                border-radius: 50%;
+                transform: translateX(-50%);
+                z-index: 3; /* Increase z-index to ensure it's on top */
+            }
+            #enemy-timer {
+                position: absolute;
+                top: 6vh; /* Adjust as needed */
+                left: 50%;
+                transform: translateX(-50%);
+                color: #ff6600;
+                font-family: monospace;
+                background: rgba(0,0,0,0.7);
+                padding: 1vh;
+                border-radius: 0.6vh;
+                font-size: 1.8vh;
+            }
+            /* Loading Bar Container */
+            #loading-bar-container {
+                width: 80%;
+                height: 2.5vh; /* Increased height for better visibility */
+                background-color: #555;
+                border-radius: 1.5vh;
+                overflow: hidden;
+                margin: 2vh auto;
+                position: relative;
+                box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+            }
+
+            /* Loading Bar */
+            #loading-bar {
+                width: 0%;
+                height: 100%;
+                background: linear-gradient(45deg, #ff3300, #ff6600);
+                background-size: 200% 100%;
+                animation: fluidFill 2s linear infinite;
+                transition: width 0.5s ease-in-out;
+                position: relative;
+            }
+
+            /* Loading Text */
+            #loading-text {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: white;
+                font-family: monospace;
+                font-size: 1.2vh; /* Adjusted font size for better fit */
+                white-space: nowrap;
+                pointer-events: none;
+            }
+
+            /* Fluid fill animation */
+            @keyframes fluidFill {
+                0% {
+                    background-position: 0% 0%;
+                }
+                100% {
+                    background-position: 100% 0%;
+                }
+            }
+
+            /* Play Button */
+            #play-button {
+                padding: 1vh 3vh;
+                font-size: 2vh;
+                background-color: #ff6600;
+                border: none;
+                border-radius: 0.5vh;
+                cursor: pointer;
+                transition: background-color 0.3s, transform 0.2s;
+                display: none; /* Hidden initially */
+                margin: 2vh auto 0;
+                display: block;
+                width: fit-content;
+            }
+
+            /* Play Button Hover Effect */
+            #play-button:hover {
+                background-color: #e65c00;
+                transform: scale(1.05);
+            }
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 10001;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0,0,0,0.8);
+            }
+
+            .modal-content {
+                background-color: #fefefe;
+                margin: 10% auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%;
+                max-width: 600px;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                color: #333;
+                border-radius: 10px;
+                position: relative;
+            }
+
+            .close-button {
+                color: #aaa;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+                position: absolute;
+                right: 15px;
+                top: 15px;
+                cursor: pointer;
+            }
+
+            .close-button:hover,
+            .close-button:focus {
+                color: black;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+            .modal-content img {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                display: block;
+                margin: 0 auto 20px auto;
+            }
+
+            .modal-content h2 {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .modal-content p {
+                font-size: 18px;
+            }
+            #inventory-items {
+                display: grid;
+                grid-template-columns: repeat(5, 60px);
+                grid-gap: 10px;
+                justify-content: center;
+            }
+
+            .inventory-item {
+                width: 60px;
+                height: 60px;
+                background-color: #333;
+                border: 1px solid #888;
+                border-radius: 5px;
+                position: relative;
+                cursor: pointer;
+            }
+
+            .inventory-item:hover {
+                border-color: #ff6600;
+            }
+
+            .inventory-item img {
+                width: 100%;
+                height: 100%;
+            }
+
+            .item-tooltip {
+                display: none;
+                position: absolute;
+                top: -10px;
+                left: 70px;
+                background-color: #111;
+                color: #fff;
+                padding: 10px;
+                border: 1px solid #888;
+                border-radius: 5px;
+                width: 200px;
+                z-index: 10002;
+                font-size: 14px;
+            }
+
+            .inventory-item:hover .item-tooltip {
+                display: block;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <!-- Overlay Starting Screen -->
+        <div id="overlay">
+            <div id="overlay-content">
+                <h1>Welcome to Pumpkin Quest Expanded - Lord Tsarcasm Edition!</h1>
+                <p>Credit for the original framework goes to @Thagnoth </p>
+                <p>THANKS SO MUCH!! (^_^) </p>
+                <!-- Loading Bar Container -->
+                <div id="loading-bar-container">
+                    <div id="loading-bar">
+                        <span id="loading-text">Loading 0%</span>
+                    </div>
+                </div>
+                <!-- Play Button (Initially Hidden) -->
+                <label style="display: block; margin: 1em 0;">
+                    <input type="checkbox" id="god-mode-toggle">
+                    Enable God Mode
+                </label>
+                <button id="play-button" style="display: none;">Play Game</button>
+            </div>
+        </div>
+
+        <!-- Modal for Character Information -->
+        <div id="character-info" class="modal">
+            <div class="modal-content">
+                <span class="close-button" id="close-character-info">&times;</span>
+                <h2>Character Information</h2>
+                <img src="https://file.garden/Zy7B0LkdIVpGyzA1/player-picture.png" alt="Player Picture" id="player-picture">
+                <p><strong>Health:</strong> <span id="player-health">100</span></p>
+                <p><strong>Stamina:</strong> <span id="player-stamina">100</span></p>
+                <p><strong>Level:</strong> <span id="player-level">1</span></p>
+                <p id="player-description">An adventurer on a quest to collect pumpkins.</p>
+            </div>
+        </div>
+
+        <!-- Modal for Inventory Screen -->
+        <div id="inventory-screen" class="modal">
+            <div class="modal-content">
+                <span class="close-button" id="close-inventory">&times;</span>
+                <h2>Inventory</h2>
+                <div id="inventory-items">
+                    <!-- Inventory items will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+
+        <div id="info">Use WASD or Arrow Keys to move<br>Mouse to look around<br>Shift to sprint<br>E to interact<br>Search for all five pumpkins. Use the compass rose at the top of your screen to find them.<br><button id="mobile-toggle">Mobile Controls Mode</button></div>
+        
+        <!-- Admin Console -->
+        <div id="admin-console" class="modal">
+            <div class="modal-content">
+                <span class="close-button" id="close-admin-console">&times;</span>
+                <h2>Admin Console</h2>
+                <textarea id="console-input" rows="10" style="width: 100%;"></textarea>
+                <button id="execute-command">Execute</button>
+                <div id="console-output"></div>
+            </div>
+        </div>
+
+        <!-- Compass and Hotbar -->
+        <div id="compass">
+            <div id="compass-center"></div>
+            <div id="compass-marker"></div>
+            <div class="cardinal-marker" id="north-marker">N</div>
+            <div class="cardinal-marker" id="south-marker">S</div>
+            <div class="cardinal-marker" id="east-marker">E</div>
+            <div class="cardinal-marker" id="west-marker">W</div>
+            <div id="enemy-marker"></div>
+        </div>
+        <div id="hotbar">
+            <div class="hotbar-slot"></div>
+            <div class="hotbar-slot"></div>
+            <div class="hotbar-slot"></div>
+            <div class="hotbar-slot"></div>
+            <div class="hotbar-slot"></div>
+        </div>
+
+        <!-- Sprint Meter -->
+        <div id="sprint-meter">
+            <div id="sprint-fill"></div>
+        </div>
+
+        <!-- Enemy Timer -->
+        <div id="enemy-timer" style="display: none;">Time remaining: <span id="timer-value">20</span>s</div>
+
+        <!-- Warning Message -->
+        <div id="warning-message">The dark jack-o'-lantern awakens to find the pumpkin thief...</div>
+        <!-- Mobile Controls -->
+        <div id="move-stick" class="mobile-control">
+            <div class="stick"></div>
+        </div>
+        <div id="look-stick" class="mobile-control">
+            <div class="stick"></div>
+        </div>
+        <button id="sprint-button" class="mobile-button">Sprint</button>
+        <button id="interact-button" class="mobile-button">Interact</button>
+
+        <script>
+            // Make assetManager a global variable
+            let assetManager;
+
+            class AssetManager {
+                constructor() {
+                    // Caches for different asset types
+                    this.models = new Map();
+                    this.textures = new Map();
+                    this.sounds = new Map();
+
+                    // Three.js Loaders
+                    this.loadingManager = new THREE.LoadingManager();
+                    this.textureLoader = new THREE.TextureLoader(this.loadingManager);
+                    this.objLoader = new THREE.OBJLoader(this.loadingManager);
+                    this.mtlLoader = new THREE.MTLLoader(this.loadingManager);
+                    this.fbxLoader = new THREE.FBXLoader(this.loadingManager);
+                    this.gltfLoader = new THREE.GLTFLoader(this.loadingManager);
+                    this.stlLoader = new THREE.STLLoader(this.loadingManager);
+                    this.audioLoader = new THREE.AudioLoader(this.loadingManager);
+
+                    // Event callbacks
+                    this.onProgress = null;
+                    this.onLoad = null;
+                    this.onError = null;
+
+                    // Set up LoadingManager callbacks
+                    this.loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+                        if (this.onProgress) {
+                            this.onProgress(url, itemsLoaded, itemsTotal);
+                        }
+                    };
+
+                    this.loadingManager.onLoad = () => {
+                        if (this.onLoad) {
+                            this.onLoad();
+                        }
+                    };
+
+                    this.loadingManager.onError = (url) => {
+                        console.error(`There was an error loading ${url}`);
+                        if (this.onError) {
+                            this.onError(url);
+                        }
+                    };
+                }
+
+                /**
+                 * Loads a model based on its type.
+                 * @param {string} name - Unique name to reference the model.
+                 * @param {string} url - URL of the model file.
+                 * @param {string} type - Type of the model ('obj', 'fbx', 'glb', 'stl').
+                 * @param {Object} options - Additional options (e.g., material for OBJ).
+                 * @returns {Promise} - Resolves when the model is loaded.
+                 */
+                loadModel(name, url, type, options = {}) {
+                    return new Promise((resolve, reject) => {
+                        if (this.models.has(name)) {
+                            resolve(this.models.get(name).clone());
+                            return;
+                        }
+
+                        switch (type.toLowerCase()) {
+                            case 'obj':
+                                // Handle associated .mtl files if provided
+                                if (options.mtlUrl) {
+                                    this.mtlLoader.load(options.mtlUrl, (materials) => {
+                                        materials.preload();
+                                        this.objLoader.setMaterials(materials);
+                                        this.objLoader.load(
+                                            url,
+                                            (object) => {
+                                                this.models.set(name, object);
+                                                resolve(object.clone());
+                                            },
+                                            undefined,
+                                            (error) => {
+                                                console.error(`Error loading OBJ model ${name} from ${url}:`, error);
+                                                reject(error);
+                                            }
+                                        );
+                                    }, undefined, (error) => {
+                                        console.error(`Error loading MTL for ${name} from ${options.mtlUrl}:`, error);
+                                        reject(error);
+                                    });
+                                } else {
+                                    this.objLoader.load(
+                                        url,
+                                        (object) => {
+                                            this.models.set(name, object);
+                                            resolve(object.clone());
+                                        },
+                                        undefined,
+                                        (error) => {
+                                            console.error(`Error loading OBJ model ${name} from ${url}:`, error);
+                                            reject(error);
+                                        }
+                                    );
+                                }
+                                break;
+
+                            case 'fbx':
+                                this.fbxLoader.load(
+                                    url,
+                                    (object) => {
+                                        this.models.set(name, object);
+                                        resolve(object.clone());
+                                    },
+                                    undefined,
+                                    (error) => {
+                                        console.error(`Error loading FBX model ${name} from ${url}:`, error);
+                                        reject(error);
+                                    }
+                                );
+                                break;
+
+                            case 'glb':
+                            case 'gltf':
+                                this.gltfLoader.load(
+                                    url,
+                                    (gltf) => {
+                                        this.models.set(name, gltf.scene);
+                                        resolve(gltf.scene.clone());
+                                    },
+                                    undefined,
+                                    (error) => {
+                                        console.error(`Error loading GLTF/GLB model ${name} from ${url}:`, error);
+                                        reject(error);
+                                    }
+                                );
+                                break;
+
+                            case 'stl':
+                                this.stlLoader.load(
+                                    url,
+                                    (geometry) => {
+                                        const material = new THREE.MeshStandardMaterial({ color: 0xAAAAAA });
+                                        const mesh = new THREE.Mesh(geometry, material);
+                                        this.models.set(name, mesh);
+                                        resolve(mesh.clone());
+                                    },
+                                    undefined,
+                                    (error) => {
+                                        console.error(`Error loading STL model ${name} from ${url}:`, error);
+                                        reject(error);
+                                    }
+                                );
+                                break;
+
+                            default:
+                                console.warn(`Unsupported model type: ${type}`);
+                                reject(new Error(`Unsupported model type: ${type}`));
+                        }
+                    });
+                }
+
+                /**
+                 * Loads a texture.
+                 * @param {string} name - Unique name to reference the texture.
+                 * @param {string} url - URL of the texture file.
+                 * @returns {Promise} - Resolves when the texture is loaded.
+                 */
+                loadTexture(name, url) {
+                    return new Promise((resolve, reject) => {
+                        if (this.textures.has(name)) {
+                            resolve(this.textures.get(name));
+                            return;
+                        }
+
+                        this.textureLoader.load(
+                            url,
+                            (texture) => {
+                                this.textures.set(name, texture);
+                                resolve(texture);
+                            },
+                            undefined,
+                            (error) => {
+                                console.error(`Error loading texture ${name} from ${url}:`, error);
+                                reject(error);
+                            }
+                        );
+                    });
+                }
+
+                /**
+                 * Loads a sound.
+                 * @param {string} name - Unique name to reference the sound.
+                 * @param {string} url - URL of the sound file.
+                 * @returns {Promise} - Resolves when the sound is loaded.
+                 */
+                loadSound(name, url) {
+                    return new Promise((resolve, reject) => {
+                        if (this.sounds.has(name)) {
+                            resolve(this.sounds.get(name));
+                            return;
+                        }
+
+                        this.audioLoader.load(
+                            url,
+                            (buffer) => {
+                                this.sounds.set(name, buffer);
+                                resolve(buffer);
+                            },
+                            undefined,
+                            (error) => {
+                                console.error(`Error loading sound ${name} from ${url}:`, error);
+                                reject(error);
+                            }
+                        );
+                    });
+                }
+
+                /**
+                 * Retrieves a loaded model.
+                 * @param {string} name - The name of the model.
+                 * @returns {THREE.Object3D|null} - The model or null if not found.
+                 */
+                getModel(name) {
+                    const model = this.models.get(name);
+                    if (model) {
+                        return model.clone(); // Clone to allow multiple instances
+                    } else {
+                        console.warn(`Model ${name} not found in cache.`);
+                        return null;
+                    }
+                }
+
+                /**
+                 * Retrieves a loaded texture.
+                 * @param {string} name - The name of the texture.
+                 * @returns {THREE.Texture|null} - The texture or null if not found.
+                 */
+                getTexture(name) {
+                    return this.textures.get(name) || null;
+                }
+
+                /**
+                 * Retrieves a loaded sound buffer.
+                 * @param {string} name - The name of the sound.
+                 * @returns {THREE.AudioBuffer|null} - The sound buffer or null if not found.
+                 */
+                getSound(name) {
+                    return this.sounds.get(name) || null;
+                }
+
+                /**
+                 * Sets callbacks for loading progress, completion, and errors.
+                 * @param {Object} callbacks - An object containing onProgress, onLoad, and onError functions.
+                 */
+                setCallbacks(callbacks) {
+                    this.onProgress = callbacks.onProgress || null;
+                    this.onLoad = callbacks.onLoad || null;
+                    this.onError = callbacks.onError || null;
+                }
+
+                /**
+                 * Loads multiple assets based on an array of asset definitions.
+                 * @param {Array} assetsList - An array of asset definitions.
+                 * Each asset should have { type: 'model' | 'texture' | 'sound', name: string, url: string, [extra: object] }
+                 * For models, extra may include 'modelType' and 'mtlUrl' if needed.
+                 * @returns {Promise} - Resolves when all assets are loaded.
+                 */
+                loadAllAssets(assetsList) {
+                    const loadPromises = assetsList.map(asset => {
+                        switch (asset.type.toLowerCase()) {
+                            case 'model':
+                                return this.loadModel(asset.name, asset.url, asset.modelType, asset.options || {});
+                            case 'texture':
+                                return this.loadTexture(asset.name, asset.url);
+                            case 'sound':
+                                return this.loadSound(asset.name, asset.url);
+                            default:
+                                console.warn(`Unsupported asset type: ${asset.type}`);
+                                return Promise.resolve();
+                        }
+                    });
+
+                    return Promise.all(loadPromises);
+                }
+            }
+            
+            const assetsToLoad = [
+                // Models
+                // Container Free
+                {
+                    type: 'model',
+                    name: 'ContainerFree',
+                    url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Container Free.obj',
+                    modelType: 'obj',
+                    options: { mtlUrl: 'https://file.garden/Zy7B0LkdIVpGyzA1/Container Free.mtl' }
+                },
+                // Karakter
+                {
+                    type: 'model',
+                    name: 'KarakterFBX',
+                    url: 'https://file.garden/Zy7B0LkdIVpGyzA1/karakter.fbx',
+                    modelType: 'fbx'
+                },
+                {
+                    type: 'model',
+                    name: 'KarakterOBJ',
+                    url: 'https://file.garden/Zy7B0LkdIVpGyzA1/karakter.obj',
+                    modelType: 'obj',
+                    options: { mtlUrl: 'https://file.garden/Zy7B0LkdIVpGyzA1/karakter.mtl' } // Ensure you have this MTL file
+                },
+                {
+                    type: 'model',
+                    name: 'KarakterSTL',
+                    url: 'https://file.garden/Zy7B0LkdIVpGyzA1/karakter.stl',
+                    modelType: 'stl'
+                },
+                // Retrosurvivors
+                {
+                    type: 'model',
+                    name: 'FemaleSurvivor1',
+                    url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Female Survivor 1.glb',
+                    modelType: 'glb'
+                },
+                {
+                    type: 'model',
+                    name: 'FemaleSurvivor2',
+                    url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Female Survivor 2.glb',
+                    modelType: 'glb'
+                },
+                {
+                    type: 'model',
+                    name: 'MaleSurvivor1',
+                    url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Male Survivor 1.glb',
+                    modelType: 'glb'
+                },
+                {
+                    type: 'model',
+                    name: 'MaleSurvivor2',
+                    url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Male Survivor 2.glb',
+                    modelType: 'glb'
+                },
+                // Soldier
+                {
+                    type: 'model',
+                    name: 'Soldier',
+                    url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Soldier.obj',
+                    modelType: 'obj',
+                    options: { mtlUrl: 'https://file.garden/Zy7B0LkdIVpGyzA1/Soldier.mtl' }
+                },
+                // Textures
+                // Arm_armor
+                { type: 'texture', name: 'Arm_Base_Color', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Arm_Base_Color.png' },
+                { type: 'texture', name: 'Arm_Emissive', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Arm_Emissive.png' },
+                { type: 'texture', name: 'Arm_Glossiness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Arm_Glossiness.png' },
+                { type: 'texture', name: 'Arm_Height', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Arm_Height.png' },
+                { type: 'texture', name: 'Arm_Metallic', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Arm_Metallic.png' },
+                { type: 'texture', name: 'Arm_Mixed_AO', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Arm_Mixed_AO.png' },
+                { type: 'texture', name: 'Arm_Normal', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Arm_Normal.png' },
+                { type: 'texture', name: 'Arm_Normal_OpenGL', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Arm_Normal_OpenGL.png' },
+                { type: 'texture', name: 'Arm_Roughness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Arm_Roughness.png' },
+                { type: 'texture', name: 'Arm_Specular', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Arm_Specular.png' },
+                // Body
+                { type: 'texture', name: 'Body_Base_Color', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Body_Base_Color.png' },
+                { type: 'texture', name: 'Body_Emissive', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Body_Emissive.png' },
+                { type: 'texture', name: 'Body_Glossiness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Body_Glossiness.png' },
+                { type: 'texture', name: 'Body_Height', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Body_Height.png' },
+                { type: 'texture', name: 'Body_Metallic', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Body_Metallic.png' },
+                { type: 'texture', name: 'Body_Mixed_AO', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Body_Mixed_AO.png' },
+                { type: 'texture', name: 'Body_Normal_OpenGL', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Body_Normal_OpenGL.png' },
+                { type: 'texture', name: 'Body_Roughness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Body_Roughness.png' },
+                { type: 'texture', name: 'Body_Specular', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Body_Specular.png' },
+                // Container Free
+                { type: 'texture', name: 'ContainerFree_BaseColor', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/ContainerFree_BaseColor.png' },
+                { type: 'texture', name: 'ContainerFree_Metallic', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/ContainerFree_Metallic.png' },
+                { type: 'texture', name: 'ContainerFree_Mixed_AO', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/ContainerFree_Mixed_AO.png' },
+                { type: 'texture', name: 'ContainerFree_Normal_OpenGL', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/ContainerFree_Normal_OpenGL.png' },
+                { type: 'texture', name: 'ContainerFree_Roughness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/ContainerFree_Roughness.png' },
+                { type: 'texture', name: 'ContainerFree_Emissive', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/ContainerFree_Emissive.png' },
+                // Glass
+                { type: 'texture', name: 'Glass_Base_Color', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Glass_Base_Color.png' },
+                { type: 'texture', name: 'Glass_Emissive', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Glass_Emissive.png' },
+                { type: 'texture', name: 'Glass_Glossiness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Glass_Glossiness.png' },
+                { type: 'texture', name: 'Glass_Height', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Glass_Height.png' },
+                { type: 'texture', name: 'Glass_Metallic', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Glass_Metallic.png' },
+                { type: 'texture', name: 'Glass_Mixed_AO', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Glass_Mixed_AO.png' },
+                { type: 'texture', name: 'Glass_Normal_OpenGL', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Glass_Normal_OpenGL.png' },
+                { type: 'texture', name: 'Glass_Opacity', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Glass_Opacity.png' },
+                { type: 'texture', name: 'Glass_Opacity_TGA', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Glass_Opacity_TGA.png' },
+                { type: 'texture', name: 'Glass_Roughness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Glass_Roughness.png' },
+                { type: 'texture', name: 'Glass_Specular', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Glass_Specular.png' },
+                // Glass Broken
+                { type: 'texture', name: 'GlassBroken_Base_Color', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/glass_broken_Base_Color.png' },
+                { type: 'texture', name: 'GlassBroken_Glossiness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/glass_broken_Glossiness.png' },
+                { type: 'texture', name: 'GlassBroken_Height', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/glass_broken_Height.png' },
+                { type: 'texture', name: 'GlassBroken_Metallic', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/glass_broken_Metallic.png' },
+                { type: 'texture', name: 'GlassBroken_Mixed_AO', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/glass_broken_Mixed_AO.png' },
+                { type: 'texture', name: 'GlassBroken_Normal', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/glass_broken_Normal.png' },
+                { type: 'texture', name: 'GlassBroken_Normal_OpenGL', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/glass_broken_Normal_OpenGL.png' },
+                { type: 'texture', name: 'GlassBroken_Opacity', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/glass_broken_Opacity.png' },
+                { type: 'texture', name: 'GlassBroken_Opacity_TGA', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/glass_broken_Opacity_TGA.png' },
+                { type: 'texture', name: 'GlassBroken_Opacity_b', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/glass_broken_Opacity_b.png' },
+                { type: 'texture', name: 'GlassBroken_Roughness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/glass_broken_Roughness.png' },
+                { type: 'texture', name: 'GlassBroken_Specular', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/glass_broken_Specular.png' },
+                // Head
+                { type: 'texture', name: 'Head_Base_Color', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/head_Base_Color.png' },
+                { type: 'texture', name: 'Head_Emissive', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/head_Emissive.png' },
+                { type: 'texture', name: 'Head_Glossiness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/head_Glossiness.png' },
+                { type: 'texture', name: 'Head_Height', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/head_Height.png' },
+                { type: 'texture', name: 'Head_Metallic', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/head_Metallic.png' },
+                { type: 'texture', name: 'Head_Mixed_AO', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/head_Mixed_AO.png' },
+                { type: 'texture', name: 'Head_Normal', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/head_Normal.png' },
+                { type: 'texture', name: 'Head_Normal_OpenGL', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/head_Normal_OpenGL.png' },
+                { type: 'texture', name: 'Head_Roughness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/head_Roughness.png' },
+                { type: 'texture', name: 'Head_Specular', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/head_Specular.png' },
+                // Helmet
+                { type: 'texture', name: 'Helmet_Base_Color', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Helmet_Base_Color.png' },
+                { type: 'texture', name: 'Helmet_Emissive', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Helmet_Emissive.png' },
+                { type: 'texture', name: 'Helmet_Glossiness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Helmet_Glossiness.png' },
+                { type: 'texture', name: 'Helmet_Height', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Helmet_Height.png' },
+                { type: 'texture', name: 'Helmet_Metallic', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Helmet_Metallic.png' },
+                { type: 'texture', name: 'Helmet_Mixed_AO', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Helmet_Mixed_AO.png' },
+                { type: 'texture', name: 'Helmet_Normal', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Helmet_Normal.png' },
+                { type: 'texture', name: 'Helmet_Normal_OpenGL', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Helmet_Normal_OpenGL.png' },
+                { type: 'texture', name: 'Helmet_Roughness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Helmet_Roughness.png' },
+                { type: 'texture', name: 'Helmet_Specular', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Helmet_Specular.png' },
+                // Leg
+                { type: 'texture', name: 'Leg_Base_Color', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/leg_Base_Color.png' },
+                { type: 'texture', name: 'Leg_Emissive', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/leg_Emissive.png' },
+                { type: 'texture', name: 'Leg_Glossiness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/leg_Glossiness.png' },
+                { type: 'texture', name: 'Leg_Height', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/leg_Height.png' },
+                { type: 'texture', name: 'Leg_Metallic', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/leg_Metallic.png' },
+                { type: 'texture', name: 'Leg_Mixed_AO', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/leg_Mixed_AO.png' },
+                { type: 'texture', name: 'Leg_Normal', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/leg_Normal.png' },
+                { type: 'texture', name: 'Leg_Normal_OpenGL', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/leg_Normal_OpenGL.png' },
+                { type: 'texture', name: 'Leg_Roughness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/leg_Roughness.png' },
+                { type: 'texture', name: 'Leg_Specular', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/leg_Specular.png' },
+                // Parts
+                { type: 'texture', name: 'Parts_Base_Color', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Parts_Base_Color.png' },
+                { type: 'texture', name: 'Parts_Emissive', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Parts_Emissive.png' },
+                { type: 'texture', name: 'Parts_Glossiness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Parts_Glossiness.png' },
+                { type: 'texture', name: 'Parts_Height', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Parts_Height.png' },
+                { type: 'texture', name: 'Parts_Metallic', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Parts_Metallic.png' },
+                { type: 'texture', name: 'Parts_Mixed_AO', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Parts_Mixed_AO.png' },
+                { type: 'texture', name: 'Parts_Normal', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Parts_Normal.png' },
+                { type: 'texture', name: 'Parts_Normal_OpenGL', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Parts_Normal_OpenGL.png' },
+                { type: 'texture', name: 'Parts_Roughness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Parts_Roughness.png' },
+                { type: 'texture', name: 'Parts_Specular', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Parts_Specular.png' },
+                // Torso_armor
+                { type: 'texture', name: 'TorsoArmor_Base_Color', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Torso_armor_Base_Color.png' },
+                { type: 'texture', name: 'TorsoArmor_Emissive', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Torso_armor_Emissive.png' },
+                { type: 'texture', name: 'TorsoArmor_Glossiness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Torso_armor_Glossiness.png' },
+                { type: 'texture', name: 'TorsoArmor_Height', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Torso_armor_Height.png' },
+                { type: 'texture', name: 'TorsoArmor_Metallic', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Torso_armor_Metallic.png' },
+                { type: 'texture', name: 'TorsoArmor_Mixed_AO', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Torso_armor_Mixed_AO.png' },
+                { type: 'texture', name: 'TorsoArmor_Normal', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Torso_armor_Normal.png' },
+                { type: 'texture', name: 'TorsoArmor_Normal_OpenGL', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Torso_armor_Normal_OpenGL.png' },
+                { type: 'texture', name: 'TorsoArmor_Roughness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Torso_armor_Roughness.png' },
+                { type: 'texture', name: 'TorsoArmor_Specular', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Torso_armor_Specular.png' },
+                // Weapon
+                { type: 'texture', name: 'Weapon_01_Base_Color', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/01_Base_Color.png' },
+                { type: 'texture', name: 'Weapon_01_Emissive', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/01_Emissive.png' },
+                { type: 'texture', name: 'Weapon_01_Glossiness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/01_Glossiness.png' },
+                { type: 'texture', name: 'Weapon_01_Height', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/01_Height.png' },
+                { type: 'texture', name: 'Weapon_01_Metallic', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/01_Metallic.png' },
+                { type: 'texture', name: 'Weapon_01_Mixed_AO', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/01_Mixed_AO.png' },
+                { type: 'texture', name: 'Weapon_01_Normal', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/01_Normal.png' },
+                { type: 'texture', name: 'Weapon_01_Normal_OpenGL', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/01_Normal_OpenGL.png' },
+                { type: 'texture', name: 'Weapon_01_Roughness', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/01_Roughness.png' },
+                { type: 'texture', name: 'Weapon_01_Specular', url: 'https://file.garden/Zy7B0LkdIVpGyzA1/01_Specular.png' },
+                // Repeat for Weapon 02 to 05 similarly...
+                {
+                    type: 'sound',
+                    name: 'ambientSound',
+                    url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Creepy_Ambient.mp3'
+                },
+                {
+                    type: 'sound',
+                    name: 'backgroundMusic',
+                    url: 'https://file.garden/Zy7B0LkdIVpGyzA1/Anxiety_Panic.mp3'
+                },
+                {
+                    type: 'sound',
+                    name: 'dangerMusic',
+                    url: 'https://file.garden/Zy7B0LkdIVpGyzA1/DangerMusic.mp3'
+                },
+                {
+                    type: 'sound',
+                    name: 'victoryMusic',
+                    url: 'https://file.garden/Zy7B0LkdIVpGyzA1/NSMB Overworld_minor.mp3'
+                },
+                {
+                    type: 'sound',
+                    name: 'collectionSound',
+                    url: 'https://file.garden/Zy7B0LkdIVpGyzA1/CinematicBoom_high_quality.mp3'
+                },
+                // Add more assets as needed
+            ];
+
+            
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x000000, 0.15);
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setClearColor(0x000000);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            const listener = new THREE.AudioListener();
+            camera.add(listener);
+
+            const raycaster = new THREE.Raycaster();
+            let hoveredPumpkin = null;
+            let cursorRange = 3;
+
+            // Define the warning variable
+            const warning = document.getElementById('warning-message');
+
+            const GRAVITY = -20;
+            const JUMP_FORCE = 8;
+            const PLAYER_HEIGHT = 1.7;
+            const PLAYER_WIDTH = 0.6;
+            const PLAYER_DEPTH = 0.6;
+
+            const PLAYER_SPEED = 3.0;  // This is our "n" value
+            const ENEMY_SPEED = PLAYER_SPEED * 0.4; // Initial enemy speed is 0.4n
+            let playerVelocity = new THREE.Vector3();
+            let canJump = true;
+            // Enemy gives up after 20 seconds
+            let enemySpawnTime = 0; 
+
+            const playerGeometry = new THREE.BoxGeometry(PLAYER_WIDTH, PLAYER_HEIGHT, PLAYER_DEPTH);
+            const playerMaterial = new THREE.MeshBasicMaterial({
+                visible: false
+            });
+            const player = new THREE.Mesh(playerGeometry, playerMaterial);
+            scene.add(player);
+
+            const chunkSize = 20;
+            const tileSize = 1;
+            const loadedChunks = new Map();
+            const PUMPKIN_COLORS = {
+                orange: 0xff6600,
+                pink: 0xff66cc,
+                teal: 0x00cccc,
+                purple: 0x9933ff,
+                yellow: 0xffcc00
+            };
+
+            const pumpkins = new Map();
+            const enemySphere = new THREE.Group();
+            let enemyInitialized = false;
+            let enemySpawned = false;
+
+            const sound = new THREE.PositionalAudio(listener);
+            const audioLoader = new THREE.AudioLoader();
+            audioLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/Creepy, Ambient, 8-bit, drone, background, glitch.mp3', function(buffer) {
+                sound.setBuffer(buffer);
+                sound.setRefDistance(5);
+                sound.setRolloffFactor(2);
+                sound.setLoop(true);
+                sound.setVolume(0.15);
+                sound.setLoopStart(0);
+                sound.setLoopEnd(30);
+            });
+
+            const backgroundMusic = new THREE.Audio(listener);
+            const backgroundMusicLoader = new THREE.AudioLoader();
+            backgroundMusicLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/Anxiety_Panic.mp3', function(buffer) {
+                backgroundMusic.setBuffer(buffer);
+                backgroundMusic.setVolume(0.15);  // Reduced from 0.5
+                backgroundMusic.setLoop(true);
+            });
+
+            const dangerMusic = new THREE.Audio(listener);
+            const dangerMusicLoader = new THREE.AudioLoader();
+            dangerMusicLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/DangerMusic.mp3', function(buffer) {
+                dangerMusic.setBuffer(buffer);
+                dangerMusic.setVolume(0.15);  // Reduced from 0.5
+                dangerMusic.setLoop(true);
+            });
+
+            const collectionSound = new THREE.Audio(listener);
+            const victoryMusic = new THREE.Audio(listener);
+            const victoryMusicLoader = new THREE.AudioLoader();
+            victoryMusicLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/NSMB Overworld_minor.mp3', function(buffer) {
+                victoryMusic.setBuffer(buffer);
+                victoryMusic.setVolume(0.25);  // Reduced from 1.0
+                victoryMusic.setLoop(true);
+            });
+            const collectionAudioLoader = new THREE.AudioLoader();
+            collectionAudioLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/CinematicBoom_high_quality.mp3', function(buffer) {
+                collectionSound.setBuffer(buffer);
+                collectionSound.setVolume(0.5);
+            });
+
+            let enemySpeedMultiplier = 0.2; // Initial speed will be ENEMY_SPEED * 0.6
+            let pumpkinsCollected = 0;
+            let fifthPumpkinTime = 0;
+            let gameWon = false;
+            let isGameOver = false;
+            let isSpinning = false;
+            const SPIN_DURATION = 2000;
+            const SPIN_SPEED = Math.PI * 4;
+
+            const CHEAT_CODE = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a', 'Enter'];
+            let currentCheatSequence = [];
+
+            // Add mobile controls variables
+            let mobileControlsEnabled = false;
+            let moveStickActive = false;
+            let lookStickActive = false;
+            let moveStickOrigin = {x: 0, y: 0};
+            let lookStickOrigin = {x: 0, y: 0};
+            let currentMoveOffset = {x: 0, y: 0};
+            let currentLookOffset = {x: 0, y: 0};
+
+            const chunkGeometryCache = new Map();
+
+            function createEnemySphere() {
+                // Load the OBJ model using OBJLoader
+                const loader = new THREE.OBJLoader();
+                loader.load('https://file.garden/Zy7B0LkdIVpGyzA1/Slender_Man_Lores.obj', function(object) {
+                    enemySphere.add(object);
+                    object.scale.set(0.01, 0.01, 0.01); // Adjust the scale if necessary
+                    object.position.set(0, 0, 0); // Set Y position to 0
+                    object.add(sound); // Add sound to the model
+                    scene.add(enemySphere);
+                    enemyInitialized = true;
+                }, undefined, function(error) {
+                    console.error('An error occurred while loading the model:', error);
+                });
+            }
+
+            function updateEnemyRotation() {
+                const enemyToPlayer = new THREE.Vector3();
+                enemyToPlayer.subVectors(player.position, enemySphere.position);
+                enemyToPlayer.y = 0;
+
+                const targetAngle = Math.atan2(enemyToPlayer.x, enemyToPlayer.z);
+                const currentAngle = enemySphere.rotation.y;
+
+                let angleDiff = targetAngle - currentAngle;
+
+                while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+                while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+
+                const maxRotation = (30 * Math.PI / 180) * (1/60);
+                const rotation = Math.sign(angleDiff) * Math.min(Math.abs(angleDiff), maxRotation);
+                
+                enemySphere.rotation.y += rotation;
+            }
+
+
+            function updateEnemy() {
+                if (!enemySpawned || gameWon || isGameOver) {
+                    return;
+                }
+
+                const elapsedSinceSpawn = (performance.now() - enemySpawnTime) / 1000;
+
+                if (elapsedSinceSpawn >= 20) {
+                    enemySpawned = false;
+                    scene.remove(enemySphere);
+                    sound.stop();
+                    dangerMusic.stop();
+                    if (backgroundMusic.buffer && !backgroundMusic.isPlaying) {
+                        backgroundMusic.play();
+                    }
+                    warning.textContent = "The dark jack-o'-lantern has given up the chase... for now.";
+                    const enemyTimer = document.getElementById('enemy-timer');
+                    enemyTimer.style.display = 'none';
+                    return;
+                }
+
+                // Update enemy timer display
+                const enemyTimer = document.getElementById('enemy-timer');
+                const timerValue = document.getElementById('timer-value');
+                const timeRemaining = Math.max(0, 20 - elapsedSinceSpawn);
+                enemyTimer.style.display = 'block';
+                timerValue.textContent = timeRemaining.toFixed(1);
+
+                const distanceToPlayer = enemySphere.position.distanceTo(player.position);
+                if (distanceToPlayer < 1 && !isGameOver) {
+                    triggerGameOver();
+                }
+
+                if (!enemyInitialized) {
+                    createEnemySphere();
+                }
+
+                // Calculate speed multiplier based on pumpkins collected
+                let speedMultiplier = 1.0; // Default to 1.0 * n
+                if (pumpkinsCollected >= 2) speedMultiplier = 1.1;  // 1.1 * n
+                if (pumpkinsCollected >= 3) speedMultiplier = 1.4;  // 1.4 * n
+                if (pumpkinsCollected >= 4) speedMultiplier = 1.7;  // 1.7 * n
+                if (pumpkinsCollected >= 5) speedMultiplier = 2.1;  // 2.1 * n
+
+                let currentSpeed = ENEMY_SPEED * speedMultiplier;
+
+                if (pumpkinsCollected === 5) {
+                    const elapsedTime = (performance.now() - fifthPumpkinTime) / 1000;
+                    const slowdownDuration = 30; // Total duration (25 + 5 seconds)
+                    const dropoffPoint = 25; // When rapid slowdown begins
+                    
+                    if (elapsedTime <= dropoffPoint) {
+                        currentSpeed *= Math.max(0, 1 - (elapsedTime / slowdownDuration));
+                    } else if (elapsedTime <= dropoffPoint + 5) {
+                        const remainingTime = elapsedTime - dropoffPoint;
+                        const speedAtDropoff = currentSpeed * (1 - (dropoffPoint / slowdownDuration));
+                        currentSpeed = speedAtDropoff * Math.max(0, 1 - (remainingTime / 5));
+                    } else {
+                        currentSpeed = 0;
+                    }
+
+                    if (currentSpeed <= 0) {
+                        triggerWin();
+                    }
+                }
+
+                enemySphere.position.y = player.position.y;
+
+                // Update enemy rotation to face the player
+                updateEnemyRotation();
+
+                // Corrected movement logic
+                const directionToPlayer = new THREE.Vector3();
+                directionToPlayer.subVectors(player.position, enemySphere.position);
+                directionToPlayer.y = 0; // Keep movement in the XZ plane
+                directionToPlayer.normalize();
+
+                enemySphere.position.add(directionToPlayer.multiplyScalar(currentSpeed * 0.03));
+            }
+
+            function triggerGameOver() {
+                isGameOver = true;
+                
+                // Exit pointer lock to release the mouse cursor
+                document.exitPointerLock();
+                
+                collectionSound.play();
+                backgroundMusic.stop();
+                dangerMusic.stop();
+                playerVelocity.set(0, 0, 0);
+
+                const cameraDirection = new THREE.Vector3(0, 0, -1);
+                cameraDirection.applyQuaternion(camera.quaternion);
+                const spawnPos = player.position.clone().add(cameraDirection.multiplyScalar(3));
+
+                enemySphere.position.copy(spawnPos);
+                enemySphere.position.y = player.position.y + PLAYER_HEIGHT / 2;
+
+                isSpinning = true;
+                const startTime = performance.now();
+
+                function spinAnimation() {
+                    const elapsed = performance.now() - startTime;
+                    if (elapsed < SPIN_DURATION) {
+                        enemySphere.rotation.y += SPIN_SPEED * (1/60);
+                        requestAnimationFrame(spinAnimation);
+                    } else {
+                        showGameOverScreen();
+                    }
+                }
+                spinAnimation();
+            }
+
+
+            function showGameOverScreen() {
+                const gameOverScreen = document.createElement('div');
+                gameOverScreen.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0,0,0,0.8);
+                    padding: 20px;
+                    border-radius: 10px;
+                    text-align: center;
+                    color: white;
+                    font-family: monospace;
+                `;
+                gameOverScreen.innerHTML = `
+                    <h1>GAME OVER</h1>
+                    <p>The dark jack-o'-lantern claims another victim... The next pumpkin thief should know to dodge! Tip: Its speed increases each time you anger it.</p>
+                    <button onclick="location.reload()" style="
+                        padding: 10px 20px;
+                        font-size: 16px;
+                        background: #ff6600;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                    ">Restart Game</button>
+                `;
+                document.body.appendChild(gameOverScreen);
+            }
+
+            function triggerCheatWin() {
+                currentCheatSequence = [];  // Reset the cheat code sequence
+
+                // Collect all remaining pumpkins
+                const remainingPumpkins = Array.from(pumpkins.keys());
+                for (const color of remainingPumpkins) {
+                    collectPumpkin(color);
+                }
+
+                // Ensure the enemy is spawned
+                if (!enemySpawned) {
+                    enemySpawned = true;
+                    enemySphere.position.set(0, PLAYER_HEIGHT, 0);
+                    sound.play();
+                    backgroundMusic.stop();
+                    dangerMusic.play();
+                }
+
+                // Set fifthPumpkinTime so the enemy's power wanes instantly
+                fifthPumpkinTime = performance.now() - 31 * 1000; // 31 seconds ago
+            }
+
+            function collectPumpkin(color) {
+                const slots = document.querySelectorAll('.hotbar-slot');
+                for (let i = 0; i < slots.length; i++) {
+                    if (!slots[i].hasAttribute('data-pumpkin')) {
+                        const pumpkinGroup = pumpkins.get(color);
+                        if (pumpkinGroup) {
+                            const hexColor = PUMPKIN_COLORS[color].toString(16).padStart(6, '0');
+                            slots[i].style.backgroundColor = `#${hexColor}`; 
+                            slots[i].setAttribute('data-pumpkin', color);
+                            
+                            scene.remove(pumpkinGroup);
+                            pumpkins.delete(color);
+                            const marker = pumpkinMarkers.get(color);
+                            if (marker) {
+                                marker.remove();
+                                pumpkinMarkers.delete(color);
+                            }
+
+                            pumpkinsCollected++;
+
+                            const warning = document.getElementById('warning-message');
+                            warning.style.display = 'block';
+
+                            // Update warning messages and enemy speed based on pumpkins collected
+                            if (pumpkinsCollected === 1) {
+                                enemySpawned = true;
+                                enemySphere.position.set(0, PLAYER_HEIGHT, 0);
+                                sound.play();
+                                backgroundMusic.stop();
+                                dangerMusic.play();
+                                warning.textContent = "The dark jack-o'-lantern awakens to find the pumpkin thief... If you hear a hum approach, beware!";
+                            } else if (pumpkinsCollected === 2) {
+                                warning.textContent = "The dark jack-o'-lantern will not forgive you. You will not get away with this...";
+                                enemySpeedMultiplier = 1.1;
+                            } else if (pumpkinsCollected === 3) {
+                                warning.textContent = "You feel the trees watch you with pity. They have seen what's about to come so many times before...";
+                                enemySpeedMultiplier = 1.3;
+                            } else if (pumpkinsCollected === 4) {
+                                warning.textContent = "In the darkness it chases unrelenting. Do you stand a chance?";
+                                enemySpeedMultiplier = 1.5;
+                            } else if (pumpkinsCollected === 5) {
+                                fifthPumpkinTime = performance.now();
+                                warning.textContent = "You have all of its pumpkins and must escape. Its power wanes. Run.";
+                                enemySpeedMultiplier = 1.7;
+                            }
+
+                            collectionSound.play();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            const pumpkinMarkers = new Map();
+
+            const SPRINT_MULTIPLIER = 1.6;
+            const SPRINT_MAX_TIME = 10;
+            const SPRINT_RECHARGE_RATE = 1/0.6;
+
+            let musicStarted = false;
+
+            const keys = {
+                ArrowUp: false,
+                ArrowDown: false,
+                ArrowLeft: false,
+                ArrowRight: false,
+                w: false,
+                s: false,
+                a: false,
+                d: false,
+                shift: false
+            };
+
+            let sprintMeter = SPRINT_MAX_TIME;
+            let isSprinting = false;
+            let lastSprintRecharge = performance.now();
+
+            function createPumpkin(color) {
+                const pumpkinGroup = new THREE.Group();
+                
+                const geometry = new THREE.SphereGeometry(0.4, 8, 8);
+                const material = new THREE.MeshPhongMaterial({ 
+                    color: PUMPKIN_COLORS[color],
+                    emissive: 0x000000,
+                    emissiveIntensity: 1
+                });
+                const pumpkin = new THREE.Mesh(geometry, material);
+                pumpkinGroup.add(pumpkin);
+                
+                const stemGeometry = new THREE.CylinderGeometry(0.05, 0.08, 0.2, 4);
+                const stemMaterial = new THREE.MeshPhongMaterial({ 
+                    color: 0x2a1810,
+                    emissive: 0x000000,
+                    emissiveIntensity: 1
+                });
+                const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+                stem.position.y = 0.3;
+                stem.rotation.z = Math.random() * 0.4 - 0.2;
+                pumpkinGroup.add(stem);
+                
+                const x = Math.floor(Math.random() * 350 - 175);
+                const z = Math.floor(Math.random() * 350 - 175);
+                pumpkinGroup.position.set(x, 0.4, z);
+                
+                const marker = document.createElement('div');
+                marker.className = 'cardinal-marker';
+                const hexColor = PUMPKIN_COLORS[color].toString(16).padStart(6, '0');
+                marker.style.backgroundColor = `#${hexColor}`; 
+                marker.style.width = '10px';
+                marker.style.height = '10px';
+                document.getElementById('compass').appendChild(marker);
+                
+                pumpkins.set(color, pumpkinGroup);
+                pumpkinMarkers.set(color, marker);
+                scene.add(pumpkinGroup);
+            }
+
+            function generateChunkKey(chunkX, chunkZ) {
+                return `${chunkX},${chunkZ}`;
+            }
+
+            const tileColors = {
+                ground: 0x203020,
+                spawn: 0x800000,
+                tree: 0x201008  
+            };
+
+            const tileHeights = {
+                ground: 0.1,
+                spawn: 0.1,
+                tree: 6.0  
+            };
+
+            function createChunk(chunkX, chunkZ) {
+                const chunk = new THREE.Group();
+                const groundGeometry = new THREE.BoxGeometry(tileSize, tileHeights.ground, tileSize);
+                const trunkGeometry = new THREE.CylinderGeometry(0.15, 0.3, tileHeights.tree, 6);
+                const branchGeometry = new THREE.CylinderGeometry(0.05, 0.1, 1.5, 4);
+                const twigGeometry = new THREE.CylinderGeometry(0.02, 0.04, 0.3, 3);
+
+                for (let x = 0; x < chunkSize; x++) {
+                    for (let z = 0; z < chunkSize; z++) {
+                        const worldX = chunkX * chunkSize + x;
+                        const worldZ = chunkZ * chunkSize + z;
+
+                        const isSpawnTile = (worldX === 0 && worldZ === 0);
+                        const inSettlementArea = Math.abs(worldX) < 15 && Math.abs(worldZ) < 15; // Settlement boundary
+
+                        const shade = Math.random() * 0.1 - 0.05;
+                        const baseColor = isSpawnTile ? tileColors.spawn : tileColors.ground;
+                        const adjustedColor = applyShadeToColor(baseColor, shade);
+                        const groundMaterial = new THREE.MeshBasicMaterial({ color: adjustedColor });
+                        const groundTile = new THREE.Mesh(groundGeometry, groundMaterial);
+                        groundTile.position.set(
+                            x * tileSize,
+                            tileHeights.ground / 2 - 0.05,
+                            z * tileSize
+                        );
+                        chunk.add(groundTile);
+
+                        // Skip tree generation inside the settlement
+                        if (!isSpawnTile && !inSettlementArea && Math.random() < 0.08) {  // Reduced from 0.1
+                            const trunkMaterial = new THREE.MeshBasicMaterial({ color: 0x2a1810 });
+                            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+                            trunk.position.set(
+                                x * tileSize + (Math.random() * 0.6 - 0.3),
+                                tileHeights.tree / 2,
+                                z * tileSize + (Math.random() * 0.6 - 0.3)
+                            );
+                            trunk.rotation.y = Math.random() * Math.PI * 2;
+                            trunk.rotation.z = (Math.random() - 0.5) * 0.2;
+
+                            // Reduce number of branches
+                            const numBranches = 2 + Math.floor(Math.random() * 2); // Reduced from 3+3
+                            for (let i = 0; i < numBranches; i++) {
+                                const branch = new THREE.Mesh(branchGeometry, trunkMaterial);
+                                branch.position.y = (tileHeights.tree * 0.3) + (Math.random() * tileHeights.tree * 0.6) - tileHeights.tree/2;
+                                branch.rotation.z = Math.PI/4 + (Math.random() - 0.5) * Math.PI/4;
+                                branch.rotation.y = (Math.PI * 2 * i) / numBranches;
+                                branch.position.x = Math.cos(branch.rotation.y) * 0.3;
+                                branch.position.z = Math.sin(branch.rotation.y) * 0.3;
+                                
+                                // Reduce number of twigs
+                                if (Math.random() < 0.5) {  // Only 50% chance of twigs
+                                    const twig = new THREE.Mesh(twigGeometry, trunkMaterial);
+                                    twig.position.y = 0.3;
+                                    twig.rotation.z = Math.PI/4 + (Math.random() - 0.5) * Math.PI/2;
+                                    twig.rotation.y = Math.random() * Math.PI * 2;
+                                    branch.add(twig);
+                                }
+                                
+                                trunk.add(branch);
+                            }
+
+                            chunk.add(trunk);
+                        }
+                    }
+                }
+
+                chunk.position.set(chunkX * chunkSize, 0, chunkZ * chunkSize);
+                return chunk;
+            }
+
+            function applyShadeToColor(baseColor, shade) {
+                const r = (baseColor >> 16) & 255;
+                const g = (baseColor >> 8) & 255;
+                const b = baseColor & 255;
+                
+                const adjustedR = Math.min(255, Math.max(0, r + (shade * 255)));
+                const adjustedG = Math.min(255, Math.max(0, g + (shade * 255)));
+                const adjustedB = Math.min(255, Math.max(0, b + (shade * 255)));
+                
+                return (adjustedR << 16) | (adjustedG << 8) | adjustedB;
+            }
+
+            function checkCollisions() {
+                if (player.position.y < PLAYER_HEIGHT / 2) {
+                    player.position.y = PLAYER_HEIGHT / 2;
+                    playerVelocity.y = 0;
+                    canJump = true;
+                }
+
+                scene.traverse((object) => {
+                    if (object instanceof THREE.Mesh && 
+                        object.geometry instanceof THREE.CylinderGeometry && 
+                        object.geometry.parameters.radiusTop === 0.15) {
+                        
+                        const worldPos = new THREE.Vector3();
+                        object.getWorldPosition(worldPos);
+                        const playerPos = player.position.clone();
+                        worldPos.y = 0;
+                        playerPos.y = 0;
+                        
+                        const distance = worldPos.distanceTo(playerPos);
+                        const minDistance = 0.5; 
+                        
+                        if (distance < minDistance) {
+                            const pushDir = playerPos.sub(worldPos).normalize();
+                            player.position.x += pushDir.x * (minDistance - distance);
+                            player.position.z += pushDir.z * (minDistance - distance);
+                        }
+                    }
+                });
+
+                // Additional collision detection for settlement
+                scene.traverse((object) => {
+                    if (object.userData.isCollidable) {
+                        const worldPos = new THREE.Vector3();
+                        object.getWorldPosition(worldPos);
+                        const playerPos = player.position.clone();
+                        worldPos.y = 0;
+                        playerPos.y = 0;
+
+                        const distance = worldPos.distanceTo(playerPos);
+                        const minDistance = 1.0; // Adjust based on object size
+
+                        if (distance < minDistance) {
+                            const pushDir = playerPos.sub(worldPos).normalize();
+                            player.position.x += pushDir.x * (minDistance - distance);
+                            player.position.z += pushDir.z * (minDistance - distance);
+                        }
+                    }
+                });
+            }
+
+            function checkPumpkinHover() {
+                raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+                
+                const pumpkinMeshes = Array.from(pumpkins.values()).map(group => group.children[0]);
+                const intersects = raycaster.intersectObjects(pumpkinMeshes);
+                
+                if (hoveredPumpkin) {
+                    hoveredPumpkin.material.emissive = new THREE.Color(0x000000);
+                }
+                hoveredPumpkin = null;
+                
+                if (intersects.length > 0) {
+                    const intersection = intersects[0];
+                    if (intersection.distance <= cursorRange) {
+                        hoveredPumpkin = intersection.object;
+                        hoveredPumpkin.material.emissive = new THREE.Color(0x444444);
+                    }
+                }
+            }
+
+            function pickupPumpkin() {
+                if (hoveredPumpkin) {
+                    const slots = document.querySelectorAll('.hotbar-slot');
+                    for (let i = 0; i < slots.length; i++) {
+                        if (!slots[i].hasAttribute('data-pumpkin')) {
+                            const pumpkinGroup = hoveredPumpkin.parent;
+                            const color = Array.from(pumpkins.entries())
+                                .find(([_, group]) => group === pumpkinGroup)[0];
+                            
+                            const hexColor = PUMPKIN_COLORS[color].toString(16).padStart(6, '0');
+                            slots[i].style.backgroundColor = `#${hexColor}`; 
+                            slots[i].setAttribute('data-pumpkin', color);
+                            
+                            scene.remove(pumpkinGroup);
+                            pumpkins.delete(color);
+                            const marker = pumpkinMarkers.get(color);
+                            if (marker) {
+                                marker.remove();
+                                pumpkinMarkers.delete(color);
+                            }
+                            hoveredPumpkin = null;
+
+                            pumpkinsCollected++;
+
+                            const warning = document.getElementById('warning-message');
+                            warning.style.display = 'block';
+                            
+                            if (pumpkinsCollected === 1) {
+                                enemySpawned = true;
+                                enemySpawnTime = performance.now();
+
+                                // Calculate a position a safe distance away from the player
+                                const spawnDistance = 10; // Adjust the distance as needed
+                                const angle = Math.random() * Math.PI * 2; // Random angle
+                                const spawnX = player.position.x + Math.cos(angle) * spawnDistance;
+                                const spawnZ = player.position.z + Math.sin(angle) * spawnDistance;
+                                enemySphere.position.set(spawnX, player.position.y, spawnZ);
+
+                                sound.play();
+                                backgroundMusic.stop();
+                                dangerMusic.play();
+                                warning.textContent = "The dark jack-o'-lantern awakens to find the pumpkin thief... If you hear a hum approach, beware!";
+                            } else if (pumpkinsCollected === 2) {
+                                warning.textContent = "The dark jack-o'-lantern will not forgive you. You will not get away with this...";
+                                enemySpeedMultiplier = 1.1; // Update speed on second pumpkin
+                            } else if (pumpkinsCollected === 3) {
+                                warning.textContent = "You feel the trees watch you with pity. They have seen what's about to come so many times before...";
+                                enemySpeedMultiplier = 1.3; // Update speed on third pumpkin
+                            } else if (pumpkinsCollected === 4) {
+                                warning.textContent = "In the darkness it chases unrelenting. Do you stand a chance?";
+                                enemySpeedMultiplier = 1.5; // Update speed on fourth pumpkin
+                            } else if (pumpkinsCollected === 5) {
+                                fifthPumpkinTime = performance.now();
+                                warning.textContent = "You have all of its pumpkins and must escape. Its power wanes. Run.";
+                                enemySpeedMultiplier = 1.7; // Update speed on fifth pumpkin
+                            }
+
+                            collectionSound.play();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            function triggerWin() {
+                if (!gameWon) {
+                    gameWon = true;
+                    
+                    backgroundMusic.stop();
+                    dangerMusic.stop();
+                    sound.stop();
+                    
+                    victoryMusic.play();
+                    
+                    const winScreen = document.createElement('div');
+                    winScreen.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: rgba(0,0,0,0.8);
+                        padding: 20px;
+                        border-radius: 10px;
+                        text-align: center;
+                        color: white;
+                        font-family: monospace;
+                    `;
+                    winScreen.innerHTML = `
+                        <h1>YOU WIN! Happy Halloween!</h1>
+                        <p>Thanks so much for playing! Feel free to remix if you'd like. This game was made for The Websim Halloween Contest 2024 <a href="https://websim.ai/@FilipTheFlop/halloween-contest-2024" style="color: #ff6600; text-decoration: underline;">https://websim.ai/@FilipTheFlop/halloween-contest-2024</a>. Be sure to check out all the other cool submissions! Ambient song is Wizard101: Wizard City — Dark; Danger song is Wizard101: Castle Darkmoor — Combat Theme; Victory Song is New Super Mario Bros. Overworld Theme but in minor.</p>
+                        <button onclick="location.reload()" style="
+                            padding: 10px 20px;
+                            font-size: 16px;
+                            background: #ff6600;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            margin-top: 15px;
+                        ">Play Again!</button>
+                    `;
+                    document.body.appendChild(winScreen);
+                }
+            }
+
+            function updateLoadedChunks() {
+                const playerChunkX = Math.floor(camera.position.x / (chunkSize * tileSize));
+                const playerChunkZ = Math.floor(camera.position.z / (chunkSize * tileSize));
+                // Reduce render distance from what appears to be unbounded to just 1
+                const renderDistance = 1;
+
+                // Create a Set of needed chunk keys first
+                const neededChunks = new Set();
+                
+                for (let dx = -renderDistance; dx <= renderDistance; dx++) {
+                    for (let dz = -renderDistance; dz <= renderDistance; dz++) {
+                        const chunkX = playerChunkX + dx;
+                        const chunkZ = playerChunkZ + dz;
+                        const key = generateChunkKey(chunkX, chunkZ);
+                        neededChunks.add(key);
+                        
+                        if (!loadedChunks.has(key)) {
+                            const chunk = createChunk(chunkX, chunkZ);
+                            scene.add(chunk);
+                            loadedChunks.set(key, chunk);
+                        }
+                    }
+                }
+
+                // Remove chunks that are too far away
+                for (const [key, chunk] of loadedChunks) {
+                    if (!neededChunks.has(key)) {
+                        scene.remove(chunk);
+                        chunk.traverse((object) => {
+                            if (object.geometry) {
+                                object.geometry.dispose();
+                            }
+                            if (object.material) {
+                                if (Array.isArray(object.material)) {
+                                    object.material.forEach(material => material.dispose());
+                                } else {
+                                    object.material.dispose();
+                                }
+                            }
+                        });
+                        loadedChunks.delete(key);
+                    }
+                }
+            }
+
+            let pitch = 0;
+            let yaw = 0;
+
+            const moveSpeed = 3.0;
+
+            renderer.domElement.addEventListener('click', function() {
+                renderer.domElement.requestPointerLock();
+            });
+
+            document.addEventListener('mousemove', function(event) {
+                if (document.pointerLockElement === renderer.domElement) {
+                    yaw -= event.movementX * 0.002;
+                    pitch -= event.movementY * 0.002;
+                    
+                    pitch = Math.max(-Math.PI/2, Math.min(Math.PI/2, pitch));
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                keys[e.key.toLowerCase()] = true;
+                if (e.key.toLowerCase() === 'shift') {
+                    isSprinting = sprintMeter > 0;
+                }
+                if (e.key.toLowerCase() === 'e') {
+                    pickupPumpkin();
+                }
+
+                const keyPressed = e.key;
+                currentCheatSequence.push(keyPressed);
+                if (currentCheatSequence.length > CHEAT_CODE.length) {
+                    currentCheatSequence.shift();
+                }
+                
+                if (currentCheatSequence.length === CHEAT_CODE.length) {
+                    const isCheatCode = currentCheatSequence.every((key, index) => {
+                        return key.toLowerCase() === CHEAT_CODE[index].toLowerCase();
+                    });
+                    
+                    if (isCheatCode) {
+                        triggerCheatWin();
+                    }
+                }
+            });
+            document.addEventListener('keyup', (e) => {
+                keys[e.key.toLowerCase()] = false;
+                if (e.key.toLowerCase() === 'shift') {
+                    isSprinting = false;
+                }
+            });
+
+            // Mobile controls event listeners
+            document.getElementById('mobile-toggle').addEventListener('click', function() {
+                mobileControlsEnabled = !mobileControlsEnabled;
+                document.querySelectorAll('.mobile-control, .mobile-button').forEach(el => {
+                    el.classList.toggle('show-mobile', mobileControlsEnabled);
+                });
+            });
+
+            document.getElementById('sprint-button').addEventListener('click', function() {
+                if (sprintMeter > 0) {
+                    isSprinting = !isSprinting;
+                    this.style.background = isSprinting ? 'rgba(0,255,0,0.5)' : 'rgba(0,0,0,0.5)';
+                }
+            });
+
+            document.getElementById('interact-button').addEventListener('click', function() {
+                pickupPumpkin();
+            });
+
+            // Touch handlers for move stick
+            document.getElementById('move-stick').addEventListener('touchstart', function(e) {
+                moveStickActive = true;
+                const touch = e.touches[0];
+                moveStickOrigin = {x: touch.clientX, y: touch.clientY};
+                e.preventDefault();
+            });
+
+            document.getElementById('move-stick').addEventListener('touchmove', function(e) {
+                if (!moveStickActive) return;
+                const touch = e.touches[0];
+                const maxOffset = 50;
+                
+                currentMoveOffset = {
+                    x: Math.min(maxOffset, Math.max(-maxOffset, touch.clientX - moveStickOrigin.x)),
+                    y: Math.min(maxOffset, Math.max(-maxOffset, touch.clientY - moveStickOrigin.y))
+                };
+                
+                this.querySelector('.stick').style.transform = 
+                    `translate(${currentMoveOffset.x}px, ${currentMoveOffset.y}px)`;
+                    
+                keys.w = currentMoveOffset.y < -20;
+                keys.s = currentMoveOffset.y > 20;
+                keys.a = currentMoveOffset.x < -20;
+                keys.d = currentMoveOffset.x > 20;
+                
+                e.preventDefault();
+            });
+
+            // Touch handlers for look stick
+            document.getElementById('look-stick').addEventListener('touchstart', function(e) {
+                lookStickActive = true;
+                const touch = e.touches[0];
+                lookStickOrigin = {x: touch.clientX, y: touch.clientY};
+                e.preventDefault();
+            });
+
+            document.getElementById('look-stick').addEventListener('touchmove', function(e) {
+                if (!lookStickActive) return;
+                const touch = e.touches[0];
+                const maxOffset = 50;
+                
+                currentLookOffset = {
+                    x: Math.min(maxOffset, Math.max(-maxOffset, touch.clientX - lookStickOrigin.x)),
+                    y: Math.min(maxOffset, Math.max(-maxOffset, touch.clientY - lookStickOrigin.y))
+                };
+                
+                this.querySelector('.stick').style.transform = 
+                    `translate(${currentLookOffset.x}px, ${currentLookOffset.y}px)`;
+                    
+                yaw -= currentLookOffset.x * 0.001;
+                pitch -= currentLookOffset.y * 0.001;
+                pitch = Math.max(-Math.PI/2, Math.min(Math.PI/2, pitch));
+                
+                e.preventDefault();
+            });
+
+            // Reset handlers
+            function resetStick(stickElement) {
+                stickElement.querySelector('.stick').style.transform = 'translate(-50%, -50%)';
+            }
+
+            document.addEventListener('touchend', function(e) {
+                if (moveStickActive) {
+                    moveStickActive = false;
+                    resetStick(document.getElementById('move-stick'));
+                    keys.w = keys.a = keys.s = keys.d = false;
+                }
+                if (lookStickActive) {
+                    lookStickActive = false;
+                    resetStick(document.getElementById('look-stick'));
+                }
+            });
+
+            // Add to updateSprintMeter()
+            if (!isSprinting) {
+                document.getElementById('sprint-button').style.background = 'rgba(0,0,0,0.5)';
+            }
+
+            function updateCamera() {
+                if (isGameOver) return; 
+                
+                updateEnemy(); 
+                camera.quaternion.setFromEuler(new THREE.Euler(pitch, yaw, 0, 'YXZ'));
+                
+                const forward = new THREE.Vector3(0, 0, -1);
+                const right = new THREE.Vector3(1, 0, 0);
+                forward.applyQuaternion(camera.quaternion);
+                right.applyQuaternion(camera.quaternion);
+                
+                forward.y = 0;
+                right.y = 0;
+                forward.normalize();
+                right.normalize();
+                
+                const moveVector = new THREE.Vector3();
+                if (keys.w || keys.arrowup) moveVector.add(forward);
+                if (keys.s || keys.arrowdown) moveVector.sub(forward);
+                if (keys.a || keys.arrowleft) moveVector.sub(right);
+                if (keys.d || keys.arrowright) moveVector.add(right);
+                
+                if (moveVector.length() > 0) {
+                    if (!musicStarted && backgroundMusic.buffer) {
+                        backgroundMusic.play();
+                        musicStarted = true;
+                    }
+                    moveVector.normalize().multiplyScalar(moveSpeed * (isSprinting ? SPRINT_MULTIPLIER : 1));
+                    playerVelocity.x = moveVector.x;
+                    playerVelocity.z = moveVector.z;
+                } else {
+                    playerVelocity.x = 0;
+                    playerVelocity.z = 0;
+                }
+                
+                playerVelocity.y += GRAVITY * 0.016;
+                player.position.add(playerVelocity.clone().multiplyScalar(0.03));
+                
+                checkCollisions();
+                
+                camera.position.copy(player.position);
+                camera.position.y += PLAYER_HEIGHT/2;
+
+                updateLoadedChunks();
+                updateCompass();
+            }
+
+            function updateSprintMeter() {
+                const now = performance.now();
+                const deltaTime = (now - lastSprintRecharge) / 1000;
+                lastSprintRecharge = now;
+                
+                if (isSprinting && sprintMeter > 0) {
+                    sprintMeter = Math.max(0, sprintMeter - deltaTime);
+                    if (sprintMeter === 0) {
+                        isSprinting = false;
+                        // Add this line to reset the sprint button appearance
+                        document.getElementById('sprint-button').style.background = 'rgba(0,0,0,0.5)';
+                    }
+                } else if (!isSprinting && sprintMeter < SPRINT_MAX_TIME) {
+                    sprintMeter = Math.min(SPRINT_MAX_TIME, sprintMeter + deltaTime * SPRINT_RECHARGE_RATE);
+                }
+                
+                const sprintFill = document.getElementById('sprint-fill');
+                sprintFill.style.width = `${(sprintMeter / SPRINT_MAX_TIME) * 100}%`;
+            }
+
+            window.addEventListener('resize', function() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            player.position.set(0, PLAYER_HEIGHT/2, 0);
+            camera.position.copy(player.position);
+            camera.position.y += PLAYER_HEIGHT/2;
+
+            // Clone the player's spawn position
+            const playerSpawnPosition = player.position.clone();
+
+            Object.keys(PUMPKIN_COLORS).forEach(color => {
+                createPumpkin(color);
+            });
+
+            function updateCompass() {
+                const compassMarker = document.getElementById('compass-marker');
+                const northMarker = document.getElementById('north-marker');
+                const southMarker = document.getElementById('south-marker');
+                const eastMarker = document.getElementById('east-marker');
+                const westMarker = document.getElementById('west-marker');
+
+                function angleDifference(a, b) {
+                    let diff = ((a - b + Math.PI * 3) % (2 * Math.PI)) - Math.PI;
+                    return diff;
+                }
+
+                const compassWidth = document.getElementById('compass').offsetWidth;
+                const centerPosition = compassWidth / 2;
+                const edgePadding = compassWidth * 0.07; // 7% padding from edges
+                const usableWidth = compassWidth - (edgePadding * 2);
+
+                const spawnDir = new THREE.Vector3(0, 0, 0).sub(camera.position);
+                spawnDir.y = 0;
+                spawnDir.normalize();
+
+                const cameraDir = new THREE.Vector3(0, 0, -1);
+                cameraDir.applyQuaternion(camera.quaternion);
+                cameraDir.y = 0;
+                cameraDir.normalize();
+
+                const angleToSpawn = Math.atan2(spawnDir.x, spawnDir.z);
+                const cameraAngle = Math.atan2(cameraDir.x, cameraDir.z);
+                const angle = angleDifference(angleToSpawn, cameraAngle);
+
+                let normalizedAngle = -angle / (Math.PI / 2);
+                normalizedAngle = Math.max(-1, Math.min(1, normalizedAngle));
+
+                const markerPosition = centerPosition + (normalizedAngle * (usableWidth / 2));
+                compassMarker.style.left = `${markerPosition}px`;
+
+                const absAngle = Math.abs(angle);
+                const opacity = Math.max(0, 1 - (absAngle - Math.PI/2) / (Math.PI/2));
+                compassMarker.style.opacity = opacity;
+
+                const cardinalDirections = [
+                    { marker: northMarker, angle: 0 },
+                    { marker: eastMarker, angle: -Math.PI / 2 },
+                    { marker: southMarker, angle: Math.PI },
+                    { marker: westMarker, angle: Math.PI / 2 }
+                ];
+
+                cardinalDirections.forEach(({ marker, angle: markerAngle }) => {
+                    const relativeAngle = angleDifference(markerAngle, cameraAngle);
+                    let normalizedCardinalAngle = -relativeAngle / (Math.PI / 2);
+                    normalizedCardinalAngle = Math.max(-1, Math.min(1, normalizedCardinalAngle));
+
+                    const cardinalPosition = centerPosition + (normalizedCardinalAngle * (usableWidth / 2));
+                    marker.style.left = `${cardinalPosition}px`;
+
+                    const absCardinalAngle = Math.abs(relativeAngle);
+                    const cardinalOpacity = Math.max(0, 1 - (absCardinalAngle - Math.PI/2) / (Math.PI/2));
+                    marker.style.opacity = cardinalOpacity;
+                });
+
+                pumpkins.forEach((pumpkin, color) => {
+                    const marker = pumpkinMarkers.get(color);
+                    const pumpkinDir = pumpkin.position.clone().sub(camera.position);
+                    pumpkinDir.y = 0;
+                    pumpkinDir.normalize();
+
+                    const angleToPumpkin = Math.atan2(pumpkinDir.x, pumpkinDir.z);
+                    const angle = angleDifference(angleToPumpkin, cameraAngle);
+
+                    let normalizedAngle = -angle / (Math.PI / 2);
+                    normalizedAngle = Math.max(-1, Math.min(1, normalizedAngle));
+
+                    const markerPosition = centerPosition + (normalizedAngle * (usableWidth / 2));
+                    marker.style.left = `${markerPosition}px`;
+
+                    const absAngle = Math.abs(angle);
+                    const opacity = Math.max(0, 1 - (absAngle - Math.PI/2) / (Math.PI/2));
+                    marker.style.opacity = opacity;
+                });
+
+                if (enemySpawned && !gameWon && !isGameOver) {
+                    const enemyMarker = document.getElementById('enemy-marker');
+                    const enemyDir = enemySphere.position.clone().sub(camera.position);
+                    enemyDir.y = 0;
+                    enemyDir.normalize();
+
+                    const angleToEnemy = Math.atan2(enemyDir.x, enemyDir.z);
+                    const angle = angleDifference(angleToEnemy, cameraAngle);
+
+                    let normalizedAngle = -angle / (Math.PI / 2);
+                    normalizedAngle = Math.max(-1, Math.min(1, normalizedAngle));
+
+                    const markerPosition = centerPosition + (normalizedAngle * (usableWidth / 2));
+                    enemyMarker.style.left = `${markerPosition}px`;
+
+                    const absAngle = Math.abs(angle);
+                    const opacity = Math.max(0, 1 - (absAngle - Math.PI/2) / (Math.PI/2));
+                    enemyMarker.style.opacity = 1;
+                } else {
+                    const enemyMarker = document.getElementById('enemy-marker');
+                    enemyMarker.style.opacity = 0;
+                }
+
+            }
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(0, 1, 0);
+            scene.add(directionalLight);
+
+            // Function to display character information
+            function showCharacterInfo(mesh) {
+                const infoDiv = document.getElementById('info');
+                if (!infoDiv.innerHTML.includes('Neutral Character Here!')) {
+                    infoDiv.innerHTML += `<br>Neutral Character Here!`;
+                }
+            }
+
+            function animate(time) {
+                requestAnimationFrame(animate);
+                
+                if (!isGameOver) {
+                    updateCamera();
+                    updateSprintMeter();
+                    checkPumpkinHover();
+                    // checkNeutralCharacterHover(); // Check hover on neutral characters
+                    // updateNeutralCharacters(); // Update neutral characters (e.g., rotation)
+                }
+
+                TWEEN.update(time);
+                renderer.render(scene, camera);
+            }
+            // Loading Simulation Script
+            document.addEventListener('DOMContentLoaded', () => {
+                const loadingBar = document.getElementById('loading-bar');
+                const playButton = document.getElementById('play-button');
+                const overlay = document.getElementById('overlay');
+                const loadingText = document.getElementById('loading-text');
+
+                // Initialize AssetManager
+                assetManager = new AssetManager();
+
+                // Set up callbacks
+                assetManager.setCallbacks({
+                    onProgress: (url, itemsLoaded, itemsTotal) => {
+                        const progress = (itemsLoaded / itemsTotal) * 100;
+                        loadingBar.style.width = `${progress}%`;
+                        loadingText.textContent = `Loading ${Math.round(progress)}%`;
+                    },
+                    onLoad: () => {
+                        console.log('All assets loaded successfully.');
+                        playButton.style.display = 'block';
+                        loadingText.textContent = 'Loading Complete!';
+                    },
+                    onError: (url) => {
+                        console.error(`Error loading asset at ${url}`);
+                        loadingText.textContent = 'Error loading assets.';
+                        // Optionally, display an error message to the user
+                    }
+                });
+
+                // Start loading all assets
+                assetManager.loadAllAssets(assetsToLoad)
+                    .then(() => {
+                        // Assets loaded, ready to play
+                    })
+                    .catch((error) => {
+                        console.error('Error during asset loading:', error);
+                    });
+
+                // Play Button Click Handler to start the game
+                playButton.addEventListener('click', () => {
+                    overlay.style.transition = 'opacity 0.5s ease';
+                    overlay.style.opacity = '0';
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        animate(); // Start the animation loop here
+                    }, 500);
+
+                    // Resume the AudioContext if needed
+                    if (typeof AudioContext !== 'undefined') {
+                        const audioCtx = new AudioContext();
+                        audioCtx.resume();
+                    }
+                });
+
+                // Example Usage: Adding the Soldier model to the scene
+                playButton.addEventListener('click', () => {
+                    const soldier = addModelToScene('Soldier', new THREE.Vector3(5, 0, 5), new THREE.Vector3(1, 1, 1), new THREE.Euler(0, Math.PI, 0));
+                    applyTextureToMesh(soldier, 'Body_Base_Color', 'map');
+                });
+            });
+
+            /**
+             * Adds a loaded model to the scene.
+             * @param {string} modelName - The name of the model as defined in assetsToLoad.
+             * @param {THREE.Vector3} position - Position to place the model.
+             * @param {THREE.Vector3} scale - Scale of the model.
+             * @param {THREE.Euler} rotation - Rotation of the model.
+             * @returns {THREE.Object3D|null} - The added model or null if not found.
+             */
+            function addModelToScene(modelName, position = new THREE.Vector3(), scale = new THREE.Vector3(1, 1, 1), rotation = new THREE.Euler(0, 0, 0)) {
+                const model = assetManager.getModel(modelName);
+                if (model) {
+                    const clonedModel = model.clone();
+                    clonedModel.position.copy(position);
+                    clonedModel.scale.copy(scale);
+                    clonedModel.rotation.copy(rotation);
+                    scene.add(clonedModel);
+                    return clonedModel;
+                } else {
+                    console.warn(`Model ${modelName} could not be found.`);
+                    return null;
+                }
+            }
+
+            /**
+             * Applies a texture to a mesh.
+             * @param {THREE.Mesh} mesh - The mesh to apply the texture to.
+             * @param {string} textureName - The name of the texture as defined in assetsToLoad.
+             * @param {string} mapType - The type of map to apply ('map', 'normalMap', etc.).
+             */
+            function applyTextureToMesh(mesh, textureName, mapType = 'map') {
+                const texture = assetManager.getTexture(textureName);
+                if (texture) {
+                    mesh.material[mapType] = texture;
+                    mesh.material.needsUpdate = true;
+                } else {
+                    console.warn(`Texture ${textureName} could not be found.`);
+                }
+            }
+
+            /**
+             * Plays a sound.
+             * @param {string} soundName - The name of the sound as defined in assetsToLoad.
+             * @param {boolean} loop - Whether the sound should loop.
+             * @param {number} volume - Volume level (0.0 to 1.0).
+             * @returns {THREE.Audio|null} - The sound object or null if not found.
+             */
+            function playSound(soundName, loop = false, volume = 1.0) {
+                const buffer = assetManager.getSound(soundName);
+                if (buffer) {
+                    const sound = new THREE.Audio(listener);
+                    sound.setBuffer(buffer);
+                    sound.setLoop(loop);
+                    sound.setVolume(volume);
+                    sound.play();
+                    return sound;
+                } else {
+                    console.warn(`Sound ${soundName} could not be found.`);
+                    return null;
+                }
+            }
+
+
+            // Removed the initial animate() call to prevent multiple animation loops
+        </script>
+    </body>
+</html>

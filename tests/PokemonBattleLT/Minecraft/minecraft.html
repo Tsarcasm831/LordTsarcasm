@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base href="/">
+    <title>Minecraft-Style Block Placer</title>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js"
+        }
+    }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div id="title">Minecraft-Style Block Placer</div>
+    <div id="credits">Edited by Lord Tsarcasm</div>
+    <div id="crosshair"></div>
+    
+    <script type="module">
+        import { Game } from './js/game.js';
+        
+        // Initialize the game
+        const game = new Game();
+    </script>
+</body>
+</html>

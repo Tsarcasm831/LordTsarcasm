@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Pokémon Battle Clone with Levels, Experience, Type Advantages, and Team</title>
+    <!-- Including CSS libraries for better styling and animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Include your external stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="battle-container">
+        <!-- Animated Clouds -->
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+
+        <!-- Battlefield -->
+        <div class="battlefield">
+            <!-- Player Pokémon with enhanced SVG -->
+            <div class="player-pokemon animate__animated animate__fadeIn">
+                <!-- Player's Pokémon SVG -->
+                <svg class="pokemon-svg" id="player-pokemon-svg" viewBox="0 0 128 128">
+                    <!-- Placeholder SVG -->
+                    <circle cx="64" cy="64" r="60" fill="#F08030" stroke="#000" stroke-width="4"/>
+                    <text x="64" y="70" font-size="16" fill="#000" text-anchor="middle" font-weight="bold">Player</text>
+                </svg>
+            </div>
+            <!-- Enemy Pokémon with enhanced SVG -->
+            <div class="enemy-pokemon animate__animated animate__fadeIn">
+                <!-- Enemy Pokémon SVG -->
+                <svg class="pokemon-svg" id="enemy-pokemon-svg" viewBox="0 0 128 128">
+                    <!-- Placeholder SVG -->
+                    <circle cx="64" cy="64" r="60" fill="#78C850" stroke="#000" stroke-width="4"/>
+                    <text x="64" y="70" font-size="16" fill="#000" text-anchor="middle" font-weight="bold">Enemy</text>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Dialogue Box -->
+        <div class="dialogue-box">
+            <div class="status-bars">
+                <div class="status player-status">
+                    <div class="label" id="player-name">Player Pokémon Lv5</div>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar" id="player-hp" style="width: 100%;"></div>
+                    </div>
+                    <div class="exp-bar-container">
+                        <div class="exp-bar" id="player-exp" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="status enemy-status">
+                    <div class="label" id="enemy-name">Enemy Pokémon Lv3</div>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar" id="enemy-hp" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="dialogue" id="dialogue">A wild <strong>Pokémon</strong> appeared!</div>
+            <div class="menu">
+                <button onclick="openFight()">Fight</button>
+                <button onclick="openBag()">Bag</button>
+                <button onclick="runAway()">Run</button>
+                <button onclick="openSwitch()">Switch</button>
+                <button onclick="openInventory()">Inventory</button>
+            </div>
+        </div>
+        <div class="submenu hidden" id="submenu">
+            <div class="switch-menu-placeholder">
+                <!-- Pokémon team selection will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global error handler
+        window.addEventListener('error', function(event) {
+            console.error('Uncaught error:', event.error);
+        });
+    </script>
+    <!-- Include your external JavaScript files -->
+    <script src="pokemon_battle_script.js"></script>
+    <script src="fight_mechanics.js"></script>
+    <script src="overworld.js"></script>
+    <script src="overworldmovement.js"></script>
+    <script src="playerinventory.js"></script>
+    <script src="bag_module.js"></script>
+    <script>
+        // Ensure the game starts when the page loads
+        window.addEventListener('load', fetchPokemonData);
+    </script>
+</body>
+</html>

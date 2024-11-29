@@ -1,0 +1,874 @@
+<html><head><base href="http://localhost/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Showdown Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .app-container {
+            max-height: 100vh;
+            max-width: 100vw;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: #4a4a4a;
+            border: 8px solid #000;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        #battle-view {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .battle-arena {
+            display: flex;
+            flex: 1;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px;
+            background: linear-gradient(to bottom, #87CEFA, #0B3D91);
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4);
+            border: 6px solid #ffcb05;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            height: 60%;
+        }
+
+        .battle-arena::before,
+        .battle-arena::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            height: 25%;
+            background: #2E8B57;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .battle-arena::before {
+            left: 15%;
+            width: 30%;
+            transform: skewX(-10deg);
+        }
+
+        .battle-arena::after {
+            right: 15%;
+            width: 30%;
+            transform: skewX(10deg);
+        }
+
+        .battle-arena .pokemon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 45%;
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            gap: 10px;
+        }
+
+        #team-selection-view {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .team-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 5px;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .selected-team {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            overflow-x: auto;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #3a3a3a;
+            border-radius: 5px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                height: 100vh;
+                width: 100vw;
+                border-width: 4px;
+            }
+
+            .battle-arena {
+                flex-direction: column;
+                height: auto;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(50px) scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .disabled {
+            display: none;
+        }
+        .enabled {
+            display: inline-block;
+        }
+
+        .pokemon-card {
+            width: 100%;
+            height: 120px;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            background-color: #565656;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+            font-size: 12px;
+        }
+
+        .pokemon-card img {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            margin: auto;
+        }
+
+        .pokemon-card.selected {
+            border-color: #ffcb05;
+            box-shadow: 0 0 10px #ffcb05;
+        }
+
+        .progress-bar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .progress-bar {
+            position: relative;
+            width: 80%;
+            height: 14px;
+            background-color: #ccc;
+            border-radius: 7px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .health-bar {
+            background: linear-gradient(to right, #ff5651, #f54d4b);
+            height: 100%;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .control-panel button {
+            background-color: #004085;
+            border: 3px solid #ffcb05;
+            border-radius: 12px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 12px 25px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .control-panel button:hover {
+            background-color: #003366;
+            transform: scale(1.08);
+        }
+
+        #battle-log {
+            background-color: #4a4a4a;
+            border-radius: 8px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            height: 100px;
+            overflow-y: auto;
+            margin-top: 20px;
+            font-family: 'Press Start 2P', sans-serif;
+        }
+
+        /* Additional CSS for the inventory (bag) popup */
+        #inventory-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            border: 3px solid #ffcb05;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            height: 50vh;
+            z-index: 10;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+            overflow-y: auto;
+        }
+
+        #inventory-popup .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ffcb05;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        #inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+        }
+
+        .inventory-item {
+            width: 100%;
+            height: 50px;
+            background-color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+        }
+
+        /* Additional CSS for the switch Pokemon popup */
+        #switch-pokemon-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            border: 3px solid #ffcb05;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            height: 50vh;
+            z-index: 10;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+            overflow-y: auto;
+        }
+
+        #pokemon-team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .pokemon-team-member {
+            width: 100%;
+            padding: 10px;
+            background-color: #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .pokemon-team-member.current {
+            border: 2px solid #ff0000;
+        }
+
+        #move-selection-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            border: 3px solid #ffcb05;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            z-index: 10;
+            padding: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+        }
+
+        #move-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .move-button {
+            background-color: #004085;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .move-button:hover {
+            background-color: #003366;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="header">Pokémon Battle!</div>
+
+        <div id="team-selection-view">
+            <p>Select your team of 6 Pokémon:</p>
+            <div id="type-buttons" class="type-buttons"></div>
+            <div class="selected-team" id="selected-team">
+                <p>Selected Pokémon:</p>
+            </div>
+            <div class="team-selection" id="pokemon-selection-grid"></div>
+            <button onclick="finalizeTeam()" id="finalize-button" class="disabled" style="visibility:hidden;">Start Battle</button>
+        </div>
+
+        <div id="battle-view" style="display: none;">
+            <div class="battle-arena">
+                <div class="pokemon">
+                    <img id="player-pokemon" alt="Player Pokémon" width="120">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar">
+                            <div class="health-bar" id="player-health-bar" style="width: 100%"></div>
+                        </div>
+                        <span id="player-health-text">HP: <span id="player-current-health">100</span>/<span id="player-total-health">100</span></span>
+                    </div>
+                </div>
+                <div class="pokemon">
+                    <img id="opponent-pokemon" alt="Opponent Pokémon" width="120">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar">
+                            <div class="health-bar" id="opponent-health-bar" style="width: 100%"></div>
+                        </div>
+                        <span id="opponent-health-text">HP: <span id="opponent-current-health">100</span>/<span id="opponent-total-health">100</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="control-panel" id="move-selection" style="display: none;">
+                <button>Move 1</button>
+                <button>Move 2</button>
+                <button>Move 3</button>
+                <button>Move 4</button>
+            </div>
+            <div class="control-panel">
+                <button onclick="performAction('fight')">Fight</button>
+                <button onclick="performAction('bag')">Bag</button>
+                <button onclick="performAction('switch')">Switch</button>
+            </div>
+            <div class="log" id="battle-log"></div>
+        </div>
+    </div>
+
+    <div id="inventory-popup">
+        <button class="close-btn" onclick="toggleInventory(false)">Close</button>
+        <div id="inventory-grid">
+            <div class="inventory-item">Item 1</div>
+            <div class="inventory-item">Item 2</div>
+            <div class="inventory-item">Item 3</div>
+            <div class="inventory-item">Item 4</div>
+            <div class="inventory-item">Item 5</div>
+            <div class="inventory-item">Item 6</div>
+            <div class="inventory-item">Item 7</div>
+            <div class="inventory-item">Item 8</div>
+            <div class="inventory-item">Item 9</div>
+            <div class="inventory-item">Item 10</div>
+            <div class="inventory-item">Item 11</div>
+            <div class="inventory-item">Item 12</div>
+            <div class="inventory-item">Item 13</div>
+            <div class="inventory-item">Item 14</div>
+            <div class="inventory-item">Item 15</div>
+            <div class="inventory-item">Item 16</div>
+            <div class="inventory-item">Item 17</div>
+            <div class="inventory-item">Item 18</div>
+            <div class="inventory-item">Item 19</div>
+            <div class="inventory-item">Item 20</div>
+            <div class="inventory-item">Item 21</div>
+            <div class="inventory-item">Item 22</div>
+            <div class="inventory-item">Item 23</div>
+            <div class="inventory-item">Item 24</div>
+            <div class="inventory-item">Item 25</div>
+            <div class="inventory-item">Item 26</div>
+            <div class="inventory-item">Item 27</div>
+            <div class="inventory-item">Item 28</div>
+            <div class="inventory-item">Item 29</div>
+            <div class="inventory-item">Item 30</div>
+            <div class="inventory-item">Item 31</div>
+            <div class="inventory-item">Item 32</div>
+            <div class="inventory-item">Item 33</div>
+            <div class="inventory-item">Item 34</div>
+            <div class="inventory-item">Item 35</div>
+            <div class="inventory-item">Item 36</div>
+            <div class="inventory-item">Item 37</div>
+            <div class="inventory-item">Item 38</div>
+            <div class="inventory-item">Item 39</div>
+            <div class="inventory-item">Item 40</div>
+            <div class="inventory-item">Item 41</div>
+            <div class="inventory-item">Item 42</div>
+            <div class="inventory-item">Item 43</div>
+            <div class="inventory-item">Item 44</div>
+            <div class="inventory-item">Item 45</div>
+            <div class="inventory-item">Item 46</div>
+            <div class="inventory-item">Item 47</div>
+            <div class="inventory-item">Item 48</div>
+            <div class="inventory-item">Item 49</div>
+            <div class="inventory-item">Item 50</div>
+        </div>
+    </div>
+
+    <div id="switch-pokemon-popup">
+        <button class="close-btn" onclick="toggleSwitchPokemonPopup(false)">Close</button>
+        <div id="pokemon-team-grid">
+        </div>
+    </div>
+
+    <div id="move-selection-popup">
+        <button class="close-btn" onclick="toggleMoveSelectionPopup(false)">Close</button>
+        <div id="move-buttons">
+        </div>
+    </div>
+
+    <script>
+        const totalPokemon = 1010;
+        let selectedPokemons = [];
+        let opponentTeam = [];
+        let playerHealth = 100;
+        let opponentHealth = 100;
+        let currentTurn = 'player';
+        const typesUrl = "https://pokeapi.co/api/v2/type";
+
+        // Dynamic assignment of moves to Pokémon
+        const availablePokemonMoves = {
+            "1": [
+                { name: "Tackle", damage: 35, effect: "normal" },
+                { name: "Growl", damage: 0, effect: "lowerAttack" },
+                { name: "Vine Whip", damage: 45, effect: "grass" },
+                { name: "Razor Leaf", damage: 55, effect: "grass", critical: 0.1 },
+            ],
+            "2": [
+                { name: "Scratch", damage: 40, effect: "normal" },
+                { name: "Leer", damage: 0, effect: "lowerDefense" },
+                { name: "Quick Attack", damage: 40, effect: "normal", priority: 1 },
+                { name: "Double Kick", damage: 60, effect: "fighting" },
+            ],
+            // More Pokémon moves can be added
+        };
+
+        // Move list will be per selected Pokémon
+        let playerPokemonMoves = {};
+        let activePokemonIndex = 0;
+        let opponentActiveIndex = 0;
+
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled rejection (promise: ', event.promise, ', reason: ', event.reason, ').');
+            alert('An unexpected error occurred. Please refresh the page and try again.');
+            event.preventDefault();
+        });
+
+        function assignPokemonMoves() {
+            selectedPokemons.forEach(pokemonId => {
+                // dynamically assign moves to each Pokémon
+                playerPokemonMoves[pokemonId] = availablePokemonMoves[pokemonId] || [];
+            });
+        }
+
+        function finalizeTeam() {
+            if (selectedPokemons.length === 6) {
+                assignPokemonMoves(); // Assign moves upon finalizing team
+                opponentTeam = selectRandomPokemon(6); // Generate opponent team
+                document.getElementById('team-selection-view').style.display = 'none';
+                document.getElementById('battle-view').style.display = 'flex';
+                updatePokemonSprites(selectedPokemons[0], opponentTeam[0]);
+                updateMoveButtons(selectedPokemons[0]);
+                currentTurn = 'player';  
+                setTimeout(() => {
+                    animateBattleIntro();
+                }, 500);
+            }
+        }
+
+        function updateMoveButtons(pokemonId) {
+            const movePanel = document.getElementById('move-selection');
+            const moves = playerPokemonMoves[pokemonId] || [];
+            
+            const buttons = movePanel.querySelectorAll('button');
+            buttons.forEach((button, index) => {
+                const move = moves[index];
+                if (move) {
+                    button.textContent = move.name;
+                    button.onclick = () => selectMove(index);
+                    button.disabled = false;
+                } else {
+                    button.textContent = "Unavailable";
+                    button.onclick = null;
+                    button.disabled = true;
+                }
+            });
+
+            movePanel.style.display = moves.length ? 'flex' : 'none';
+        }
+
+        function populateMoveSelection() {
+            const container = document.getElementById('move-buttons');
+            container.innerHTML = '';
+            const moves = playerPokemonMoves[selectedPokemons[activePokemonIndex]] || [];
+            moves.forEach((move, index) => {
+                const button = document.createElement('div');
+                button.className = 'move-button';
+                button.innerText = move.name;
+                button.onclick = () => selectMove(index);
+                container.appendChild(button);
+            });
+        }
+
+        async function loadTypes() {
+            try {
+                const response = await fetch(typesUrl);
+                if (!response.ok) {
+                    throw new Error("Failed to load types.");
+                }
+                const typesData = await response.json();
+                const typeButtonsDiv = document.getElementById('type-buttons');
+
+                typesData.results.forEach(type => {
+                    const button = document.createElement('button');
+                    button.className = `type-button ${type.name}`;
+                    button.innerText = type.name.charAt(0).toUpperCase() + type.name.slice(1);
+                    button.onclick = () => toggleTypeSelection(button, type.name);
+
+                    typeButtonsDiv.appendChild(button);
+                });
+            } catch (error) {
+                console.error("Error loading types:", error);
+                alert("Failed to load Pokémon types. Please try again later.");
+            }
+        }
+
+        function toggleTypeSelection(button, type) {
+            const isSelected = button.classList.contains('selected');
+            const allButtons = document.querySelectorAll('.type-button');
+            
+            allButtons.forEach(btn => btn.classList.remove('selected'));
+            
+            if (!isSelected) {
+                button.classList.add('selected');
+                loadPokemonSelectionGrid(type);
+            } else {
+                loadPokemonSelectionGrid("all");
+            }
+        }
+
+        async function loadPokemonSelectionGrid(type="all") {
+            try {
+                const grid = document.getElementById('pokemon-selection-grid');
+                grid.innerHTML = '';
+
+                const url = type === "all" ? "https://pokeapi.co/api/v2/pokemon?limit=1010" : `https://pokeapi.co/api/v2/type/${type}`;
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error("Failed to load Pokémon data.");
+                }
+                const data = await response.json();
+
+                const pokemons = type === "all" ? data.results : data.pokemon.map(p => p.pokemon);
+                pokemons.forEach(pokemon => {
+                    const pokemonCard = document.createElement('div');
+                    pokemonCard.className = 'pokemon-card';
+
+                    const id = pokemon.url ? pokemon.url.split('/').slice(-2)[0] : pokemon.id;
+                    if (id) {
+                        pokemonCard.innerHTML = `<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png" alt="Pokémon ${id}" data-id="${id}">`;
+
+                        pokemonCard.onclick = function() {
+                            if (selectedPokemons.length < 6 && !selectedPokemons.includes(id)) {
+                                selectedPokemons.push(id);
+                                this.classList.add('selected');
+                                updateSelectedTeam();
+                            }
+                        };
+
+                        grid.appendChild(pokemonCard);
+                    }
+                });
+            } catch (error) {
+                console.error("Error loading Pokémon:", error);
+                alert("Failed to load Pokémon list. Please try again later.");
+            }
+        }
+
+        function updateSelectedTeam() {
+            const selectedTeamDiv = document.getElementById('selected-team');
+            selectedTeamDiv.innerHTML = '<p>Selected Pokémon:</p>';
+            selectedPokemons.forEach(pokemonId => {
+                const img = document.createElement('img');
+                img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
+                img.alt = `Selected Pokémon ${pokemonId}`;
+                selectedTeamDiv.appendChild(img);
+            });
+
+            const finalizeButton = document.getElementById('finalize-button');
+            finalizeButton.className = selectedPokemons.length === 6 ? 'enabled' : 'disabled';
+            finalizeButton.style.visibility = selectedPokemons.length === 6 ? 'visible' : 'hidden';
+        }
+
+        function selectRandomPokemon(count) {
+            const team = [];
+            while (team.length < count) {
+                const randomId = Math.floor(Math.random() * totalPokemon) + 1;
+                if (!team.includes(randomId)) {
+                    team.push(randomId);
+                }
+            }
+            return team;
+        }
+
+        function updatePokemonSprites(playerId, opponentId) {
+            document.getElementById('player-pokemon').src =
+                `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${playerId}.png`;
+            document.getElementById('opponent-pokemon').src =
+                `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${opponentId}.png`;
+        }
+
+        function selectMove(moveIndex) {
+            const log = document.getElementById('battle-log');
+            if (currentTurn === 'player') {
+                const moves = playerPokemonMoves[selectedPokemons[activePokemonIndex]];
+                if (moves && moves[moveIndex]) {
+                    const chosenMove = moves[moveIndex];
+                    let damage = calculateDamage(chosenMove, 'opponent');
+                    opponentHealth = Math.max(0, opponentHealth - damage);
+
+                    document.getElementById('opponent-health-bar').style.width = opponentHealth + '%';
+                    document.getElementById('opponent-current-health').innerText = opponentHealth;
+                    log.innerHTML += `<p>Player's ${chosenMove.name} deals ${damage} damage to Opponent!</p>`;
+
+                    checkBattleStatus();
+                }
+            }
+        }
+
+        function performOpponentMove() {
+            if (currentTurn === 'opponent') {
+                const opponentMoveSet = playerPokemonMoves[opponentTeam[opponentActiveIndex]];
+                if (opponentMoveSet.length > 0) {
+                    const randomMoveIndex = Math.floor(Math.random() * opponentMoveSet.length);
+                    const chosenMove = opponentMoveSet[randomMoveIndex];
+                    let damage = calculateDamage(chosenMove, 'player');
+                    playerHealth = Math.max(0, playerHealth - damage);
+
+                    document.getElementById('player-health-bar').style.width = playerHealth + '%';
+                    document.getElementById('player-current-health').innerText = playerHealth;
+
+                    document.getElementById('battle-log').innerHTML += `<p>Opponent's ${chosenMove.name} deals ${damage} damage to Player!</p>`;
+
+                    checkBattleStatus();
+                }
+            }
+        }
+
+        function calculateDamage(move, target) {
+            let damage = 0;
+            if (move.damage) {
+                damage = move.damage + Math.floor(Math.random() * 5);
+                if (move.critical && Math.random() < move.critical) {
+                    damage *= 2;
+                }
+            }
+            return damage;
+        }
+
+        function checkBattleStatus() {
+            const log = document.getElementById('battle-log');
+            if (opponentHealth === 0) {
+                log.innerHTML += `<p>Opponent fainted!</p>`;
+                document.querySelector('.control-panel').innerHTML = "<button onclick='restartBattle()'>Restart</button>";
+            } else if (playerHealth === 0) {
+                log.innerHTML += `<p>Player fainted!</p>`;
+                document.querySelector('.control-panel').innerHTML = "<button onclick='restartBattle()'>Restart</button>";
+            } else {
+                switchTurn();
+            }
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function switchTurn() {
+            if (currentTurn === 'player') {
+                currentTurn = 'opponent';
+                setTimeout(performOpponentMove, 1000);  
+            } else {
+                currentTurn = 'player';
+                document.getElementById('move-selection').style.display = 'flex';
+            }
+        }
+
+        performAction = (action) => {
+            console.log(`Performing action: ${action}`);
+            if (currentTurn === 'player') {
+                if (action === 'fight') {
+                    toggleMoveSelectionPopup(true);
+                } else if (action === 'bag') {
+                    toggleInventory(true);
+                } else if (action === 'switch') {
+                    toggleSwitchPokemonPopup(true);
+                }
+            }
+        };
+
+        function playButtonSound() {
+            const buttonSound = new Audio('button_click.wav');
+            buttonSound.play();
+        }
+
+        function restartBattle() {
+            selectedPokemons = [];
+            opponentTeam = [];
+            playerHealth = opponentHealth = 100;
+            document.getElementById('team-selection-view').style.display = 'block';
+            document.getElementById('battle-view').style.display = 'none';
+            document.getElementById('battle-log').innerHTML = '';
+            document.querySelector('.control-panel').innerHTML = `
+                <button onclick="battle()">Battle</button>
+                <button onclick="switchOpponentPokemon()">Switch Pokémon</button>
+            `;
+            loadPokemonSelectionGrid();
+        }
+
+        function animateBattleIntro() {
+            const playerPokemonImg = document.getElementById('player-pokemon');
+            playerPokemonImg.style.transform = 'translateX(-100%)';
+            
+            const opponentPokemonImg = document.getElementById('opponent-pokemon');
+            opponentPokemonImg.style.transform = 'translateX(100%)';
+            
+            setTimeout(() => {
+                playerPokemonImg.style.transition = 'none';
+                opponentPokemonImg.style.transition = 'none';
+
+                playerPokemonImg.style.transform = 'translateX(0)';
+                opponentPokemonImg.style.transform = 'translateX(0)';
+
+                setTimeout(() => {
+                    playerPokemonImg.style.transition = 'transform 0.5s ease-in-out';
+                    opponentPokemonImg.style.transition = 'transform 0.5s ease-in-out';
+                }, 50);
+            }, 1000);
+        }
+
+        Promise.resolve().catch(error => console.error("Unhandled Promise Rejection:", error));
+
+        window.onload = function() {
+            try {
+                loadPokemonSelectionGrid("all");
+                loadTypes();
+            } catch (error) {
+                console.error("Initialization error:", error);
+                alert("An error occurred during initialization. Please refresh the page and try again.");
+            }
+        };
+
+        function toggleInventory(show) {
+            const inventoryPopup = document.getElementById('inventory-popup');
+            inventoryPopup.style.display = show ? 'block' : 'none';
+        }
+
+        function toggleSwitchPokemonPopup(show) {
+            const popup = document.getElementById('switch-pokemon-popup');
+            popup.style.display = show ? 'block' : 'none';
+
+            if (show) {
+                populateSwitchPokemonGrid();
+            }
+        }
+
+        function toggleMoveSelectionPopup(show) {
+            const popup = document.getElementById('move-selection-popup');
+            popup.style.display = show ? 'block' : 'none';
+
+            if (show) {
+                populateMoveSelection();
+            }
+        }
+
+        function populateSwitchPokemonGrid() {
+            const grid = document.getElementById('pokemon-team-grid');
+            grid.innerHTML = '';
+            selectedPokemons.forEach((pokemonId, index) => {
+                const container = document.createElement('div');
+                container.className = `pokemon-team-member ${index === activePokemonIndex ? 'current' : ''}`;
+
+                const img = document.createElement('img');
+                img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
+                img.alt = `Team Pokémon ${pokemonId}`;
+                img.width = 60;
+                img.height = 60;
+
+                const healthText = document.createElement('span');
+                healthText.innerText = `HP: 100/100`;
+
+                container.appendChild(img);
+                container.appendChild(healthText);
+                container.onclick = () => switchActivePokemon(index);
+
+                grid.appendChild(container);
+            });
+        }
+
+        function switchActivePokemon(newIndex) {
+            if (newIndex !== activePokemonIndex) {
+                console.log(`Switching active Pokémon: ${selectedPokemons[activePokemonIndex]} -> ${selectedPokemons[newIndex]}`);
+                activePokemonIndex = newIndex;
+                updatePokemonSprites(selectedPokemons[activePokemonIndex], opponentTeam[opponentActiveIndex]);
+                updateMoveButtons(selectedPokemons[activePokemonIndex]); 
+
+                toggleSwitchPokemonPopup(false);
+
+                const log = document.getElementById('battle-log');
+                log.innerHTML += `<p>Player switched to Pokémon ${selectedPokemons[activePokemonIndex]}!</p>`;
+                log.scrollTop = log.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>

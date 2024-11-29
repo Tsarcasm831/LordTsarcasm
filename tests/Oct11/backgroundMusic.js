@@ -12,12 +12,28 @@ class BackgroundMusicPlayer {
             './music/background/bg4.mp3',
             './music/background/bg5.mp3',
             './music/background/bg6.mp3',
+            // YouTube links can now be added like this:
+            'https://www.youtube.com/watch?v=lGQ4Z40c7lI&list=OLAK5uy_mzlMn0mxaln4cwviS-SnLYXmhKfIVnHBM'
         ];
+        
+        this.youtubeTrackIndexes = []; // Track indexes of YouTube links
+        this.youtubePlayer = null;
         
         this.init();
     }
 
     init() {
+        // Load YouTube IFrame API script
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // Wait for YouTube API to load
+        window.onYouTubeIframeAPIReady = () => {
+            this.initializeYouTubePlayers();
+        };
+
         const container = document.getElementById('backgroundMusic');
         if (!container) {
             console.error('Background music container not found');
@@ -29,8 +45,15 @@ class BackgroundMusicPlayer {
                 <audio id="bgAudio" controlsList="nodownload nofullscreen noremoteplayback" preload="none">
                     <source src="${this.tracks[0]}" type="audio/mpeg">
                 </audio>
+                <div id="youtubePlayerContainer" style="display:none;"></div>
+                <button id="prevTrack" class="track-navigation" aria-label="Previous track">
+                    ◀
+                </button>
                 <button id="toggleMusic" class="music-toggle" aria-label="Toggle music playback">
                     ►
+                </button>
+                <button id="nextTrack" class="track-navigation" aria-label="Next track">
+                    ▶
                 </button>
                 <div class="track-info">Click to play music</div>
                 <input type="range" id="volumeSlider" min="0" max="100" value="30" class="volume-slider" aria-label="Volume control">
@@ -51,6 +74,27 @@ class BackgroundMusicPlayer {
                 color: #fff;
                 z-index: 5;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            }
+
+            .track-navigation {
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+                margin: 0 8px;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 16px;
+                opacity: 0.7;
+                transition: opacity 0.2s ease;
+            }
+
+            .track-navigation:hover {
+                opacity: 1;
             }
 
             .music-toggle {
@@ -132,8 +176,12 @@ class BackgroundMusicPlayer {
         this.audio = document.getElementById('bgAudio');
         this.toggleBtn = document.getElementById('toggleMusic');
         this.volumeSlider = document.getElementById('volumeSlider');
+        this.prevTrackBtn = document.getElementById('prevTrack');
+        this.nextTrackBtn = document.getElementById('nextTrack');
+        this.trackInfo = document.querySelector('.track-info');
+        this.youtubePlayerContainer = document.getElementById('youtubePlayerContainer');
         
-        if (this.audio && this.toggleBtn && this.volumeSlider) {
+        if (this.audio && this.toggleBtn && this.volumeSlider && this.prevTrackBtn && this.nextTrackBtn) {
             // Set initial volume
             this.audio.volume = this.volume;
             
@@ -145,10 +193,12 @@ class BackgroundMusicPlayer {
 
             // Add event listeners
             this.toggleBtn.addEventListener('click', () => this.togglePlayPause());
+            this.prevTrackBtn.addEventListener('click', () => this.playPreviousTrack());
+            this.nextTrackBtn.addEventListener('click', () => this.playNextTrack());
             this.audio.addEventListener('ended', () => this.playNextTrack());
             this.volumeSlider.addEventListener('input', (e) => {
                 this.volume = e.target.value / 100;
-                this.audio.volume = this.volume;
+                this.updateVolume();
             });
 
             // Prevent keyboard shortcuts for media download
@@ -160,49 +210,168 @@ class BackgroundMusicPlayer {
         }
     }
 
+    initializeYouTubePlayers() {
+        // Find YouTube track indexes
+        this.youtubeTrackIndexes = this.tracks.reduce((indexes, track, index) => {
+            if (this.isYouTubeLink(track)) {
+                indexes.push(index);
+            }
+            return indexes;
+        }, []);
+
+        // If there are YouTube tracks, create the YouTube player
+        if (this.youtubeTrackIndexes.length > 0) {
+            this.youtubePlayer = new YT.Player('youtubePlayerContainer', {
+                height: '0',
+                width: '0',
+                playerVars: {
+                    'autoplay': 0,
+                    'controls': 0,
+                    'disablekb': 1,
+                    'modestbranding': 1,
+                    'showinfo': 0
+                },
+                events: {
+                    'onReady': () => {
+                        // Player is ready, but not playing yet
+                    },
+                    'onStateChange': (event) => {
+                        if (event.data === YT.PlayerState.ENDED) {
+                            this.playNextTrack();
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    isYouTubeLink(track) {
+        return track.includes('youtube.com/watch?v=') || track.includes('youtu.be/');
+    }
+
+    extractYouTubeVideoId(url) {
+        const match = url.match(/[?&]v=([^&]+)/) || url.match(/youtu\.be\/([^?&]+)/);
+        return match ? match[1] : null;
+    }
+
     loadTrack() {
-        this.audio.innerHTML = `
-            <source src="${this.tracks[this.currentTrack - 1]}" type="audio/mpeg">
-        `;
-        this.audio.load();
-        this.audio.volume = this.volume;
+        const currentTrackPath = this.tracks[this.currentTrack - 1];
+
+        // Hide both audio and YouTube player
+        this.audio.style.display = 'none';
+        if (this.youtubePlayerContainer) {
+            this.youtubePlayerContainer.style.display = 'none';
+        }
+
+        if (this.isYouTubeLink(currentTrackPath)) {
+            // YouTube track
+            if (this.youtubePlayer) {
+                const videoId = this.extractYouTubeVideoId(currentTrackPath);
+                this.youtubePlayer.loadVideoById(videoId);
+                this.youtubePlayerContainer.style.display = 'block';
+            }
+        } else {
+            // Regular audio track
+            this.audio.innerHTML = `
+                <source src="${currentTrackPath}" type="audio/mpeg">
+            `;
+            this.audio.load();
+            this.audio.style.display = 'block';
+        }
+    }
+
+    updateVolume() {
+        if (this.isYouTubeLink(this.tracks[this.currentTrack - 1])) {
+            // Update YouTube player volume
+            if (this.youtubePlayer) {
+                this.youtubePlayer.setVolume(this.volume * 100);
+            }
+        } else {
+            // Update audio element volume
+            this.audio.volume = this.volume;
+        }
     }
 
     togglePlayPause() {
+        const currentTrackPath = this.tracks[this.currentTrack - 1];
+
         if (this.isPlaying) {
-            this.audio.pause();
+            // Pause
+            if (this.isYouTubeLink(currentTrackPath)) {
+                if (this.youtubePlayer) {
+                    this.youtubePlayer.pauseVideo();
+                }
+            } else {
+                this.audio.pause();
+            }
             this.toggleBtn.innerHTML = '►';
-            document.querySelector('.track-info').textContent = 'Paused';
+            this.trackInfo.textContent = 'Paused';
         } else {
+            // Play
             this.loadTrack();
-            this.audio.play().then(() => {
-                this.toggleBtn.innerHTML = `
-                    <div class="music-bars">
-                        <div class="bar"></div>
-                        <div class="bar"></div>
-                        <div class="bar"></div>
-                    </div>
-                `;
-                document.querySelector('.track-info').textContent = `Now Playing: Track ${this.currentTrack}`;
-            }).catch(error => {
-                console.error('Playback failed:', error);
-                this.isPlaying = false;
-            });
+            
+            if (this.isYouTubeLink(currentTrackPath)) {
+                if (this.youtubePlayer) {
+                    this.youtubePlayer.playVideo();
+                }
+            } else {
+                this.audio.play().catch(error => {
+                    console.error('Playback failed:', error);
+                    this.isPlaying = false;
+                });
+            }
+
+            this.toggleBtn.innerHTML = `
+                <div class="music-bars">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            `;
+            this.trackInfo.textContent = `Now Playing: Track ${this.currentTrack}`;
         }
         this.isPlaying = !this.isPlaying;
     }
 
+    playPreviousTrack() {
+        // Decrement current track, wrapping around to the end if needed
+        this.currentTrack = (this.currentTrack - 1 + this.tracks.length) % this.tracks.length;
+        this.playTrack(this.currentTrack);
+    }
+
     playNextTrack() {
-        this.currentTrack = (this.currentTrack % 5) + 1;
-        this.loadTrack();
-        document.querySelector('.track-info').textContent = `Now Playing: Track ${this.currentTrack}`;
-        if (this.isPlaying) {
+        // Increment current track, wrapping around to the start if needed
+        this.currentTrack = (this.currentTrack + 1) % this.tracks.length;
+        this.playTrack(this.currentTrack);
+    }
+
+    playTrack(trackIndex) {
+        // Check if the track is a YouTube link
+        if (this.isYouTubeLink(this.tracks[trackIndex])) {
+            // Handle YouTube track
+            if (this.youtubePlayer) {
+                const videoId = this.extractYouTubeVideoId(this.tracks[trackIndex]);
+                this.youtubePlayer.loadVideoById(videoId);
+                this.youtubePlayer.playVideo();
+                this.audio.pause();
+                this.isPlaying = true;
+                this.toggleBtn.textContent = '❚❚'; // Pause symbol
+                this.trackInfo.textContent = `YouTube Track: ${trackIndex + 1}`;
+            }
+        } else {
+            // Handle audio track
+            this.audio.src = this.tracks[trackIndex];
             this.audio.play();
+            this.isPlaying = true;
+            this.toggleBtn.textContent = '❚❚'; // Pause symbol
+            this.trackInfo.textContent = `Track: ${trackIndex + 1}`;
         }
+    }
+
+    // Initialize the music player when the page loads
+    static init() {
+        new BackgroundMusicPlayer();
     }
 }
 
-// Initialize the music player when the page loads
-window.addEventListener('DOMContentLoaded', () => {
-    new BackgroundMusicPlayer();
-});
+window.addEventListener('DOMContentLoaded', BackgroundMusicPlayer.init);

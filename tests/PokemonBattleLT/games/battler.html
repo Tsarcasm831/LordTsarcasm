@@ -1,0 +1,421 @@
+<html><head><base href="https://Pokebattler.exe/play"><title>PokeBattler.exe - Ultimate Pokémon Battle Simulator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #87CEEB, #4682B4);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
+      .game-container {
+        width: 100%;
+        max-width: 800px;
+        display: flex;
+        flex-direction: column;
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      }
+      .battle-container {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        background: linear-gradient(180deg, #8FBC8F, #3CB371);
+        position: relative;
+        overflow: hidden;
+      }
+      .pokemon {
+        position: absolute;
+        width: 25%;
+        height: 33.33%;
+        transition: all 0.3s ease;
+      }
+      .player-pokemon {
+        bottom: 10%;
+        left: 10%;
+      }
+      .enemy-pokemon {
+        top: 15%;
+        right: 10%;
+      }
+      .hp-bar {
+        width: 30%;
+        height: 5%;
+        background-color: #ddd;
+        border: 2px solid #333;
+        border-radius: 10px;
+        overflow: hidden;
+        position: absolute;
+      }
+      .hp-bar-fill {
+        height: 100%;
+        background-color: #4CAF50;
+        transition: width 0.5s ease;
+      }
+      .player-hp {
+        bottom: 5%;
+        right: 5%;
+      }
+      .enemy-hp {
+        top: 5%;
+        left: 5%;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        width: 100%;
+        justify-content: center;
+        padding: 10px;
+        background-color: #e0e0e0;
+      }
+      .btn {
+        padding: 10px;
+        font-size: 16px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        flex-grow: 1;
+        max-width: 120px;
+      }
+      .btn:hover {
+        background-color: #45a049;
+      }
+      .message-box {
+        padding: 10px;
+        font-size: 18px;
+        text-align: center;
+        background-color: #d0d0d0;
+        border-top: 1px solid #999;
+      }
+      .pokemon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      @keyframes attack-animation {
+        0% { transform: translateX(0); }
+        25% { transform: translateX(5%); }
+        50% { transform: translateX(-2.5%); }
+        75% { transform: translateX(2.5%); }
+        100% { transform: translateX(0); }
+      }
+      .attacking {
+        animation: attack-animation 0.5s ease;
+      }
+      .move-buttons {
+        display: none;
+        flex-wrap: wrap;
+        gap: 10px;
+        width: 100%;
+      }
+      .move-btn {
+        flex-basis: calc(50% - 5px);
+        padding: 10px;
+        font-size: 14px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .move-btn:hover {
+        background-color: #2980b9;
+      }
+      @media (max-width: 600px) {
+        .controls, .move-buttons {
+          flex-direction: column;
+        }
+        .btn, .move-btn {
+          max-width: none;
+        }
+        .message-box {
+          font-size: 14px;
+        }
+      }
+    </style>
+    </head>
+    <body>
+      <div class="game-container">
+        <div class="battle-container">
+          <div class="pokemon player-pokemon">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" alt="Pikachu">
+          </div>
+          <div class="pokemon enemy-pokemon">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/4.gif" alt="Charmander">
+          </div>
+          <div class="hp-bar player-hp">
+            <div class="hp-bar-fill" style="width: 100%;"></div>
+          </div>
+          <div class="hp-bar enemy-hp">
+            <div class="hp-bar-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+        <div class="controls">
+          <button class="btn" onclick="showMoves()">Attack</button>
+          <button class="btn" onclick="useItem()">Use Item</button>
+          <button class="btn" onclick="switchPokemon()">Switch</button>
+          <button class="btn" onclick="tryToCatch()">Catch</button>
+          <div class="move-buttons">
+            <button class="move-btn" onclick="attack(0)"></button>
+            <button class="move-btn" onclick="attack(1)"></button>
+            <button class="move-btn" onclick="attack(2)"></button>
+            <button class="move-btn" onclick="attack(3)"></button>
+          </div>
+        </div>
+        <div class="message-box">What will you do?</div>
+      </div>
+    
+      <script>
+        const pokemonData = {
+          "Pikachu": { name: "Pikachu", type: "Electric", moves: ["Thunderbolt", "Quick Attack", "Iron Tail", "Electro Ball"], sprite: "25" },
+          "Charmander": { name: "Charmander", type: "Fire", moves: ["Ember", "Scratch", "Dragon Rage", "Flamethrower"], sprite: "4" },
+          "Bulbasaur": { name: "Bulbasaur", type: "Grass", moves: ["Vine Whip", "Tackle", "Razor Leaf", "Solar Beam"], sprite: "1" },
+          "Squirtle": { name: "Squirtle", type: "Water", moves: ["Water Gun", "Tackle", "Bubble", "Hydro Pump"], sprite: "7" },
+          "Pidgey": { name: "Pidgey", type: "Flying", moves: ["Gust", "Quick Attack", "Wing Attack", "Air Slash"], sprite: "16" },
+          "Geodude": { name: "Geodude", type: "Rock", moves: ["Rock Throw", "Tackle", "Rollout", "Earthquake"], sprite: "74" },
+          "Jigglypuff": { name: "Jigglypuff", type: "Normal", moves: ["Sing", "Pound", "Body Slam", "Hyper Voice"], sprite: "39" },
+          "Meowth": { name: "Meowth", type: "Normal", moves: ["Scratch", "Bite", "Pay Day", "Slash"], sprite: "52" },
+          "Psyduck": { name: "Psyduck", type: "Water", moves: ["Water Gun", "Confusion", "Disable", "Psychic"], sprite: "54" },
+          "Machop": { name: "Machop", type: "Fighting", moves: ["Karate Chop", "Low Kick", "Seismic Toss", "Submission"], sprite: "66" },
+          "Tentacool": { name: "Tentacool", type: "Water", moves: ["Bubble", "Acid", "Water Pulse", "Hydro Pump"], sprite: "72" },
+          "Ponyta": { name: "Ponyta", type: "Fire", moves: ["Ember", "Stomp", "Fire Spin", "Take Down"], sprite: "77" },
+          "Slowpoke": { name: "Slowpoke", type: "Water", moves: ["Water Gun", "Confusion", "Headbutt", "Psychic"], sprite: "79" },
+          "Magnemite": { name: "Magnemite", type: "Electric", moves: ["Thunder Shock", "Tackle", "Sonic Boom", "Thunderbolt"], sprite: "81" },
+          "Gastly": { name: "Gastly", type: "Ghost", moves: ["Lick", "Confuse Ray", "Night Shade", "Dream Eater"], sprite: "92" },
+          "Gengar": { name: "Gengar", type: "Ghost", moves: ["Shadow Ball", "Sludge Bomb", "Hypnosis", "Dream Eater"], sprite: "94" },
+          "Onix": { name: "Onix", type: "Rock", moves: ["Rock Throw", "Bind", "Rock Slide", "Earthquake"], sprite: "95" },
+          "Voltorb": { name: "Voltorb", type: "Electric", moves: ["Spark", "Rollout", "Swift", "Thunderbolt"], sprite: "100" },
+          "Exeggcute": { name: "Exeggcute", type: "Grass", moves: ["Confusion", "Bullet Seed", "Solar Beam", "Psychic"], sprite: "102" },
+          "Cubone": { name: "Cubone", type: "Ground", moves: ["Bone Club", "Headbutt", "Bonemerang", "Earthquake"], sprite: "104" },
+          "Lickitung": { name: "Lickitung", type: "Normal", moves: ["Lick", "Slam", "Wrap", "Hyper Beam"], sprite: "108" },
+          "Koffing": { name: "Koffing", type: "Poison", moves: ["Smog", "Sludge", "Smokescreen", "Explosion"], sprite: "109" },
+          "Rhyhorn": { name: "Rhyhorn", type: "Ground", moves: ["Horn Attack", "Stomp", "Rock Blast", "Earthquake"], sprite: "111" },
+          "Tangela": { name: "Tangela", type: "Grass", moves: ["Vine Whip", "Absorb", "Mega Drain", "Slam"], sprite: "114" },
+          "Kangaskhan": { name: "Kangaskhan", type: "Normal", moves: ["Comet Punch", "Bite", "Mega Punch", "Outrage"], sprite: "115" },
+          "Staryu": { name: "Staryu", type: "Water", moves: ["Water Gun", "Swift", "Bubble Beam", "Hydro Pump"], sprite: "120" },
+          "Scyther": { name: "Scyther", type: "Bug", moves: ["Quick Attack", "Wing Attack", "Slash", "X-Scissor"], sprite: "123" },
+          "Pinsir": { name: "Pinsir", type: "Bug", moves: ["Vice Grip", "Bind", "Slash", "Guillotine"], sprite: "127" },
+          "Tauros": { name: "Tauros", type: "Normal", moves: ["Tackle", "Horn Attack", "Thrash", "Take Down"], sprite: "128" },
+          "Gyarados": { name: "Gyarados", type: "Water", moves: ["Hydro Pump", "Dragon Rage", "Hyper Beam", "Thrash"], sprite: "130" },
+          "Lapras": { name: "Lapras", type: "Water", moves: ["Water Gun", "Ice Beam", "Body Slam", "Hydro Pump"], sprite: "131" },
+          "Ditto": { name: "Ditto", type: "Normal", moves: ["Transform"], sprite: "132" },
+          "Eevee": { name: "Eevee", type: "Normal", moves: ["Tackle", "Quick Attack", "Bite", "Take Down"], sprite: "133" },
+          "Porygon": { name: "Porygon", type: "Normal", moves: ["Tackle", "Psybeam", "Recover", "Tri Attack"], sprite: "137" },
+          "Aerodactyl": { name: "Aerodactyl", type: "Rock", moves: ["Wing Attack", "Bite", "Supersonic", "Hyper Beam"], sprite: "142" },
+          "Snorlax": { name: "Snorlax", type: "Normal", moves: ["Body Slam", "Rest", "Snore", "Hyper Beam"], sprite: "143" },
+          "Articuno": { name: "Articuno", type: "Ice", moves: ["Ice Beam", "Blizzard", "Agility", "Mist"], sprite: "144" },
+          "Zapdos": { name: "Zapdos", type: "Electric", moves: ["Thunder Shock", "Drill Peck", "Thunder", "Agility"], sprite: "145" },
+          "Moltres": { name: "Moltres", type: "Fire", moves: ["Wing Attack", "Fire Spin", "Agility", "Sky Attack"], sprite: "146" },
+          "Dratini": { name: "Dratini", type: "Dragon", moves: ["Wrap", "Thunder Wave", "Dragon Rage", "Hyper Beam"], sprite: "147" },
+          "Mewtwo": { name: "Mewtwo", type: "Psychic", moves: ["Psychic", "Swift", "Recover", "Mist"], sprite: "150" },
+          "Mew": { name: "Mew", type: "Psychic", moves: ["Pound", "Transform", "Mega Punch", "Psychic"], sprite: "151" }
+        };
+    
+        let playerPokemon = { ...pokemonData["Pikachu"], hp: 100, maxHp: 100 };
+        let enemyPokemon = { ...pokemonData["Charmander"], hp: 100, maxHp: 100 };
+        let playerTeam = ["Pikachu", "Bulbasaur", "Squirtle"];
+        let currentPokemonIndex = 0;
+        let defeatedPokemon = 0;
+    
+        const typeChart = {
+          "Electric": { strengths: ["Water", "Flying"], weaknesses: ["Ground"] },
+          "Fire": { strengths: ["Grass", "Ice", "Bug", "Steel"], weaknesses: ["Water", "Ground", "Rock"] },
+          "Grass": { strengths: ["Water", "Ground", "Rock"], weaknesses: ["Fire", "Ice", "Poison", "Flying", "Bug"] },
+          "Water": { strengths: ["Fire", "Ground", "Rock"], weaknesses: ["Electric", "Grass"] },
+          "Flying": { strengths: ["Grass", "Fighting", "Bug"], weaknesses: ["Electric", "Ice", "Rock"] },
+          "Rock": { strengths: ["Fire", "Ice", "Flying", "Bug"], weaknesses: ["Water", "Grass", "Fighting", "Ground", "Steel"] },
+          "Normal": { strengths: [], weaknesses: ["Fighting"]},
+          "Fighting": { strengths: ["Normal", "Rock", "Steel", "Ice", "Dark"], weaknesses: ["Flying", "Psychic", "Fairy"] },
+          "Poison": { strengths: ["Grass", "Fairy"], weaknesses: ["Ground", "Psychic"] },
+          "Ground": { strengths: ["Fire", "Electric", "Poison", "Rock", "Steel"], weaknesses: ["Water", "Grass", "Ice"] },
+          "Psychic": { strengths: ["Fighting", "Poison"], weaknesses: ["Bug", "Ghost", "Dark"] },
+          "Bug": { strengths: ["Grass", "Psychic", "Dark"], weaknesses: ["Fire", "Flying", "Rock"] },
+          "Ghost": { strengths: ["Psychic", "Ghost"], weaknesses: ["Ghost", "Dark"] },
+          "Steel": { strengths: ["Ice", "Rock", "Fairy"], weaknesses: ["Fire", "Fighting", "Ground"] },
+          "Ice": { strengths: ["Grass", "Ground", "Flying", "Dragon"], weaknesses: ["Fire", "Fighting", "Rock", "Steel"] },
+          "Dragon": { strengths: ["Dragon"], weaknesses: ["Ice", "Dragon", "Fairy"] },
+          "Dark": { strengths: ["Psychic", "Ghost"], weaknesses: ["Fighting", "Bug", "Fairy"] },
+          "Fairy": { strengths: ["Fighting", "Dragon", "Dark"], weaknesses: ["Poison", "Steel"] }
+        };
+    
+        function getTypeEffectiveness(attackerType, defenderType) {
+          if (typeChart[attackerType].strengths.includes(defenderType)) return 2;
+          if (typeChart[attackerType].weaknesses.includes(defenderType)) return 0.5;
+          return 1;
+        }
+    
+        function updateHpBars() {
+          document.querySelector('.player-hp .hp-bar-fill').style.width = `${(playerPokemon.hp / playerPokemon.maxHp) * 100}%`;
+          document.querySelector('.enemy-hp .hp-bar-fill').style.width = `${(enemyPokemon.hp / enemyPokemon.maxHp) * 100}%`;
+        }
+    
+        function setMessage(message) {
+          document.querySelector('.message-box').textContent = message;
+        }
+    
+        function showMoves() {
+          const moveButtons = document.querySelector('.move-buttons');
+          moveButtons.style.display = 'flex';
+          const buttons = moveButtons.querySelectorAll('.move-btn');
+          playerPokemon.moves.forEach((move, index) => {
+            buttons[index].textContent = move;
+          });
+        }
+    
+        function attack(moveIndex) {
+          const playerMove = playerPokemon.moves[moveIndex];
+          const effectiveness = getTypeEffectiveness(playerPokemon.type, enemyPokemon.type);
+          const damage = Math.floor((Math.random() * 20 + 10) * effectiveness * (1 + defeatedPokemon * 0.1));
+    
+          document.querySelector('.player-pokemon').classList.add('attacking');
+          setTimeout(() => document.querySelector('.player-pokemon').classList.remove('attacking'), 500);
+    
+          enemyPokemon.hp = Math.max(0, enemyPokemon.hp - damage);
+          updateHpBars();
+    
+          let effectivenessText = "";
+          if (effectiveness > 1) effectivenessText = "It's super effective!";
+          if (effectiveness < 1) effectivenessText = "It's not very effective...";
+    
+          setMessage(`${playerPokemon.name} used ${playerMove}! ${effectivenessText}`);
+    
+          document.querySelector('.move-buttons').style.display = 'none';
+    
+          if (enemyPokemon.hp <= 0) {
+            setTimeout(() => {
+              setMessage(`${enemyPokemon.name} fainted! You won!`);
+              defeatedPokemon++;
+              setTimeout(startNewBattle, 2000);
+            }, 1000);
+          } else {
+            setTimeout(enemyAttack, 1500);
+          }
+        }
+    
+        function enemyAttack() {
+          const enemyMove = enemyPokemon.moves[Math.floor(Math.random() * enemyPokemon.moves.length)];
+          const effectiveness = getTypeEffectiveness(enemyPokemon.type, playerPokemon.type);
+          const damage = Math.floor((Math.random() * 20 + 10) * effectiveness * (1 + defeatedPokemon * 0.1));
+    
+          document.querySelector('.enemy-pokemon').classList.add('attacking');
+          setTimeout(() => document.querySelector('.enemy-pokemon').classList.remove('attacking'), 500);
+    
+          playerPokemon.hp = Math.max(0, playerPokemon.hp - damage);
+          updateHpBars();
+    
+          let effectivenessText = "";
+          if (effectiveness > 1) effectivenessText = "It's super effective!";
+          if (effectiveness < 1) effectivenessText = "It's not very effective...";
+    
+          setMessage(`${enemyPokemon.name} used ${enemyMove}! ${effectivenessText}`);
+    
+          if (playerPokemon.hp <= 0) {
+            setTimeout(() => {
+              setMessage(`${playerPokemon.name} fainted!`);
+              playerTeam.splice(currentPokemonIndex, 1);
+              if (playerTeam.length > 0) {
+                setTimeout(switchPokemon, 2000);
+              } else {
+                setTimeout(() => setMessage("You have no more Pokémon! Game Over!"), 2000);
+              }
+            }, 1000);
+          } else {
+            setTimeout(() => setMessage("What will you do?"), 1500);
+          }
+        }
+    
+        function useItem() {
+          if (playerPokemon.hp === playerPokemon.maxHp) {
+            setMessage(`${playerPokemon.name}'s HP is already full!`);
+            return;
+          }
+          playerPokemon.hp = Math.min(playerPokemon.maxHp, playerPokemon.hp + 30);
+          updateHpBars();
+          setMessage(`You used a Potion. ${playerPokemon.name}'s HP was restored!`);
+          setTimeout(enemyAttack, 1500);
+        }
+    
+        function switchPokemon() {
+          if (playerTeam.length <= 1) {
+            setMessage("You have no other Pokémon to switch to!");
+            return;
+          }
+    
+          const switchMenu = document.createElement('div');
+          switchMenu.className = 'switch-menu';
+          switchMenu.style.position = 'absolute';
+          switchMenu.style.top = '50%';
+          switchMenu.style.left = '50%';
+          switchMenu.style.transform = 'translate(-50%, -50%)';
+          switchMenu.style.backgroundColor = 'white';
+          switchMenu.style.padding = '20px';
+          switchMenu.style.borderRadius = '10px';
+          switchMenu.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+    
+          playerTeam.forEach((pokemonName, index) => {
+            if (index !== currentPokemonIndex) {
+              const button = document.createElement('button');
+              button.textContent = pokemonName;
+              button.className = 'btn';
+              button.style.marginBottom = '10px';
+              button.onclick = () => {
+                document.querySelector('.game-container').removeChild(switchMenu);
+                currentPokemonIndex = index;
+                playerPokemon = { ...pokemonData[pokemonName], hp: 100, maxHp: 100 };
+                document.querySelector('.player-pokemon img').src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${playerPokemon.sprite}.gif`;
+                updateHpBars();
+                setMessage(`You switched to ${playerPokemon.name}!`);
+                setTimeout(enemyAttack, 1500);
+              };
+              switchMenu.appendChild(button);
+            }
+          });
+    
+          document.querySelector('.game-container').appendChild(switchMenu);
+        }
+    
+        function tryToCatch() {
+          const catchChance = (1 - (enemyPokemon.hp / enemyPokemon.maxHp)) * 0.5;
+          if (Math.random() < catchChance) {
+            setMessage(`You caught ${enemyPokemon.name}!`);
+            if (playerTeam.length < 6) {
+              playerTeam.push(enemyPokemon.name);
+              setMessage(`${enemyPokemon.name} was added to your team!`);
+            } else {
+              setMessage(`${enemyPokemon.name} was sent to storage!`);
+            }
+            setTimeout(startNewBattle, 2000);
+          } else {
+            setMessage(`${enemyPokemon.name} broke free!`);
+            setTimeout(enemyAttack, 1500);
+          }
+        }
+    
+        function startNewBattle() {
+          const wildPokemonNames = Object.keys(pokemonData);
+          const newEnemyPokemon = wildPokemonNames[Math.floor(Math.random() * wildPokemonNames.length)];
+          enemyPokemon = { ...pokemonData[newEnemyPokemon], hp: 100, maxHp: 100 };
+    
+          document.querySelector('.enemy-pokemon img').src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${enemyPokemon.sprite}.gif`;
+    
+          playerPokemon.hp = playerPokemon.maxHp;
+          updateHpBars();
+          setMessage(`A wild ${enemyPokemon.name} appeared! What will you do?`);
+        }
+    
+        updateHpBars();
+      </script>
+    </body></html>

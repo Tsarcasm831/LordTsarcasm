@@ -1,4 +1,40 @@
 // main.js
+
+
+
+function loadCartoonBoy() {
+    const loader = new GLTFLoader();
+    loader.load('/mnt/data/cartoon boy.glb', (gltf) => {
+        const cartoonBoy = gltf.scene;
+
+        // Set random position within the spawn room
+        const randomX = (Math.random() - 0.5) * (roomWidth - 4);
+        const randomZ = (Math.random() - 0.5) * (roomDepth - 4);
+        cartoonBoy.position.set(randomX, FLOOR_HEIGHT, randomZ);
+
+        // Scale the character to fit into the scene
+        cartoonBoy.scale.set(0.5, 0.5, 0.5);
+
+        // Add some idle animation if available
+        if (gltf.animations && gltf.animations.length > 0) {
+            const mixer = new THREE.AnimationMixer(cartoonBoy);
+            const idleAnimation = mixer.clipAction(gltf.animations[0]);
+            idleAnimation.play();
+
+            // Store mixer to update it during animation
+            scene.userData.mixer = mixer;
+        }
+
+        // Add character to the scene
+        scene.add(cartoonBoy);
+
+        // Make the character interactive
+        cartoonBoy.userData.isInteractive = true;
+        cartoonBoy.userData.message = "Hi, I'm Cartoon Boy! Welcome to the spawn room!";
+    });
+}
+
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
@@ -1732,6 +1768,11 @@ function animate() {
     if (scene.userData.shopCharacterTick) {
         scene.userData.shopCharacterTick();
     }
+
+    if (scene.userData.mixer) {
+        scene.userData.mixer.update(delta);
+    }
+
     closeShop(); // start shop closed.
     // Check interactions with shop character
     checkShopInteraction();
@@ -2818,15 +2859,17 @@ function updateUIScale() {
     });
 }
 
+// Interaction logic
 document.addEventListener('keydown', function(event) {
-    if (event.key === 'f') { // When F key is pressed
-        if (currentShopCharacter) {
-            const distance = camera.position.distanceTo(currentShopCharacter.mesh.position);
-            if (distance < 1) { // If within 1 unit
-                openShop();  // Open the shop interface
-                showStatusMessage(`You are interacting with ${currentShopCharacter.name}.`);
+    if (event.key === 'f') { // Press 'F' to interact
+        scene.traverse((object) => {
+            if (object.userData.isInteractive) {
+                const distance = camera.position.distanceTo(object.position);
+                if (distance < 2) {
+                    showStatusMessage(object.userData.message);
+                }
             }
-        }
+        });
     }
 });
 
