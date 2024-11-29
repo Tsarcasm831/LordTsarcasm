@@ -49,18 +49,20 @@ class BagManager {
 
     // Open bag menu
     openBag() {
-        const submenu = document.getElementById('submenu');
+        const bagMenu = document.getElementById('bag-menu');
         
-        // If submenu is already open, close it
-        if (!submenu.classList.contains('hidden')) {
-            submenu.innerHTML = '';
-            submenu.classList.add('hidden');
+        // If bag menu is already open, close it
+        if (!bagMenu.classList.contains('hidden')) {
+            bagMenu.classList.add('hidden');
             return;
         }
 
-        // Clear and show submenu
-        submenu.innerHTML = '';
-        submenu.classList.remove('hidden');
+        // Clear and show bag menu
+        bagMenu.innerHTML = `
+            <div class="close-btn-container">
+                <button onclick="closeCurrentInterface()" class="close-interface-btn" title="Close">✕</button>
+            </div>
+        `;
 
         // Create tab menu
         const tabMenu = document.createElement('div');
@@ -77,15 +79,18 @@ class BagManager {
         ballsTab.onclick = () => this.switchTab('balls', ballsTab);
         tabMenu.appendChild(ballsTab);
 
-        submenu.appendChild(tabMenu);
+        bagMenu.appendChild(tabMenu);
 
         // Content container
         const contentContainer = document.createElement('div');
-        contentContainer.id = 'tab-content';
-        submenu.appendChild(contentContainer);
+        contentContainer.id = 'bag-content';
+        bagMenu.appendChild(contentContainer);
 
         // Show items by default
         this.showItems(contentContainer);
+
+        // Remove hidden class to show menu
+        bagMenu.classList.remove('hidden');
     }
 
     // Switch between items and balls tabs
@@ -94,7 +99,7 @@ class BagManager {
         buttons.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
 
-        const contentContainer = document.getElementById('tab-content');
+        const contentContainer = document.getElementById('bag-content');
         if (tab === 'items') {
             this.showItems(contentContainer);
         } else if (tab === 'balls') {
@@ -128,10 +133,10 @@ class BagManager {
     useItem(item) {
         const dialogue = document.getElementById('dialogue');
         const playerHp = document.getElementById('player-hp');
-        const submenu = document.getElementById('submenu');
+        const bagMenu = document.getElementById('bag-menu');
 
-        // Close submenu
-        submenu.classList.add('hidden');
+        // Close bag menu
+        bagMenu.classList.add('hidden');
 
         // Healing items
         if (item.effect === 'heal') {
@@ -171,10 +176,10 @@ class BagManager {
     // Throw a Pokéball to catch a Pokémon
     throwBall(ball) {
         const dialogue = document.getElementById('dialogue');
-        const submenu = document.getElementById('submenu');
+        const bagMenu = document.getElementById('bag-menu');
 
-        // Close submenu
-        submenu.classList.add('hidden');
+        // Close bag menu
+        bagMenu.classList.add('hidden');
 
         // Assuming global enemy Pokémon object
         const enemyPokemon = window.enemyPokemon;

@@ -1,0 +1,98 @@
+/* switch_pokemon.css */
+.team-container {
+    display: flex;
+    width: 100%;
+    height: 400px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.pokemon-team-list {
+    width: 40%;
+    padding: 10px;
+    background-color: #f0f0f0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.pokemon-card {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #ffffff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.pokemon-card:hover {
+    background-color: #e0e0e0;
+}
+
+.pokemon-card .pokemon-sprite {
+    width: 60px;
+    height: 60px;
+    margin-right: 10px;
+}
+
+.pokemon-details-section {
+    width: 60%;
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+.pokemon-full-details {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.large-pokemon-sprite {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+}
+
+.pokemon-stats, .pokemon-moves {
+    flex: 1;
+    padding: 10px;
+}
+
+.move-card {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+    margin: 2px 0;
+    background-color: #f0f0f0;
+    border-radius: 3px;
+}
+
+.ability-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    margin: 2px 0;
+    background-color: #f0f0f0;
+    border-radius: 3px;
+}
+
+.hidden-ability {
+    color: #888;
+    font-size: 0.8em;
+    margin-left: 10px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .team-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .pokemon-team-list, .pokemon-details-section {
+        width: 100%;
+    }
+}

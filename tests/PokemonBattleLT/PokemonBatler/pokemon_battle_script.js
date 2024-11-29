@@ -69,32 +69,45 @@ async function fetchPlayerTeam() {
     const teamPokemonNames = ['charmander', 'squirtle', 'bulbasaur'];
     gameState.playerTeam = [];
 
-    for (let i = 0; i < teamPokemonNames.length; i++) {
-        try {
-            const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${teamPokemonNames[i]}`);
-            
-            if (!pokemonResponse.ok) {
-                throw new Error(`HTTP error for ${teamPokemonNames[i]}! Status: ${pokemonResponse.status}`);
-            }
-            
-            const pokemonData = await pokemonResponse.json();
-            const pokemon = createPokemonObject(pokemonData, 5);
-            
-            // Fetch moves for the Pokemon
-            pokemon.moves = await getMovesByLevel(pokemonData, pokemon.level);
-            
+    try {
+        const pokemonDataList = await pokeAPIService.fetchMultiplePokemon(teamPokemonNames);
+        
+        for (let pokemonData of pokemonDataList) {
+            const pokemon = createPokemonObject(pokemonData);
             gameState.playerTeam.push(pokemon);
-        } catch (error) {
-            Logger.error(`Failed to fetch player Pokemon: ${teamPokemonNames[i]}`, error);
         }
-    }
 
-    if (gameState.playerTeam.length === 0) {
-        throw new Error('No player Pokemon could be loaded');
-    }
+        if (gameState.playerTeam.length === 0) {
+            throw new Error('No player Pokemon could be loaded');
+        }
 
-    gameState.playerPokemon = gameState.playerTeam[gameState.currentPlayerPokemonIndex];
-    updatePlayerPokemonUI();
+        gameState.playerPokemon = gameState.playerTeam[gameState.currentPlayerPokemonIndex];
+        updatePlayerPokemonUI();
+    } catch (error) {
+        Logger.error('Failed to fetch player team', error);
+        displayErrorMessage('Unable to load Pokemon team. Please refresh the page.');
+    }
+}
+
+function createPokemonObject(pokemonData, level = 5) {
+    const pokemon = {
+        level: level,
+        experience: 0,
+        name: capitalizeFirstLetter(pokemonData.name),
+        stats: pokemonData.stats,
+        hp: pokemonData.stats.hp,
+        currentHp: pokemonData.stats.hp,
+        moves: pokemonData.moves.slice(0, 4).map(move => ({
+            name: formatMoveName(move.name),
+            // You might want to fetch additional move details if needed
+        })),
+        colors: pokemonData.types.map(type => getTypeColor(type)),
+        types: pokemonData.types,
+        sprite: pokemonData.sprites.officialArtwork,
+        data: pokemonData
+    };
+
+    return pokemon;
 }
 
 async function getMovesByLevel(pokemonData, level) {
@@ -135,33 +148,20 @@ async function getMovesByLevel(pokemonData, level) {
     return moves.slice(0, 4);
 }
 
-function createPokemonObject(pokemonData, level) {
-    const pokemon = {
-        level: level,
-        experience: 0,
-        name: capitalizeFirstLetter(pokemonData.name),
-        stats: extractPokemonStats(pokemonData),
-        hp: pokemonData.stats.find(stat => stat.stat.name === 'hp').base_stat,
-        currentHp: pokemonData.stats.find(stat => stat.stat.name === 'hp').base_stat,
-        moves: [], // Will be populated later
-        colors: pokemonData.types.map(type => getTypeColor(type.type.name)),
-        types: pokemonData.types.map(type => type.type.name),
-        sprite: pokemonData.sprites.other['official-artwork'].front_default,
-        data: pokemonData
-    };
-
-    return pokemon;
-}
-
-function extractPokemonStats(pokemonData) {
-    return {
-        hp: pokemonData.stats.find(stat => stat.stat.name === 'hp').base_stat,
-        attack: pokemonData.stats.find(stat => stat.stat.name === 'attack').base_stat,
-        defense: pokemonData.stats.find(stat => stat.stat.name === 'defense').base_stat,
-        specialAttack: pokemonData.stats.find(stat => stat.stat.name === 'special-attack').base_stat,
-        specialDefense: pokemonData.stats.find(stat => stat.stat.name === 'special-defense').base_stat,
-        speed: pokemonData.stats.find(stat => stat.stat.name === 'speed').base_stat
-    };
+async function fetchEnemyPokemon(pokemonIdOrName = null) {
+    try {
+        const enemyPokemonId = pokemonIdOrName || Math.floor(Math.random() * 1010) + 1;
+        const pokemonData = await pokeAPIService.fetchPokemonData(enemyPokemonId);
+        
+        gameState.enemyPokemon = createPokemonObject(pokemonData);
+        
+        // Update enemy Pokemon UI
+        domElements.enemyNameLabel.textContent = `${gameState.enemyPokemon.name} Lv${gameState.enemyPokemon.level}`;
+        updatePokemonSVG('enemy', gameState.enemyPokemon);
+    } catch (error) {
+        Logger.error('Failed to fetch enemy Pokemon', error);
+        displayErrorMessage('Unable to load enemy Pokemon. Please refresh the page.');
+    }
 }
 
 function updatePlayerPokemonUI() {
@@ -248,67 +248,6 @@ function updatePokemonSVG(role, pokemon) {
 function updateExpBar() {
     if (domElements.playerExpBar) {
         domElements.playerExpBar.style.width = '0%';
-    }
-}
-
-async function fetchEnemyPokemon(pokemonIdOrName = null) {
-    try {
-        if (!pokemonIdOrName) {
-            // Fetch a random Pokémon if no ID or name is provided
-            const randomId = Math.floor(Math.random() * 151) + 1; // Kanto region Pokémon
-            pokemonIdOrName = randomId;
-        }
-
-        // Set enemy's level
-        const levelVariance = Math.floor(Math.random() * 7) - 3; // -3 to +3
-        const enemyLevel = Math.max(1, gameState.playerPokemon.level + levelVariance);
-
-        // Fetch enemy's Pokémon data
-        const enemyResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonIdOrName}`);
-        
-        if (!enemyResponse.ok) {
-            throw new Error(`HTTP error for enemy Pokemon! Status: ${enemyResponse.status}`);
-        }
-        
-        const enemyData = await enemyResponse.json();
-
-        // Create enemy Pokemon object
-        gameState.enemyPokemon = {
-            name: capitalizeFirstLetter(enemyData.name),
-            level: enemyLevel,
-            stats: extractPokemonStats(enemyData),
-            hp: enemyData.stats.find(stat => stat.stat.name === 'hp').base_stat,
-            currentHp: enemyData.stats.find(stat => stat.stat.name === 'hp').base_stat,
-            colors: enemyData.types.map(type => getTypeColor(type.type.name)),
-            types: enemyData.types.map(type => type.type.name),
-            sprite: enemyData.sprites.other['official-artwork'].front_default
-        };
-
-        // Update UI with enemy Pokemon
-        if (domElements.enemyNameLabel) {
-            domElements.enemyNameLabel.textContent = `${gameState.enemyPokemon.name} Lv${gameState.enemyPokemon.level}`;
-        }
-        updatePokemonSVG('enemy', gameState.enemyPokemon);
-
-        // Dynamic dialogue for wild Pokemon appearance
-        const encounterPhrases = [
-            `A wild ${gameState.enemyPokemon.name} appeared!`,
-            `Oh! A ${gameState.enemyPokemon.name} jumped out!`,
-            `Look out! A wild ${gameState.enemyPokemon.name} is nearby!`,
-            `A fierce ${gameState.enemyPokemon.name} approaches!`,
-            `Whoa! A ${gameState.enemyPokemon.name} appeared suddenly!`
-        ];
-        const randomPhrase = encounterPhrases[Math.floor(Math.random() * encounterPhrases.length)];
-        
-        if (domElements.dialogue) {
-            domElements.dialogue.innerHTML = `<strong>${randomPhrase}</strong>`;
-        }
-
-        // Validate and log
-        validatePokemonData();
-    } catch (error) {
-        Logger.error('Failed to fetch enemy Pokemon', error);
-        displayErrorMessage('Unable to load enemy Pokemon. Please refresh the page.');
     }
 }
 

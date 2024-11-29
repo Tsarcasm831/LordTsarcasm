@@ -60,16 +60,42 @@
             <div class="dialogue" id="dialogue">A wild <strong>Pokémon</strong> appeared!</div>
             <div class="menu">
                 <button onclick="openFight()">Fight</button>
-                <button onclick="openBag()">Bag</button>
+                <button onclick="bagManager.openBag()">Bag</button>
                 <button onclick="runAway()">Run</button>
                 <button onclick="openSwitch()">Switch</button>
                 <button onclick="openInventory()">Inventory</button>
             </div>
         </div>
+        <div class="submenu hidden" id="fight-menu">
+            <div class="close-btn-container">
+                <button onclick="closeCurrentInterface()" class="close-interface-btn" title="Close">✕</button>
+            </div>
+            <!-- Existing fight menu content -->
+        </div>
+        <div class="submenu hidden" id="bag-menu">
+            <div class="close-btn-container">
+                <button onclick="closeCurrentInterface()" class="close-interface-btn" title="Close">✕</button>
+            </div>
+            <!-- Existing bag menu content -->
+        </div>
         <div class="submenu hidden" id="submenu">
+            <div class="close-btn-container">
+                <button onclick="closeCurrentInterface()" class="close-interface-btn" title="Close">✕</button>
+            </div>
             <div class="switch-menu-placeholder">
                 <!-- Pokémon team selection will be displayed here -->
             </div>
+        </div>
+        <div class="submenu hidden" id="inventory-menu">
+            <div class="close-btn-container">
+                <button onclick="closeCurrentInterface()" class="close-interface-btn" title="Close">✕</button>
+            </div>
+            <!-- Existing inventory menu content -->
+        </div>
+        <div class="interface-close-container" style="display:none;">
+            <button id="closeInterfaceBtn" onclick="closeCurrentInterface()" class="close-interface-btn" title="Close Current Interface">
+                ✕
+            </button>
         </div>
     </div>
 
@@ -82,13 +108,64 @@
     <!-- Include your external JavaScript files -->
     <script src="pokemon_battle_script.js"></script>
     <script src="fight_mechanics.js"></script>
-    <script src="overworld.js"></script>
-    <script src="overworldmovement.js"></script>
-    <script src="playerinventory.js"></script>
     <script src="bag_module.js"></script>
+    <script src="pokeapi_service.js"></script>
+    <script src="switch_pokemon.js"></script>
+    <script src="inventory.js"></script>
     <script>
         // Ensure the game starts when the page loads
-        window.addEventListener('load', fetchPokemonData);
+        window.addEventListener('load', () => {
+            // Initialize a default playerPokemon if not already set
+            if (!window.playerPokemon) {
+                window.playerPokemon = {
+                    name: 'Default Pokémon',
+                    hp: 100,
+                    currentHp: 100,
+                    moves: [
+                        { name: 'Tackle', type: 'normal' },
+                        { name: 'Scratch', type: 'normal' }
+                    ]
+                };
+            }
+            
+            // Call fetchPokemonData if it exists
+            if (typeof fetchPokemonData === 'function') {
+                fetchPokemonData();
+            }
+        });
+
+        // Function to close the current interface
+        function closeCurrentInterface() {
+            // Close fight menu
+            const fightMenu = document.getElementById('fight-menu');
+            if (fightMenu) {
+                fightMenu.classList.add('hidden');
+            }
+
+            // Close bag
+            const bagMenu = document.getElementById('bag-menu');
+            if (bagMenu) {
+                bagMenu.classList.add('hidden');
+            }
+
+            // Close switch pokemon modal
+            const switchModal = document.getElementById('submenu');
+            if (switchModal) {
+                switchModal.classList.add('hidden');
+            }
+
+            // Close inventory
+            const inventoryMenu = document.getElementById('inventory-menu');
+            if (inventoryMenu) {
+                inventoryMenu.classList.add('hidden');
+            }
+
+            // Reset dialogue
+            const dialogue = document.getElementById('dialogue');
+            if (dialogue) {
+                dialogue.textContent = 'A wild Pokémon appeared!';
+            }
+        }
     </script>
 </body>
 </html>

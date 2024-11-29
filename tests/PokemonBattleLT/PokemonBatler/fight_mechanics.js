@@ -371,43 +371,44 @@ window.playerFight = playerFight;
 window.enemyTurn = enemyTurn;
 
 function openFight() {
-    const submenu = document.getElementById('submenu');
-    const playerPokemon = gameState.playerPokemon;
-
-    // If submenu is already open, close it
-    if (!submenu.classList.contains('hidden')) {
-        submenu.innerHTML = '';
-        submenu.classList.add('hidden');
+    const fightMenu = document.getElementById('fight-menu');
+    
+    // If fight menu is already open, close it
+    if (!fightMenu.classList.contains('hidden')) {
+        fightMenu.classList.add('hidden');
         return;
     }
 
-    // Clear and show submenu
-    submenu.innerHTML = '';
-    submenu.classList.remove('hidden');
+    // Clear previous content
+    fightMenu.innerHTML = `
+        <div class="close-btn-container">
+            <button onclick="closeCurrentInterface()" class="close-interface-btn" title="Close">✕</button>
+        </div>
+    `;
 
-    // Check if player has moves
-    if (!playerPokemon.moves || playerPokemon.moves.length === 0) {
-        const noMovesMsg = document.createElement('div');
-        noMovesMsg.textContent = 'No moves available!';
-        submenu.appendChild(noMovesMsg);
-        return;
-    }
+    // Ensure we have a player Pokémon with moves
+    const playerPokemon = window.playerPokemon || {
+        name: 'Default Pokémon',
+        moves: [
+            { name: 'Tackle', type: 'normal', power: 40 },
+            { name: 'Scratch', type: 'normal', power: 40 }
+        ]
+    };
 
     // Create move buttons
     playerPokemon.moves.forEach(move => {
         const moveButton = document.createElement('button');
         moveButton.textContent = move.name;
+        moveButton.classList.add('move-button');
         moveButton.onclick = () => {
-            submenu.classList.add('hidden');
             playerFight(move);
+            fightMenu.classList.add('hidden');
         };
-        
-        // Optional: Add move type color or additional info
-        moveButton.style.backgroundColor = getTypeColor(move.type);
-        moveButton.style.color = 'white';
-        
-        submenu.appendChild(moveButton);
+        fightMenu.appendChild(moveButton);
     });
+
+    // Show fight menu
+    fightMenu.classList.remove('hidden');
 }
 
 // Expose openFight globally
