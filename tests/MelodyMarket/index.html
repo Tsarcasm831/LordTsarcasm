@@ -1,0 +1,405 @@
+<html><base href="">
+<head>
+    <title>Melody Market</title>
+    <!-- Include Three.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Include PointerLockControls directly -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+    <!-- Include Howler.js for audio management -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <script src="red-stall.js"></script>
+    <script src="green-stall.js"></script>
+    <script src="blue-stall.js"></script>
+    <script src="yellow-stall.js"></script>
+    <script src="grass-texture.js"></script>
+    <script src="humanoid.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        #chat-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+        #chat-messages {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+        #chat-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-messages"></div>
+        <input type="text" id="chat-input" placeholder="Press Enter to chat">
+    </div>
+    <script>
+        function isWebGLAvailable() {
+            try {
+                var canvas = document.createElement('canvas');
+                return !!window.WebGLRenderingContext && (
+                    canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+                );
+            } catch (e) {
+                return false;
+            }
+        }
+
+        if (!isWebGLAvailable()) {
+            var warning = document.createElement('div');
+            warning.style.position = 'absolute';
+            warning.style.top = '50%';
+            warning.style.left = '50%';
+            warning.style.transform = 'translate(-50%, -50%)';
+            warning.style.fontSize = '24px';
+            warning.style.color = '#fff';
+            warning.style.background = '#000';
+            warning.style.padding = '20px';
+            warning.style.borderRadius = '10px';
+            warning.style.textAlign = 'center';
+            warning.innerHTML = 'Your browser does not support WebGL.';
+            document.body.appendChild(warning);
+            throw new Error('WebGL not supported');
+        }
+
+        let scene, camera, renderer;
+        let player, controls;
+        let otherPlayers = {};
+        let username = '';
+        let sounds = {};
+        let stalls = [];
+
+        const clock = new THREE.Clock();
+
+        let velocity = new THREE.Vector3();
+        let direction = new THREE.Vector3();
+        let moveForward = false;
+        let moveBackward = false;
+        let moveLeft = false;
+        let moveRight = false;
+        let canJump = false;
+        let prevTime = performance.now();
+
+        // Ensure THREE is available
+        window.THREE = THREE;
+
+        init();
+        animate();
+
+        function init() {
+            // Initialize scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87ceeb); // Sky color
+
+            // Initialize camera
+            camera = new THREE.PerspectiveCamera(
+                75,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+
+            // Initialize renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            directionalLight.position.set(100, 100, 100);
+            scene.add(directionalLight);
+
+            // Ground
+            const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
+            const grassTexture = generateGrassTexture();
+            const groundMaterial = new THREE.MeshLambertMaterial({ 
+                map: grassTexture,
+                color: 0xffffff  // Use white to show full texture color
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            scene.add(ground);
+
+            // Player
+            const playerGeometry = new THREE.CylinderGeometry(1, 1, 2, 16);
+            const playerMaterial = new THREE.MeshLambertMaterial({ color: 0x0000ff });
+            player = new THREE.Mesh(playerGeometry, playerMaterial);
+            player.position.set(0, 1, 0);
+            scene.add(player);
+
+            // Controls
+            controls = new THREE.PointerLockControls(camera, document.body);
+            controls.getObject().position.set(0, 1.6, 0);
+            scene.add(controls.getObject());
+
+            document.body.addEventListener('click', () => {
+                controls.lock();
+            });
+            controls.addEventListener('lock', () => {
+                document.getElementById('chat-input').blur();
+            });
+            controls.addEventListener('unlock', () => {
+                document.getElementById('chat-input').focus();
+            });
+
+            // Create stalls
+            createStalls();
+
+            // Event listeners
+            window.addEventListener('resize', onWindowResize);
+
+            // Chat
+            initChat();
+
+            // Multiplayer
+            // Removed multiplayer code
+        }
+
+        function createStalls() {
+            try {
+                // Use the new stall creation functions
+                const redStall = createRedStall(scene, THREE);
+                const greenStall = createGreenStall(scene, THREE);
+                const blueStall = createBlueStall(scene, THREE);
+                const yellowStall = createYellowStall(scene, THREE);
+            
+                // Manually define counter positions for each stall
+                const stallConfigs = [
+                    { 
+                        stall: redStall, 
+                        counterPosition: { x: 10, y: 1, z: 10 },
+                        color: 0xff0000,
+                        name: 'Red Stall Vendor'
+                    },
+                    { 
+                        stall: greenStall, 
+                        counterPosition: { x: -10, y: 1, z: 10 },
+                        color: 0x00ff00,
+                        name: 'Green Stall Vendor'
+                    },
+                    { 
+                        stall: blueStall, 
+                        counterPosition: { x: 10, y: 1, z: -10 },
+                        color: 0x0000ff,
+                        name: 'Blue Stall Vendor'
+                    },
+                    { 
+                        stall: yellowStall, 
+                        counterPosition: { x: -10, y: 1, z: -10 },
+                        color: 0xffff00,
+                        name: 'Yellow Stall Vendor'
+                    }
+                ];
+            
+                // Create humanoids for each stall
+                const stallHumanoids = stallConfigs.map(config => {
+                    const humanoid = createHumanoid(scene, THREE, {
+                        color: config.color,
+                        position: config.counterPosition,
+                        rotation: Math.PI,
+                        name: config.name
+                    });
+                    return { 
+                        stall: config.stall, 
+                        humanoid: humanoid 
+                    };
+                });
+            
+                // Collect stalls and humanoids for management
+                stalls = stallHumanoids;
+            } catch (error) {
+                console.error('Error creating stalls and humanoids:', error);
+                // Fallback error display without TextGeometry
+                const errorText = document.createElement('div');
+                errorText.textContent = 'Failed to create stalls and humanoids';
+                errorText.style.position = 'absolute';
+                errorText.style.top = '50%';
+                errorText.style.left = '50%';
+                errorText.style.transform = 'translate(-50%, -50%)';
+                errorText.style.color = 'red';
+                errorText.style.fontSize = '24px';
+                document.body.appendChild(errorText);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (controls.isLocked === true) {
+                const time = performance.now();
+                const delta = (time - prevTime) / 1000;
+
+                // Movement dampening
+                velocity.x -= velocity.x * 10.0 * delta;
+                velocity.z -= velocity.z * 10.0 * delta;
+
+                velocity.y -= 9.8 * 10.0 * delta; // gravity
+
+                direction.z = Number(moveForward) - Number(moveBackward);
+                direction.x = Number(moveRight) - Number(moveLeft); // Adjusted for correct movement
+
+                direction.normalize(); // this ensures consistent movements in all directions
+
+                const speed = 200.0; // Reduced speed for slower movement
+
+                if (moveForward || moveBackward) velocity.z -= direction.z * speed * delta;
+                if (moveLeft || moveRight) velocity.x -= direction.x * speed * delta;
+
+                controls.moveRight(-velocity.x * delta);
+                controls.moveForward(-velocity.z * delta);
+
+                controls.getObject().position.y += velocity.y * delta;
+
+                // Prevent the player from falling through the ground
+                if (controls.getObject().position.y < 1.6) {
+                    velocity.y = 0;
+                    controls.getObject().position.y = 1.6;
+                    canJump = true;
+                }
+
+                player.position.copy(controls.getObject().position);
+                player.position.y -= 1.6; // Adjust player mesh position
+
+                updateAudio();
+
+                prevTime = time;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function updateAudio() {
+            stalls.forEach((stall) => {
+                const distance = player.position.distanceTo(stall.stall.position);
+                const maxDistance = 20;
+                const volume = Math.max(0, (maxDistance - distance) / maxDistance);
+
+                if (stall.stall.userData.sound) {
+                    stall.stall.userData.sound.volume(volume);
+                }
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        document.addEventListener('keydown', (event) => {
+            switch (event.code) {
+                case 'KeyW':
+                case 'ArrowUp':
+                    moveForward = true;
+                    break;
+                case 'KeyA':
+                case 'ArrowLeft':
+                    moveLeft = true;
+                    break;
+                case 'KeyS':
+                case 'ArrowDown':
+                    moveBackward = true;
+                    break;
+                case 'KeyD':
+                case 'ArrowRight':
+                    moveRight = true;
+                    break;
+                case 'Space':
+                    if (canJump === true) {
+                        velocity.y += 20;
+                        canJump = false;
+                    }
+                    break;
+                case 'Enter':
+                    if (document.activeElement !== document.getElementById('chat-input')) {
+                        document.getElementById('chat-input').focus();
+                        controls.unlock();
+                    } else {
+                        sendMessage();
+                        controls.lock();
+                    }
+                    break;
+            }
+        });
+        document.addEventListener('keyup', (event) => {
+            switch (event.code) {
+                case 'KeyW':
+                case 'ArrowUp':
+                    moveForward = false;
+                    break;
+                case 'KeyA':
+                case 'ArrowLeft':
+                    moveLeft = false;
+                    break;
+                case 'KeyS':
+                case 'ArrowDown':
+                    moveBackward = false;
+                    break;
+                case 'KeyD':
+                case 'ArrowRight':
+                    moveRight = false;
+                    break;
+            }
+        });
+
+        function initChat() {
+            const chatInput = document.getElementById('chat-input');
+            chatInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
+
+        function sendMessage() {
+            const chatInput = document.getElementById('chat-input');
+            const message = chatInput.value.trim();
+            if (message !== '') {
+                addChatMessage(username, message);
+                chatInput.value = '';
+            }
+        }
+
+        function addChatMessage(user, message) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = `${user}: ${message}`;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Function to resume audio context
+        function resumeAudioContext() {
+            stalls.forEach(stall => {
+                if (stall.stall.userData && stall.stall.userData.sound) {
+                    try {
+                        stall.stall.userData.sound.play();
+                        console.log(`Resumed audio for stall: ${stall.stall.userData.music}`);
+                    } catch (error) {
+                        console.error('Error resuming audio:', error);
+                    }
+                }
+            });
+        }
+
+        // Add event listeners to resume audio on user interaction
+        document.addEventListener('click', resumeAudioContext);
+        document.addEventListener('keydown', resumeAudioContext);
+    </script>
+</body>
+</html>
