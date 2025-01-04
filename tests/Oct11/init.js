@@ -269,4 +269,3 @@ function initMap() {
     directionalLight.position.set(0, 100, 0);
     mapScene.add(directionalLight);
 }
-
