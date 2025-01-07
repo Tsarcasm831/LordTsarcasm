@@ -1,0 +1,135 @@
+/* ======================= */
+/*      Game Canvas        */
+/* ======================= */
+#gameCanvas { 
+    display: block; 
+    width: 100%;
+    height: 100%;
+    background-color: #000; /* Background color for the game canvas */
+}
+
+
+/* Hotbar Styling */
+#hotbar {
+    position: absolute;
+    bottom: 10px; /* Adjusted position */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    z-index: 5;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 5px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}
+
+/* Trait Selection Modal Styles */
+#traitSelectionModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+#traitSelectionModal .modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border-radius: 5px;
+    width: 50%;
+    max-width: 600px;
+    max-height: 80%;
+    overflow-y: hidden;
+}
+
+.trait-option {
+    margin-bottom: 10px;
+}
+
+.trait-option input {
+    margin-right: 10px;
+}
+
+
+
+
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+    position: fixed;
+    top: 240px; /* Adjusted to move below the map */
+    right: 20px;
+    padding: 10px;
+    background-color: var(--primary-color);
+    color: #2c2c2c;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1100; /* Increased z-index to be above the map */
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.dark-mode-toggle:hover {
+    background-color: #e6c200;
+    transform: scale(1.05);
+}
+
+
+#notificationContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: var(--z-index-tooltip);
+}
+
+.notification {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: var(--text-color);
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transform: translateX(100%);
+    animation: slideIn 0.5s forwards, fadeOut 0.5s 3.5s forwards;
+}
+
+.notification.success {
+    background-color: rgba(40, 167, 69, 0.9); /* Green */
+    color: #fff;
+}
+
+.notification.error {
+    background-color: rgba(220, 53, 69, 0.9); /* Red */
+    color: #fff;
+}
+
+.notification.warning {
+    background-color: rgba(255, 193, 7, 0.9); /* Yellow */
+    color: #2c2c2c;
+}
+
+.notification.info {
+    background-color: rgba(23, 162, 184, 0.9); /* Blue */
+    color: #fff;
+}
+
+
+@keyframes slideIn {
+    to { 
+        opacity: 1; 
+        transform: translateX(0); 
+    }
+}
+
+@keyframes fadeOut {
+    to { 
+        opacity: 0; 
+        transform: translateX(100%); 
+    }
+}

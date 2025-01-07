@@ -1,0 +1,1405 @@
+/* rodstyles-components.css */
+
+/* 
+   All specialized, feature-specific modules:
+   - Inventory (#inventory, .inventory-tab, etc.)
+   - Generic .modal styling, plus all unique modals (admin console, bestiary, help window, etc.)
+   - Music modal, trade window, skill tree, etc.
+*/
+
+/* ======================= */
+/*         Modal           */
+/* ======================= */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.modal-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #000000;
+    color: #c7b377;
+    padding: 20px;
+    border: 2px solid #463714;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+    max-width: 80%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #c7b377;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.close-button:hover {
+    color: #FFD700;
+}
+
+
+/* ======================= */
+/*        Modal Styles     */
+/* ======================= */
+
+
+.modal.show {
+    opacity: 1;
+}
+
+.modal.hide {
+    opacity: 0;
+}
+
+#tradeWindow {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    padding: 20px;
+    border-radius: 8px;
+    z-index: 1100;
+    width: 80%;
+    max-width: 800px;
+    display: none;
+}
+
+#tradeWindow h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ffd700;
+}
+
+
+#tradeWindow button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    background-color: #4a4a4a;
+    border: none;
+    color: #e0e0e0;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+#tradeWindow button:hover {
+    background-color: #666;
+}
+
+#confirmTradeButton {
+    background-color: #2c5a2c;
+}
+
+#confirmTradeButton:hover {
+    background-color: #3a7a3a;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-20px); }
+}
+
+/* ======================= */
+/*   Trait Selection Modal */
+/* ======================= */
+#traitSelectionModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+#traitSelectionModal .modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border-radius: 5px;
+    width: 50%;
+    max-width: 600px;
+    max-height: 80%;
+    overflow-y: hidden;
+}
+
+.trait-option {
+    margin-bottom: 10px;
+}
+
+.trait-option input {
+    margin-right: 10px;
+}
+
+/* ======================= */
+/*        Admin Console    */
+/* ======================= */
+#adminConsole {
+    position: fixed;
+    inset: 0; /* shorthand for top, left, bottom, right = 0 */
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; /* Keep above other elements */
+}
+
+#adminConsole .modal-content {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    padding: 30px;
+    border-radius: 12px; /* Slightly more rounded */
+    width: 80%;
+    max-width: 750px; /* Slightly narrower */
+    max-height: 85%; /* Reduced height for balanced visuals */
+    overflow-y: hidden;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+/* Close Button for Admin Console */
+#adminConsole .close-button {
+    position: absolute;
+    top: 12px;
+    right: 20px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+#adminConsole .close-button:hover,
+#adminConsole .close-button:focus {
+    color: #FFD700; /* Matches accent color */
+}
+
+/* Tab Navigation Styles */
+.admin-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tab-button {
+    background-color: #444;
+    color: #e0e0e0;
+    border: none;
+    padding: 10px 24px; /* Slightly wider for comfort */
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.2s, transform 0.1s; /* Added subtle transform */
+    min-width: 120px;
+    text-align: center;
+}
+
+.tab-button:hover {
+    background-color: #555;
+    transform: scale(1.05); /* Subtle scale on hover */
+}
+
+.tab-button.active {
+    background-color: #FFD700;
+    color: #2c2c2c;
+}
+
+/* Tab Content Styles */
+.admin-tab-content {
+    display: none; /* Hidden by default */
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.admin-tab-content.active {
+    display: block;
+    opacity: 1;
+}
+
+.admin-tab-content h3, .admin-tab-content h4 {
+    color: #FFD700;
+    margin-top: 0;
+}
+
+.admin-tab-content section {
+    margin-bottom: 16px;
+}
+
+/* Form Elements Styles */
+.admin-tab-content input[type="number"],
+.admin-tab-content input[type="password"],
+.admin-tab-content select,
+.admin-tab-content textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #3a3a3a;
+    color: #fff;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-tab-content input[type="number"]:focus,
+.admin-tab-content input[type="password"]:focus,
+.admin-tab-content select:focus,
+.admin-tab-content textarea:focus {
+    border-color: #FFD700;
+    box-shadow: 0 0 6px #FFD700;
+    outline: none;
+}
+
+/* Buttons Styles */
+.admin-tab-content button {
+    background-color: #FFD700;
+    color: #2c2c2c;
+    border: none;
+    padding: 10px 24px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.2s, transform 0.1s;
+    font-size: 16px;
+}
+
+.admin-tab-content button:hover {
+    background-color: #e6c200;
+    transform: scale(1.02); /* Subtle hover effect */
+}
+
+/* Checkbox Labels */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.checkbox-label input {
+    margin-right: 8px;
+}
+
+/* Redesigned Tab Navigation Styles (overrides) */
+#adminConsole .modal-content {
+    background: linear-gradient(145deg, #2c2c2c, #333);
+    color: #e0e0e0;
+    padding: 40px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 85%;
+    overflow-y: hidden;
+    position: relative;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
+}
+
+#adminConsole .close-button {
+    position: absolute;
+    top: 12px;
+    right: 20px;
+    color: #ccc;
+    font-size: 30px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+#adminConsole .close-button:hover {
+    color: #FFD700;
+}
+
+.admin-tabs {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #555;
+    padding-bottom: 8px;
+    gap: 12px;
+}
+
+.tab-button {
+    background: #444;
+    color: #e0e0e0;
+    border: none;
+    padding: 10px 24px;
+    cursor: pointer;
+    border-radius: 50px; /* Pill-shaped buttons */
+    transition: background 0.3s, transform 0.2s;
+    min-width: 120px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.tab-button:hover {
+    background: #555;
+    transform: scale(1.05);
+}
+
+.tab-button.active {
+    background: #FFD700;
+    color: #2c2c2c;
+    border-bottom: 2px solid #FFD700;
+}
+
+.admin-tab-content {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, transform 0.3s;
+    transform: translateY(20px);
+}
+
+.admin-tab-content.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.admin-tab-content h3 {
+    margin-top: 0;
+    color: #FFD700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.admin-tab-content section {
+    margin-bottom: 20px;
+}
+
+.admin-tab-content h4 {
+    margin-bottom: 10px;
+    color: #FFD700;
+    font-weight: 600;
+}
+
+.admin-tab-content input[type="number"],
+.admin-tab-content input[type="password"],
+.admin-tab-content select,
+.admin-tab-content textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #666;
+    border-radius: 6px;
+    background: #3a3a3a;
+    color: #fff;
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.admin-tab-content input[type="number"]:focus,
+.admin-tab-content input[type="password"]:focus,
+.admin-tab-content select:focus,
+.admin-tab-content textarea:focus {
+    border-color: #FFD700;
+    box-shadow: 0 0 10px #FFD700;
+    outline: none;
+}
+
+.admin-tab-content button {
+    background: #FFD700;
+    color: #2c2c2c;
+    border: none;
+    padding: 12px 30px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.3s, transform 0.2s;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.admin-tab-content button:hover {
+    background: #e6c200;
+    transform: scale(1.05);
+}
+
+/* ======================= */
+/*       Help Window       */
+/* ======================= */
+#helpWindow {
+    position: fixed;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    z-index: 999;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(45, 45, 45, 0.9));
+    color: #e2e2e2;
+    width: 90%;
+    max-width: 900px;
+    max-height: 80vh;
+    padding: 25px 30px;
+    border-radius: 12px;
+    border: 2px dashed rgba(255, 40, 40, 0.8);
+    box-shadow: 
+        0 0 60px rgba(0, 0, 0, 0.9),
+        inset 0 0 15px rgba(255, 0, 0, 0.3);
+    backdrop-filter: blur(8px) brightness(0.9);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    font-family: var(--terminal-font, 'OCR A Std'), monospace;
+}
+
+/* Help Window Close Button */
+#helpWindow .close-button {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    background-color: rgba(200, 0, 0, 0.85);
+    border: none;
+    color: #fff;
+    z-index: 1000;
+    font-size: 24px;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
+}
+
+/* More Help Window Animation */
+@keyframes flicker {
+    0% { opacity: 0.95; }
+    50% { opacity: 0.75; }
+    100% { opacity: 1; }
+}
+
+@keyframes glitch {
+    0% { }
+    100% { }
+}
+
+/* ======================= */
+/*         Bestiary        */
+/* ======================= */
+#bestiaryModal {
+    display: none; /* Default is hidden */
+    position: fixed;
+    z-index: 1000; /* Ensure it is above other elements */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.8); /* Black w/ opacity */
+    align-items: center;
+    justify-content: center;
+}
+
+#bestiaryModal.show {
+    display: flex; /* Use flex to center content */
+}
+
+#bestiaryModal .modal-content {
+    background-color: #1A1A1A;
+    color: #e0e0e0;
+    margin: 5% auto; /* 5% from the top and centered */
+    padding: 30px;
+    border: 2px solid #FFD700;
+    width: 90%; /* Could be more or less, depending on screen size */
+    max-width: 1200px;
+    max-height: 90vh; /* Ensure it doesn't exceed viewport height */
+    overflow-y: hidden; /* Scroll vertically if content is too long */
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9); /* Enhanced shadow for better depth */
+}
+
+.bestiary-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Creature Cards */
+.creature-card {
+    border: 2px solid #555;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #292929;
+    transition: background 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+}
+
+.creature-card:hover {
+    background-color: #3a3a3a;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); /* Enhanced hover effect */
+}
+
+.creature-image {
+    width: 100%;
+    height: auto;
+    max-height: 200px; /* Optional: Limit the max height */
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}
+
+.creature-info {
+    text-align: center;
+}
+
+.creature-info h3 {
+    margin: 0 0 10px 0;
+    color: #FFD700;
+    font-size: 1.5em;
+}
+
+.creature-info p {
+    margin: 0 0 15px 0;
+    color: #e0e0e0;
+    font-size: 1em;
+}
+
+.view-details-button {
+    padding: 10px 15px;
+    background-color: #8B0000;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 1em;
+}
+
+.view-details-button:hover {
+    background-color: #FF6347;
+    transform: scale(1.05);
+}
+
+/* Creature Details Modal */
+#creatureDetailsModal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1500; /* Higher than bestiary modal */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    background-color: rgba(0, 0, 0, 0.9); /* Darker semi-transparent background */
+    transition: opacity 0.3s ease;
+    align-items: center;
+    justify-content: center;
+}
+
+#creatureDetailsModal.show {
+    display: flex;
+    opacity: 1;
+}
+
+#creatureDetailsModal .modal-content {
+    background-color: #1A1A1A;
+    color: #e0e0e0;
+    margin: 5% auto; /* 5% from the top and centered */
+    padding: 30px;
+    border: 2px solid #FFD700;
+    width: 90%; /* Could be more or less, depending on screen size */
+    max-width: 1000px;
+    max-height: 90vh; /* Ensure it doesn't exceed viewport height */
+    overflow-y: hidden; /* Scroll vertically if content is too long */
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.9); /* Enhanced shadow for better depth */
+}
+
+.creature-detail-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.creature-detail-image {
+    flex: 1 1 300px;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+    transition: transform 0.3s ease-in-out;
+}
+
+.creature-detail-image:hover {
+    transform: scale(1.02);
+}
+
+.stats-container {
+    flex: 1 1 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.stat-item span {
+    flex: 0 0 60px;
+    font-weight: bold;
+    color: #FFD700;
+    font-size: 1.1em;
+    margin-right: 10px;
+}
+
+.stat-bar {
+    flex: 1;
+    background: #555;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: inset 0 0 5px #000;
+}
+
+.progress {
+    background: linear-gradient(90deg, #FFD700 0%, #FF8C00 100%);
+    height: 100%;
+    width: 0;
+    transition: width 1s ease-in-out;
+}
+
+.model-container {
+    width: 100%;
+    height: 400px;
+    margin-top: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+    background-color: #000; /* Background color for the 3D model */
+}
+
+/* ======================= */
+/*         Music Page      */
+/* ======================= */
+.open-music-button {
+    position: fixed; /* Fixed to stay in viewport */
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #0073e6;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1100; /* Above other elements */
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.open-music-button:hover {
+    background-color: #005bb5;
+    transform: scale(1.05);
+}
+
+#musicModal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1200; /* Above other modals */
+}
+
+#musicModal.show {
+    display: flex;
+}
+
+#musicModal .modal-content {
+    background-color: #1A1A1A;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 800px;
+    max-height: 90vh; /* Limits height to prevent overflow */
+    overflow: hidden; /* Ensures no additional scroll within the modal itself */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+    border: 2px solid #FFD700;
+}
+
+/* Music Modal Close Button */
+#musicModal .close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: #FF0000; /* Bright red background */
+    border: none;
+    color: #FFFFFF; /* White text */
+    font-size: 28px; /* Larger font size for visibility */
+    padding: 10px;
+    border-radius: 50%; /* Circular button */
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7); /* Shadow for added prominence */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transition */
+}
+
+#musicModal .close-button:hover {
+    background-color: #CC0000; /* Darker red on hover */
+    transform: scale(1.1); /* Slight enlargement on hover */
+}
+
+.music-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.music-player {
+    width: 100%;
+    max-width: 600px;
+}
+
+.music-player audio {
+    width: 100%;
+    outline: none;
+}
+
+/* Playlist */
+.playlist {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.playlist-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.playlist-item:hover {
+    background-color: #555;
+    transform: scale(1.02);
+}
+
+.playlist-item.active {
+    background-color: #FFD700;
+    color: #2c2c2c;
+}
+
+.playlist-item .track-name {
+    flex: 1;
+}
+
+.playlist-item .remove-track {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 10px;
+}
+
+.playlist-item .remove-track:hover {
+    color: #ff4c4c;
+}
+
+.add-track-button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 16px;
+}
+
+.add-track-button:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+/* Now Playing Control Bar */
+.now-playing {
+    position: fixed;
+    bottom: 20px;
+    right: 160px; /* Positioned just left of the Open Music button */
+    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+    color: #FFD700; /* Gold color for visibility */
+    padding: 10px 15px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    z-index: 1200;
+}
+
+#playPauseButton {
+    background: none;
+    border: none;
+    color: #FFFFFF;
+    font-size: 20px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+#playPauseButton:hover {
+    transform: scale(1.2); /* Slight enlargement on hover */
+}
+
+#playerImage {
+    max-width: 150px; 
+    max-height: 150px;
+    width: auto;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+}
+
+#playerDetails {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Space between stats and image */
+}
+
+#playerStatsBars {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Space between individual stat bars */
+}
+
+.stat-bar {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #e0e0e0; /* Light text for readability */
+}
+
+.stat-bar span {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.bar {
+    width: 100%;
+    height: 10px;
+    background-color: #333; /* Dark background for the bar */
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+.fill {
+    height: 100%;
+    background-color: #FFD700; /* Gold color for the fill */
+    width: 0%; /* Starting width; will be adjusted dynamically */
+    border-radius: 5px;
+    transition: width 0.3s ease; /* Smooth transition for filling */
+}
+
+/* ======================= */
+/*        Skill Tree       */
+/* ======================= */
+#skillTree {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 20px;
+    border: 2px solid #aaa;
+    z-index: 100;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    overflow-y: hidden;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+}
+
+#skillTree h2 {
+    text-align: center;
+    color: #FFD700;
+    margin-top: 0;
+}
+
+#skillsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.skill {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.skill:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+}
+
+.skill.unavailable {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.skill.learned {
+    background: rgba(0, 255, 0, 0.5);
+    cursor: default;
+}
+
+.slot {
+    width: 64px;
+    height: 64px;
+    border: 2px solid #555;
+    margin: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    transition: background 0.2s;
+}
+
+.slot:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ======================= */
+/*      NPC Admin Popup    */
+/* ======================= */
+#npcAdminPopup {
+    position: fixed; /* Changed to fixed for better positioning */
+    width: var(--popup-width);
+    max-height: 80vh; /* Allow for overflow scrolling */
+    background: var(--popup-bg);
+    color: var(--popup-color);
+    padding: 20px;
+    border: var(--popup-border);
+    z-index: 1000; /* Increased z-index to ensure it appears above other elements */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow-y: hidden; /* Enable scrolling for taller content */
+    border-radius: var(--popup-border-radius);
+    box-shadow: var(--popup-box-shadow);
+    font-family: Arial, sans-serif; /* Added a default font */
+}
+
+#npcAdminPopup .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: transparent;
+    border: none;
+    color: var(--close-button-color);
+    font-size: 20px; /* Increased size for better visibility */
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+#npcAdminPopup .close-button:hover {
+    color: var(--close-button-hover-color);
+}
+
+/* Input Fields, Text Areas, and Selects */
+#npcAdminPopup input,
+#npcAdminPopup textarea,
+#npcAdminPopup select {
+    width: 100%;
+    margin-bottom: 15px; /* Increased margin for better spacing */
+    background-color: var(--input-bg);
+    color: var(--input-color);
+    border: var(--input-border);
+    padding: 8px 10px; /* Increased padding for better usability */
+    border-radius: var(--input-border-radius);
+    font-size: 14px;
+    box-sizing: border-box; /* Ensure padding doesn't affect total width */
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+#npcAdminPopup input:focus,
+#npcAdminPopup textarea:focus,
+#npcAdminPopup select:focus {
+    border-color: #FFD700; /* Highlight border on focus */
+    outline: none; /* Remove default outline */
+    background-color: #444; /* Slightly lighter background on focus */
+}
+
+/* Labels */
+#npcAdminPopup label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px; /* Slightly increased font size for readability */
+    color: var(--label-color);
+}
+
+/* Button Styles */
+#npcAdminPopup button {
+    margin-right: 10px;
+    padding: 10px 15px; /* Increased padding for better click area */
+    background-color: var(--button-bg);
+    color: var(--button-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#npcAdminPopup button:hover {
+    background-color: var(--button-hover-bg);
+    transform: translateY(-2px); /* Subtle lift effect on hover */
+}
+
+#npcAdminPopup button:active {
+    transform: translateY(0); /* Remove lift effect on click */
+}
+
+/* Color Picker Styles */
+#npcAdminPopup input[type="color"] {
+    padding: 0;
+    height: 40px; /* Increased height for better usability */
+    width: 100%;
+    cursor: pointer;
+    border: var(--input-border);
+    border-radius: var(--input-border-radius);
+    background: none; /* Remove default background */
+    transition: border-color 0.3s;
+}
+
+#npcAdminPopup input[type="color"]:focus {
+    border-color: #FFD700; /* Highlight border on focus */
+}
+
+/* Field Groups */
+#npcAdminPopup .field-group {
+    margin-bottom: 20px; /* Increased margin for better separation */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Scrollbar Styling */
+#npcAdminPopup::-webkit-scrollbar {
+    width: 8px;
+}
+
+#npcAdminPopup::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 4px;
+}
+
+#npcAdminPopup::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+}
+
+/* ======================= */
+/*        Chest Popup      */
+/* ======================= */
+#chestPopup {
+    position: absolute;
+    width: 800px;
+    max-height: 90%;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 20px;
+    border: 2px solid #aaa;
+    z-index: 10;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow-y: hidden;
+    display: none;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+#chestInventoryContainer {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap; /* Allow wrapping if necessary */
+}
+
+#chestPopup .inventoryGrid {
+    max-height: 400px;
+    overflow-y: hidden;
+    display: grid;
+    grid-template-columns: repeat(7, 50px); /* Adjust columns as needed */
+    grid-auto-rows: 50px;
+    gap: 2px;
+    margin-top: 10px;
+}
+
+/* ======================= */
+/*        Trade Window     */
+/* ======================= */
+#tradeWindow {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(30, 30, 30, 0.95);
+    color: #e0e0e0;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 800px;
+    height: 80vh;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    z-index: 1000; /* High z-index to ensure it appears on top */
+}
+
+#tradeWindow h2 {
+    margin-top: 0;
+    color: #FFD700; /* Gold color for emphasis */
+    text-align: center;
+}
+
+.inventoryGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    min-height: 300px; /* Ensures grid height remains even when empty */
+}
+
+.inventory-slot {
+    border: 1px solid #555;
+    background: rgba(255, 255, 255, 0.1);
+    text-align: center;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.inventory-slot:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+#confirmTradeButton {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-right: 10px;
+    font-size: 16px;
+    margin-top: 20px;
+    align-self: center;
+}
+
+#confirmTradeButton:hover {
+    background-color: #218838;
+}
+
+#tradeWindow button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#tradeWindow button:hover {
+    background-color: #555;
+}
+
+.trade-inventory {
+    width: 45%; /* Equal width for NPC and Player inventories */
+    text-align: center;
+    background-color: #1a1a1a;
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid #333;
+}
+
+.trade-inventory h2 {
+    color: #FFD700; /* Gold color */
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* Adjust based on how many slots per row */
+    gap: 5px;
+    padding: 5px;
+    background-color: #2b2b2b;
+    border: 1px solid #444;
+    border-radius: 5px;
+}
+
+.inventory-slot {
+    width: 50px;
+    height: 50px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid #555;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ddd;
+    font-size: 12px;
+    position: relative;
+}
+
+.inventory-slot:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.npc-gold, .player-gold {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #FFD700; /* Gold color */
+}
+
+/* ======================= */
+/*    Fullscreen Map       */
+/* ======================= */
+.fullscreen-map {
+    display: none;
+    /* Add other styles as needed */
+}
+
+.close-map-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 201;
+    /* Add other styles as needed */
+}
+
+/* ======================= */
+/*     Audio Widget        */
+/* ======================= */
+#audioWidgetContainer {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 300px;
+    height: 400px;
+    background: transparent;
+    border: none;
+    z-index: 999;
+    pointer-events: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: width 0.3s ease, height 0.3s ease, transform 0.3s ease;
+}
+
+#audioWidgetContainer.minimized {
+    width: 50px;
+    height: 50px;
+    transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+#audio_iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    transition: opacity 0.3s ease;
+}
+
+#audioWidgetContainer.minimized #audio_iframe {
+    opacity: 0;
+}
+
+.toggle-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(255, 215, 0, 0.8); /* Gold color */
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 20px;
+    text-align: center;
+    padding: 0;
+    transition: background-color 0.3s ease;
+}
+
+.toggle-button:hover {
+    background-color: rgba(255, 215, 0, 1);
+}
+
+@media (max-width: 600px) {
+    #audioWidgetContainer {
+        width: 250px;
+        height: 350px;
+    }
+
+    #audioWidgetContainer.minimized {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 400px) {
+    #audioWidgetContainer {
+        width: 200px;
+        height: 300px;
+    }
+
+    #audioWidgetContainer.minimized {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+/* ======================= */
+/*        Extra Bits       */
+/* ======================= */
+.modal.hide .modal-content {
+    animation: fadeOut 0.3s forwards;
+}

@@ -1,0 +1,656 @@
+/* rodstyles-base.css */
+
+/* ======================================================= */
+/*         Base / Layout, Common Animations, Utilities     */
+/* ======================================================= */
+
+/* 
+   For clarity, this file collects:
+   - General elements (e.g., #gameCanvas, #hotbar)
+   - Global animations or transitions
+   - Utility or helper classes
+   - Larger "everywhere" styling (notifications, orbs, etc.)
+*/
+
+/* ======================= */
+/*      Game Canvas        */
+/* ======================= */
+#gameCanvas { 
+    display: block; 
+    width: 100%;
+    height: 100%;
+    background-color: #000; /* Background color for the game canvas */
+}
+
+/* ======================= */
+/*         Hotbar          */
+/* ======================= */
+#hotbar {
+    position: absolute;
+    bottom: 10px; /* Adjusted position */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    z-index: 5;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 5px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}
+
+/* ======================= */
+/*      Dark Mode Toggle   */
+/* ======================= */
+.dark-mode-toggle {
+    position: fixed;
+    top: 240px; /* Adjusted to move below the map */
+    right: 20px;
+    padding: 10px;
+    background-color: var(--primary-color);
+    color: #2c2c2c;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1100; /* Increased z-index to be above the map */
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.dark-mode-toggle:hover {
+    background-color: #e6c200;
+    transform: scale(1.05);
+}
+
+/* ======================= */
+/*     Notification Area   */
+/* ======================= */
+#notificationContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: var(--z-index-tooltip);
+}
+
+.notification {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: var(--text-color);
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transform: translateX(100%);
+    animation: slideIn 0.5s forwards, fadeOut 0.5s 3.5s forwards;
+}
+
+.notification.success {
+    background-color: rgba(40, 167, 69, 0.9); /* Green */
+    color: #fff;
+}
+
+.notification.error {
+    background-color: rgba(220, 53, 69, 0.9); /* Red */
+    color: #fff;
+}
+
+.notification.warning {
+    background-color: rgba(255, 193, 7, 0.9); /* Yellow */
+    color: #2c2c2c;
+}
+
+.notification.info {
+    background-color: rgba(23, 162, 184, 0.9); /* Blue */
+    color: #fff;
+}
+
+@keyframes slideIn {
+    to { 
+        opacity: 1; 
+        transform: translateX(0); 
+    }
+}
+
+@keyframes fadeOut {
+    to { 
+        opacity: 0; 
+        transform: translateX(100%); 
+    }
+}
+
+/* ======================= */
+/*          Orbs           */
+/* ======================= */
+.orb {
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    overflow: hidden;
+    z-index: 5;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Health Orb */
+#lifeOrb {
+    bottom: 80px;
+    left: 20px;
+    background: radial-gradient(circle at 30% 30%, #ff0000, #8b0000);
+    animation: glowPulse 3s infinite alternate;
+}
+
+#lifeFill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; /* Dynamic with JS */
+    background: linear-gradient(to top, #ff4500, #8b0000);
+    transition: height 0.3s ease-in-out;
+    clip-path: circle(50% at 50% 50%);
+}
+
+/* Mana Orb */
+#energyOrb {
+    bottom: 80px;
+    right: 20px;
+    background: radial-gradient(circle at 30% 30%, #1e90ff, #00008b);
+    animation: glowPulseBlue 3s infinite alternate;
+}
+
+#energyFill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; /* Dynamic with JS */
+    background: linear-gradient(to top, #1e90ff, #00008b);
+    transition: height 0.3s ease-in-out;
+    clip-path: circle(50% at 50% 50%);
+}
+
+/* Orb Glow Animations */
+@keyframes glowPulse {
+    0% {
+        box-shadow: 0 0 20px rgba(255, 69, 0, 0.5);
+    }
+    100% {
+        box-shadow: 0 0 40px rgba(255, 69, 0, 0.9);
+    }
+}
+
+@keyframes glowPulseBlue {
+    0% {
+        box-shadow: 0 0 20px rgba(30, 144, 255, 0.5);
+    }
+    100% {
+        box-shadow: 0 0 40px rgba(30, 144, 255, 0.9);
+    }
+}
+
+.orb-value {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    font-weight: bold;
+    font-size: 18px;
+    transform: translateY(-50%);
+    z-index: 1;
+    text-shadow: 1px 1px 3px #000;
+}
+
+/* ======================= */
+/*   Teleportation Bar     */
+/* ======================= */
+#teleportationBarContainer {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    width: 200px;
+    height: 20px;
+    border: 2px solid #fff;
+    transform: translate(-50%, 50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 10;
+    display: none;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#teleportationBar {
+    width: 0%;
+    height: 100%;
+    background-color: #00ff00;
+    transition: width 0.3s ease;
+}
+
+/* ======================= */
+/*         Loot Popup      */
+/* ======================= */
+#lootPopup {
+    position: absolute;
+    width: 400px;
+    height: auto;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 20px;
+    border: 2px solid #aaa;
+    z-index: 10;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+}
+
+/* ======================= */
+/*        Loading Overlay  */
+/* ======================= */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000; /* Above admin console */
+}
+
+.loading-spinner {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #FFD700;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ======================= */
+/*         Tooltip         */
+/* ======================= */
+.tooltip {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    max-width: 300px;
+    z-index: 10000;
+    pointer-events: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    border: 1px solid #463714;
+}
+
+/* Rarity colors */
+.tooltip .common { color: #ffffff; }
+.tooltip .uncommon { color: #1eff00; }
+.tooltip .rare { color: #0070dd; }
+.tooltip .epic { color: #a335ee; }
+.tooltip .legendary { color: #ff8000; }
+
+/* Prevent tooltip from going off-screen */
+.tooltip.right {
+    right: 10px;
+    left: auto !important;
+}
+
+.tooltip.bottom {
+    bottom: 10px;
+    top: auto !important;
+}
+
+/* Rarity Colors (global) */
+.common { color: #FFFFFF; }
+.uncommon { color: #00FF00; }
+.rare { color: #0070DD; }
+.epic { color: #A335EE; }
+.legendary { color: #FF8000; }
+
+/* ======================= */
+/*      Loot Bar           */
+/* ======================= */
+#lootBarContainer {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    width: 200px;
+    height: 20px;
+    border: 2px solid #fff;
+    transform: translate(-50%, 50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 10;
+    display: none;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#lootBar {
+    width: 0%;
+    height: 100%;
+    background-color: #ffff00;
+    transition: width 0.3s ease;
+}
+
+/* ======================= */
+/*        Keybindings      */
+/* ======================= */
+.keybindings-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.keybindings-list li {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.keybindings-list li .action {
+    color: #FFD700;
+    font-weight: bold;
+}
+
+.keybindings-list li .key {
+    background-color: #333;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* ======================= */
+/*          Updates        */
+/* ======================= */
+.updates-list {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.updates-list li {
+    margin-bottom: 10px;
+}
+
+/* ======================= */
+/*         Minimap         */
+/* ======================= */
+#minimapContainer {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 200px;
+    height: 200px;
+    border: 2px solid #fff;
+    overflow: hidden;
+    z-index: 5;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+}
+
+#minimapContent {
+    width: 100%;
+    height: 100%;
+    background: url('minimap-background.png') no-repeat center center;
+    background-size: cover;
+}
+
+/* ======================= */
+/*       Chest Styles      */
+/* ======================= */
+@keyframes chestOpen {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(180deg); }
+}
+
+.chest {
+    width: 100px;
+    height: 100px;
+    background: url('chest-closed.png') no-repeat center center;
+    background-size: contain;
+    animation: chestOpen 2s forwards;
+}
+
+.chest.open {
+    background: url('chest-open.png') no-repeat center center;
+    background-size: contain;
+}
+
+/* Optional chest opening animation */
+@keyframes chestOpenAnimation {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(180deg); }
+}
+
+.chest.opening {
+    animation: chestOpenAnimation 1s forwards;
+}
+
+/* ======================= */
+/*     Entity Tooltip      */
+/* ======================= */
+#entityTooltip {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.9);
+    border: 1px solid #444;
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 1000;
+    max-width: 300px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    padding: 10px;
+}
+
+#entityTooltip .tooltip-header {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#entityTooltip .tooltip-rarity {
+    font-style: italic;
+    color: #FFD700;
+    margin-bottom: 5px;
+}
+
+#entityTooltip .tooltip-description {
+    margin-bottom: 5px;
+}
+
+#entityTooltip .tooltip-stats {
+    color: #00FF00;
+    white-space: pre-line;
+}
+
+/* ======================= */
+/*        Utility CSS      */
+/* ======================= */
+.flex {
+    display: flex;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+/* Margin Utilities */
+.mt-10 { margin-top: 10px; }
+.mb-10 { margin-bottom: 10px; }
+.mt-20 { margin-top: 20px; }
+.mb-20 { margin-bottom: 20px; }
+
+/* Padding Utilities */
+.p-10 { padding: 10px; }
+.p-20 { padding: 20px; }
+
+/* Display Utilities */
+.d-none { display: none; }
+.d-block { display: block; }
+.d-flex { display: flex; }
+
+/* Text Alignment */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+/* Visibility */
+.visible { visibility: visible; }
+.hidden { visibility: hidden; }
+
+/* Cursor Styles */
+.cursor-pointer { cursor: pointer; }
+.cursor-default { cursor: default; }
+
+/* ======================= */
+/*        Responsive       */
+/* ======================= */
+/* Tablets */
+@media (max-width: 992px) {
+    #inventory, #stats {
+        width: 80%;
+    }
+
+    #minimapContainer {
+        width: 150px;
+        height: 150px;
+    }
+
+    .inventoryGrid {
+        grid-template-columns: repeat(6, 50px);
+    }
+
+    #chestPopup {
+        width: 600px;
+    }
+}
+
+/* Mobile Devices */
+@media (max-width: 576px) {
+    #inventory, #stats {
+        width: 95%;
+    }
+
+    #minimapContainer {
+        width: 120px;
+        height: 120px;
+    }
+
+    .inventoryGrid {
+        grid-template-columns: repeat(5, 50px);
+    }
+
+    #chestPopup {
+        width: 90%;
+    }
+}
+
+/* ======================= */
+/*       Dark Mode         */
+/* ======================= */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-mode .modal-content,
+body.dark-mode #adminConsole .modal-content,
+body.dark-mode #bestiaryModal .modal-content,
+body.dark-mode #creatureDetailsModal .modal-content,
+body.dark-mode #musicModal .modal-content {
+    background-color: #1A1A1A;
+    color: #e0e0e0;
+}
+
+body.dark-mode .creature-card {
+    background-color: #292929;
+    color: #e0e0e0;
+}
+
+body.dark-mode .creature-card:hover {
+    background-color: #3a3a3a;
+}
+
+body.dark-mode .view-details-button {
+    background-color: #8B0000;
+    color: #fff;
+}
+
+body.dark-mode .view-details-button:hover {
+    background-color: #FF6347;
+}
+
+body.dark-mode .tab-button.active {
+    background-color: #FFD700;
+    color: #2c2c2c;
+}
+
+body.dark-mode .admin-tab-content h3,
+body.dark-mode .admin-tab-content h4 {
+    color: #FFD700;
+}
+
+body.dark-mode .tooltip {
+    background-color: rgba(0, 0, 0, 0.9);
+    color: #fff;
+}
+
+body.dark-mode .inventory-slot {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .inventory-slot:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ======================= */
+/*      Best Practices     */
+/* ======================= */
+/* Consistent Font Sizing */
+h2, h3, h4 {
+    margin: 0 0 10px 0;
+}
+
+p {
+    margin: 0 0 10px 0;
+}
+
+/* Button Accessibility */
+button:focus {
+    outline: 2px solid #FFD700;
+    outline-offset: 2px;
+}
+
+/* Prevent Body from Scrolling When Modal is Open */
+body.modal-open {
+    overflow: hidden;
+}
+
+/* Ensure Images are Responsive */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ======================= */
+/*  (End rodstyles-base)   */
+/* ======================= */
