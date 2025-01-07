@@ -1,686 +1,526 @@
-<html>
-    <head>
-        <title>Remnants of Destruction v0.4.1</title>
-        <link rel="stylesheet" type="text/css" href="rodstyles-reset.css">
-        <link rel="stylesheet" type="text/css" href="rodstyles-base.css">
-        <link rel="stylesheet" type="text/css" href="rodstyles-components.css">
-        <link rel="stylesheet" type="text/css" href="inventory.css">
-        <link rel="stylesheet" type="text/css" href="./styles/admin.css">
-        <!-- Include Three.js -->
-        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-        <!-- Include GLTFLoader -->
-        <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/loaders/GLTFLoader.js"></script>
-    </head>
-    <body>
-        <canvas id="gameCanvas"></canvas>
-        <button id="darkModeToggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
-        <!-- Audio Widget Container -->
-        <div id="audioWidgetContainer" class="minimized">
-            <iframe id="audio_iframe" 
-                src="https://widget.synthflow.ai/widget/v2/1730479220818x147425180103026180/1730479218515x247472567511716860" 
-                allow="microphone" 
-                scrolling="no"
-                title="Audio Control Widget" 
-                loading="lazy">
-            </iframe>
-            <!-- Minimize/Maximize Button -->
-            <button id="toggleAudioWidget" class="toggle-button">_</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Remnants of Destruction v0.4.1</title>
+  <!-- Styles -->
+  <link rel="stylesheet" href="rodstyles-reset.css">
+  <link rel="stylesheet" href="rodstyles-base.css">
+  <link rel="stylesheet" href="rodstyles-inventory.css">
+  <link rel="stylesheet" href="rodstyles-generic-modal.css">
+  <link rel="stylesheet" href="rodstyles-special-modals.css">
+  <link rel="stylesheet" href="rodstyles-feature-extras.css">
+  <link rel="stylesheet" href="inventory.css">
+  <link rel="stylesheet" href="./styles/admin.css">
+  <link rel="stylesheet" href="./styles/bestiary.css">
+
+  <!-- Three.js & GLTFLoader -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Dark Mode Toggle -->
+  <button id="darkModeToggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+
+  <!-- Audio Widget -->
+  <div id="audioWidgetContainer" class="minimized">
+    <iframe id="audio_iframe"
+            src="https://widget.synthflow.ai/widget/v2/1730479220818x147425180103026180/1730479218515x247472567511716860"
+            allow="microphone"
+            scrolling="no"
+            title="Audio Control Widget"
+            loading="lazy"></iframe>
+    <button id="toggleAudioWidget" class="toggle-button">_</button>
+  </div>
+
+  <!-- NPC Popup Dialog -->
+  <div id="npcPopup" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <button class="close-button" onclick="closeNpcPopup()" aria-label="Close NPC dialog">&times;</button>
+      <h2>NPC Name</h2>
+      <p>NPC Dialogue</p>
+      <button id="tradeButton" class="action-button">Trade</button>
+    </div>
+  </div>
+
+  <!-- Fullscreen Map -->
+  <div id="fullscreenMap" class="fullscreen-map">
+    <canvas id="mapCanvas"></canvas>
+    <button onclick="closeFullscreenMap()" class="close-map-button">Close Map</button>
+  </div>
+
+  <!-- In-Game Message Console -->
+  <div id="gameConsole" class="game-console">
+    <p id="consoleMessage">Welcome to the game!</p>
+  </div>
+
+  <!-- Help Window Modal -->
+  <div id="helpWindow" class="modal" role="dialog" aria-labelledby="helpWindowTitle" aria-modal="true" aria-hidden="true">
+    <div class="modal-content">
+      <button id="closeHelp" class="close-button" aria-label="Close Help Window">&times;</button>
+      <h2 id="helpWindowTitle">Help & Information</h2>
+      <div class="content">
+        <div class="left-column">
+          <h3>Latest Updates</h3>
+          <p><strong>Version 0.4.1</strong></p>
+          <ul class="updates">
+            <li>Implemented Day/Night</li>
+            <li>Modularization</li>
+            <li>Updated/Improved Inventory System</li>
+          </ul>
         </div>
-        <!-- NPC Popup Dialog -->
-        <div id="npcPopup" class="modal" aria-hidden="true">
-            <div class="modal-content">
-                <button class="close-button" onclick="closeNpcPopup()" aria-label="Close NPC dialog">&times;</button>
-                <h2>NPC Name</h2>
-                <p>NPC Dialogue</p>
-                <button id="tradeButton" class="action-button">Trade</button>
-            </div>
+        <div class="right-column">
+          <h3>Key Bindings</h3>
+          <ul class="keybindings">
+            <li><strong>I</strong>/<strong>B</strong>: Inventory</li>
+            <li><strong>C</strong>: Character Stats</li>
+            <li><strong>Q</strong>: Quest Log</li>
+            <li><strong>T</strong>: Start Teleportation</li>
+            <li><strong>A</strong>: Rotate Camera Left</li>
+            <li><strong>D</strong>: Rotate Camera Right</li>
+            <li><strong>H</strong>: Help Window</li>
+            <li><strong>Y</strong>: Bestiary</li>
+            <li><strong>M</strong>: Music</li>
+          </ul>
+          <h3>Planned Fixes</h3>
+          <ul class="features">
+            <li>Work in Progress (WIP)</li>
+            <li>Ground Is Bugged</li>
+            <li>Fix Item ToolTips</li>
+            <li>Fix NPC Dialogues</li>
+            <li>Fix Trading</li>
+            <li>Implement Quests</li>
+            <li>Implement Skills</li>
+            <li>Implement Traits</li>
+            <li>Improve Structures</li>
+            <li>Implement Settlements</li>
+            <li>Bestiary Link to enemies</li>
+          </ul>
         </div>
-        <!-- Fullscreen Map -->
-        <div id="fullscreenMap" class="fullscreen-map">
-            <canvas id="mapCanvas"></canvas>
-            <button onclick="closeFullscreenMap()" class="close-map-button">Close Map</button>
-        </div>        
+      </div>
+    </div>
+  </div>
 
-        <!-- In-Game Message Console -->
-        <div id="gameConsole" class="game-console">
-            <p id="consoleMessage">Welcome to the game!</p>
+  <!-- Skill Tree Popup -->
+  <div id="skillTree" style="display: none;">
+    <h2>Skill Tree</h2>
+    <div id="skillsContainer"></div>
+    <button onclick="closeSkillTree()">Close Skill Tree</button>
+  </div>
+
+  <!-- Bestiary Trigger & Modal -->
+  <button id="openBestiary" class="open-bestiary-button">View Bestiary</button>
+  <div id="bestiaryModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <button id="closeBestiary" class="close-button" aria-label="Close Bestiary">&times;</button>
+      <div id="bestiaryContent" class="bestiary-content"></div>
+    </div>
+  </div>
+
+  <!-- Race Details Modal -->
+  <div id="creatureDetailsModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <button class="close-details close-button" aria-label="Close Creature Details">&times;</button>
+      <div id="creatureDetailsContent"></div>
+    </div>
+  </div>
+
+  <!-- Help & Music Buttons -->
+  <button id="openHelp" class="open-help-button" onclick="toggleHelpWindow()">Help</button>
+  <button id="openMusic" class="open-music-button">Open Music</button>
+
+  <!-- Music Modal -->
+  <div id="musicModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <button id="closeMusicModal" class="close-button">&times;</button>
+      <iframe src="music.html" style="width:100%;height:100%;border:none;" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <!-- Inventory -->
+  <div id="inventory">
+    <button id="inventoryCloseButton" aria-label="Close inventory" onclick="closeInventory()">✖</button>
+    <h2>Inventory</h2>
+    <div id="playerDetails">
+      <div id="playerStatsBars">
+        <div class="stat-bar">
+          <span>Level</span>
+          <div class="bar"><div class="fill" id="levelBar"></div></div>
         </div>
-
-        <!-- Help Window Modal -->
-        <div id="helpWindow" class="modal" role="dialog" aria-labelledby="helpWindowTitle" aria-modal="true" aria-hidden="true">
-            <div class="modal-content">
-                <button id="closeHelp" class="close-button" aria-label="Close Help Window">&times;</button>
-                <h2 id="helpWindowTitle">Help & Information</h2>
-                <div class="content">
-                    <div class="left-column">
-                        <h3>Latest Updates</h3>
-                        <p><strong>Version 0.4.1</strong></p>
-                        <ul class="updates">
-                            <li>Implemented Day/Night</li>
-                            <li>Modularization</li>
-                            <li>Updated and Improved Inventory System</li>
-                            
-                        </ul>
-                    </div>
-                    <div class="right-column">
-                        <h3>Key Bindings</h3>
-                        <ul class="keybindings">
-                            <li><strong>I</strong> or <strong>B</strong>: Open/Close Inventory</li>
-                            <li><strong>C</strong>: Open/Close Character Stats</li>
-                            <li><strong>Q</strong>: Open/Close Quest Log</li>
-                            <li><strong>T</strong>: Start Teleportation</li>
-                            <li><strong>A</strong>: Rotate Camera Left</li>
-                            <li><strong>D</strong>: Rotate Camera Right</li>
-                            <li><strong>H</strong>: Open/Close Help Window</li>
-                            <li><strong>Y</strong>: Open/Close Bestiary</li>
-                            <li><strong>M</strong>: Open Music Page</li>
-                        </ul>
-                        <h3>Planned Fixes</h3>
-                        <ul class="features">
-                            <li>Work in Progress (WIP)</li>
-                            <!-- Uncomment and add more planned fixes as needed -->
-                            <li>Ground Is Bugged</li>
-                            <li>Fix Item ToolTips</li>
-                            <li>Fix NPC Dialogues</li>
-                            <li>Fix trading</li>
-                            <li>Implement Quests</li>
-                            <li>Implement Skills</li>
-                            <li>Implement Traits</li>
-                            <li>Improve Structures</li>
-                            <li>Implement Settlements</li>
-                            <li>Bestiary Link to enemies</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+        <div class="stat-bar">
+          <span>Health</span>
+          <div class="bar"><div class="fill" id="healthBar"></div></div>
         </div>
-
-        <!-- Skill Tree Popup -->
-        <div id="skillTree" style="display: none;">
-            <h2>Skill Tree</h2>
-            <div id="skillsContainer">
-                <!-- Skills will be dynamically added here -->
-            </div>
-            <button onclick="closeSkillTree()">Close Skill Tree</button>
+        <div class="stat-bar">
+          <span>Gold</span>
+          <div class="bar"><div class="fill" id="goldBar"></div></div>
         </div>
+      </div>
+      <img id="playerImage" src="images/flick.png" alt="Player Character" width="100" height="100" loading="lazy">
+      <div id="playerStats">
+        <p>Level: <span id="playerLevel">1</span></p>
+        <p>Health: <span id="playerHealth">100</span></p>
+        <p>Gold: <span id="goldAmount">0</span></p>
+      </div>
+    </div>
 
-        <!-- Button to Open Bestiary -->
-        <button id="openBestiary" class="open-bestiary-button">View Bestiary</button>
+    <div class="inventory-slot"
+         data-name="Item Name"
+         data-rarity="rare"
+         data-description="Item description"
+         data-stats='{"Attack": "+5", "Defense": "+3"}'>
+    </div>
 
-        <!-- Bestiary Modal -->
-        <div id="bestiaryModal" class="modal" aria-hidden="true">
-            <div class="modal-content">
-                <button id="closeBestiary" class="close-button" aria-label="Close Bestiary">&times;</button>
-                <div id="bestiaryContent" class="bestiary-content">
-                    <!-- Bestiary entries will be injected here -->
-                </div>
-            </div>
-        </div>        
+    <!-- Inventory Tabs -->
+    <nav id="inventoryTabs" role="tablist">
+      <button class="inventory-tab active" data-tab="tab1" role="tab" aria-selected="true" aria-controls="tab1">All</button>
+      <button class="inventory-tab" data-tab="tab2" role="tab" aria-selected="false" aria-controls="tab2">Equipment</button>
+      <button class="inventory-tab" data-tab="tab3" role="tab" aria-selected="false" aria-controls="tab3">Materials</button>
+      <button class="inventory-tab" data-tab="tab4" role="tab" aria-selected="false" aria-controls="tab4">Consumables</button>
+      <button class="inventory-tab" data-tab="tab5" role="tab" aria-selected="false" aria-controls="tab5">Quest</button>
+      <button class="inventory-tab" data-tab="tab6" role="tab" aria-selected="false" aria-controls="tab6">Misc</button>
+      <button class="inventory-tab" data-tab="tab7" role="tab" aria-selected="false" aria-controls="tab7">Special</button>
+    </nav>
 
-        <!-- Race Details Modal -->
-        <div id="creatureDetailsModal" class="modal" aria-hidden="true">
-            <div class="modal-content">
-                <button class="close-details close-button" aria-label="Close Creature Details">&times;</button>
-                <div id="creatureDetailsContent">
-                    <!-- Creature details will be injected here -->
-                </div>
-            </div>
-        </div>
+    <!-- Inventory Grids -->
+    <div id="inventoryTabsContent">
+      <div class="inventory-tab-content active" id="tab1" role="tabpanel" aria-labelledby="tab1">
+        <div class="inventoryGrid" id="inventoryGridTab1"></div>
+      </div>
+      <div class="inventory-tab-content" id="tab2" role="tabpanel" aria-labelledby="tab2">
+        <div class="inventoryGrid" id="inventoryGridTab2"></div>
+      </div>
+      <div class="inventory-tab-content" id="tab3" role="tabpanel" aria-labelledby="tab3">
+        <div class="inventoryGrid" id="inventoryGridTab3"></div>
+      </div>
+      <div class="inventory-tab-content" id="tab4" role="tabpanel" aria-labelledby="tab4">
+        <div class="inventoryGrid" id="inventoryGridTab4"></div>
+      </div>
+      <div class="inventory-tab-content" id="tab5" role="tabpanel" aria-labelledby="tab5">
+        <div class="inventoryGrid" id="inventoryGridTab5"></div>
+      </div>
+      <div class="inventory-tab-content" id="tab6" role="tabpanel" aria-labelledby="tab6">
+        <div class="inventoryGrid" id="inventoryGridTab6"></div>
+      </div>
+      <div class="inventory-tab-content" id="tab7" role="tabpanel" aria-labelledby="tab7">
+        <div class="inventoryGrid" id="inventoryGridTab7"></div>
+      </div>
+    </div>
 
-        <button id="openHelp" class="open-help-button" onclick="toggleHelpWindow()">Help</button>
-        <button id="openMusic" class="open-music-button">Open Music</button>
+    <!-- Equipment Slots -->
+    <div class="equipment-slots">
+      <div class="equipment-slot slot-head" role="button" tabindex="0" aria-label="Head equipment slot">Head</div>
+      <div class="equipment-slot slot-neck" role="button" tabindex="0" aria-label="Neck equipment slot">Neck</div>
+      <div class="equipment-slot slot-shoulders" role="button" tabindex="0" aria-label="Shoulders equipment slot">Shoulders</div>
+      <div class="equipment-slot slot-chest" role="button" tabindex="0" aria-label="Chest equipment slot">Chest</div>
+      <div class="equipment-slot slot-ring1" role="button" tabindex="0" aria-label="Ring slot 1">Ring</div>
+      <div class="equipment-slot slot-ring2" role="button" tabindex="0" aria-label="Ring slot 2">Ring</div>
+      <div class="equipment-slot slot-belt" role="button" tabindex="0" aria-label="Belt equipment slot">Belt</div>
+      <div class="equipment-slot slot-pants" role="button" tabindex="0" aria-label="Pants equipment slot">Pants</div>
+      <div class="equipment-slot slot-boots" role="button" tabindex="0" aria-label="Boots equipment slot">Boots</div>
+      <div class="equipment-slot slot-pet" role="button" tabindex="0" aria-label="Pet equipment slot">Pet</div>
+    </div>
+  </div>
 
-        <!-- Music Modal -->
-        <div id="musicModal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <button id="closeMusicModal" class="close-button">&times;</button>
-                <iframe src="music.html" style="width: 100%; height: 100%; border: none;" loading="lazy"></iframe>
+  <!-- Character Stats -->
+  <div id="stats">
+    <h2>Character Stats</h2>
+    <p>Level: <span id="level">1</span></p>
+    <p>Experience: <span id="experience">0</span> / <span id="nextLevelExperience">100</span></p>
+    <p>Strength: <span id="strength">10</span></p>
+    <p>Dexterity: <span id="dexterity">10</span></p>
+    <p>Vitality: <span id="vitality">10</span></p>
+    <p>Energy: <span id="energy">10</span></p>
+    <p>Mana: <span id="mana">50</span></p>
+    <p>Karma: <span id="karma">0</span></p>
+    <p>Reputation: <span id="reputation">0</span></p>
+    <p>Available Stat Points: <span id="statPoints">0</span></p>
+    <button onclick="increaseStat('strength')">Increase Strength</button>
+    <button onclick="increaseStat('dexterity')">Increase Dexterity</button>
+    <button onclick="increaseStat('vitality')">Increase Vitality</button>
+    <button onclick="increaseStat('energy')">Increase Energy</button>
+    <button onclick="increaseStat('mana')">Increase Mana</button>
+    <button onclick="increaseStat('karma')">Increase Karma</button>
+    <button onclick="increaseStat('reputation')">Increase Reputation</button>
+  </div>
 
-            </div>
-        </div>
+  <!-- Background Music Mount -->
+  <div id="backgroundMusic"></div>
 
-        <div id="inventory">
-            <button id="inventoryCloseButton" aria-label="Close inventory" onclick="closeInventory()">✖</button>
-            <h2>Inventory</h2>
-            <div id="playerDetails">
-                <div id="playerStatsBars">
-                    <div class="stat-bar">
-                        <span>Level</span>
-                        <div class="bar"><div class="fill" id="levelBar"></div></div>
-                    </div>
-                    <div class="stat-bar">
-                        <span>Health</span>
-                        <div class="bar"><div class="fill" id="healthBar"></div></div>
-                    </div>
-                    <div class="stat-bar">
-                        <span>Gold</span>
-                        <div class="bar"><div class="fill" id="goldBar"></div></div>
-                    </div>
-                </div>
-                <!-- Replace external image with placeholder -->
-                <img id="playerImage" src="images/flick.png" alt="Player Character" width="100" height="100" loading="lazy"/>
-                <div id="playerStats">
-                    <p>Level: <span id="playerLevel">1</span></p>
-                    <p>Health: <span id="playerHealth">100</span></p>
-                    <p>Gold: <span id="goldAmount">0</span></p>
-                </div>
-            </div>
-            <div class="inventory-slot" 
-                data-name="Item Name" 
-                data-rarity="rare" 
-                data-description="Item description" 
-                data-stats='{"Attack": "+5", "Defense": "+3"}'>
-            </div>
-            <nav id="inventoryTabs" role="tablist">
-                <button class="inventory-tab active" data-tab="tab1" role="tab" aria-selected="true" aria-controls="tab1">All</button>
-                <button class="inventory-tab" data-tab="tab2" role="tab" aria-selected="false" aria-controls="tab2">Equipment</button>
-                <button class="inventory-tab" data-tab="tab3" role="tab" aria-selected="false" aria-controls="tab3">Materials</button>
-                <button class="inventory-tab" data-tab="tab4" role="tab" aria-selected="false" aria-controls="tab4">Consumables</button>
-                <button class="inventory-tab" data-tab="tab5" role="tab" aria-selected="false" aria-controls="tab5">Quest</button>
-                <button class="inventory-tab" data-tab="tab6" role="tab" aria-selected="false" aria-controls="tab6">Misc</button>
-                <button class="inventory-tab" data-tab="tab7" role="tab" aria-selected="false" aria-controls="tab7">Special</button>
-            </nav>
-            
-            <!-- Inventory Grids -->
-            <div id="inventoryTabsContent">
-                <div class="inventory-tab-content active" id="tab1" role="tabpanel" aria-labelledby="tab1">
-                    <div class="inventoryGrid" id="inventoryGridTab1"></div>
-                </div>
-                <div class="inventory-tab-content" id="tab2" role="tabpanel" aria-labelledby="tab2">
-                    <div class="inventoryGrid" id="inventoryGridTab2"></div>
-                </div>
-                <div class="inventory-tab-content" id="tab3" role="tabpanel" aria-labelledby="tab3">
-                    <div class="inventoryGrid" id="inventoryGridTab3"></div>
-                </div>
-                <div class="inventory-tab-content" id="tab4" role="tabpanel" aria-labelledby="tab4">
-                    <div class="inventoryGrid" id="inventoryGridTab4"></div>
-                </div>
-                <div class="inventory-tab-content" id="tab5" role="tabpanel" aria-labelledby="tab5">
-                    <div class="inventoryGrid" id="inventoryGridTab5"></div>
-                </div>
-                <div class="inventory-tab-content" id="tab6" role="tabpanel" aria-labelledby="tab6">
-                    <div class="inventoryGrid" id="inventoryGridTab6"></div>
-                </div>
-                <div class="inventory-tab-content" id="tab7" role="tabpanel" aria-labelledby="tab7">
-                    <div class="inventoryGrid" id="inventoryGridTab7"></div>
-                </div>
-            </div>
-            
-                
-            <div class="equipment-slots">
-                    <div class="equipment-slot slot-head" role="button" tabindex="0" aria-label="Head equipment slot">Head</div>
-                    <div class="equipment-slot slot-neck" role="button" tabindex="0" aria-label="Neck equipment slot">Neck</div>
-                    <div class="equipment-slot slot-shoulders" role="button" tabindex="0" aria-label="Shoulders equipment slot">Shoulders</div>
-                    <div class="equipment-slot slot-chest" role="button" tabindex="0" aria-label="Chest equipment slot">Chest</div>
-                    <div class="equipment-slot slot-ring1" role="button" tabindex="0" aria-label="Ring slot 1">Ring</div>
-                    <div class="equipment-slot slot-ring2" role="button" tabindex="0" aria-label="Ring slot 2">Ring</div>
-                    <div class="equipment-slot slot-belt" role="button" tabindex="0" aria-label="Belt equipment slot">Belt</div>
-                    <div class="equipment-slot slot-pants" role="button" tabindex="0" aria-label="Pants equipment slot">Pants</div>
-                    <div class="equipment-slot slot-boots" role="button" tabindex="0" aria-label="Boots equipment slot">Boots</div>
-                    <div class="equipment-slot slot-pet" role="button" tabindex="0" aria-label="Pet equipment slot">Pet</div>
-                </div>
-            
-            </div>
+  <!-- Hotbar -->
+  <div id="hotbar">
+    <div class="slot" data-slot="1"></div>
+    <div class="slot" data-slot="2"></div>
+    <div class="slot" data-slot="3"></div>
+    <div class="slot" data-slot="4"></div>
+    <div class="slot" data-slot="5"></div>
+    <div class="slot" data-slot="6"></div>
+    <div class="slot" data-slot="7"></div>
+    <div class="slot" data-slot="8"></div>
+    <div class="slot" data-slot="9"></div>
+    <div class="slot" data-slot="0"></div>
+  </div>
 
-        <div id="stats">
-            <h2>Character Stats</h2>
-            <p>Level: <span id="level">1</span></p>
-            <p>Experience: <span id="experience">0</span> / <span id="nextLevelExperience">100</span></p>
-            <p>Strength: <span id="strength">10</span></p>
-            <p>Dexterity: <span id="dexterity">10</span></p>
-            <p>Vitality: <span id="vitality">10</span></p>
-            <p>Energy: <span id="energy">10</span></p>
-            <p>Mana: <span id="mana">50</span></p>
-            <p>Karma: <span id="karma">0</span></p> 
-            <p>Reputation: <span id="reputation">0</span></p> 
-            <p>Available Stat Points: <span id="statPoints">0</span></p>
-            <button onclick="increaseStat('strength')">Increase Strength</button>
-            <button onclick="increaseStat('dexterity')">Increase Dexterity</button>
-            <button onclick="increaseStat('vitality')">Increase Vitality</button>
-            <button onclick="increaseStat('energy')">Increase Energy</button>
-            <button onclick="increaseStat('mana')">Increase Mana</button> <!-- New Button -->
-            <button onclick="increaseStat('karma')">Increase Karma</button> <!-- New Button -->
-            <button onclick="increaseStat('reputation')">Increase Reputation</button> <!-- New Button -->
-        </div>
+  <div id="minimapContainer"></div>
 
-        <div id="backgroundMusic">
-            <!-- Music player will be mounted here -->
-        </div>
+  <!-- Trade Window -->
+  <div id="tradeWindow" class="modal">
+    <div id="npcInventoryGrid" class="inventory-tab-content"></div>
+    <p id="npcGoldAmount"></p>
+    <div id="playerInventoryGrid" class="inventory-tab-content"></div>
+    <button onclick="closeTradeInterface()">Close Trade</button>
+  </div>
 
-        <div id="hotbar">
-            <div class="slot" data-slot="1"></div>
-            <div class="slot" data-slot="2"></div>
-            <div class="slot" data-slot="3"></div>
-            <div class="slot" data-slot="4"></div>
-            <div class="slot" data-slot="5"></div>
-            <div class="slot" data-slot="6"></div>
-            <div class="slot" data-slot="7"></div>
-            <div class="slot" data-slot="8"></div>
-            <div class="slot" data-slot="9"></div>
-            <div class="slot" data-slot="0"></div> <!-- '0' represents the 10th slot -->
-        </div>
+  <!-- Health & Energy Orbs -->
+  <div id="lifeOrb" class="orb">
+    <div id="lifeFill" class="orb-fill">
+      <div class="bubbles">
+        <span class="bubble"></span><span class="bubble"></span><span class="bubble"></span>
+        <span class="bubble"></span><span class="bubble"></span>
+      </div>
+    </div>
+    <div id="lifeValue" class="orb-value">100%</div>
+  </div>
+  <div id="energyOrb" class="orb">
+    <div id="energyFill" class="orb-fill"><div class="liquid"></div></div>
+    <div id="energyValue" class="orb-value">100%</div>
+  </div>
 
-        <div id="minimapContainer"></div>
+  <!-- Teleportation Bar -->
+  <div id="teleportationBarContainer">
+    <div id="teleportationBar"></div>
+  </div>
 
-        <div id="npcPopup" style="display: none;">
-            <h2>Friendly NPC</h2>
-            <p>Hello, traveler! Stay awhile and listen...</p>
-            <!-- Add Trade Button -->
-            <button id="tradeButton">Trade</button>
-            <button onclick="closeNpcPopup()">Close</button>
-        </div>
+  <!-- Loading Indicator -->
+  <div id="adminLoading" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner"></div>
+  </div>
 
-        <div id="tradeWindow" class="modal">
-            <div id="npcInventoryGrid" class="inventory-tab-content"></div>
-            <p id="npcGoldAmount"></p>
-            <div id="playerInventoryGrid" class="inventory-tab-content"></div>
-            <button onclick="closeTradeInterface()">Close Trade</button>
-        </div>
-        
-        
+  <!-- Admin Console -->
+  <div id="adminConsole" class="modal" aria-hidden="true" role="dialog" aria-labelledby="adminConsoleTitle">
+    <div class="modal-content">
+      <button class="close-button" onclick="closeAdminConsole()" aria-label="Close Admin Console">&times;</button>
+      <h2 id="adminConsoleTitle">Admin Console</h2>
+      <div class="admin-tabs">
+        <button class="tab-button active" data-tab="adminLogin">Login</button>
+        <button class="tab-button" data-tab="playerManagement">Player Management</button>
+        <button class="tab-button" data-tab="gameSettings">Game Settings</button>
+        <button class="tab-button" data-tab="spawnOptions">Spawn Options</button>
+        <button class="tab-button" data-tab="teleportPlayer">Teleport Player</button>
+        <button class="tab-button" data-tab="npcAdmin">NPC Admin</button>
+      </div>
+      <!-- Tab Content -->
+      <div class="admin-tab-content active" id="adminLogin">
+        <h3>Admin Login</h3>
+        <p>Please enter the admin password:</p>
+        <input type="password" id="adminPassword" placeholder="Enter Password">
+        <button onclick="checkAdminPassword()">Submit</button>
+      </div>
+      <div class="admin-tab-content" id="playerManagement">
+        <h3>Player Management</h3>
+        <section>
+          <h4>Player Stats</h4>
+          <p>Health: <input type="number" id="playerHealthInput" value="100"></p>
+          <p>Gold: <input type="number" id="playerGoldInput" value="0"></p>
+          <p>Experience: <input type="number" id="playerExperienceInput" value="0"></p>
+          <button onclick="updatePlayerStats()">Update Player Stats</button>
+        </section>
+        <section>
+          <h4>Player Options</h4>
+          <label class="checkbox-label"><input type="checkbox" id="invulnerabilityCheckbox"> Invulnerable</label>
+          <button onclick="updatePlayerOptions()">Update Player Options</button>
+        </section>
+      </div>
+      <div class="admin-tab-content" id="gameSettings">
+        <h3>Game Settings</h3>
+        <section>
+          <h4>Enemy Speed</h4>
+          <p>Enemy Speed: <input type="number" id="enemySpeedInput" value="0.7" step="0.1"></p>
+          <button onclick="updateGameSettings()">Update</button>
+        </section>
+      </div>
+      <div class="admin-tab-content" id="spawnOptions">
+        <h3>Spawn Options</h3>
+        <section>
+          <h4>Spawn Entities</h4>
+          <p>Entity Type:
+            <select id="entityTypeSelect">
+              <option value="enemy">Enemy</option>
+              <option value="friendlyNPC">Friendly NPC</option>
+              <option value="structure">Structure</option>
+              <option value="treasureChest">Treasure Chest</option>
+              <option value="settlement">Settlement</option>
+              <option value="quadruped">Quadruped</option>
+            </select>
+          </p>
+          <p>Quantity: <input type="number" id="entityQuantityInput" value="1"></p>
+          <button onclick="spawnEntities()">Spawn Entities</button>
+        </section>
+      </div>
+      <div class="admin-tab-content" id="teleportPlayer">
+        <h3>Teleport Player</h3>
+        <section>
+          <h4>Set Player Coordinates</h4>
+          <p>X: <input type="number" id="teleportXInput" value="0"></p>
+          <p>Z: <input type="number" id="teleportZInput" value="0"></p>
+          <button onclick="teleportPlayer()">Teleport</button>
+        </section>
+      </div>
+      <div class="admin-tab-content" id="npcAdmin">
+        <h3>NPC Admin</h3>
+        <label class="checkbox-label"><input type="checkbox" id="npcAdminCheckbox"> Enable NPC Admin Mode</label>
+      </div>
+    </div>
+  </div>
 
-        <!-- Health Orb -->
-        <div id="lifeOrb" class="orb">
-            <div id="lifeFill" class="orb-fill">
-                <div class="bubbles">
-                    <!-- Multiple bubble elements for animation -->
-                    <span class="bubble"></span>
-                    <span class="bubble"></span>
-                    <span class="bubble"></span>
-                    <span class="bubble"></span>
-                    <span class="bubble"></span>
-                </div>
-            </div>
-            <div id="lifeValue" class="orb-value">100%</div>
-        </div>
+  <!-- Loot Bar & Trait Selection -->
+  <div id="lootBarContainer"><div id="lootBar"></div></div>
+  <div id="traitSelectionModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="traitSelectionTitle">
+    <div class="modal-content">
+      <button class="close-trait-selection close-button" aria-label="Close Trait Selection">&times;</button>
+      <h2 id="traitSelectionTitle">Select Your Traits</h2>
+      <div id="traitOptions"></div>
+      <button onclick="confirmTraitSelection()">Confirm Traits</button>
+    </div>
+  </div>
 
-        <!-- Energy Orb -->
-        <div id="energyOrb" class="orb">
-            <div id="energyFill" class="orb-fill">
-                <div class="liquid"></div>
-            </div>
-            <div id="energyValue" class="orb-value">100%</div>
-        </div>
+  <!-- Loot Popup -->
+  <div id="lootPopup">
+    <h2>Loot</h2>
+    <div id="lootItems"></div>
+    <button onclick="lootAllItems()">Loot All</button>
+  </div>
 
-        <div id="teleportationBarContainer">
-            <div id="teleportationBar"></div>
-        </div>
-        <!-- Add Loading Indicator HTML -->
-        <div id="adminLoading" class="loading-overlay" style="display: none;">
-            <div class="loading-spinner"></div>
-        </div>
+  <!-- NPC Admin Popup -->
+  <div id="npcAdminPopup" style="display: none;">
+    <h2>NPC Admin</h2>
+    <p>Name: <input type="text" id="npcNameInput"></p>
+    <p>Health: <input type="number" id="npcHealthInput" step="1"></p>
+    <p>Head Color: <input type="color" id="npcHeadColorInput"></p>
+    <p>Body Color: <input type="color" id="npcBodyColorInput"></p>
+    <p>Arm Color: <input type="color" id="npcArmColorInput"></p>
+    <p>Leg Color: <input type="color" id="npcLegColorInput"></p>
+    <textarea id="npcDialogueInput" rows="4" cols="50"></textarea>
+    <button onclick="saveNpcChanges()">Save Changes</button>
+    <button onclick="closeNpcAdminPopup()">Close</button>
+  </div>
 
-        <!-- Admin Console Modal -->
-        <div id="adminConsole" class="modal" aria-hidden="true" role="dialog" aria-labelledby="adminConsoleTitle">
-            <div class="modal-content">
-                <button class="close-button" onclick="closeAdminConsole()" aria-label="Close Admin Console">&times;</button>
-                <h2 id="adminConsoleTitle">Admin Console</h2>
-                
-                <!-- Tab Navigation -->
-                <div class="admin-tabs">
-                    <button class="tab-button active" data-tab="adminLogin">Login</button>
-                    <button class="tab-button" data-tab="playerManagement">Player Management</button>
-                    <button class="tab-button" data-tab="gameSettings">Game Settings</button>
-                    <button class="tab-button" data-tab="spawnOptions">Spawn Options</button>
-                    <button class="tab-button" data-tab="teleportPlayer">Teleport Player</button>
-                    <button class="tab-button" data-tab="npcAdmin">NPC Admin</button>
-                </div>
-                
-                <!-- Tab Content -->
-                <div class="admin-tab-content active" id="adminLogin">
-                    <h3>Admin Login</h3>
-                    <p>Please enter the admin password:</p>
-                    <input type="password" id="adminPassword" placeholder="Enter Password">
-                    <button onclick="checkAdminPassword()">Submit</button>
-                </div>
-                
-                <div class="admin-tab-content" id="playerManagement">
-                    <h3>Player Management</h3>
-                    <section>
-                        <h4>Player Stats</h4>
-                        <p>Health: <input type="number" id="playerHealthInput" value="100" step="1" min="0"></p>
-                        <p>Gold: <input type="number" id="playerGoldInput" value="0" step="1" min="0"></p>
-                        <p>Experience: <input type="number" id="playerExperienceInput" value="0" step="1" min="0"></p>
-                        <button onclick="updatePlayerStats()">Update Player Stats</button>
-                    </section>
-                    <section>
-                        <h4>Player Options</h4>
-                        <p>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="invulnerabilityCheckbox"> Invulnerable
-                            </label>
-                        </p>
-                        <button onclick="updatePlayerOptions()">Update Player Options</button>
-                    </section>
-                </div>
-                
-                <div class="admin-tab-content" id="gameSettings">
-                    <h3>Game Settings</h3>
-                    <section>
-                        <h4>Enemy Speed</h4>
-                        <p>Enemy Speed: <input type="number" id="enemySpeedInput" value="0.7" step="0.1" min="0"></p>
-                        <button onclick="updateGameSettings()">Update Game Settings</button>
-                    </section>
-                </div>
-                
-                <div class="admin-tab-content" id="spawnOptions">
-                    <h3>Spawn Options</h3>
-                    <section>
-                        <h4>Spawn Entities</h4>
-                        <p>Entity Type:
-                            <select id="entityTypeSelect">
-                                <option value="enemy">Enemy</option>
-                                <option value="friendlyNPC">Friendly NPC</option>
-                                <option value="structure">Structure</option>
-                                <option value="treasureChest">Treasure Chest</option>
-                                <option value="settlement">Settlement</option>
-                                <option value="quadruped">Quadruped</option>
-                            </select>
-                        </p>
-                        <p>Quantity: <input type="number" id="entityQuantityInput" value="1" step="1" min="1"></p>
-                        <button onclick="spawnEntities()">Spawn Entities</button>
-                    </section>
-                </div>
-                
-                <div class="admin-tab-content" id="teleportPlayer">
-                    <h3>Teleport Player</h3>
-                    <section>
-                        <h4>Set Player Coordinates</h4>
-                        <p>X: <input type="number" id="teleportXInput" value="0" step="1"></p>
-                        <p>Z: <input type="number" id="teleportZInput" value="0" step="1"></p>
-                        <button onclick="teleportPlayer()">Teleport Player</button>
-                    </section>
-                </div>
-                
-                <div class="admin-tab-content" id="npcAdmin">
-                    <h3>NPC Admin</h3>
-                    <section>
-                        <h4>Manage NPC Admin Mode</h4>
-                        <p>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="npcAdminCheckbox"> Enable NPC Admin Mode
-                            </label>
-                        </p>
-                    </section>
-                </div>
-                
-            </div>
-        </div>
+  <!-- Chest Popup -->
+  <div id="chestPopup" style="display: none;">
+    <h2>Chest Interaction</h2>
+    <div id="chestInventoryContainer">
+      <div>
+        <h3>Chest Inventory</h3>
+        <div id="chestInventoryGrid" class="inventoryGrid"></div>
+      </div>
+      <div>
+        <h3>Your Inventory</h3>
+        <div id="playerInventoryInChestGrid" class="inventoryGrid"></div>
+      </div>
+    </div>
+    <button onclick="closeChestPopup()">Close</button>
+  </div>
 
-        <div id="lootBarContainer">
-            <div id="lootBar"></div>
-        </div>
-        <!-- Trait Selection Modal -->
-        <div id="traitSelectionModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="traitSelectionTitle">
-            <div class="modal-content">
-                <button class="close-trait-selection close-button" aria-label="Close Trait Selection">&times;</button>
-                <h2 id="traitSelectionTitle">Select Your Traits</h2>
-                <div id="traitOptions">
-                    <!-- Trait options will be dynamically added here -->
-                </div>
-                <button onclick="confirmTraitSelection()">Confirm Traits</button>
-            </div>
-        </div>
+  <!-- Quest Log -->
+  <div id="questLog" style="display: none;">
+    <h2>Quest Log</h2>
+    <ul id="questList"></ul>
+    <button onclick="closeQuestLog()">Close</button>
+  </div>
 
-        <div id="lootPopup">
-            <h2>Loot</h2>
-            <div id="lootItems"></div>
-            <button onclick="lootAllItems()">Loot All</button>
-        </div>
+  <!-- Structure Admin Popup -->
+  <div id="structureAdminPopup" style="display: none;">
+    <h2>Structure Admin</h2>
+    <p>Scale: <input type="number" id="structureScaleInput" value="1" step="0.1"></p>
+    <p>Color: <input type="color" id="structureColorInput"></p>
+    <button onclick="saveStructureChanges()">Save Changes</button>
+    <button onclick="closeStructureAdminPopup()">Close</button>
+  </div>
 
-        <div id="npcAdminPopup" style="display: none;">
-            <h2>NPC Admin</h2>
-            <p>Name: <input type="text" id="npcNameInput"></p>
-            <p>Health: <input type="number" id="npcHealthInput" step="1"></p>
-            <p>Dialogue:</p>
-		
-		    <!-- Add color inputs for body parts -->
-		    <p>Head Color: <input type="color" id="npcHeadColorInput"></p>
-		    <p>Body Color: <input type="color" id="npcBodyColorInput"></p>
-		    <p>Arm Color: <input type="color" id="npcArmColorInput"></p>
-		    <p>Leg Color: <input type="color" id="npcLegColorInput"></p>
+  <!-- Scripts -->
+  <script src="game.js"></script>
+  <script type="module" src="ground.js"></script>
+  <script src="settlement.js"></script>
+  <script src="init.js"></script>
+  <script src="inventory.js"></script>
+  <script src="enemies.js"></script>
+  <script src="neutralanimals.js"></script>
+  <script src="teleport.js"></script>
+  <script src="bestiary.js"></script>
+  <script src="daynight.js"></script>
+  <script src="main.js"></script>
+  <script src="npc.js"></script>
+  <script src="admin.js"></script>
+  <script src="purplestructure.js"></script>
+  <script src="ui.js"></script>
+  <script src="spawnzone.js"></script>
+  <script src="questLog.js"></script>
+  <script src="tooltips.js"></script>
+  <script src="skilltree.js"></script>
+  <script src="randomitems.js"></script>
+  <script src="chest.js"></script>
+  <script src="hostilequadrupeds.js"></script>
+  <script src="characterCreation.js"></script>
+  <script src="trading.js"></script>
+  <script src="updatedisplays.js"></script>
+  <script type="module" src="clothing.js"></script>
+  <script src="backgroundMusic.js"></script>
 
-            <textarea id="npcDialogueInput" rows="4" cols="50"></textarea>
-            <br>
-            <button onclick="saveNpcChanges()">Save Changes</button>
-            <button onclick="closeNpcAdminPopup()">Close</button>
-        </div>
+  <!-- Inline Scripts (DOM, Toggles, etc.) -->
+  <script>
+    // Audio Widget Toggle
+    document.addEventListener('DOMContentLoaded', () => {
+      const audioWidgetContainer = document.getElementById('audioWidgetContainer');
+      const toggleButton = document.getElementById('toggleAudioWidget');
+      if (audioWidgetContainer.classList.contains('minimized')) {
+        toggleButton.textContent = '+';
+        toggleButton.title = 'Maximize Audio Widget';
+      }
+      toggleButton.addEventListener('click', () => {
+        audioWidgetContainer.classList.toggle('minimized');
+        if (audioWidgetContainer.classList.contains('minimized')) {
+          toggleButton.textContent = '+';
+          toggleButton.title = 'Maximize Audio Widget';
+        } else {
+          toggleButton.textContent = '_';
+          toggleButton.title = 'Minimize Audio Widget';
+        }
+      });
+    });
 
-        <div id="chestPopup" style="display: none;">
-            <h2>Chest Interaction</h2>
-            <div id="chestInventoryContainer">
-                <div>
-                    <h3>Chest Inventory</h3>
-                    <div id="chestInventoryGrid" class="inventoryGrid"></div>
-                </div>
-                <div>
-                    <h3>Your Inventory</h3>
-                    <div id="playerInventoryInChestGrid" class="inventoryGrid"></div>
-                </div>
-            </div>
-            <button onclick="closeChestPopup()">Close</button>
-        </div>
+    // Show/Hide Help Window
+    function toggleHelpWindow() {
+      const helpWindow = document.getElementById('helpWindow');
+      helpWindow.style.display = (helpWindow.style.display === 'none' || !helpWindow.style.display) ? 'flex' : 'none';
+    }
 
-        <!-- Quest Log Popup -->
-        <div id="questLog" style="display: none;">
-            <h2>Quest Log</h2>
-            <ul id="questList">
-                <!-- Quests will be dynamically added here -->
-            </ul>
-            <button onclick="closeQuestLog()">Close Quest Log</button>
-        </div>
+    // Dark Mode Toggle
+    document.addEventListener('DOMContentLoaded', () => {
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+      }
+      darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        if (document.body.classList.contains('dark-mode')) {
+          localStorage.setItem('theme', 'dark');
+          darkModeToggle.textContent = '☀️';
+        } else {
+          localStorage.setItem('theme', 'light');
+          darkModeToggle.textContent = '🌙';
+        }
+      });
+    });
 
-	    <div id="structureAdminPopup" style="display: none;">
-		    <h2>Structure Admin</h2>
-		    <p>Scale: <input type="number" id="structureScaleInput" value="1" step="0.1"></p>
-		    <p>Color: <input type="color" id="structureColorInput"></p>
-		    <button onclick="saveStructureChanges()">Save Changes</button>
-		    <button onclick="closeStructureAdminPopup()">Close</button>
-	    </div>
-
-        <!-- SCRIPTS -->
-        <script src="game.js"></script>
-        <!-- <script src="terrain.js"></script> -->
-        <script type="module" src="ground.js"></script>
-        <script src="settlement.js"></script>
-        <script src="init.js"></script>
-        <script src="inventory.js"></script>
-        <script src="enemies.js"></script>
-        <script src="neutralanimals.js"></script>
-        <script src="teleport.js"></script>
-        <script src="bestiary.js"></script>
-        <script src="daynight.js"></script>
-        <script src="main.js"></script>
-        <script src="npc.js"></script>
-        <script src="admin.js"></script>
-        <script src="purplestructure.js"></script>
-        <script src="ui.js"></script>
-        <script src="spawnzone.js"></script>
-        <script src="questLog.js"></script>
-        <script src="tooltips.js"></script>
-        <script src="skilltree.js"></script>
-        <script src="randomitems.js"></script>
-        <script src="chest.js"></script>
-        <script src="hostilequadrupeds.js"></script>
-        <script src="characterCreation.js"></script>
-        <script src="trading.js"></script>
-        <!-- <script src="characterSprite.js"></script> -->
-        <script src="updatedisplays.js"></script>
-        <script type="module" src="clothing.js"></script>
-        <script src="backgroundMusic.js"></script>
-        
-        <script>
-            // Audio Widget Toggle Script
-            document.addEventListener('DOMContentLoaded', function() {
-                const audioWidgetContainer = document.getElementById('audioWidgetContainer');
-                const toggleButton = document.getElementById('toggleAudioWidget');
-        
-                // Initialize button based on the initial state
-                if (audioWidgetContainer.classList.contains('minimized')) {
-                    toggleButton.textContent = '+';
-                    toggleButton.title = 'Maximize Audio Widget';
-                } else {
-                    toggleButton.textContent = '_';
-                    toggleButton.title = 'Minimize Audio Widget';
-                }
-        
-                toggleButton.addEventListener('click', function() {
-                    audioWidgetContainer.classList.toggle('minimized');
-                    
-                    // Change the button symbol based on state
-                    if (audioWidgetContainer.classList.contains('minimized')) {
-                        toggleButton.textContent = '+';
-                        toggleButton.title = 'Maximize Audio Widget';
-                    } else {
-                        toggleButton.textContent = '_';
-                        toggleButton.title = 'Minimize Audio Widget';
-                    }
-                });
-            });
-
-            function toggleHelpWindow() {
-                const helpWindow = document.getElementById('helpWindow');
-                helpWindow.style.display = helpWindow.style.display === 'none' || helpWindow.style.display === '' ? 'flex' : 'none';
-            }
-
-            // Help Window Script
-            document.addEventListener('DOMContentLoaded', function() {
-                const helpWindow = document.getElementById('helpWindow');
-                const openHelpButton = document.getElementById('openHelp'); // Button to open help
-                const closeHelpButton = document.getElementById('closeHelp');
-                const focusableElementsString = 'a[href], area[href], input:not([disabled]), select:not([disabled]), ' +
-                    'textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]';
-                let focusableElements;
-                let firstFocusableElement;
-                let lastFocusableElement;
-                let previousActiveElement = null;
-
-                // Function to open the Help Window
-                function openHelpWindow() {
-                    helpWindow.classList.add('show');
-                    helpWindow.setAttribute('aria-hidden', 'false');
-                    // Save the previously focused element
-                    previousActiveElement = document.activeElement;
-                    // Find all focusable elements inside the modal
-                    focusableElements = helpWindow.querySelectorAll(focusableElementsString);
-                    firstFocusableElement = focusableElements[0];
-                    lastFocusableElement = focusableElements[focusableElements.length - 1];
-                    // Set focus to the first focusable element
-                    if (firstFocusableElement) firstFocusableElement.focus();
-                    // Prevent background scrolling
-                    document.body.classList.add('modal-open');
-                }
-
-                // Function to close the Help Window
-                function closeHelpWindow() {
-                    helpWindow.classList.remove('show');
-                    helpWindow.classList.add('hide');
-                    helpWindow.setAttribute('aria-hidden', 'true');
-                    // Remove hide class after animation
-                    helpWindow.addEventListener('animationend', function handleAnimationEnd() {
-                        helpWindow.classList.remove('hide');
-                        helpWindow.removeEventListener('animationend', handleAnimationEnd);
-                    });
-                    // Restore focus to the previously focused element
-                    if (previousActiveElement) {
-                        previousActiveElement.focus();
-                    }
-                    // Allow background scrolling
-                    document.body.classList.remove('modal-open');
-                }
-
-                // Event listener for opening the Help Window
-                if (openHelpButton) {
-                    openHelpButton.addEventListener('click', openHelpWindow);
-                }
-
-                // Event listener for closing the Help Window
-                if (closeHelpButton) {
-                    closeHelpButton.addEventListener('click', closeHelpWindow);
-                }
-
-                // Close the modal when clicking outside the modal content
-                helpWindow.addEventListener('click', function(event) {
-                    if (event.target === helpWindow) {
-                        closeHelpWindow();
-                    }
-                });
-
-                // Handle keyboard navigation and Esc key
-                helpWindow.addEventListener('keydown', function(event) {
-                    const isTabPressed = (event.key === 'Tab' || event.keyCode === 9);
-                    const isEscPressed = (event.key === 'Escape' || event.keyCode === 27);
-
-                    if (isEscPressed) {
-                        closeHelpWindow();
-                        return;
-                    }
-
-                    if (!isTabPressed) {
-                        return;
-                    }
-
-                    // If Shift + Tab
-                    if (event.shiftKey) {
-                        if (document.activeElement === firstFocusableElement) {
-                            event.preventDefault();
-                            lastFocusableElement.focus();
-                        }
-                    } else { // Tab
-                        if (document.activeElement === lastFocusableElement) {
-                            event.preventDefault();
-                            firstFocusableElement.focus();
-                        }
-                    }
-                });
-            });
-            document.addEventListener('DOMContentLoaded', function() {
-                const darkModeToggle = document.getElementById('darkModeToggle');
-                
-                // Load saved theme preference
-                if (localStorage.getItem('theme') === 'dark') {
-                    document.body.classList.add('dark-mode');
-                }
-                
-                darkModeToggle.addEventListener('click', function() {
-                    document.body.classList.toggle('dark-mode');
-                    // Save preference
-                    if (document.body.classList.contains('dark-mode')) {
-                        localStorage.setItem('theme', 'dark');
-                        darkModeToggle.textContent = '☀️';
-                    } else {
-                        localStorage.setItem('theme', 'light');
-                        darkModeToggle.textContent = '🌙';
-                    }
-                });
-            });
-            function showNotification(message, type = 'info') {
-                const notificationContainer = document.getElementById('notificationContainer');
-                const notification = document.createElement('div');
-                notification.classList.add('notification', type);
-                notification.textContent = message;
-                notificationContainer.appendChild(notification);
-                
-                // Remove notification after animation
-                notification.addEventListener('animationend', () => {
-                    notification.remove();
-                });
-            }
-            document.addEventListener('DOMContentLoaded', function() {
-                // Function to open the music modal
-                function openMusicModal() {
-                    const musicModal = document.getElementById('musicModal');
-                    musicModal.style.display = 'flex';
-                }
-
-                // Function to close the music modal
-                function closeMusicModal() {
-                    const musicModal = document.getElementById('musicModal');
-                    musicModal.style.display = 'none';
-                }
-
-            });
-            
-        </script>        
-    </body>
+    // Music Modal
+    document.addEventListener('DOMContentLoaded', () => {
+      const musicModal = document.getElementById('musicModal');
+      const openMusicBtn = document.getElementById('openMusic');
+      const closeMusicModalBtn = document.getElementById('closeMusicModal');
+      openMusicBtn.addEventListener('click', () => (musicModal.style.display = 'flex'));
+      closeMusicModalBtn.addEventListener('click', () => (musicModal.style.display = 'none'));
+    });
+  </script>
+</body>
 </html>
