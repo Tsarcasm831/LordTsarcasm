@@ -6,30 +6,39 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: #000000;
-    color: #c7b377;
-    padding: 15px;
+    background: rgba(0, 0, 0, 0.95);
+    color: #e0c88d;
+    padding: 20px;
     width: 800px;
     height: 600px;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
-    border: 2px solid #463714;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.95), 0 0 15px rgba(199, 179, 119, 0.1);
+    border: 2px solid #584519;
+    border-radius: 8px;
     display: none;
     z-index: 1000;
     overflow: auto;
+    backdrop-filter: blur(5px);
 }
 
 /* Inventory tabs */
 .inventory-tab {
-    padding: 6px 16px;
-    background: linear-gradient(to bottom, #463714, #2a2108);
-    color: #c7b377;
-    border: 1px solid #463714;
+    padding: 8px 20px;
+    background: linear-gradient(to bottom, #584519, #2a2108);
+    color: #e0c88d;
+    border: 1px solid #584519;
+    border-radius: 4px 4px 0 0;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 13px;
     text-transform: uppercase;
-    min-width: 80px;
+    min-width: 90px;
     text-align: center;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    margin-right: 4px;
+}
+
+.inventory-tab:hover {
+    background: linear-gradient(to bottom, #6a562c, #413314);
+    transform: translateY(-2px);
 }
 
 .inventory-tab:focus {
@@ -38,18 +47,37 @@
 }
 
 /* Equipment slots */
+.equipment-slots {
+    display: grid;
+    grid-template-columns: repeat(3, 45px);
+    gap: 4px;
+    position: absolute;
+    top: 60px;
+    left: 15px;
+    padding: 10px;
+    background: rgba(26, 26, 26, 0.6);
+    border-radius: 6px;
+    border: 1px solid #584519;
+}
+
 .equipment-slot {
-    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
-    border: 1px solid #463714;
-    aspect-ratio: 1;
+    width: 45px;
+    height: 45px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #584519;
+    border-radius: 4px;
+    padding: 3px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #8b6b29;
-    font-size: 11px;
-    text-transform: uppercase;
-    transition: all 0.2s ease;
     cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.equipment-slot:hover {
+    border-color: #8b6b29;
+    box-shadow: 0 0 10px rgba(139, 107, 41, 0.3);
+    transform: scale(1.05);
 }
 
 .equipment-slot:focus {
@@ -57,47 +85,112 @@
     outline-offset: -2px;
 }
 
+.equipment-slot img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
 /* Close button */
 #inventoryCloseButton {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 20px;
-    height: 20px;
-    background: linear-gradient(to bottom, #463714, #2a2108);
-    color: #c7b377;
+    top: 12px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(to bottom, #584519, #2a2108);
+    color: #e0c88d;
     font-weight: bold;
     font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: 1px solid #463714;
+    border: 1px solid #584519;
+    border-radius: 4px;
     transition: all 0.2s ease;
     padding: 0;
+}
+
+#inventoryCloseButton:hover {
+    background: linear-gradient(to bottom, #6a562c, #413314);
+    transform: scale(1.1);
 }
 
 /* Inventory grid */
 .inventoryGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(10, 45px);
+    grid-template-rows: repeat(6, 45px);
+    gap: 4px;
     padding: 15px;
-    background-color: #1a1a1a;
-    border-radius: 4px;
-    margin-bottom: 15px;
-    min-height: 200px;
+    background-color: rgba(26, 26, 26, 0.8);
+    border: 2px solid #584519;
+    border-radius: 6px;
+    margin: 15px;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
 }
 
 /* Inventory slots */
 .inventory-slot {
-    background-color: #333;
-    border: 1px solid #555;
-    padding: 8px;
-    text-align: center;
-    cursor: pointer;
+    width: 45px;
+    height: 45px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #584519;
     border-radius: 4px;
-    transition: background-color 0.2s;
+    padding: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.inventory-slot:hover {
+    border-color: #8b6b29;
+    box-shadow: 0 0 10px rgba(139, 107, 41, 0.3);
+    transform: scale(1.05);
+}
+
+.inventory-slot img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* Equipped weapon slots */
+.weapon-slots {
+    position: absolute;
+    top: 60px;
+    right: 15px;
+    display: grid;
+    grid-template-columns: 45px;
+    gap: 4px;
+    padding: 10px;
+    background: rgba(26, 26, 26, 0.6);
+    border-radius: 6px;
+    border: 1px solid #584519;
+}
+
+.weapon-slot {
+    width: 45px;
+    height: 45px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #584519;
+    border-radius: 4px;
+    padding: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.weapon-slot:hover {
+    border-color: #8b6b29;
+    box-shadow: 0 0 10px rgba(139, 107, 41, 0.3);
+    transform: scale(1.05);
 }
 
 /* Responsive styles */

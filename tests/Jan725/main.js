@@ -486,6 +486,7 @@ function easeInOutSine(t) {
 // Create Humanoid Function
 function createHumanoid(color, texture, pattern, height, bodyShape) {
     const group = new THREE.Group();
+    group.isHumanoid = true;  // Add flag to identify humanoids
 
     // Define color palettes for random selection
     const skinColors = [
@@ -514,101 +515,117 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         return colorArray[Math.floor(Math.random() * colorArray.length)];
     };
 
+    // Helper function to create material that responds to lighting
+    const createMaterial = (color) => {
+        return new THREE.MeshStandardMaterial({
+            color: color,
+            roughness: 0.7,
+            metalness: 0.0,
+            side: THREE.DoubleSide
+        });
+    };
+
     // Randomly assign colors
     const selectedSkinColor = getRandomColor(skinColors);
     const selectedHairColor = getRandomColor(hairColors);
     const selectedClothingColor = getRandomColor(clothingColors);
 
+    // Helper function to configure mesh shadows
+    const configureShadows = (mesh) => {
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        return mesh;
+    };
+
     // Torso
-    const bodyMaterial = new THREE.MeshLambertMaterial({ color: selectedSkinColor });
+    const bodyMaterial = createMaterial(selectedSkinColor);
     const bodyGeometry = new THREE.BoxGeometry(5, 7, 2);
-    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    const body = configureShadows(new THREE.Mesh(bodyGeometry, bodyMaterial));
     body.position.y = 11.5;
     group.add(body);
 
     // Shirt (1px larger than torso)
-    const shirtMaterial = new THREE.MeshLambertMaterial({ color: selectedClothingColor });
+    const shirtMaterial = createMaterial(selectedClothingColor);
     const shirtGeometry = new THREE.BoxGeometry(6.5, 8.55, 3.5);
-    const shirt = new THREE.Mesh(shirtGeometry, shirtMaterial);
+    const shirt = configureShadows(new THREE.Mesh(shirtGeometry, shirtMaterial));
     shirt.position.copy(body.position);
     group.add(shirt);
 
     // Cover pectorals with the shirt
     const pectoralGeometry = new THREE.BoxGeometry(4.5, 1.5, 1);
-    const pectoralMaterial = shirtMaterial; // Ensure pectorals are covered by the shirt
-    const pectorals = new THREE.Mesh(pectoralGeometry, pectoralMaterial);
+    const pectorals = configureShadows(new THREE.Mesh(pectoralGeometry, shirtMaterial));
     pectorals.position.set(0, 14, 1.1);
     group.add(pectorals);
 
     // Lower Body (Pelvic Region)
     const lowerBodyGeometry = new THREE.BoxGeometry(4, 3, 2.5);
-    const lowerBodyMaterial = new THREE.MeshLambertMaterial({ color: selectedSkinColor });
-    const lowerBody = new THREE.Mesh(lowerBodyGeometry, lowerBodyMaterial);
+    const lowerBodyMaterial = createMaterial(selectedSkinColor);
+    const lowerBody = configureShadows(new THREE.Mesh(lowerBodyGeometry, lowerBodyMaterial));
     lowerBody.position.set(0, 8.5, 0);
     group.add(lowerBody);
 
     // Shorts (1px larger than lower body)
-    const shortsMaterial = new THREE.MeshLambertMaterial({ color: selectedClothingColor });
+    const shortsMaterial = createMaterial(selectedClothingColor);
     const shortsGeometry = new THREE.BoxGeometry(5, 7, 3);
-    const shorts = new THREE.Mesh(shortsGeometry, shortsMaterial);
+    const shorts = configureShadows(new THREE.Mesh(shortsGeometry, shortsMaterial));
     shorts.position.copy(lowerBody.position);
     group.add(shorts);
 
     // Head
     const headGeometry = new THREE.BoxGeometry(3, 3, 3);
-    const headMaterial = new THREE.MeshLambertMaterial({ color: selectedSkinColor });
-    const head = new THREE.Mesh(headGeometry, headMaterial);
+    const headMaterial = createMaterial(selectedSkinColor);
+    const head = configureShadows(new THREE.Mesh(headGeometry, headMaterial));
     head.position.y = 18;
     group.add(head);
 
     // Neck Joint
-    const neckJoint = new THREE.Mesh(
+    const neckJoint = configureShadows(new THREE.Mesh(
         new THREE.SphereGeometry(1, 16, 16),
-        new THREE.MeshStandardMaterial({ color: selectedSkinColor })
-    );
+        createMaterial(selectedSkinColor)
+    ));
     neckJoint.position.set(0, 15.5, 0);
     group.add(neckJoint);
 
     // Hair
     const hairGeometry = new THREE.BoxGeometry(3.2, 0.5, 3.2);
-    const hairMaterial = new THREE.MeshLambertMaterial({ color: selectedHairColor });
-    const hair = new THREE.Mesh(hairGeometry, hairMaterial);
+    const hairMaterial = createMaterial(selectedHairColor);
+    const hair = configureShadows(new THREE.Mesh(hairGeometry, hairMaterial));
     hair.position.y = 1.5;
     head.add(hair);
 
     // Eyes
     const eyeGeometry = new THREE.SphereGeometry(0.2, 8, 8);
-    const eyeMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+    const eyeMaterial = createMaterial(0x000000);
 
-    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    const leftEye = configureShadows(new THREE.Mesh(eyeGeometry, eyeMaterial));
     leftEye.position.set(-0.5, 0.5, 1.5);
     head.add(leftEye);
 
-    const rightEye = leftEye.clone();
+    const rightEye = configureShadows(leftEye.clone());
     rightEye.position.x = 0.5;
     head.add(rightEye);
 
     // Nose
     const noseGeometry = new THREE.BoxGeometry(0.2, 0.4, 0.2);
-    const nose = new THREE.Mesh(noseGeometry, bodyMaterial);
+    const nose = configureShadows(new THREE.Mesh(noseGeometry, bodyMaterial));
     nose.position.set(0, 0, 1.6);
     head.add(nose);
 
     // Arms
     const armGeometry = new THREE.BoxGeometry(1, 6, 1);
-    const armMaterial = new THREE.MeshLambertMaterial({ color: selectedSkinColor });
+    const armMaterial = createMaterial(selectedSkinColor);
 
     const createArm = (side) => {
         const armGroup = new THREE.Group();
 
-        const shoulderJoint = new THREE.Mesh(
+        const shoulderJoint = configureShadows(new THREE.Mesh(
             new THREE.SphereGeometry(0.75, 16, 16),
-            new THREE.MeshStandardMaterial({ color: selectedSkinColor })
-        );
+            createMaterial(selectedSkinColor)
+        ));
         shoulderJoint.position.set(0, 0, 0);
         armGroup.add(shoulderJoint);
 
-        const arm = new THREE.Mesh(armGeometry, armMaterial);
+        const arm = configureShadows(new THREE.Mesh(armGeometry, armMaterial));
         arm.position.y = -3;
         armGroup.add(arm);
 
@@ -623,41 +640,41 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     group.add(rightArm);
 
     // Legs with Knee Joints
-    const legMaterial = new THREE.MeshLambertMaterial({ color: selectedSkinColor });
+    const legMaterial = createMaterial(selectedSkinColor);
 
     const createLeg = (side) => {
         const legGroup = new THREE.Group();
         const upperLegGroup = new THREE.Group();
 
-        const hipJoint = new THREE.Mesh(
+        const hipJoint = configureShadows(new THREE.Mesh(
             new THREE.SphereGeometry(0.8, 16, 16),
-            new THREE.MeshStandardMaterial({ color: selectedSkinColor })
-        );
+            createMaterial(selectedSkinColor)
+        ));
         hipJoint.position.set(0, 0, 0);
         upperLegGroup.add(hipJoint);
 
         const upperLegGeometry = new THREE.BoxGeometry(1.5, 4, 1.5);
-        const upperLeg = new THREE.Mesh(upperLegGeometry, legMaterial);
+        const upperLeg = configureShadows(new THREE.Mesh(upperLegGeometry, legMaterial));
         upperLeg.position.y = -2;
         upperLegGroup.add(upperLeg);
 
         const lowerLegGroup = new THREE.Group();
         lowerLegGroup.position.y = -4;
 
-        const kneeJoint = new THREE.Mesh(
+        const kneeJoint = configureShadows(new THREE.Mesh(
             new THREE.SphereGeometry(0.6, 16, 16),
-            new THREE.MeshStandardMaterial({ color: selectedSkinColor })
-        );
+            createMaterial(selectedSkinColor)
+        ));
         kneeJoint.position.set(0, 0, 0);
         lowerLegGroup.add(kneeJoint);
 
         const lowerLegGeometry = new THREE.BoxGeometry(1.5, 4, 1.5);
-        const lowerLeg = new THREE.Mesh(lowerLegGeometry, legMaterial);
+        const lowerLeg = configureShadows(new THREE.Mesh(lowerLegGeometry, legMaterial));
         lowerLeg.position.y = -2;
         lowerLegGroup.add(lowerLeg);
 
         const footGeometry = new THREE.BoxGeometry(1.5, 0.5, 2);
-        const foot = new THREE.Mesh(footGeometry, legMaterial);
+        const foot = configureShadows(new THREE.Mesh(footGeometry, legMaterial));
         foot.position.set(0, -2.25, 0.25);
         lowerLegGroup.add(foot);
 
@@ -680,7 +697,7 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     // Pubic Hair
     const pubicHairGeometry = new THREE.PlaneGeometry(2, 1);
     const pubicHairMaterial = new THREE.MeshLambertMaterial({ color: selectedHairColor, side: THREE.DoubleSide });
-    const pubicHair = new THREE.Mesh(pubicHairGeometry, pubicHairMaterial);
+    const pubicHair = configureShadows(new THREE.Mesh(pubicHairGeometry, pubicHairMaterial));
     pubicHair.position.set(0, 6.8, 1.1);
     pubicHair.rotation.x = Math.PI / 2;
     group.add(pubicHair);
@@ -889,15 +906,10 @@ function closeFullscreenMap() {
     const fullscreenMap = document.getElementById('fullscreenMap');
     fullscreenMap.style.display = 'none';
 }
-		
-function addQuadrupeds() {
-	for (let i = 0; i < 5; i++) {
-		let position = getRandomPositionOutsideTown(300, 1000);
-		const quadruped = createQuadruped();
-		quadruped.position.set(position.x, 0, position.z);
-		quadrupeds.push(quadruped);
-		scene.add(quadruped);
-	}
+
+function closeInventory() {
+    inventoryOpen = false;
+    document.getElementById('inventory').style.display = 'none';
 }
 
 function movePlayerTowardsDestination() {
@@ -958,6 +970,58 @@ function onWindowResize() {
     minimapCamera.bottom = -200;
     minimapCamera.updateProjectionMatrix();
 }
+
+// Inventory management
+function initializeInventory() {
+    const inventoryGrid = document.querySelector('.inventoryGrid');
+    const ROWS = 6;
+    const COLS = 10;
+    
+    // Clear existing content
+    inventoryGrid.innerHTML = '';
+    
+    // Generate grid slots
+    for (let i = 0; i < ROWS * COLS; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'inventory-slot';
+        slot.dataset.index = i;
+        inventoryGrid.appendChild(slot);
+    }
+
+    // Add event listeners for inventory interactions
+    document.querySelectorAll('.inventory-slot, .equipment-slot, .weapon-slot').forEach(slot => {
+        slot.addEventListener('click', handleSlotClick);
+        slot.addEventListener('dragstart', handleDragStart);
+        slot.addEventListener('dragover', handleDragOver);
+        slot.addEventListener('drop', handleDrop);
+    });
+}
+
+function handleSlotClick(event) {
+    const slot = event.currentTarget;
+    // Handle slot click logic here
+}
+
+function handleDragStart(event) {
+    const slot = event.currentTarget;
+    event.dataTransfer.setData('text/plain', slot.dataset.index);
+}
+
+function handleDragOver(event) {
+    event.preventDefault();
+}
+
+function handleDrop(event) {
+    event.preventDefault();
+    const sourceIndex = event.dataTransfer.getData('text/plain');
+    const targetSlot = event.currentTarget;
+    // Handle item drop logic here
+}
+
+// Initialize inventory when the game loads
+document.addEventListener('DOMContentLoaded', () => {
+    initializeInventory();
+});
 
 init();
 initMap();

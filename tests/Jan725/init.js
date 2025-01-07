@@ -137,6 +137,11 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.autoClear = false;
+
+    // Enable shadow mapping in the renderer
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
     minimapCamera = new THREE.OrthographicCamera(-200, 200, 200, -200, 0.1, 10000);
@@ -145,8 +150,20 @@ function init() {
     minimapCamera.lookAt(0, 0, 0);
     const ambientLight = new THREE.AmbientLight(0x404040);
     scene.add(ambientLight);
+
+    // Configure directional light for shadows
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    directionalLight.position.set(0, 100, 0);
+    directionalLight.position.set(100, 100, 50);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
+    directionalLight.shadow.camera.near = 0.5;
+    directionalLight.shadow.camera.far = 500;
+    directionalLight.shadow.camera.left = -500;
+    directionalLight.shadow.camera.right = 500;
+    directionalLight.shadow.camera.top = 500;
+    directionalLight.shadow.camera.bottom = -500;
+    directionalLight.shadow.bias = -0.001;
     scene.add(directionalLight);
     addQuadrupeds();
 
@@ -201,6 +218,10 @@ function init() {
 
     shrineGroup.position.set(0, 0.1, 0);
     scene.add(shrineGroup);
+
+    // Initialize day-night cycle
+    initDayNightCycle();
+
     addSky();
 
     const structurePositions = [
