@@ -87,11 +87,20 @@ function populateInventoryGrid(gridElement, items, isNPC) {
     
     gridElement.innerHTML = '';
     
-    console.log('gridElement:', gridElement, 'Type:', typeof gridElement);
-    
     items.forEach((item, index) => {
         const slot = document.createElement('div');
         slot.classList.add('inventory-slot');
+        
+        // Add data attributes for tooltips
+        slot.setAttribute('data-name', item.name);
+        slot.setAttribute('data-description', item.description || 'No description available');
+        slot.setAttribute('data-rarity', item.rarity || 'Common');
+        if (item.stats) {
+            const statsText = Object.entries(item.stats)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join('\n');
+            slot.setAttribute('data-stats', statsText);
+        }
         
         // Create item display
         const itemDisplay = document.createElement('div');
@@ -121,7 +130,12 @@ function populateInventoryGrid(gridElement, items, isNPC) {
         
         slot.appendChild(itemDisplay);
         
-        // Add click handler
+        // Add tooltip event listeners
+        slot.addEventListener('mouseenter', showTooltip);
+        slot.addEventListener('mousemove', moveTooltip);
+        slot.addEventListener('mouseleave', hideTooltip);
+        
+        // Add click handler for trade selection
         slot.addEventListener('click', () => selectItemForTrade(item, index, isNPC));
         
         gridElement.appendChild(slot);

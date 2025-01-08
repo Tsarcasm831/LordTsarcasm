@@ -196,7 +196,7 @@ function init() {
     scene.add(safeZoneBarrier);
     enemyWalls.push(safeZoneBarrier);
 
-    const initialSettlementWalls = createSettlementWalls();
+    const initialSettlementWalls = createSettlementWalls(scene, walls, enemyWalls);
     scene.add(initialSettlementWalls);
 
     const shrineGroup = new THREE.Group();
@@ -236,10 +236,12 @@ function init() {
     ];
     
     structurePositions.forEach(pos => {
-        const structure = createStructure();
+        const structure = createBuilding(Math.floor(Math.random() * 5) + 1); // Random building type 1-5
         structure.position.set(pos.x, 0, pos.z);
         scene.add(structure);
-        walls.push(...structure.userData.walls);
+        if (structure.userData && structure.userData.walls) {
+            walls.push(...structure.userData.walls);
+        }
         structures.push(structure);
 
         // Usage example

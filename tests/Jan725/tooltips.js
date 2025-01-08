@@ -113,14 +113,14 @@ renderer.domElement.addEventListener('mouseleave', () => {
 function showTooltip(event) {
     const name = this.getAttribute('data-name');
     const description = this.getAttribute('data-description');
-    tooltip.innerHTML = `<strong>${name}</strong><br>${description}`;
-    tooltip.style.display = 'block';
+    entityTooltip.innerHTML = `<strong>${name}</strong><br>${description}`;
+    entityTooltip.style.display = 'block';
 }
 
 // Function to Move Tooltip with Mouse
 function moveTooltip(event) {
-    const tooltipWidth = tooltip.offsetWidth;
-    const tooltipHeight = tooltip.offsetHeight;
+    const tooltipWidth = entityTooltip.offsetWidth;
+    const tooltipHeight = entityTooltip.offsetHeight;
     const pageWidth = window.innerWidth;
     const pageHeight = window.innerHeight;
 
@@ -135,12 +135,17 @@ function moveTooltip(event) {
         y = event.clientY - tooltipHeight - 10;
     }
 
-    tooltip.style.left = `${x}px`;
-    tooltip.style.top = `${y}px`;
+    entityTooltip.style.left = `${x}px`;
+    entityTooltip.style.top = `${y}px`;
 }
 
 // Function to Hide Tooltip
 function hideTooltip() {
-    tooltip.style.display = 'none';
-    tooltip.innerHTML = '';
+    entityTooltip.style.display = 'none';
+    entityTooltip.innerHTML = '';
 }
+
+// Make functions globally available
+window.showTooltip = showTooltip;
+window.moveTooltip = moveTooltip;
+window.hideTooltip = hideTooltip;

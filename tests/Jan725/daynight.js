@@ -1,7 +1,8 @@
 // daynight.js
 let isDaytime = true;
-let cycleProgress = 0; // 0 to 1 represents full cycle
+let cycleProgress = 0;
 const CYCLE_DURATION = 3000000; // 30 seconds in milliseconds
+let cycleStartOffset = CYCLE_DURATION * 0.75; // Offset to start at mid-day
 
 // Day-night cycle colors
 const DAY_SKY_COLOR = 0x87ceeb;    // Light blue
@@ -65,7 +66,7 @@ function initDayNightCycle() {
 
 function updateDayNightCycle() {
     const currentTime = Date.now();
-    cycleProgress = (currentTime % CYCLE_DURATION) / CYCLE_DURATION;
+    cycleProgress = ((currentTime + cycleStartOffset) % CYCLE_DURATION) / CYCLE_DURATION;
 
     // Use sine wave for smooth transition
     const transitionFactor = (Math.sin(cycleProgress * Math.PI * 2) + 1) / 2;

@@ -9,8 +9,17 @@ class TerrainGenerator {
         this.scene = scene;
         this.settings = settings;
         this.chunks = new Map();
-        this.simplex = new SimplexNoise();
-        this.simplexDetail = new SimplexNoise();
+        
+        // Create new instances of SimplexNoise
+        const simplexMaker = new SimplexNoise();
+        this.simplex = {
+            noise2D: (x, y) => simplexMaker.noise2D(x, y)
+        };
+        const simplexDetailMaker = new SimplexNoise();
+        this.simplexDetail = {
+            noise2D: (x, y) => simplexDetailMaker.noise2D(x, y)
+        };
+
         this.chunkGeometry = new THREE.PlaneGeometry(this.settings.chunkSize, this.settings.chunkSize, this.settings.chunkResolution, this.settings.chunkResolution);
         this.chunkGeometry.rotateX(-Math.PI / 2); // Rotate to make it horizontal
 
@@ -124,6 +133,241 @@ class TerrainGenerator {
     }
 }
 
+// Function to add diverse plants to the terrain with collision detection
+function addPlantsToTerrain() {
+    const numElements = 3000; // Total number of natural elements
+    const colliders = []; // Array to store collision objects
+
+    // Function to create a tree with separate trunk and foliage
+    function createTree(scale = 1) {
+        const treeGroup = new THREE.Group();
+        
+        // Trunk (using custom geometry for more natural look)
+        const trunkGeometry = new THREE.CylinderGeometry(2 * scale, 3 * scale, 40 * scale, 8);
+        const trunkMaterial = new THREE.MeshStandardMaterial({ 
+            color: new THREE.Color(0x8B4513).multiplyScalar(0.8 + Math.random() * 0.4),
+            roughness: 0.8,
+            metalness: 0.2
+        });
+        const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+        trunk.position.y = 20 * scale;
+        treeGroup.add(trunk);
+
+        // Create multiple foliage layers for more realistic look
+        const foliageLayers = 3;
+        for (let i = 0; i < foliageLayers; i++) {
+            const foliageGeometry = new THREE.ConeGeometry(
+                15 * scale * (1 - i * 0.2),
+                30 * scale,
+                8
+            );
+            const foliageMaterial = new THREE.MeshStandardMaterial({
+                color: new THREE.Color(0x228B22).multiplyScalar(0.8 + Math.random() * 0.4),
+                roughness: 1.0,
+                metalness: 0.0
+            });
+            const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
+            foliage.position.y = (35 + i * 15) * scale;
+            treeGroup.add(foliage);
+        }
+
+        // Add collision box
+        const bbox = new THREE.Box3();
+        bbox.setFromObject(treeGroup);
+        const collider = new THREE.Box3Helper(bbox, 0xff0000);
+        collider.visible = false; // Hide the collision box
+        treeGroup.add(collider);
+        colliders.push({ type: 'tree', box: bbox, object: treeGroup });
+
+        return treeGroup;
+    }
+
+    // Function to create a bush with more natural shape
+    function createBush(scale = 1) {
+        const bushGroup = new THREE.Group();
+        const segments = 3 + Math.floor(Math.random() * 3);
+        
+        for (let i = 0; i < segments; i++) {
+            const size = (3 + Math.random() * 2) * scale;
+            const geometry = new THREE.SphereGeometry(size, 8, 8);
+            const material = new THREE.MeshStandardMaterial({
+                color: new THREE.Color(0x228B22).multiplyScalar(0.7 + Math.random() * 0.6),
+                roughness: 1.0,
+                metalness: 0.0
+            });
+            const segment = new THREE.Mesh(geometry, material);
+            
+            // Position segments slightly randomly
+            segment.position.x = (Math.random() - 0.5) * 4 * scale;
+            segment.position.y = size + (Math.random() - 0.5) * 2 * scale;
+            segment.position.z = (Math.random() - 0.5) * 4 * scale;
+            
+            bushGroup.add(segment);
+        }
+
+        // Add collision box
+        const bbox = new THREE.Box3();
+        bbox.setFromObject(bushGroup);
+        const collider = new THREE.Box3Helper(bbox, 0xff0000);
+        collider.visible = false;
+        bushGroup.add(collider);
+        colliders.push({ type: 'bush', box: bbox, object: bushGroup });
+
+        return bushGroup;
+    }
+
+    // Function to create a rock with more natural shape
+    function createRock(scale = 1) {
+        const rockGroup = new THREE.Group();
+        const geometry = new THREE.DodecahedronGeometry(5 * scale, 1);
+        
+        // Modify vertices slightly for more natural look
+        const positionAttribute = geometry.attributes.position;
+        for (let i = 0; i < positionAttribute.count; i++) {
+            const x = positionAttribute.getX(i);
+            const y = positionAttribute.getY(i);
+            const z = positionAttribute.getZ(i);
+            
+            positionAttribute.setXYZ(
+                i,
+                x + (Math.random() - 0.5) * scale,
+                y + (Math.random() - 0.5) * scale,
+                z + (Math.random() - 0.5) * scale
+            );
+        }
+
+        const material = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(0x808080).multiplyScalar(0.7 + Math.random() * 0.6),
+            roughness: 0.9,
+            metalness: 0.1
+        });
+        
+        const rock = new THREE.Mesh(geometry, material);
+        rockGroup.add(rock);
+
+        // Add collision box
+        const bbox = new THREE.Box3();
+        bbox.setFromObject(rockGroup);
+        const collider = new THREE.Box3Helper(bbox, 0xff0000);
+        collider.visible = false;
+        rockGroup.add(collider);
+        colliders.push({ type: 'rock', box: bbox, object: rockGroup });
+
+        return rockGroup;
+    }
+
+    // Create natural clusters of elements
+    const createCluster = (centerX, centerZ, radius, type) => {
+        const elements = Math.floor(3 + Math.random() * 5);
+        for (let i = 0; i < elements; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * radius;
+            const x = centerX + Math.cos(angle) * distance;
+            const z = centerZ + Math.sin(angle) * distance;
+            
+            if (Math.sqrt(x * x + z * z) < 800) continue; // Skip if in safe zone
+
+            const scale = 0.5 + Math.random() * 1.0;
+            let element;
+            
+            switch(type) {
+                case 'tree':
+                    element = createTree(scale);
+                    break;
+                case 'bush':
+                    element = createBush(scale);
+                    break;
+                case 'rock':
+                    element = createRock(scale);
+                    break;
+            }
+
+            if (element) {
+                element.position.set(x, 0, z);
+                element.rotation.y = Math.random() * Math.PI * 2;
+                scene.add(element);
+            }
+        }
+    };
+
+    // Create clusters of different types of elements
+    for (let i = 0; i < numElements / 10; i++) {
+        const x = Math.random() * 10000 - 5000;
+        const z = Math.random() * 10000 - 5000;
+        
+        if (Math.sqrt(x * x + z * z) < 800) continue; // Skip if in safe zone
+
+        // Randomly choose cluster type with weighted probability
+        const rand = Math.random();
+        if (rand < 0.4) {
+            createCluster(x, z, 100, 'tree');
+        } else if (rand < 0.8) {
+            createCluster(x, z, 50, 'bush');
+        } else {
+            createCluster(x, z, 30, 'rock');
+        }
+    }
+
+    // Export colliders for collision detection
+    window.natureColliders = colliders;
+}
+
+// Ground creation functions
+function createGround(scene) {
+    const groundShape = new THREE.Shape();
+    groundShape.moveTo(-5000, -5000);
+    groundShape.lineTo(5000, -5000);
+    groundShape.lineTo(5000, 5000);
+    groundShape.lineTo(-5000, 5000);
+    groundShape.lineTo(-5000, -5000);
+
+    const groundGeometry = new THREE.ShapeGeometry(groundShape);
+
+    // Create a CanvasTexture as a replacement for the ground texture
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const context = canvas.getContext('2d');
+    
+    // Fill with a base color
+    context.fillStyle = '#654321'; // Example ground color
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Optional: Add grid pattern for texture effect
+    context.strokeStyle = '#4c3a2b';
+    for (let i = 0; i < canvas.width; i += 16) {
+        context.moveTo(i, 0);
+        context.lineTo(i, canvas.height);
+        context.moveTo(0, i);
+        context.lineTo(canvas.width, i);
+    }
+    context.stroke();
+
+    // Create a Three.js texture from the canvas
+    const groundTexture = new THREE.CanvasTexture(canvas);
+    groundTexture.wrapS = THREE.RepeatWrapping;
+    groundTexture.wrapT = THREE.RepeatWrapping;
+    groundTexture.repeat.set(50, 50);
+
+    // Create material with the generated CanvasTexture
+    const groundMaterial = new THREE.MeshLambertMaterial({
+        map: groundTexture,
+        side: THREE.DoubleSide
+    });
+
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+    ground.rotation.x = -Math.PI / 2;
+    ground.name = 'ground';
+    scene.add(ground);
+
+    return ground;
+}
+
+// Make functions globally available
+window.TerrainGenerator = TerrainGenerator;
+window.addPlantsToTerrain = addPlantsToTerrain;
+window.createGround = createGround;
+
 // Example usage:
 
 // Assuming you have a Three.js scene already set up
@@ -142,61 +386,5 @@ const terrainSettings = {
 
 // Initialize the terrain generator
 const terrainGenerator = new TerrainGenerator(scene, terrainSettings);
-
-// Function to add diverse plants to the terrain
-function addPlantsToTerrain() {
-    const numElements = 3000; // Total number of natural elements
-
-    const elementTypes = [
-        {
-            // Tree
-            geometry: new THREE.ConeGeometry(20, 200, 20),
-            material: new THREE.MeshLambertMaterial({ color: 0x228B22 }),
-            yOffset: 5,
-        },
-        {
-            geometry: new THREE.CylinderGeometry(0.5, 0.5, 5, 8),
-            material: new THREE.MeshLambertMaterial({ color: 0x8B4513 }),
-            yOffset: 2.5,
-        },
-        {
-            geometry: new THREE.SphereGeometry(3, 8, 8),
-            material: new THREE.MeshLambertMaterial({ color: 0x006400 }),
-            yOffset: 3,
-        },
-        {
-            //Large Bush
-            geometry: new THREE.SphereGeometry(4, 12, 13),
-            material: new THREE.MeshLambertMaterial({ color: 0x006400 }),
-            yOffset: 3,
-        },
-        {
-            //Rock
-            geometry: new THREE.DodecahedronGeometry(3, 2),
-            material: new THREE.MeshLambertMaterial({ color: 0x808080 }),
-            yOffset: 3,
-        },
-    ];
-
-    for (let i = 0; i < numElements; i++) {
-        const typeIndex = Math.floor(Math.random() * elementTypes.length);
-        const element = new THREE.Mesh(
-            elementTypes[typeIndex].geometry,
-            elementTypes[typeIndex].material
-        );
-
-        // Random position within the terrain bounds, avoiding the safe zone
-        let x = Math.random() * 10000 - 5000;
-        let z = Math.random() * 10000 - 5000;
-        while (Math.sqrt(x * x + z * z) < 800) { // Ensure elements are not in the safe zone
-            x = Math.random() * 10000 - 5000;
-            z = Math.random() * 10000 - 5000;
-        }
-
-        element.position.set(x, elementTypes[typeIndex].yOffset, z);
-        element.rotation.y = Math.random() * Math.PI * 2; // Random rotation
-        scene.add(element);
-    }
-}
 
 addPlantsToTerrain();

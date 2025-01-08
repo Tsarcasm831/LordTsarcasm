@@ -225,17 +225,395 @@ function spawnEntities() {
 
 // Function to create an enemy
 function createEnemy(x, y, z, type) {
-    // Select a random type if undefined or invalid
     if (!enemyTypes[type]) {
-        // If the type is invalid or undefined, select a random type
         const types = Object.keys(enemyTypes);
         type = types[Math.floor(Math.random() * types.length)];
     }
 
     const { color, texture, pattern, height, bodyShape, damageRate, name } = enemyTypes[type];
 
-    // Create humanoid with all parameters
+    // Create base humanoid
     const enemy = createHumanoid(color, texture, pattern, height, bodyShape);
+
+    // Helper functions for creating complex geometries
+    const createTendril = (length, segments, radius, color, glowColor) => {
+        const group = new THREE.Group();
+        const segmentHeight = length / segments;
+        let prevSegment = null;
+        
+        for (let i = 0; i < segments; i++) {
+            const geometry = new THREE.CylinderGeometry(radius * (1 - i/segments), radius * (1 - (i+1)/segments), segmentHeight, 8);
+            const material = new THREE.MeshStandardMaterial({
+                color: color,
+                roughness: 0.3,
+                metalness: 0.5,
+                emissive: glowColor,
+                emissiveIntensity: 0.5
+            });
+            const segment = new THREE.Mesh(geometry, material);
+            segment.position.y = -segmentHeight/2;
+            segment.castShadow = true;
+            
+            if (prevSegment) {
+                prevSegment.add(segment);
+            } else {
+                group.add(segment);
+            }
+            prevSegment = segment;
+        }
+        return group;
+    };
+
+    const createWing = (width, height, segments, color, opacity = 0.9) => {
+        const shape = new THREE.Shape();
+        shape.moveTo(0, 0);
+        shape.quadraticCurveTo(width/2, height/2, width, 0);
+        shape.quadraticCurveTo(width/2, -height*0.8, 0, 0);
+
+        const geometry = new THREE.ShapeGeometry(shape, segments);
+        const material = new THREE.MeshStandardMaterial({
+            color: color,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: opacity,
+            roughness: 0.5,
+            metalness: 0.2
+        });
+        const wing = new THREE.Mesh(geometry, material);
+        wing.castShadow = true;
+        return wing;
+    };
+
+    // Apply unique physical modifications based on enemy type
+    switch(type) {
+        case 'humans':
+            // Standard humanoid with technological enhancements
+            const techParts = [
+                { pos: [1.5, 12, 0], scale: [0.5, 1, 0.3] },
+                { pos: [-1.5, 12, 0], scale: [0.5, 1, 0.3] },
+                { pos: [0, 10, 1], scale: [2, 0.3, 0.2] }
+            ];
+            
+            techParts.forEach(part => {
+                const tech = new THREE.Mesh(
+                    new THREE.BoxGeometry(1, 1, 1),
+                    new THREE.MeshStandardMaterial({
+                        color: 0x444444,
+                        metalness: 0.8,
+                        roughness: 0.2,
+                        emissive: 0x00ff00,
+                        emissiveIntensity: 0.2
+                    })
+                );
+                tech.position.set(...part.pos);
+                tech.scale.set(...part.scale);
+                enemy.add(tech);
+            });
+            break;
+            
+        case 'tal_ehn':
+            // Advanced technological beings with floating components
+            enemy.scale.set(0.9, 1.2, 0.9);
+            
+            // Floating technological orbs
+            const orbCount = 3;
+            for (let i = 0; i < orbCount; i++) {
+                const orb = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.3, 16, 16),
+                    new THREE.MeshStandardMaterial({
+                        color: 0x001133,
+                        metalness: 0.9,
+                        roughness: 0.1,
+                        emissive: 0x0033ff,
+                        emissiveIntensity: 0.5
+                    })
+                );
+                orb.position.set(
+                    Math.sin(i * Math.PI * 2 / orbCount) * 2,
+                    14,
+                    Math.cos(i * Math.PI * 2 / orbCount) * 2
+                );
+                enemy.add(orb);
+            }
+            
+            // Energy tendrils
+            const tendrilCount = 4;
+            for (let i = 0; i < tendrilCount; i++) {
+                const tendril = createTendril(6, 8, 0.15, 0x001133, 0x0033ff);
+                tendril.position.set(
+                    Math.sin(i * Math.PI * 2 / tendrilCount) * 1.5,
+                    12,
+                    Math.cos(i * Math.PI * 2 / tendrilCount) * 1.5
+                );
+                tendril.rotation.x = Math.PI / 6;
+                tendril.rotation.y = i * Math.PI * 2 / tendrilCount;
+                enemy.add(tendril);
+            }
+            
+            // Technological aura
+            enemy.traverse(child => {
+                if (child.isMesh) {
+                    child.material.emissive = new THREE.Color(0x001133);
+                    child.material.emissiveIntensity = 0.3;
+                    child.material.metalness = 0.7;
+                    child.material.roughness = 0.3;
+                }
+            });
+            break;
+            
+        case 'anthromorph':
+            // Beast-like creatures with enhanced physical features
+            enemy.scale.set(1.3, 1.1, 1.3);
+            
+            // Add bestial features
+            const snoutGeometry = new THREE.CylinderGeometry(0.3, 0.5, 1.5, 8);
+            const snout = new THREE.Mesh(snoutGeometry, new THREE.MeshStandardMaterial({
+                color: color,
+                roughness: 0.9
+            }));
+            snout.rotation.x = Math.PI / 2;
+            snout.position.set(0, 18, 1);
+            enemy.add(snout);
+            
+            // Extra muscular arms
+            const extraArms = createHumanoid(color, texture, pattern, height * 0.8, 'muscular');
+            extraArms.traverse(child => {
+                if (child.isMesh) {
+                    const isArm = child.position.x !== 0 && child.position.y > 8;
+                    if (!isArm) {
+                        child.visible = false;
+                    } else {
+                        child.material.roughness = 0.9;
+                    }
+                }
+            });
+            extraArms.position.y = -2;
+            extraArms.rotation.y = Math.PI / 6;
+            enemy.add(extraArms);
+            
+            // Add claws
+            const clawPositions = [
+                { pos: [2.5, 11, 0], rot: [0, 0, -Math.PI / 4] },
+                { pos: [-2.5, 11, 0], rot: [0, 0, Math.PI / 4] },
+                { pos: [2.5, 7, 0], rot: [0, 0, -Math.PI / 4] },
+                { pos: [-2.5, 7, 0], rot: [0, 0, Math.PI / 4] }
+            ];
+            
+            clawPositions.forEach(({pos, rot}) => {
+                const claw = new THREE.Mesh(
+                    new THREE.ConeGeometry(0.2, 1, 4),
+                    new THREE.MeshStandardMaterial({
+                        color: 0x111111,
+                        metalness: 0.4,
+                        roughness: 0.6
+                    })
+                );
+                claw.position.set(...pos);
+                claw.rotation.set(...rot);
+                enemy.add(claw);
+            });
+            break;
+            
+        case 'avianos':
+            // Majestic bird-like beings with large wings
+            enemy.scale.set(0.8, 1.1, 0.8);
+            
+            // Large feathered wings
+            const wingSpan = 14;
+            const wingHeight = 10;
+            
+            // Create detailed feathered wings
+            const createFeatheredWing = (isLeft) => {
+                const wingGroup = new THREE.Group();
+                
+                // Main wing
+                const mainWing = createWing(wingSpan, wingHeight, 32, 0xCCCCCC);
+                wingGroup.add(mainWing);
+                
+                // Add individual feather details
+                const featherCount = 8;
+                for (let i = 0; i < featherCount; i++) {
+                    const feather = createWing(wingSpan * 0.3, wingHeight * 0.2, 16, 0xDDDDDD, 0.7);
+                    feather.position.set(
+                        (isLeft ? -1 : 1) * (wingSpan * 0.1 * i),
+                        -wingHeight * 0.1 * i,
+                        0
+                    );
+                    feather.rotation.z = (isLeft ? 1 : -1) * Math.PI * 0.1;
+                    wingGroup.add(feather);
+                }
+                
+                return wingGroup;
+            };
+            
+            const leftWing = createFeatheredWing(true);
+            leftWing.position.set(-0.5, 12, 0);
+            leftWing.rotation.set(-Math.PI/6, Math.PI/2, 0);
+            
+            const rightWing = createFeatheredWing(false);
+            rightWing.position.set(0.5, 12, 0);
+            rightWing.rotation.set(-Math.PI/6, -Math.PI/2, 0);
+            
+            enemy.add(leftWing, rightWing);
+            
+            // Add beak
+            const beak = new THREE.Mesh(
+                new THREE.ConeGeometry(0.3, 1.5, 4),
+                new THREE.MeshStandardMaterial({
+                    color: 0xCCAA00,
+                    metalness: 0.3,
+                    roughness: 0.7
+                })
+            );
+            beak.rotation.x = Math.PI / 2;
+            beak.position.set(0, 18, 1);
+            enemy.add(beak);
+            break;
+            
+        case 'behemoth':
+            // Colossal creature with imposing features
+            enemy.scale.set(1.8, 1.6, 1.8);
+            
+            // Armored plates along the body
+            const platePositions = [
+                { pos: [0, 14, 1.2], scale: [4, 3, 0.3] },
+                { pos: [0, 11, 1.2], scale: [5, 3, 0.4] },
+                { pos: [0, 8, 1.2], scale: [4.5, 3, 0.3] }
+            ];
+            
+            platePositions.forEach(({pos, scale}) => {
+                const plate = new THREE.Mesh(
+                    new THREE.BoxGeometry(1, 1, 1),
+                    new THREE.MeshStandardMaterial({
+                        color: 0x444444,
+                        metalness: 0.4,
+                        roughness: 0.8
+                    })
+                );
+                plate.position.set(...pos);
+                plate.scale.set(...scale);
+                enemy.add(plate);
+            });
+            
+            // Massive spikes along the back
+            const spikeCount = 6;
+            for (let i = 0; i < spikeCount; i++) {
+                const spike = new THREE.Mesh(
+                    new THREE.ConeGeometry(0.6, 3, 4),
+                    new THREE.MeshStandardMaterial({
+                        color: 0x333333,
+                        roughness: 1.0,
+                        metalness: 0.2
+                    })
+                );
+                spike.position.set(0, 16 - i * 1.5, 1.5);
+                spike.rotation.x = -Math.PI / 4;
+                enemy.add(spike);
+            }
+            
+            // Reinforced limbs
+            enemy.traverse(child => {
+                if (child.isMesh) {
+                    child.material.roughness = 1.0;
+                    child.material.metalness = 0.3;
+                }
+            });
+            break;
+            
+        case 'chiropteran':
+            // Nocturnal hunters with bat-like features
+            enemy.scale.set(1.1, 1.0, 1.1);
+            
+            // Large membrane wings with detailed structure
+            const membraneWingSpan = 16;
+            const membraneWingHeight = 12;
+            
+            const createMembraneWing = () => {
+                const points = [];
+                points.push(new THREE.Vector2(0, 0));
+                points.push(new THREE.Vector2(membraneWingSpan * 0.2, membraneWingHeight * 0.3));
+                points.push(new THREE.Vector2(membraneWingSpan * 0.4, membraneWingHeight * 0.7));
+                points.push(new THREE.Vector2(membraneWingSpan * 0.6, membraneWingHeight * 0.9));
+                points.push(new THREE.Vector2(membraneWingSpan * 0.8, membraneWingHeight * 0.7));
+                points.push(new THREE.Vector2(membraneWingSpan, membraneWingHeight * 0.5));
+                points.push(new THREE.Vector2(membraneWingSpan * 0.9, membraneWingHeight * 0.2));
+                points.push(new THREE.Vector2(membraneWingSpan * 0.7, 0));
+                
+                const shape = new THREE.Shape();
+                shape.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    shape.lineTo(points[i].x, points[i].y);
+                }
+                shape.lineTo(points[0].x, points[0].y);
+                
+                // Create wing membrane
+                const membrane = new THREE.Mesh(
+                    new THREE.ShapeGeometry(shape),
+                    new THREE.MeshStandardMaterial({
+                        color: 0x330000,
+                        side: THREE.DoubleSide,
+                        transparent: true,
+                        opacity: 0.8,
+                        emissive: 0x110000,
+                        emissiveIntensity: 0.2
+                    })
+                );
+                
+                // Add wing bones
+                const bones = new THREE.Group();
+                for (let i = 1; i < points.length - 1; i++) {
+                    const bone = new THREE.Mesh(
+                        new THREE.CylinderGeometry(0.1, 0.05, points[i].length(), 4),
+                        new THREE.MeshStandardMaterial({
+                            color: 0x222222,
+                            roughness: 0.7
+                        })
+                    );
+                    bone.position.set(points[i].x/2, points[i].y/2, 0);
+                    bone.rotation.z = Math.atan2(points[i].y, points[i].x);
+                    bones.add(bone);
+                }
+                
+                const wingGroup = new THREE.Group();
+                wingGroup.add(membrane, bones);
+                return wingGroup;
+            };
+            
+            const leftMembraneWing = createMembraneWing();
+            leftMembraneWing.position.set(-0.5, 12, -1);
+            leftMembraneWing.rotation.set(-Math.PI/4, Math.PI/2, 0);
+            
+            const rightMembraneWing = createMembraneWing();
+            rightMembraneWing.position.set(0.5, 12, -1);
+            rightMembraneWing.rotation.set(-Math.PI/4, -Math.PI/2, 0);
+            
+            enemy.add(leftMembraneWing, rightMembraneWing);
+            
+            // Add bat-like ears and features
+            const ears = new THREE.Group();
+            [-1, 1].forEach(side => {
+                const ear = new THREE.Mesh(
+                    new THREE.ConeGeometry(0.3, 1.2, 3),
+                    new THREE.MeshStandardMaterial({
+                        color: color,
+                        roughness: 0.8
+                    })
+                );
+                ear.position.set(side * 0.8, 19, 0);
+                ear.rotation.z = side * Math.PI / 6;
+                ears.add(ear);
+            });
+            enemy.add(ears);
+            
+            // Nocturnal appearance
+            enemy.traverse(child => {
+                if (child.isMesh) {
+                    child.material.emissive = new THREE.Color(0x330000);
+                    child.material.emissiveIntensity = 0.2;
+                }
+            });
+            break;
+    }
 
     // Set position
     enemy.position.set(x, y, z);
@@ -252,10 +630,9 @@ function createEnemy(x, y, z, type) {
         damageRate: damageRate,
         pattern: pattern,
         height: height,
-        bodyShape: bodyShape
+        bodyShape: bodyShape,
+        enemyType: type
     };
-    // Initialize movement direction
-    enemy.userData.direction = new THREE.Vector3(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
 
     // Apply patterns and other properties to child meshes
     enemy.traverse(child => {
@@ -264,9 +641,14 @@ function createEnemy(x, y, z, type) {
             child.userData.pattern = enemy.userData.pattern;
             child.userData.height = enemy.userData.height;
             child.userData.bodyShape = enemy.userData.bodyShape;
-
+            child.userData.enemyType = type;
+            
             // Apply the specific pattern to each child mesh
             applyPattern(child, pattern);
+            
+            // Enable shadows for all meshes
+            child.castShadow = true;
+            child.receiveShadow = true;
         }
     });
 

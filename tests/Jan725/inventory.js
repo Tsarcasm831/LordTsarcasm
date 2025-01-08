@@ -99,14 +99,18 @@ function populateInventoryGrid(gridElement, items) {
             }
 
             // Add event listeners for tooltip
-            slot.addEventListener('mouseenter', onInventoryItemHover);
-            slot.addEventListener('mousemove', onInventoryItemHover);
-            slot.addEventListener('mouseleave', () => {
-                entityTooltip.style.display = 'none';
-            });
+            slot.addEventListener('mouseenter', showTooltip);
+            slot.addEventListener('mousemove', moveTooltip);
+            slot.addEventListener('mouseleave', hideTooltip);
+
+            // Add drag and drop functionality
+            slot.draggable = true;
+            slot.addEventListener('dragstart', handleDragStart);
+            slot.addEventListener('dragover', handleDragOver);
+            slot.addEventListener('drop', handleDrop);
         } else {
-            // Mark the slot as empty for styling purposes
-            slot.classList.add('empty-slot');
+            // Empty slot
+            slot.setAttribute('data-empty', 'true');
         }
 
         gridElement.appendChild(slot);
@@ -287,3 +291,60 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize empty inventory
     updateInventoryDisplay();
 });
+
+// New functions for tooltip handling
+function showTooltip(event) {
+    const itemSlot = event.target;
+    const itemName = itemSlot.getAttribute('data-name');
+    if (!itemName) return;
+
+    const itemDescription = itemSlot.getAttribute('data-description');
+    const itemStats = itemSlot.getAttribute('data-stats');
+    const itemRarity = itemSlot.getAttribute('data-rarity');
+
+    // Create tooltip content with styling
+    entityTooltip.innerHTML = `
+        <div style="font-size: 14px; padding: 8px; background: rgba(0,0,0,0.8); color: #fff; border-radius: 4px;">
+            <div style="color: ${getRarityColor(itemRarity)}; font-weight: bold; margin-bottom: 4px;">
+                ${itemName}
+            </div>
+            <div style="color: #aaa; font-style: italic; margin-bottom: 4px;">
+                ${itemRarity}
+            </div>
+            <div style="margin-bottom: 4px;">
+                ${itemDescription}
+            </div>
+            ${itemStats ? `<div style="color: #88ff88; white-space: pre-wrap;">${itemStats.replace(/\n/g, '<br>')}</div>` : ''}
+        </div>
+    `;
+
+    // Position tooltip near the cursor
+    positionTooltip(event);
+    entityTooltip.style.display = 'block';
+}
+
+function moveTooltip(event) {
+    positionTooltip(event);
+}
+
+function hideTooltip() {
+    entityTooltip.style.display = 'none';
+}
+
+// New functions for drag and drop handling
+function handleDragStart(event) {
+    event.dataTransfer.setData('text', event.target.getAttribute('data-name'));
+}
+
+function handleDragOver(event) {
+    event.preventDefault();
+}
+
+function handleDrop(event) {
+    event.preventDefault();
+    const itemName = event.dataTransfer.getData('text');
+    const item = playerInventory.find(item => item.name === itemName);
+    if (item) {
+        // Handle item drop logic here
+    }
+}
