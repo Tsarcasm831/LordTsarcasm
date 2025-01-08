@@ -66,6 +66,9 @@ function animate() {
     moveEnemies(delta);
     animateDeadEnemies(delta);
 
+    // Check for floor collision
+    checkFloorCollision(player.position);
+
     // Maintain enemy count (throttled to every second)
     if (currentTime - lastEnemyMaintenanceUpdate > ENEMY_MAINTENANCE_INTERVAL) {
         maintainEnemyCount();
@@ -1022,6 +1025,66 @@ function handleDrop(event) {
 document.addEventListener('DOMContentLoaded', () => {
     initializeInventory();
 });
+
+// Create countdown display
+const countdownDisplay = document.createElement('div');
+countdownDisplay.style.position = 'fixed';
+countdownDisplay.style.top = '50%';
+countdownDisplay.style.left = '50%';
+countdownDisplay.style.transform = 'translate(-50%, -50%)';
+countdownDisplay.style.fontSize = '48px';
+countdownDisplay.style.color = 'white';
+countdownDisplay.style.display = 'none';
+document.body.appendChild(countdownDisplay);
+
+let countdownInterval;
+let isCountdownActive = false;
+
+function startCountdown() {
+    if (isCountdownActive) return;
+    
+    isCountdownActive = true;
+    let count = 5;
+    countdownDisplay.style.display = 'block';
+    
+    countdownDisplay.textContent = count;
+    
+    countdownInterval = setInterval(() => {
+        count--;
+        countdownDisplay.textContent = count;
+        
+        if (count <= 0) {
+            clearInterval(countdownInterval);
+            countdownDisplay.style.display = 'none';
+            isCountdownActive = false;
+        }
+    }, 1000);
+}
+
+function checkFloorCollision(playerPosition) {
+    const purpleStructure = scene.getObjectByProperty('type', 'Group');
+    if (!purpleStructure) return;
+
+    const floor = purpleStructure.userData.floor;
+    if (!floor) return;
+
+    const floorBoundingBox = new THREE.Box3().setFromObject(floor);
+    const playerBoundingBox = new THREE.Box3();
+    playerBoundingBox.min.set(
+        playerPosition.x - 1,
+        playerPosition.y - 2,
+        playerPosition.z - 1
+    );
+    playerBoundingBox.max.set(
+        playerPosition.x + 1,
+        playerPosition.y,
+        playerPosition.z + 1
+    );
+
+    if (floorBoundingBox.intersectsBox(playerBoundingBox)) {
+        startCountdown();
+    }
+}
 
 init();
 initMap();

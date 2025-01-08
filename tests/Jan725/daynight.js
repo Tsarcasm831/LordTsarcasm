@@ -1,7 +1,7 @@
 // daynight.js
 let isDaytime = true;
 let cycleProgress = 0; // 0 to 1 represents full cycle
-const CYCLE_DURATION = 3000; // 30 seconds in milliseconds
+const CYCLE_DURATION = 3000000; // 30 seconds in milliseconds
 
 // Day-night cycle colors
 const DAY_SKY_COLOR = 0x87ceeb;    // Light blue

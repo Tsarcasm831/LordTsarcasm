@@ -72,12 +72,22 @@ function openTradeWindow(npc) {
 
 // Populate inventory grids
 function populateInventoryGrid(gridElement, items, isNPC) {
+    if (typeof gridElement === 'string') {
+        gridElement = document.getElementById(gridElement);
+        if (!gridElement) {
+            console.error('Invalid gridElement ID:', gridElement);
+            return;
+        }
+    }
+    
     if (!gridElement) {
         console.error('Grid element is null');
         return;
     }
     
     gridElement.innerHTML = '';
+    
+    console.log('gridElement:', gridElement, 'Type:', typeof gridElement);
     
     items.forEach((item, index) => {
         const slot = document.createElement('div');
