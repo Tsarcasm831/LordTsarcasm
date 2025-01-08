@@ -116,6 +116,15 @@ const enemyTypes = {
         bodyShape: 'stocky',
         damageRate: 2.7,
         name: 'Xithrian'
+    },
+    'bubble_being': {
+        color: 0x88ccff,
+        texture: 'textures/enemies/vyraxus.png',
+        pattern: 'plain',
+        height: 1.4,
+        bodyShape: 'round',
+        damageRate: 2.0,
+        name: 'Bubble Being'
     }
 };
 
@@ -1246,6 +1255,10 @@ function applyBodyShape(humanoid, bodyShape) {
             break;
         case 'average':
             // Default scaling
+            break;
+        case 'round':
+            // Modify geometry to appear rounder
+            humanoid.scale.set(1.1, humanoid.scale.y, 1.1);
             break;
         default:
             // Default scaling

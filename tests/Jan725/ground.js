@@ -7,7 +7,7 @@ function createGround(scene) {
     
     // Load the ground texture
     const textureLoader = new THREE.TextureLoader();
-    const groundTexture = textureLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/ground.png');
+    const groundTexture = textureLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/broken%20concrete.webp');
     
     // Configure texture properties
     groundTexture.wrapS = THREE.RepeatWrapping;

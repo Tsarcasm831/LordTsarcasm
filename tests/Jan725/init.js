@@ -182,7 +182,20 @@ function init() {
 
     // Add the safe zone ground
     const safeZoneGroundGeometry = new THREE.PlaneGeometry(1200, 1200);
-    const safeZoneGroundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
+    
+    // Load and configure the texture
+    const textureLoader = new THREE.TextureLoader();
+    const safeZoneTexture = textureLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/concrete.webp');
+    safeZoneTexture.wrapS = THREE.RepeatWrapping;
+    safeZoneTexture.wrapT = THREE.RepeatWrapping;
+    safeZoneTexture.repeat.set(50, 50); // Adjust repeat to match the scale
+    
+    const safeZoneGroundMaterial = new THREE.MeshStandardMaterial({
+        map: safeZoneTexture,
+        roughness: 0.8,
+        metalness: 0.2
+    });
+    
     safeZoneGround = new THREE.Mesh(safeZoneGroundGeometry, safeZoneGroundMaterial);
     safeZoneGround.rotation.x = -Math.PI / 2;
     safeZoneGround.position.y = 0.3;

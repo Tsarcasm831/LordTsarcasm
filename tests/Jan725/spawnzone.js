@@ -26,7 +26,20 @@ function createSpawnZone(scene, walls, enemyWalls, structures, friendlies, npcDa
 function createSafeZone(scene, enemyWalls) {
     // Create safe zone ground
     const safeZoneGroundGeometry = new THREE.PlaneGeometry(1200, 1200);
-    const safeZoneGroundMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
+    
+    // Load and configure the texture
+    const textureLoader = new THREE.TextureLoader();
+    const groundTexture = textureLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/broken%20concrete.webp');
+    groundTexture.wrapS = THREE.RepeatWrapping;
+    groundTexture.wrapT = THREE.RepeatWrapping;
+    groundTexture.repeat.set(50, 50); // Adjust repeat to match the scale
+    
+    const safeZoneGroundMaterial = new THREE.MeshStandardMaterial({
+        map: groundTexture,
+        roughness: 0.8,
+        metalness: 0.2
+    });
+    
     const safeZoneGround = new THREE.Mesh(safeZoneGroundGeometry, safeZoneGroundMaterial);
     safeZoneGround.rotation.x = -Math.PI / 2;
     safeZoneGround.position.y = 0.1;
