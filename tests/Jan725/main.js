@@ -138,6 +138,9 @@ function onDocumentKeyDown(event) {
         } else if (statsOpen && event.key.toLowerCase() === 'c') {
             statsOpen = false;
             document.getElementById('stats').style.display = 'none';
+        } else if (!statsOpen && event.key.toLowerCase() === 'c') {
+            statsOpen = true;
+            document.getElementById('stats').style.display = 'block';
         } else if (adminConsoleOpen && event.key === '`') {
             closeAdminConsole();
         } else if (event.key === 'Escape') { // Esc closes all open menus
