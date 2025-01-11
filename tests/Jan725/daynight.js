@@ -1,19 +1,19 @@
 // daynight.js
-let isDaytime = true;
+let isDaytime = true; // Always true for development
 let cycleProgress = 0;
-const CYCLE_DURATION = 3000000; // 30 seconds in milliseconds
+const CYCLE_DURATION = 3000000; // Not used during development
 let cycleStartOffset = 0; // Start at the beginning of the day
 
 // Day-night cycle colors
 const DAY_SKY_COLOR = 0x87ceeb;    // Light blue
 const NIGHT_SKY_COLOR = 0x000033;   // Dark blue
-const DAY_LIGHT_INTENSITY = 1.0;    // Bright sunlight
+const DAY_LIGHT_INTENSITY = 0.8;    // Slightly reduced for better shadow contrast
 const NIGHT_LIGHT_INTENSITY = 0.2;  // Dim moonlight
-const DAY_AMBIENT_INTENSITY = 0.4;  // Bright ambient during day
+const DAY_AMBIENT_INTENSITY = 0.3;  // Reduced for better shadow definition
 const NIGHT_AMBIENT_INTENSITY = 0.1; // Dim ambient during night
 
 // Shadow properties
-const SHADOW_OPACITY_DAY = 0.3;     // Lighter shadows during day
+const SHADOW_OPACITY_DAY = 0.5;     // Increased shadow opacity for better visibility
 const SHADOW_OPACITY_NIGHT = 0.8;   // Darker shadows at night
 
 // Character behavior constants
@@ -65,100 +65,29 @@ function initDayNightCycle() {
 }
 
 function updateDayNightCycle() {
-    const currentTime = Date.now();
-    cycleProgress = ((currentTime + cycleStartOffset) % CYCLE_DURATION) / CYCLE_DURATION;
+    // Force daytime settings for development
+    isDaytime = true;
+    const transitionFactor = 1.0; // Always full day
 
-    // Use sine wave for smooth transition
-    const transitionFactor = (Math.sin(cycleProgress * Math.PI * 2) + 1) / 2;
+    // Set sky color
+    scene.background = new THREE.Color(DAY_SKY_COLOR);
 
-    // Update isDaytime based on transition factor
-    isDaytime = transitionFactor > 0.5;
-
-    // Interpolate sky color
-    const skyColor = new THREE.Color(NIGHT_SKY_COLOR).lerp(
-        new THREE.Color(DAY_SKY_COLOR),
-        transitionFactor
-    );
-    scene.background = skyColor;
-
-    // Update light intensities and shadow properties
+    // Update lights
     if (directionalLight) {
-        directionalLight.intensity = THREE.MathUtils.lerp(
-            NIGHT_LIGHT_INTENSITY,
-            DAY_LIGHT_INTENSITY,
-            transitionFactor
-        );
-
-        // Adjust shadow darkness based on time of day
-        if (directionalLight.shadow) {
-            directionalLight.shadow.opacity = THREE.MathUtils.lerp(
-                SHADOW_OPACITY_NIGHT,
-                SHADOW_OPACITY_DAY,
-                transitionFactor
-            );
-        }
-
-        // Update light position for dynamic shadows
-        const lightAngle = cycleProgress * Math.PI * 2;
-        directionalLight.position.x = Math.cos(lightAngle) * 100;
-        directionalLight.position.y = Math.abs(Math.sin(lightAngle)) * 100 + 50;
-        directionalLight.position.z = Math.sin(lightAngle) * 100;
-        directionalLight.lookAt(0, 0, 0);
+        directionalLight.intensity = DAY_LIGHT_INTENSITY;
     }
-
     if (ambientLight) {
-        ambientLight.intensity = THREE.MathUtils.lerp(
-            NIGHT_AMBIENT_INTENSITY,
-            DAY_AMBIENT_INTENSITY,
-            transitionFactor
-        );
+        ambientLight.intensity = DAY_AMBIENT_INTENSITY;
     }
 
-    // Update all humanoid characters in the scene
-    scene.traverse((object) => {
-        if (object.isHumanoid || (object.userData && object.userData.type === 'humanoid')) {
-            // Adjust movement speed
-            object.movementSpeed = THREE.MathUtils.lerp(
-                CHARACTER_NIGHT_SPEED,
-                CHARACTER_DAY_SPEED,
-                transitionFactor
-            );
+    // Update shadow properties
+    if (directionalLight) {
+        directionalLight.shadow.opacity = SHADOW_OPACITY_DAY;
+    }
 
-            // Traverse all meshes in the humanoid
-            object.traverse((node) => {
-                if (node.isMesh && node.material) {
-                    // Create a new material instance if we haven't yet
-                    if (!node.material._isCustomMaterial) {
-                        node.material = new THREE.MeshStandardMaterial({
-                            color: node.material.color,
-                            roughness: 0.7,
-                            metalness: 0.0,
-                            side: THREE.DoubleSide
-                        });
-                        node.material._isCustomMaterial = true;
-                    }
-
-                    // Update material color based on time of day
-                    const intensity = THREE.MathUtils.lerp(
-                        CHARACTER_NIGHT_COLOR,
-                        CHARACTER_DAY_COLOR,
-                        transitionFactor
-                    );
-
-                    // Store original color if not stored
-                    if (!node.material._originalColor) {
-                        node.material._originalColor = node.material.color.clone();
-                    }
-
-                    // Apply lighting effect
-                    node.material.color.copy(node.material._originalColor);
-                    node.material.color.multiplyScalar(intensity);
-                }
-            });
-        }
-    });
-
-    requestAnimationFrame(updateDayNightCycle);
+    // Update any day/night dependent objects or behaviors
+    window.characterSpeedMultiplier = CHARACTER_DAY_SPEED;
+    window.characterColorIntensity = CHARACTER_DAY_COLOR;
 }
 
 // Export for use in other files

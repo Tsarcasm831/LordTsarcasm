@@ -27,12 +27,41 @@ function createSafeZone(scene, enemyWalls) {
     // Create safe zone ground
     const safeZoneGroundGeometry = new THREE.PlaneGeometry(1200, 1200);
     
-    // Load and configure the texture
-    const textureLoader = new THREE.TextureLoader();
-    const groundTexture = textureLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/broken%20concrete.webp');
+    // Create procedural concrete texture
+    const concreteCanvas = document.createElement('canvas');
+    concreteCanvas.width = 512;
+    concreteCanvas.height = 512;
+    const concreteCtx = concreteCanvas.getContext('2d');
+    
+    // Base color
+    concreteCtx.fillStyle = '#808080';
+    concreteCtx.fillRect(0, 0, 512, 512);
+    
+    // Add noise and cracks
+    for (let i = 0; i < 5000; i++) {
+        const x = Math.random() * 512;
+        const y = Math.random() * 512;
+        const size = Math.random() * 3;
+        concreteCtx.fillStyle = `rgba(${128 + Math.random() * 30 - 15}, ${128 + Math.random() * 30 - 15}, ${128 + Math.random() * 30 - 15}, 0.1)`;
+        concreteCtx.fillRect(x, y, size, size);
+    }
+    
+    // Add some cracks
+    for (let i = 0; i < 20; i++) {
+        const startX = Math.random() * 512;
+        const startY = Math.random() * 512;
+        concreteCtx.beginPath();
+        concreteCtx.moveTo(startX, startY);
+        concreteCtx.lineTo(startX + Math.random() * 100 - 50, startY + Math.random() * 100 - 50);
+        concreteCtx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+        concreteCtx.lineWidth = 1;
+        concreteCtx.stroke();
+    }
+    
+    const groundTexture = new THREE.CanvasTexture(concreteCanvas);
     groundTexture.wrapS = THREE.RepeatWrapping;
     groundTexture.wrapT = THREE.RepeatWrapping;
-    groundTexture.repeat.set(50, 50); // Adjust repeat to match the scale
+    groundTexture.repeat.set(50, 50);
     
     const safeZoneGroundMaterial = new THREE.MeshStandardMaterial({
         map: groundTexture,
@@ -187,6 +216,65 @@ function createBuilding(type) {
     const thatchMaterial = new THREE.MeshLambertMaterial({ color: 0xD2B48C });
     const metalMaterial = new THREE.MeshLambertMaterial({ color: 0x696969 });
     const windowMaterial = new THREE.MeshLambertMaterial({ color: 0xadd8e6, transparent: true, opacity: 0.6 });
+
+    // Create procedural bark texture
+    const barkCanvas = document.createElement('canvas');
+    barkCanvas.width = 256;
+    barkCanvas.height = 256;
+    const barkCtx = barkCanvas.getContext('2d');
+    
+    // Base color
+    barkCtx.fillStyle = '#4A2F1B';
+    barkCtx.fillRect(0, 0, 256, 256);
+    
+    // Add vertical stripes for bark texture
+    for (let i = 0; i < 30; i++) {
+        const x = Math.random() * 256;
+        barkCtx.beginPath();
+        barkCtx.moveTo(x, 0);
+        let prevX = x;
+        for (let y = 0; y < 256; y += 10) {
+            prevX += (Math.random() - 0.5) * 5;
+            barkCtx.lineTo(prevX, y);
+        }
+        barkCtx.strokeStyle = `rgba(30, 15, 0, ${Math.random() * 0.3})`;
+        barkCtx.lineWidth = 1 + Math.random() * 3;
+        barkCtx.stroke();
+    }
+    
+    const barkTexture = new THREE.CanvasTexture(barkCanvas);
+    barkTexture.wrapS = THREE.RepeatWrapping;
+    barkTexture.wrapT = THREE.RepeatWrapping;
+
+    // Create procedural leaf texture
+    const leafCanvas = document.createElement('canvas');
+    leafCanvas.width = 256;
+    leafCanvas.height = 256;
+    const leafCtx = leafCanvas.getContext('2d');
+    
+    // Base green
+    leafCtx.fillStyle = '#1B4A1B';
+    leafCtx.fillRect(0, 0, 256, 256);
+    
+    // Add leaf vein patterns
+    for (let i = 0; i < 50; i++) {
+        const x = Math.random() * 256;
+        const y = Math.random() * 256;
+        leafCtx.beginPath();
+        leafCtx.moveTo(x, y);
+        const angle = Math.random() * Math.PI * 2;
+        leafCtx.lineTo(
+            x + Math.cos(angle) * 20,
+            y + Math.sin(angle) * 20
+        );
+        leafCtx.strokeStyle = `rgba(255, 255, 255, ${Math.random() * 0.1})`;
+        leafCtx.lineWidth = 1;
+        leafCtx.stroke();
+    }
+    
+    const leafTexture = new THREE.CanvasTexture(leafCanvas);
+    leafTexture.wrapS = THREE.RepeatWrapping;
+    leafTexture.wrapT = THREE.RepeatWrapping;
 
     let structure;
     switch(type) {
@@ -385,285 +473,112 @@ function createFriendlyNPC(color = 0x00ff00, name = 'Friendly NPC', dialogue = '
 
 // Function to add diverse plants to the terrain with collision detection
 function addPlantsToTerrain() {
-    const numElements = 3000; // Total number of natural elements
-    const colliders = []; // Array to store collision objects
+    const numElements = 3000;
+    const colliders = [];
+    
+    // Grid-based spawning system
+    const GRID_SIZE = 10; // Minimum distance between trees
+    const TERRAIN_SIZE = 2000;
+    const GRID_CELLS = Math.floor(TERRAIN_SIZE / GRID_SIZE);
+    const grid = new Array(GRID_CELLS).fill(null).map(() => new Array(GRID_CELLS).fill(false));
+    
+    const BATCH_SIZE = 2000; // Increased batch size
+    let processedElements = 0;
+    
+    // Create simplified textures for better performance
+    const barkTexture = new THREE.TextureLoader().load('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==');
+    const leafTexture = new THREE.TextureLoader().load('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==');
 
-    // Create a texture loader and load the bark texture
-    const textureLoader = new THREE.TextureLoader();
-    const barkTexture = textureLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/bark.webp');
-    barkTexture.wrapS = THREE.RepeatWrapping;
-    barkTexture.wrapT = THREE.RepeatWrapping;
+    // Function to check if a point is on concrete
+    function isOnConcrete(x, z) {
+        const CONCRETE_BOUNDS = {
+            minX: -600,  
+            maxX: 600,
+            minZ: -600,
+            maxZ: 600
+        };
+        
+        return x >= CONCRETE_BOUNDS.minX && x <= CONCRETE_BOUNDS.maxX && 
+               z >= CONCRETE_BOUNDS.minZ && z <= CONCRETE_BOUNDS.maxZ;
+    }
 
-    // Load the leaf texture
-    const leafTexture = textureLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/leaf.webp');
-    leafTexture.wrapS = THREE.RepeatWrapping;
-    leafTexture.wrapT = THREE.RepeatWrapping;
-
-    // Function to create a tree with separate trunk and foliage
+    // Optimized tree creation function
     function createTree(scale = 1) {
         const treeGroup = new THREE.Group();
         
-        // Randomly select tree type
-        const treeType = Math.random();
-        
-        if (treeType < 0.4) { // Pine tree
-            createPineTree(treeGroup, scale);
-        } else if (treeType < 0.7) { // Oak tree
-            createOakTree(treeGroup, scale);
-        } else { // Birch tree
-            createBirchTree(treeGroup, scale);
-        }
+        // Create simplified trunk with fixed height reference
+        const trunkHeight = 96 * scale;
+        const trunkGeometry = new THREE.CylinderGeometry(1.5 * scale, 2.5 * scale, trunkHeight, 6);
+        const trunkMaterial = new THREE.MeshStandardMaterial({ 
+            map: barkTexture,
+            color: new THREE.Color(0x4A2F1B),
+            roughness: 0.9,
+            metalness: 0.1
+        });
+        const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+        trunk.position.y = trunkHeight / 2;  
+        treeGroup.add(trunk);
 
-        // Add collision box
-        const bbox = new THREE.Box3();
-        bbox.setFromObject(treeGroup);
-        const collider = new THREE.Box3Helper(bbox, 0xff0000);
-        collider.visible = false;
-        treeGroup.add(collider);
-        colliders.push({ type: 'tree', box: bbox, object: treeGroup });
+        // Create simplified foliage
+        const foliageGeometry = new THREE.ConeGeometry(12 * scale, 40 * scale, 6);
+        const foliageMaterial = new THREE.MeshStandardMaterial({
+            map: leafTexture,
+            color: new THREE.Color(0x1B4A1B),
+            roughness: 1.0,
+            metalness: 0.0
+        });
+        const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
+        foliage.position.y = trunkHeight - (20 * scale);  
+        treeGroup.add(foliage);
 
         return treeGroup;
     }
 
-    function createPineTree(group, scale) {
-        // Create trunk with slight random lean
-        const lean = (Math.random() - 0.5) * 0.2;
-        const trunkGeometry = new THREE.CylinderGeometry(1.5 * scale, 2.5 * scale, 45 * scale, 8);
-        const trunkMaterial = new THREE.MeshStandardMaterial({ 
-            map: barkTexture,
-            color: new THREE.Color(0x4A2F1B).multiplyScalar(0.8 + Math.random() * 0.4),
-            roughness: 0.9,
-            metalness: 0.1
-        });
-        const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-        trunk.position.y = 22.5 * scale;
-        trunk.rotation.x = lean;
-        group.add(trunk);
-
-        // Create multiple foliage layers in a cone shape
-        const foliageLayers = 5 + Math.floor(Math.random() * 3);
-        for (let i = 0; i < foliageLayers; i++) {
-            const layerScale = 1 - (i / foliageLayers);
-            const foliageGeometry = new THREE.ConeGeometry(
-                12 * scale * layerScale,
-                25 * scale,
-                8
-            );
-            const foliageMaterial = new THREE.MeshStandardMaterial({
-                color: new THREE.Color(0x1B4A1B).multiplyScalar(0.7 + Math.random() * 0.6),
-                roughness: 1.0,
-                metalness: 0.0
-            });
-            const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
-            foliage.position.y = (35 + i * 12) * scale;
-            foliage.rotation.x = lean;
-            group.add(foliage);
-        }
+    function getGridPosition(x, z) {
+        const gridX = Math.floor((x + TERRAIN_SIZE/2) / GRID_SIZE);
+        const gridZ = Math.floor((z + TERRAIN_SIZE/2) / GRID_SIZE);
+        return [
+            Math.min(Math.max(gridX, 0), GRID_CELLS - 1),
+            Math.min(Math.max(gridZ, 0), GRID_CELLS - 1)
+        ];
     }
-
-    function createOakTree(group, scale) {
-        // Create a thicker, more gnarled trunk
-        const trunkHeight = (35 + Math.random() * 15) * scale;
-        const trunkGeometry = new THREE.CylinderGeometry(3 * scale, 4 * scale, trunkHeight, 8);
-        const trunkMaterial = new THREE.MeshStandardMaterial({ 
-            map: barkTexture,
-            color: new THREE.Color(0x8B4513).multiplyScalar(0.7 + Math.random() * 0.6),
-            roughness: 0.8,
-            metalness: 0.2
-        });
-        const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-        trunk.position.y = trunkHeight / 2;
-        group.add(trunk);
-
-        // Create a large, rounded foliage mass
-        const foliageClusters = 4 + Math.floor(Math.random() * 3);
-        for (let i = 0; i < foliageClusters; i++) {
-            const radius = (15 + Math.random() * 5) * scale;
-            const foliageGeometry = new THREE.SphereGeometry(radius, 8, 8);
-            const foliageMaterial = new THREE.MeshStandardMaterial({
-                color: new THREE.Color(0x355E3B).multiplyScalar(0.8 + Math.random() * 0.4),
-                roughness: 1.0,
-                metalness: 0.0
-            });
-            const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
-            
-            // Position clusters around the top of the trunk
-            const angle = (i / foliageClusters) * Math.PI * 2;
-            const distance = (5 + Math.random() * 3) * scale;
-            foliage.position.x = Math.cos(angle) * distance;
-            foliage.position.z = Math.sin(angle) * distance;
-            foliage.position.y = trunkHeight + radius * 0.7;
-            group.add(foliage);
-        }
-    }
-
-    function createBirchTree(group, scale) {
-        // Create a tall, slender trunk with white bark
-        const trunkHeight = (45 + Math.random() * 15) * scale;
-        const trunkGeometry = new THREE.CylinderGeometry(1.5 * scale, 2 * scale, trunkHeight, 8);
-        const trunkMaterial = new THREE.MeshStandardMaterial({ 
-            map: barkTexture,
-            color: new THREE.Color(0xE6E6E6).multiplyScalar(0.9 + Math.random() * 0.2),
-            roughness: 0.7,
-            metalness: 0.3
-        });
-        const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-        trunk.position.y = trunkHeight / 2;
-        group.add(trunk);
-
-        // Create smaller, more delicate foliage
-        const foliageLayers = 3 + Math.floor(Math.random() * 2);
-        for (let i = 0; i < foliageLayers; i++) {
-            const layerGeometry = new THREE.SphereGeometry(
-                (8 + Math.random() * 4) * scale,
-                8,
-                8
-            );
-            const foliageMaterial = new THREE.MeshStandardMaterial({
-                map: leafTexture,
-                color: new THREE.Color(0x98FB98).multiplyScalar(0.8 + Math.random() * 0.4),
-                roughness: 1.0,
-                metalness: 0.0
-            });
-            const foliage = new THREE.Mesh(layerGeometry, foliageMaterial);
-            
-            // Position foliage in a more vertical arrangement
-            foliage.position.y = trunkHeight - (i * 10 * scale);
-            foliage.position.x = (Math.random() - 0.5) * 5 * scale;
-            foliage.position.z = (Math.random() - 0.5) * 5 * scale;
-            group.add(foliage);
-        }
-    }
-
-    // Function to create a bush with more natural shape
-    function createBush(scale = 1) {
-        const bushGroup = new THREE.Group();
-        const segments = 3 + Math.floor(Math.random() * 3);
+    
+    function processBatch() {
+        const batchEnd = Math.min(processedElements + BATCH_SIZE, numElements);
+        let attempts = 0;
+        const maxAttempts = BATCH_SIZE * 2;
         
-        for (let i = 0; i < segments; i++) {
-            const size = (3 + Math.random() * 2) * scale;
-            const geometry = new THREE.SphereGeometry(size, 8, 8);
-            const material = new THREE.MeshStandardMaterial({
-                map: leafTexture,
-                color: new THREE.Color(0x228B22).multiplyScalar(0.7 + Math.random() * 0.6),
-                roughness: 1.0,
-                metalness: 0.0
-            });
-            const segment = new THREE.Mesh(geometry, material);
+        while (processedElements < batchEnd && attempts < maxAttempts) {
+            const x = (Math.random() - 0.5) * TERRAIN_SIZE;
+            const z = (Math.random() - 0.5) * TERRAIN_SIZE;
             
-            // Position segments slightly randomly
-            segment.position.x = (Math.random() - 0.5) * 4 * scale;
-            segment.position.y = size + (Math.random() - 0.5) * 2 * scale;
-            segment.position.z = (Math.random() - 0.5) * 4 * scale;
-            
-            bushGroup.add(segment);
-        }
-
-        // Add collision box
-        const bbox = new THREE.Box3();
-        bbox.setFromObject(bushGroup);
-        const collider = new THREE.Box3Helper(bbox, 0xff0000);
-        collider.visible = false;
-        bushGroup.add(collider);
-        colliders.push({ type: 'bush', box: bbox, object: bushGroup });
-
-        return bushGroup;
-    }
-
-    // Function to create a rock with more natural shape
-    function createRock(scale = 1) {
-        const rockGroup = new THREE.Group();
-        const geometry = new THREE.DodecahedronGeometry(5 * scale, 1);
-        
-        // Modify vertices slightly for more natural look
-        const positionAttribute = geometry.attributes.position;
-        for (let i = 0; i < positionAttribute.count; i++) {
-            const x = positionAttribute.getX(i);
-            const y = positionAttribute.getY(i);
-            const z = positionAttribute.getZ(i);
-            
-            positionAttribute.setXYZ(
-                i,
-                x + (Math.random() - 0.5) * scale,
-                y + (Math.random() - 0.5) * scale,
-                z + (Math.random() - 0.5) * scale
-            );
-        }
-
-        const material = new THREE.MeshStandardMaterial({
-            color: new THREE.Color(0x808080).multiplyScalar(0.7 + Math.random() * 0.6),
-            roughness: 0.9,
-            metalness: 0.1
-        });
-        
-        const rock = new THREE.Mesh(geometry, material);
-        rockGroup.add(rock);
-
-        // Add collision box
-        const bbox = new THREE.Box3();
-        bbox.setFromObject(rockGroup);
-        const collider = new THREE.Box3Helper(bbox, 0xff0000);
-        collider.visible = false; // Hide the collision box
-        rockGroup.add(collider);
-        colliders.push({ type: 'rock', box: bbox, object: rockGroup });
-
-        return rockGroup;
-    }
-
-    // Create natural clusters of elements
-    const createCluster = (centerX, centerZ, radius, type) => {
-        const elements = Math.floor(3 + Math.random() * 5);
-        for (let i = 0; i < elements; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * radius;
-            const x = centerX + Math.cos(angle) * distance;
-            const z = centerZ + Math.sin(angle) * distance;
-            
-            if (Math.sqrt(x * x + z * z) < 800) continue; // Skip if in safe zone
-
-            const scale = 0.5 + Math.random() * 1.0;
-            let element;
-            
-            switch(type) {
-                case 'tree':
-                    element = createTree(scale);
-                    break;
-                case 'bush':
-                    element = createBush(scale);
-                    break;
-                case 'rock':
-                    element = createRock(scale);
-                    break;
+            // Skip if point is on concrete
+            if (isOnConcrete(x, z)) {
+                attempts++;
+                continue;
             }
-
-            if (element) {
-                element.position.set(x, 0, z);
-                element.rotation.y = Math.random() * Math.PI * 2;
-                scene.add(element);
+            
+            const [gridX, gridZ] = getGridPosition(x, z);
+            
+            if (!grid[gridX][gridZ]) {
+                const tree = createTree(0.8 + Math.random() * 0.4);
+                tree.position.set(x, 0, z);
+                tree.rotation.y = Math.random() * Math.PI * 2;
+                scene.add(tree);
+                grid[gridX][gridZ] = true;
+                processedElements++;
             }
+            
+            attempts++;
         }
-    };
-
-    // Create clusters of different types of elements
-    for (let i = 0; i < numElements / 10; i++) {
-        const x = Math.random() * 10000 - 5000;
-        const z = Math.random() * 10000 - 5000;
         
-        if (Math.sqrt(x * x + z * z) < 800) continue; // Skip if in safe zone
-
-        // Randomly choose cluster type with weighted probability
-        const rand = Math.random();
-        if (rand < 0.4) {
-            createCluster(x, z, 100, 'tree');
-        } else if (rand < 0.8) {
-            createCluster(x, z, 50, 'bush');
-        } else {
-            createCluster(x, z, 30, 'rock');
+        if (processedElements < numElements) {
+            setTimeout(processBatch, 0);
         }
     }
-
-    // Export colliders for collision detection
-    window.natureColliders = colliders;
+    
+    // Start the batched processing
+    processBatch();
 }
 
 addPlantsToTerrain();

@@ -40,6 +40,7 @@ function onMouseMove(event) {
     const enemyIntersects = raycaster.intersectObjects(enemies, true);
     const friendlyIntersects = raycaster.intersectObjects(friendlies, true);
     const quadrupedIntersects = raycaster.intersectObjects(quadrupeds, true);
+    const treeIntersects = raycaster.intersectObjects(trees, true);
 
     // Display tooltip based on the first intersected object
     if (enemyIntersects.length > 0) {
@@ -60,6 +61,13 @@ function onMouseMove(event) {
         const intersectedObject = quadrupedIntersects[0].object;
         const quadruped = getEntityWithName(intersectedObject);
         entityTooltip.innerHTML = `<strong>${(quadruped && quadruped.userData.name) || 'Creature'}</strong>`;
+        entityTooltip.style.left = `${event.clientX + 10}px`;
+        entityTooltip.style.top = `${event.clientY + 10}px`;
+        entityTooltip.style.display = 'block';
+    } else if (treeIntersects.length > 0) {
+        const intersectedObject = treeIntersects[0].object;
+        const tree = getEntityWithName(intersectedObject);
+        entityTooltip.innerHTML = `<strong>${(tree && tree.userData.name) || 'Ancient Tree'}</strong>`;
         entityTooltip.style.left = `${event.clientX + 10}px`;
         entityTooltip.style.top = `${event.clientY + 10}px`;
         entityTooltip.style.display = 'block';

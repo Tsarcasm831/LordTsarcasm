@@ -27,11 +27,34 @@ class TerrainGenerator {
         this.terrainMaterial = new THREE.MeshStandardMaterial({
             vertexColors: true,
             flatShading: false, // Smooth shading for better elevation visuals
+            color: new THREE.Color(0x2d5a27), // Base green color
+            roughness: 0.8,
+            metalness: 0.1
         });
 
-        // Initialize texture for grass (optional)
-        const textureLoader = new THREE.TextureLoader();
-        this.grassTexture = textureLoader.load('path/to/grass-texture.jpg'); // Replace with your grass texture path
+        // Create a procedural grass texture
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 256;
+        const ctx = canvas.getContext('2d');
+        
+        // Create a gradient green pattern
+        const gradient = ctx.createLinearGradient(0, 0, 256, 256);
+        gradient.addColorStop(0, '#2d5a27');    // Dark green
+        gradient.addColorStop(0.5, '#3a7034');  // Medium green
+        gradient.addColorStop(1, '#2d5a27');    // Dark green
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 256, 256);
+        
+        // Add some noise for texture
+        for (let i = 0; i < 1000; i++) {
+            ctx.fillStyle = `rgba(${45 + Math.random() * 20}, ${90 + Math.random() * 20}, ${39 + Math.random() * 20}, 0.1)`;
+            ctx.fillRect(Math.random() * 256, Math.random() * 256, 2, 2);
+        }
+        
+        // Create texture from canvas
+        this.grassTexture = new THREE.CanvasTexture(canvas);
         this.grassTexture.wrapS = this.grassTexture.wrapT = THREE.RepeatWrapping;
         this.grassTexture.repeat.set(10, 10);
         this.terrainMaterial.map = this.grassTexture;
@@ -133,266 +156,222 @@ class TerrainGenerator {
     }
 }
 
+// Global array to store all trees for hover functionality
+window.trees = [];
+
 // Function to add diverse plants to the terrain with collision detection
-function addPlantsToTerrain() {
-    const numElements = 3000; // Total number of natural elements
-    const colliders = []; // Array to store collision objects
-
-    // Function to create a tree with separate trunk and foliage
-    function createTree(scale = 1) {
-        const treeLOD = new THREE.LOD();
-        const textureLoader = new THREE.TextureLoader();
-
-        // Create a promise to load textures with different resolutions
-        const loadBarkTextureLOD = (resolution) => {
-            const texturePaths = {
-                // low: 'https://file.garden/Zy7B0LkdIVpGyzA1/bark_low.webp',
-                // medium: 'https://file.garden/Zy7B0LkdIVpGyzA1/bark_medium.webp',
-                high: 'https://file.garden/Zy7B0LkdIVpGyzA1/bark.webp'
-            };
-
-            return new Promise((resolve) => {
-                textureLoader.load(texturePaths[resolution], (texture) => {
-                    texture.wrapS = THREE.RepeatWrapping;
-                    texture.wrapT = THREE.RepeatWrapping;
-                    resolve(texture);
-                });
-            });
-        };
-
-        const loadLeafTextureLOD = (resolution) => {
-            const texturePaths = {
-                // low: 'https://file.garden/Zy7B0LkdIVpGyzA1/leaf_low.webp',
-                // medium: 'https://file.garden/Zy7B0LkdIVpGyzA1/leaf_medium.webp',
-                high: 'https://file.garden/Zy7B0LkdIVpGyzA1/leaf.webp'
-            };
-
-            return new Promise((resolve) => {
-                textureLoader.load(texturePaths[resolution], (texture) => {
-                    texture.wrapS = THREE.RepeatWrapping;
-                    texture.wrapT = THREE.RepeatWrapping;
-                    resolve(texture);
-                });
-            });
-        };
-
-        // Create materials with low-res textures first
-        return Promise.all([loadBarkTextureLOD('low'), loadLeafTextureLOD('low')])
-            .then(([lowBarkTexture, lowLeafTexture]) => {
-                // Create the tree with low-res textures initially
-                const createTreeMesh = (detailLevel, barkTexture, leafTexture) => {
-                    const trunkGeometry = new THREE.CylinderGeometry(
-                        2 * scale, 
-                        3 * scale, 
-                        detailLevel === 'high' ? 40 * scale : detailLevel === 'medium' ? 30 * scale : 20 * scale,
-                        detailLevel === 'high' ? 8 : detailLevel === 'medium' ? 6 : 4
-                    );
-
-                    const trunkMaterial = new THREE.MeshStandardMaterial({
-                        map: barkTexture,
-                        color: new THREE.Color(0x8B4513).multiplyScalar(0.8 + Math.random() * 0.4),
-                        roughness: 0.8,
-                        metalness: 0.2
-                    });
-
-                    const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-                    trunk.position.y = detailLevel === 'high' ? 20 * scale : detailLevel === 'medium' ? 15 * scale : 10 * scale;
-
-                    // Create foliage for this LOD level
-                    const foliageLayers = detailLevel === 'high' ? 3 : detailLevel === 'medium' ? 2 : 1;
-                    for (let i = 0; i < foliageLayers; i++) {
-                        const foliageGeometry = new THREE.ConeGeometry(
-                            15 * scale * (1 - i * 0.2),
-                            30 * scale,
-                            detailLevel === 'high' ? 8 : detailLevel === 'medium' ? 6 : 4
-                        );
-                        const foliageMaterial = new THREE.MeshStandardMaterial({
-                            map: leafTexture,
-                            roughness: 1.0,
-                            metalness: 0.0
-                        });
-                        const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
-                        foliage.position.y = (35 + i * 15) * scale;
-                        trunk.add(foliage);
-                    }
-
-                    return trunk;
-                };
-
-                // Add low detail level immediately
-                const lowDetailTree = createTreeMesh('low', lowBarkTexture, lowLeafTexture);
-                treeLOD.addLevel(lowDetailTree, 100);
-
-                // Load medium resolution textures
-                return Promise.all([
-                    loadBarkTextureLOD('medium'),
-                    loadLeafTextureLOD('medium'),
-                    Promise.resolve({ lowBarkTexture, lowLeafTexture })
-                ]);
-            })
-            .then(([mediumBarkTexture, mediumLeafTexture, { lowBarkTexture, lowLeafTexture }]) => {
-                // Add medium detail level
-                const mediumDetailTree = createTreeMesh('medium', mediumBarkTexture, mediumLeafTexture);
-                treeLOD.addLevel(mediumDetailTree, 50);
-
-                // Load high resolution textures
-                return Promise.all([
-                    loadBarkTextureLOD('high'),
-                    loadLeafTextureLOD('high'),
-                    Promise.resolve({ lowBarkTexture, lowLeafTexture, mediumBarkTexture, mediumLeafTexture })
-                ]);
-            })
-            .then(([highBarkTexture, highLeafTexture, { lowBarkTexture, lowLeafTexture, mediumBarkTexture, mediumLeafTexture }]) => {
-                // Add high detail level
-                const highDetailTree = createTreeMesh('high', highBarkTexture, highLeafTexture);
-                treeLOD.addLevel(highDetailTree, 0);
-
-                // Add collision box
-                const bbox = new THREE.Box3();
-                bbox.setFromObject(treeLOD);
-                const collider = new THREE.Box3Helper(bbox, 0xff0000);
-                collider.visible = false;
-                treeLOD.add(collider);
-                colliders.push({ type: 'tree', box: bbox, object: treeLOD });
-
-                return treeLOD;
-            });
-    }
-
-    // Function to create a bush with more natural shape
-    function createBush(scale = 1) {
-        const bushGroup = new THREE.Group();
-        const segments = 3 + Math.floor(Math.random() * 3);
+function addPlantsToTerrain(scene, groundSize = 10000) {
+    const numberOfGroves = 15; // Number of tree groves to create
+    const treesPerGrove = 20;  // Average number of trees per grove
+    const groveRadius = 200;    // Radius of each grove
+    
+    // Create groves of trees
+    for (let g = 0; g < numberOfGroves; g++) {
+        // Random position for the grove center
+        const groveX = (Math.random() - 0.5) * (groundSize * 0.8); // Use 80% of ground size to keep away from edges
+        const groveZ = (Math.random() - 0.5) * (groundSize * 0.8);
         
-        for (let i = 0; i < segments; i++) {
-            const size = (3 + Math.random() * 2) * scale;
-            const geometry = new THREE.SphereGeometry(size, 8, 8);
-            const material = new THREE.MeshStandardMaterial({
-                color: new THREE.Color(0x228B22).multiplyScalar(0.7 + Math.random() * 0.6),
-                roughness: 1.0,
-                metalness: 0.0
-            });
-            const segment = new THREE.Mesh(geometry, material);
-            
-            // Position segments slightly randomly
-            segment.position.x = (Math.random() - 0.5) * 4 * scale;
-            segment.position.y = size + (Math.random() - 0.5) * 2 * scale;
-            segment.position.z = (Math.random() - 0.5) * 4 * scale;
-            
-            bushGroup.add(segment);
-        }
-
-        // Add collision box
-        const bbox = new THREE.Box3();
-        bbox.setFromObject(bushGroup);
-        const collider = new THREE.Box3Helper(bbox, 0xff0000);
-        collider.visible = false;
-        bushGroup.add(collider);
-        colliders.push({ type: 'bush', box: bbox, object: bushGroup });
-
-        return bushGroup;
-    }
-
-    // Function to create a rock with more natural shape
-    function createRock(scale = 1) {
-        const rockGroup = new THREE.Group();
-        const geometry = new THREE.DodecahedronGeometry(5 * scale, 1);
+        // Random number of trees for this grove
+        const numTrees = Math.floor(treesPerGrove * (0.8 + Math.random() * 0.4)); // +/- 20% variation
         
-        // Modify vertices slightly for more natural look
-        const positionAttribute = geometry.attributes.position;
-        for (let i = 0; i < positionAttribute.count; i++) {
-            const x = positionAttribute.getX(i);
-            const y = positionAttribute.getY(i);
-            const z = positionAttribute.getZ(i);
-            
-            positionAttribute.setXYZ(
-                i,
-                x + (Math.random() - 0.5) * scale,
-                y + (Math.random() - 0.5) * scale,
-                z + (Math.random() - 0.5) * scale
-            );
-        }
-
-        const material = new THREE.MeshStandardMaterial({
-            color: new THREE.Color(0x808080).multiplyScalar(0.7 + Math.random() * 0.6),
-            roughness: 0.9,
-            metalness: 0.1
-        });
-        
-        const rock = new THREE.Mesh(geometry, material);
-        rockGroup.add(rock);
-
-        // Add collision box
-        const bbox = new THREE.Box3();
-        bbox.setFromObject(rockGroup);
-        const collider = new THREE.Box3Helper(bbox, 0xff0000);
-        collider.visible = false;
-        rockGroup.add(collider);
-        colliders.push({ type: 'rock', box: bbox, object: rockGroup });
-
-        return rockGroup;
-    }
-
-    // Create natural clusters of elements
-    const createCluster = (centerX, centerZ, radius, type) => {
-        const elements = Math.floor(3 + Math.random() * 5);
-        for (let i = 0; i < elements; i++) {
+        for (let i = 0; i < numTrees; i++) {
+            // Random position within grove using polar coordinates for more natural distribution
             const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * radius;
-            const x = centerX + Math.cos(angle) * distance;
-            const z = centerZ + Math.sin(angle) * distance;
+            const radius = Math.pow(Math.random(), 0.5) * groveRadius; // Square root for more natural density
             
-            if (Math.sqrt(x * x + z * z) < 800) continue; // Skip if in safe zone
-
-            const scale = 0.5 + Math.random() * 1.0;
-            let elementPromise;
+            const x = groveX + Math.cos(angle) * radius;
+            const z = groveZ + Math.sin(angle) * radius;
             
-            switch(type) {
-                case 'tree':
-                    elementPromise = createTree(scale);
-                    break;
-                case 'bush':
-                    elementPromise = Promise.resolve(createBush(scale));
-                    break;
-                case 'rock':
-                    elementPromise = Promise.resolve(createRock(scale));
-                    break;
-            }
-
-            // Handle the element creation asynchronously
-            elementPromise.then(element => {
-                if (!element) return;
-
-                // Position the element
-                element.position.set(x, 0, z);
-                element.rotation.y = Math.random() * Math.PI * 2;
-
-                // Add to scene
-                scene.add(element);
-            });
+            // Random scale variation for each tree
+            const scale = 0.8 + Math.random() * 0.4; // 0.8 to 1.2
+            
+            const tree = createTree(scale);
+            tree.position.set(x, 0, z);
+            tree.rotation.y = Math.random() * Math.PI * 2;
+            scene.add(tree);
+            trees.push(tree); // Add tree to global array
         }
+    }
+    
+    // Add some individual trees scattered around
+    const numScatteredTrees = 50;
+    for (let i = 0; i < numScatteredTrees; i++) {
+        const x = (Math.random() - 0.5) * groundSize;
+        const z = (Math.random() - 0.5) * groundSize;
+        
+        const scale = 0.7 + Math.random() * 0.6; // Wider scale variation for scattered trees
+        
+        const tree = createTree(scale);
+        tree.position.set(x, 0, z);
+        tree.rotation.y = Math.random() * Math.PI * 2;
+        scene.add(tree);
+        trees.push(tree); // Add tree to global array
+    }
+}
+
+// Function to create a tree with separate trunk and foliage
+function createTree(scale = 1) {
+    const treeLOD = new THREE.LOD();
+    
+    // Add tree name data
+    const treeTypes = [
+        'Ancient Oak',
+        'Towering Pine',
+        'Mighty Redwood',
+        'Elder Birch', 
+        'Sacred Ash',
+        'Mystic Maple'
+    ];
+    const treeName = treeTypes[Math.floor(Math.random() * treeTypes.length)];
+    treeLOD.userData = { 
+        name: treeName,
+        type: 'tree',
+        gatheringTime: 5000, // 5 seconds to gather,
+        selected: false
     };
 
-    // Create clusters of different types of elements
-    for (let i = 0; i < numElements / 10; i++) {
-        const x = Math.random() * 10000 - 5000;
-        const z = Math.random() * 10000 - 5000;
+    // Define createTreeMesh function with geometry reuse
+    const createTreeMesh = (detailLevel) => {
+        // Randomize trunk dimensions slightly
+        const baseRadius = 1.5 + Math.random() * 1;
+        const topRadius = baseRadius * (0.6 + Math.random() * 0.2);
+        const height = 18 + Math.random() * 4;
         
-        if (Math.sqrt(x * x + z * z) < 800) continue; // Skip if in safe zone
-
-        // Randomly choose cluster type with weighted probability
-        const rand = Math.random();
-        if (rand < 0.4) {
-            createCluster(x, z, 100, 'tree');
-        } else if (rand < 0.8) {
-            createCluster(x, z, 50, 'bush');
-        } else {
-            createCluster(x, z, 30, 'rock');
+        const trunkGeometry = new THREE.CylinderGeometry(
+            topRadius, baseRadius, height, 
+            8, // radial segments
+            4, // height segments
+            false
+        );
+        
+        // Add some random variation to trunk vertices
+        const positions = trunkGeometry.attributes.position.array;
+        for (let i = 0; i < positions.length; i += 3) {
+            if (i > positions.length / 2) { // Only modify upper half
+                positions[i] += (Math.random() - 0.5) * 0.3;
+                positions[i + 2] += (Math.random() - 0.5) * 0.3;
+            }
         }
-    }
+        trunkGeometry.attributes.position.needsUpdate = true;
+        trunkGeometry.scale(scale, scale, scale);
 
-    // Export colliders for collision detection
-    window.natureColliders = colliders;
+        // Create a more natural brown color for the trunk
+        const trunkHue = 0.08 + Math.random() * 0.02; // Brown hue
+        const trunkSaturation = 0.4 + Math.random() * 0.2;
+        const trunkLightness = 0.3 + Math.random() * 0.2;
+        const trunkColor = new THREE.Color().setHSL(trunkHue, trunkSaturation, trunkLightness);
+
+        const trunkMaterial = new THREE.MeshStandardMaterial({
+            color: trunkColor,
+            roughness: 0.9,
+            metalness: 0.0,
+            flatShading: true // Add some angular detail to the trunk
+        });
+
+        const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+        trunk.position.y = height * 0.5 * scale;
+        trunk.castShadow = true;
+        trunk.receiveShadow = true;
+
+        // Create foliage with more natural variation
+        const foliageLayers = 3;
+        const baseColor = new THREE.Color().setHSL(
+            0.35 + (Math.random() - 0.5) * 0.05, // Green hue with slight variation
+            0.6 + Math.random() * 0.2, // Moderate to high saturation
+            0.25 + Math.random() * 0.15 // Darker to moderate lightness
+        );
+
+        for (let i = 0; i < foliageLayers; i++) {
+            const layerScale = 1 - (i * 0.25); // Each layer gets progressively smaller
+            const coneHeight = (16 + Math.random() * 4) * layerScale;
+            const coneRadius = (8 + Math.random() * 3) * layerScale;
+            
+            const foliageGeometry = new THREE.ConeGeometry(
+                coneRadius, coneHeight,
+                8, // radial segments
+                4, // height segments
+                false
+            );
+            
+            // Add random variation to foliage vertices
+            const positions = foliageGeometry.attributes.position.array;
+            for (let j = 0; j < positions.length; j += 3) {
+                positions[j] += (Math.random() - 0.5) * 2;
+                positions[j + 2] += (Math.random() - 0.5) * 2;
+            }
+            foliageGeometry.attributes.position.needsUpdate = true;
+            foliageGeometry.scale(scale, scale, scale);
+            
+            // Slightly vary the color for each layer
+            const layerColor = baseColor.clone().multiplyScalar(0.9 + Math.random() * 0.2);
+            
+            const foliageMaterial = new THREE.MeshStandardMaterial({
+                color: layerColor,
+                roughness: 1.0,
+                metalness: 0.0,
+                flatShading: true // Creates more interesting light interaction
+            });
+            
+            const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
+            foliage.castShadow = true;
+            foliage.receiveShadow = true;
+            
+            // Position foliage with slight random offset
+            const trunkHeight = height * scale;
+            const foliageHeight = coneHeight * scale;
+            foliage.position.y = trunkHeight - foliageHeight * 0.3 + (i * 6 * scale);
+            foliage.position.x += (Math.random() - 0.5) * 2 * scale;
+            foliage.position.z += (Math.random() - 0.5) * 2 * scale;
+            foliage.rotation.y = Math.random() * Math.PI * 2; // Random rotation for each layer
+            
+            trunk.add(foliage);
+        }
+
+        return trunk;
+    };
+
+    // Add all LOD levels at once
+    treeLOD.addLevel(createTreeMesh('low'), 100);
+    treeLOD.addLevel(createTreeMesh('medium'), 50);
+    treeLOD.addLevel(createTreeMesh('high'), 0);
+
+    return treeLOD;
+}
+
+// Function to remove specific trees
+function removeSelectedTrees() {
+    const treesToRemove = trees.filter(tree => tree.userData.selected);
+    
+    treesToRemove.forEach(tree => {
+        scene.remove(tree);
+        const index = trees.indexOf(tree);
+        if (index > -1) {
+            trees.splice(index, 1);
+        }
+    });
+}
+
+// Function to toggle tree selection
+function toggleTreeSelection(tree) {
+    if (!tree.userData.selected) {
+        tree.userData.selected = true;
+        // Add visual feedback for selected trees
+        tree.traverse(child => {
+            if (child.material) {
+                child.material.emissive = new THREE.Color(0xff0000);
+                child.material.emissiveIntensity = 0.5;
+            }
+        });
+    } else {
+        tree.userData.selected = false;
+        // Remove visual feedback
+        tree.traverse(child => {
+            if (child.material) {
+                child.material.emissive = new THREE.Color(0x000000);
+                child.material.emissiveIntensity = 0;
+            }
+        });
+    }
 }
 
 // Ground creation functions
@@ -428,8 +407,7 @@ function createGround(scene) {
 
     // Create a Three.js texture from the canvas
     const groundTexture = new THREE.CanvasTexture(canvas);
-    groundTexture.wrapS = THREE.RepeatWrapping;
-    groundTexture.wrapT = THREE.RepeatWrapping;
+    groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
     groundTexture.repeat.set(50, 50);
 
     // Create material with the generated CanvasTexture
@@ -450,6 +428,8 @@ function createGround(scene) {
 window.TerrainGenerator = TerrainGenerator;
 window.addPlantsToTerrain = addPlantsToTerrain;
 window.createGround = createGround;
+window.removeSelectedTrees = removeSelectedTrees;
+window.toggleTreeSelection = toggleTreeSelection;
 
 // Example usage:
 
@@ -470,4 +450,4 @@ const terrainSettings = {
 // Initialize the terrain generator
 const terrainGenerator = new TerrainGenerator(scene, terrainSettings);
 
-addPlantsToTerrain();
+addPlantsToTerrain(scene);

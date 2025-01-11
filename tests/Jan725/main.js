@@ -86,6 +86,7 @@ function animate() {
 
     updateTeleportation(delta);
     updateLooting(delta);
+    updateGathering(delta);
 
     // Handle camera rotation
     if (rotateLeft) {
@@ -253,6 +254,36 @@ function onDocumentMouseDown(event) {
     if (chestIntersects.length > 0) {
         const chestObject = chestIntersects[0].object;
         openChestPopup(chestObject);
+        return;
+    }
+
+    // Check for tree intersections first
+    const treeIntersects = raycaster.intersectObjects(trees, true);
+    if (treeIntersects.length > 0) {
+        const treePoint = treeIntersects[0].point;
+        const treeObject = getEntityWithName(treeIntersects[0].object);
+        
+        // Calculate a position slightly away from the tree
+        const direction = new THREE.Vector3().subVectors(treePoint, player.position).normalize();
+        const distanceFromTree = 3; // Distance to stand from the tree
+        const destinationPoint = new THREE.Vector3(
+            treePoint.x - direction.x * distanceFromTree,
+            player.position.y,
+            treePoint.z - direction.z * distanceFromTree
+        );
+        
+        mouseDestination = destinationPoint;
+        destination = destinationPoint;
+        
+        // Start gathering when player reaches the tree
+        if (!isGathering) {
+            const checkGatheringStart = setInterval(() => {
+                if (!player.isMoving && player.position.distanceTo(destinationPoint) < 4) {
+                    startGathering(treeObject);
+                    clearInterval(checkGatheringStart);
+                }
+            }, 100);
+        }
         return;
     }
 

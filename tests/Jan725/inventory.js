@@ -2,13 +2,21 @@
 
 // Function to add a single item to the player's inventory
 function addItemToInventory(item) {
-    playerInventory.push(item);
+    if (!window.playerInventory) {
+        window.playerInventory = [];
+    }
+    console.log('Adding item to inventory:', item);
+    window.playerInventory.push(item);
+    console.log('Current inventory:', window.playerInventory);
     updateInventoryDisplay();
 }
 
 // Function to add multiple items to the player's inventory
 function addItemsToInventory(items) {
-    playerInventory.push(...items);
+    if (!window.playerInventory) {
+        window.playerInventory = [];
+    }
+    window.playerInventory.push(...items);
     updateInventoryDisplay();
 }
 
@@ -20,54 +28,75 @@ function updateInventoryDisplay() {
         return;
     }
 
-    // Create grid containers if they don't exist
-    const tabs = document.querySelectorAll('.inventory-tab');
-    tabs.forEach((tab, index) => {
-        const gridId = `inventoryGridTab${index + 1}`;
+    // Get all tab content divs
+    const tabContents = document.querySelectorAll('.inventory-tab-content');
+    tabContents.forEach(tabContent => {
+        const tabId = tabContent.id; // This will be 'tab1', 'tab2', etc.
+        const selectedType = getTypeByTabId(tabId);
+        console.log('Processing tab content:', tabId, 'type:', selectedType);
+
+        // Get or create the grid
+        const gridId = `inventoryGridTab${tabId.replace('tab', '')}`;
         let grid = document.getElementById(gridId);
-        
         if (!grid) {
+            console.log('Creating grid:', gridId);
             grid = document.createElement('div');
             grid.id = gridId;
             grid.className = 'inventory-grid';
-            grid.setAttribute('role', 'tabpanel');
-            grid.setAttribute('aria-labelledby', tab.dataset.tab);
-            inventoryContainer.appendChild(grid);
+            tabContent.appendChild(grid);
         }
-
-        // Get the tab identifier
-        const tabId = tab.dataset.tab;
-        const selectedType = getTypeByTabId(tabId);
 
         // Filter items based on selected type
-        let filteredItems;
-        if (selectedType === 'all') {
-            filteredItems = [...playerInventory];
-        } else {
-            filteredItems = playerInventory.filter(item => item.type.toLowerCase() === selectedType);
+        let filteredItems = [];
+        if (window.playerInventory) {
+            if (selectedType === 'all') {
+                filteredItems = [...window.playerInventory];
+            } else {
+                filteredItems = window.playerInventory.filter(item => item.type.toLowerCase() === selectedType);
+            }
         }
+        console.log('Filtered items for', tabId, ':', filteredItems);
 
         // Sort items alphabetically by name
         filteredItems.sort((a, b) => a.name.localeCompare(b.name));
 
-        // Populate the grid with filtered items
-        populateInventoryGrid(grid, filteredItems);
+        // Clear and populate the grid
+        grid.innerHTML = '';
+        filteredItems.forEach(item => {
+            const slot = document.createElement('div');
+            slot.classList.add('inventory-slot');
+            slot.innerText = item.name;
+            slot.setAttribute('data-name', item.name);
+            slot.setAttribute('data-description', item.description || 'No description');
+            slot.setAttribute('data-type', item.type || 'misc');
+            slot.setAttribute('data-rarity', item.rarity || 'Common');
+            grid.appendChild(slot);
+        });
 
-        // Show only the active tab's grid
-        grid.style.display = tab.classList.contains('active') ? 'grid' : 'none';
+        // Add empty slots to fill the grid
+        const totalSlots = 56;
+        const emptySlots = totalSlots - filteredItems.length;
+        for (let i = 0; i < emptySlots; i++) {
+            const slot = document.createElement('div');
+            slot.classList.add('inventory-slot', 'empty');
+            grid.appendChild(slot);
+        }
+
+        // Show/hide based on tab state
+        tabContent.style.display = tabContent.classList.contains('active') ? 'block' : 'none';
     });
 }
 
 // Helper function to map tabId to item type
 function getTypeByTabId(tabId) {
     const mapping = {
-        'tab1': 'all',          // Assuming 'tab1' is "All"
-        'tab2': 'equipment',
-        'tab3': 'material',
-        'tab4': 'consumable',
-        'tab5': 'quest',
-        'tab6': 'misc',
-        'tab7': 'special'       // If you have a seventh tab
+        'tab1': 'all',          // All Items
+        'tab2': 'equipment',    // Equipment
+        'tab3': 'material',     // Materials
+        'tab4': 'consumable',   // Consumables
+        'tab5': 'quest',        // Quest Items
+        'tab6': 'misc',         // Miscellaneous
+        'tab7': 'special'       // Special Items
     };
     return mapping[tabId] || 'misc';
 }
@@ -195,47 +224,51 @@ function setupInventoryTabs() {
     const tabs = document.querySelectorAll('.inventory-tab');
     const tabContents = document.querySelectorAll('.inventory-tab-content');
 
-    tabs.forEach((tab, index) => {
-        tab.addEventListener('click', () => {
-            // Remove 'active' class from all tabs and contents
-            tabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(tc => tc.classList.remove('active'));
-
-            // Add 'active' class to the selected tab and corresponding content
-            tab.classList.add('active');
-            const activeTabContent = document.getElementById(tab.dataset.tab);
-            activeTabContent.classList.add('active');
-
-            // Update the inventory display based on the selected tab
-            updateInventoryDisplay();
+    // Function to switch tabs
+    function switchTab(selectedTab) {
+        // Remove active class from all tabs and contents
+        tabs.forEach(tab => tab.classList.remove('active'));
+        tabContents.forEach(content => {
+            content.classList.remove('active');
+            content.style.display = 'none';
         });
+
+        // Add active class to selected tab
+        selectedTab.classList.add('active');
+
+        // Show selected tab content
+        const tabId = selectedTab.getAttribute('data-tab');
+        const selectedContent = document.getElementById(tabId);
+        if (selectedContent) {
+            selectedContent.classList.add('active');
+            selectedContent.style.display = 'block';
+        }
+
+        // Update inventory display
+        updateInventoryDisplay();
+    }
+
+    // Add click handlers to tabs
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => switchTab(tab));
     });
 
-    // Set the first tab as active by default
+    // Set first tab as active by default
     if (tabs.length > 0) {
-        tabs[0].classList.add('active');
-    }
-    if (tabContents.length > 0) {
-        tabContents[0].classList.add('active');
+        switchTab(tabs[0]);
     }
 }
 
 // Function to load the inventory UI
 function loadInventory() {
-    if (inventoryLoaded) {
-        toggleInventoryDisplay();
-        return;
-    }
-
     const inventory = document.getElementById('inventory');
-    if (!inventory) {
-        console.error('Inventory element not found in the DOM');
-        return;
+    if (inventory) {
+        inventory.style.display = inventory.style.display === 'none' ? 'block' : 'none';
+        if (inventory.style.display === 'block') {
+            setupInventoryTabs();
+            updateInventoryDisplay();
+        }
     }
-
-    inventoryLoaded = true;
-    initializeInventory();
-    toggleInventoryDisplay();
 }
 
 // Function to initialize inventory after loading HTML
@@ -271,13 +304,13 @@ document.addEventListener('keydown', (event) => {
 // Function to map tabId to types, in case needed
 function getTypeByTabId(tabId) {
     const mapping = {
-        'tab1': 'all',          // Assuming 'tab1' is "All"
-        'tab2': 'equipment',
-        'tab3': 'material',
-        'tab4': 'consumable',
-        'tab5': 'quest',
-        'tab6': 'misc',
-        'tab7': 'special'       // If you have a seventh tab
+        'tab1': 'all',          // All Items
+        'tab2': 'equipment',    // Equipment
+        'tab3': 'material',     // Materials
+        'tab4': 'consumable',   // Consumables
+        'tab5': 'quest',        // Quest Items
+        'tab6': 'misc',         // Miscellaneous
+        'tab7': 'special'       // Special Items
     };
     return mapping[tabId] || 'misc';
 }
@@ -343,7 +376,7 @@ function handleDragOver(event) {
 function handleDrop(event) {
     event.preventDefault();
     const itemName = event.dataTransfer.getData('text');
-    const item = playerInventory.find(item => item.name === itemName);
+    const item = window.playerInventory.find(item => item.name === itemName);
     if (item) {
         // Handle item drop logic here
     }
