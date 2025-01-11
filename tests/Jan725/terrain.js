@@ -140,46 +140,123 @@ function addPlantsToTerrain() {
 
     // Function to create a tree with separate trunk and foliage
     function createTree(scale = 1) {
-        const treeGroup = new THREE.Group();
-        
-        // Trunk (using custom geometry for more natural look)
-        const trunkGeometry = new THREE.CylinderGeometry(2 * scale, 3 * scale, 40 * scale, 8);
-        const trunkMaterial = new THREE.MeshStandardMaterial({ 
-            color: new THREE.Color(0x8B4513).multiplyScalar(0.8 + Math.random() * 0.4),
-            roughness: 0.8,
-            metalness: 0.2
-        });
-        const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-        trunk.position.y = 20 * scale;
-        treeGroup.add(trunk);
+        const treeLOD = new THREE.LOD();
+        const textureLoader = new THREE.TextureLoader();
 
-        // Create multiple foliage layers for more realistic look
-        const foliageLayers = 3;
-        for (let i = 0; i < foliageLayers; i++) {
-            const foliageGeometry = new THREE.ConeGeometry(
-                15 * scale * (1 - i * 0.2),
-                30 * scale,
-                8
-            );
-            const foliageMaterial = new THREE.MeshStandardMaterial({
-                color: new THREE.Color(0x228B22).multiplyScalar(0.8 + Math.random() * 0.4),
-                roughness: 1.0,
-                metalness: 0.0
+        // Create a promise to load textures with different resolutions
+        const loadBarkTextureLOD = (resolution) => {
+            const texturePaths = {
+                // low: 'https://file.garden/Zy7B0LkdIVpGyzA1/bark_low.webp',
+                // medium: 'https://file.garden/Zy7B0LkdIVpGyzA1/bark_medium.webp',
+                high: 'https://file.garden/Zy7B0LkdIVpGyzA1/bark.webp'
+            };
+
+            return new Promise((resolve) => {
+                textureLoader.load(texturePaths[resolution], (texture) => {
+                    texture.wrapS = THREE.RepeatWrapping;
+                    texture.wrapT = THREE.RepeatWrapping;
+                    resolve(texture);
+                });
             });
-            const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
-            foliage.position.y = (35 + i * 15) * scale;
-            treeGroup.add(foliage);
-        }
+        };
 
-        // Add collision box
-        const bbox = new THREE.Box3();
-        bbox.setFromObject(treeGroup);
-        const collider = new THREE.Box3Helper(bbox, 0xff0000);
-        collider.visible = false; // Hide the collision box
-        treeGroup.add(collider);
-        colliders.push({ type: 'tree', box: bbox, object: treeGroup });
+        const loadLeafTextureLOD = (resolution) => {
+            const texturePaths = {
+                // low: 'https://file.garden/Zy7B0LkdIVpGyzA1/leaf_low.webp',
+                // medium: 'https://file.garden/Zy7B0LkdIVpGyzA1/leaf_medium.webp',
+                high: 'https://file.garden/Zy7B0LkdIVpGyzA1/leaf.webp'
+            };
 
-        return treeGroup;
+            return new Promise((resolve) => {
+                textureLoader.load(texturePaths[resolution], (texture) => {
+                    texture.wrapS = THREE.RepeatWrapping;
+                    texture.wrapT = THREE.RepeatWrapping;
+                    resolve(texture);
+                });
+            });
+        };
+
+        // Create materials with low-res textures first
+        return Promise.all([loadBarkTextureLOD('low'), loadLeafTextureLOD('low')])
+            .then(([lowBarkTexture, lowLeafTexture]) => {
+                // Create the tree with low-res textures initially
+                const createTreeMesh = (detailLevel, barkTexture, leafTexture) => {
+                    const trunkGeometry = new THREE.CylinderGeometry(
+                        2 * scale, 
+                        3 * scale, 
+                        detailLevel === 'high' ? 40 * scale : detailLevel === 'medium' ? 30 * scale : 20 * scale,
+                        detailLevel === 'high' ? 8 : detailLevel === 'medium' ? 6 : 4
+                    );
+
+                    const trunkMaterial = new THREE.MeshStandardMaterial({
+                        map: barkTexture,
+                        color: new THREE.Color(0x8B4513).multiplyScalar(0.8 + Math.random() * 0.4),
+                        roughness: 0.8,
+                        metalness: 0.2
+                    });
+
+                    const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+                    trunk.position.y = detailLevel === 'high' ? 20 * scale : detailLevel === 'medium' ? 15 * scale : 10 * scale;
+
+                    // Create foliage for this LOD level
+                    const foliageLayers = detailLevel === 'high' ? 3 : detailLevel === 'medium' ? 2 : 1;
+                    for (let i = 0; i < foliageLayers; i++) {
+                        const foliageGeometry = new THREE.ConeGeometry(
+                            15 * scale * (1 - i * 0.2),
+                            30 * scale,
+                            detailLevel === 'high' ? 8 : detailLevel === 'medium' ? 6 : 4
+                        );
+                        const foliageMaterial = new THREE.MeshStandardMaterial({
+                            map: leafTexture,
+                            roughness: 1.0,
+                            metalness: 0.0
+                        });
+                        const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
+                        foliage.position.y = (35 + i * 15) * scale;
+                        trunk.add(foliage);
+                    }
+
+                    return trunk;
+                };
+
+                // Add low detail level immediately
+                const lowDetailTree = createTreeMesh('low', lowBarkTexture, lowLeafTexture);
+                treeLOD.addLevel(lowDetailTree, 100);
+
+                // Load medium resolution textures
+                return Promise.all([
+                    loadBarkTextureLOD('medium'),
+                    loadLeafTextureLOD('medium'),
+                    Promise.resolve({ lowBarkTexture, lowLeafTexture })
+                ]);
+            })
+            .then(([mediumBarkTexture, mediumLeafTexture, { lowBarkTexture, lowLeafTexture }]) => {
+                // Add medium detail level
+                const mediumDetailTree = createTreeMesh('medium', mediumBarkTexture, mediumLeafTexture);
+                treeLOD.addLevel(mediumDetailTree, 50);
+
+                // Load high resolution textures
+                return Promise.all([
+                    loadBarkTextureLOD('high'),
+                    loadLeafTextureLOD('high'),
+                    Promise.resolve({ lowBarkTexture, lowLeafTexture, mediumBarkTexture, mediumLeafTexture })
+                ]);
+            })
+            .then(([highBarkTexture, highLeafTexture, { lowBarkTexture, lowLeafTexture, mediumBarkTexture, mediumLeafTexture }]) => {
+                // Add high detail level
+                const highDetailTree = createTreeMesh('high', highBarkTexture, highLeafTexture);
+                treeLOD.addLevel(highDetailTree, 0);
+
+                // Add collision box
+                const bbox = new THREE.Box3();
+                bbox.setFromObject(treeLOD);
+                const collider = new THREE.Box3Helper(bbox, 0xff0000);
+                collider.visible = false;
+                treeLOD.add(collider);
+                colliders.push({ type: 'tree', box: bbox, object: treeLOD });
+
+                return treeLOD;
+            });
     }
 
     // Function to create a bush with more natural shape
@@ -268,25 +345,31 @@ function addPlantsToTerrain() {
             if (Math.sqrt(x * x + z * z) < 800) continue; // Skip if in safe zone
 
             const scale = 0.5 + Math.random() * 1.0;
-            let element;
+            let elementPromise;
             
             switch(type) {
                 case 'tree':
-                    element = createTree(scale);
+                    elementPromise = createTree(scale);
                     break;
                 case 'bush':
-                    element = createBush(scale);
+                    elementPromise = Promise.resolve(createBush(scale));
                     break;
                 case 'rock':
-                    element = createRock(scale);
+                    elementPromise = Promise.resolve(createRock(scale));
                     break;
             }
 
-            if (element) {
+            // Handle the element creation asynchronously
+            elementPromise.then(element => {
+                if (!element) return;
+
+                // Position the element
                 element.position.set(x, 0, z);
                 element.rotation.y = Math.random() * Math.PI * 2;
+
+                // Add to scene
                 scene.add(element);
-            }
+            });
         }
     };
 

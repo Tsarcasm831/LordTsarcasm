@@ -2,7 +2,7 @@
 let isDaytime = true;
 let cycleProgress = 0;
 const CYCLE_DURATION = 3000000; // 30 seconds in milliseconds
-let cycleStartOffset = CYCLE_DURATION * 0.75; // Offset to start at mid-day
+let cycleStartOffset = 0; // Start at the beginning of the day
 
 // Day-night cycle colors
 const DAY_SKY_COLOR = 0x87ceeb;    // Light blue

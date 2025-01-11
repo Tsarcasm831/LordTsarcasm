@@ -1,7 +1,7 @@
 // Open Admin Console - show only the Login tab
 function openAdminConsole() {
     const adminConsole = document.getElementById('adminConsole');
-    adminConsole.style.display = 'flex';
+    adminConsole.classList.add('show');
     adminConsoleOpen = true;
 
     // Reset to Login tab when opening and hide other tabs
@@ -34,7 +34,7 @@ function showAllAdminTabsExceptLogin() {
 // Function to close Admin Console
 function closeAdminConsole() {
     const adminConsole = document.getElementById('adminConsole');
-    adminConsole.style.display = 'none';
+    adminConsole.classList.remove('show');
     adminConsoleOpen = false;
 
     // Reset admin login status to require password again

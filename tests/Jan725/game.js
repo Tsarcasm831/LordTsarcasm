@@ -345,3 +345,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     
 });
+
+// Show Character Stats
+function openStats() {
+    const statsModal = document.getElementById('stats');
+    statsModal.style.display = 'flex';  // or 'block', depending on your modal style
+    statsModal.setAttribute('aria-hidden', 'false');
+  }
+  
+  // Hide Character Stats
+  function closeStats() {
+    const statsModal = document.getElementById('stats');
+    statsModal.style.display = 'none';
+    statsModal.setAttribute('aria-hidden', 'true');
+  }
+  
+  // Example: Hook up the 'C' key to open/close
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'c' || event.key === 'C') {
+      const statsModal = document.getElementById('stats');
+      // Toggle if it's open or closed
+      if (statsModal.style.display === 'none' || !statsModal.style.display) {
+        openStats();
+      } else {
+        closeStats();
+      }
+    }
+  });
+  

@@ -12,6 +12,9 @@
   <link rel="stylesheet" href="inventory.css">
   <link rel="stylesheet" href="./styles/admin.css">
   <link rel="stylesheet" href="./styles/bestiary.css">
+  <link rel="stylesheet" href="./styles/music.css">
+  <link rel="stylesheet" href="./styles/skilltree.css">
+  
 
   <!-- Three.js & GLTFLoader -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
@@ -20,9 +23,11 @@
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
-
-  <!-- Dark Mode Toggle -->
-  <button id="darkModeToggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+  <div id="gameControls">
+    <button id="helpButton" onclick="toggleHelpWindow()">Help</button>
+    <button id="openMusic" class="open-music-button">Open Music</button>
+    <button id="bestiaryButton" onclick="toggleBestiaryWindow()">View Bestiary</button>
+  </div>
 
   <!-- Audio Widget -->
   <div id="audioWidgetContainer" class="minimized">
@@ -49,11 +54,6 @@
   <div id="fullscreenMap" class="fullscreen-map">
     <canvas id="mapCanvas"></canvas>
     <button onclick="closeFullscreenMap()" class="close-map-button">Close Map</button>
-  </div>
-
-  <!-- In-Game Message Console -->
-  <div id="gameConsole" class="game-console">
-    <p id="consoleMessage">Welcome to the game!</p>
   </div>
 
   <!-- Help Window Modal -->
@@ -114,7 +114,7 @@
   <button id="openBestiary" class="open-bestiary-button">View Bestiary</button>
   <div id="bestiaryModal" class="modal" aria-hidden="true">
     <div class="modal-content">
-      <button id="closeBestiary" class="close-button" aria-label="Close Bestiary">&times;</button>
+      <button id="closeBestiary" class="close-button" aria-label="Close Bestiary" onclick="toggleBestiaryWindow()">&times;</button>
       <div id="bestiaryContent" class="bestiary-content"></div>
     </div>
   </div>
@@ -126,10 +126,6 @@
       <div id="creatureDetailsContent"></div>
     </div>
   </div>
-
-  <!-- Help & Music Buttons -->
-  <button id="openHelp" class="open-help-button" onclick="toggleHelpWindow()">Help</button>
-  <button id="openMusic" class="open-music-button">Open Music</button>
 
   <!-- Music Modal -->
   <div id="musicModal" class="modal" style="display: none;">
@@ -224,27 +220,31 @@
     </div>
   </div>
 
-  <!-- Character Stats -->
-  <div id="stats">
-    <h2>Character Stats</h2>
-    <p>Level: <span id="level">1</span></p>
-    <p>Experience: <span id="experience">0</span> / <span id="nextLevelExperience">100</span></p>
-    <p>Strength: <span id="strength">10</span></p>
-    <p>Dexterity: <span id="dexterity">10</span></p>
-    <p>Vitality: <span id="vitality">10</span></p>
-    <p>Energy: <span id="energy">10</span></p>
-    <p>Mana: <span id="mana">50</span></p>
-    <p>Karma: <span id="karma">0</span></p>
-    <p>Reputation: <span id="reputation">0</span></p>
-    <p>Available Stat Points: <span id="statPoints">0</span></p>
-    <button onclick="increaseStat('strength')">Increase Strength</button>
-    <button onclick="increaseStat('dexterity')">Increase Dexterity</button>
-    <button onclick="increaseStat('vitality')">Increase Vitality</button>
-    <button onclick="increaseStat('energy')">Increase Energy</button>
-    <button onclick="increaseStat('mana')">Increase Mana</button>
-    <button onclick="increaseStat('karma')">Increase Karma</button>
-    <button onclick="increaseStat('reputation')">Increase Reputation</button>
+  <!-- Character Stats Modal -->
+  <div id="stats" class="modal" aria-hidden="true" style="display: none;">
+    <div class="modal-content">
+      <button class="close-button" onclick="closeStats()" aria-label="Close Character Stats">&times;</button>
+      <h2>Character Stats</h2>
+      <p>Level: <span id="level">1</span></p>
+      <p>Experience: <span id="experience">0</span> / <span id="nextLevelExperience">100</span></p>
+      <p>Strength: <span id="strength">10</span></p>
+      <p>Dexterity: <span id="dexterity">10</span></p>
+      <p>Vitality: <span id="vitality">10</span></p>
+      <p>Energy: <span id="energy">10</span></p>
+      <p>Mana: <span id="mana">50</span></p>
+      <p>Karma: <span id="karma">0</span></p>
+      <p>Reputation: <span id="reputation">0</span></p>
+      <p>Available Stat Points: <span id="statPoints">0</span></p>
+      <button onclick="increaseStat('strength')">Increase Strength</button>
+      <button onclick="increaseStat('dexterity')">Increase Dexterity</button>
+      <button onclick="increaseStat('vitality')">Increase Vitality</button>
+      <button onclick="increaseStat('energy')">Increase Energy</button>
+      <button onclick="increaseStat('mana')">Increase Mana</button>
+      <button onclick="increaseStat('karma')">Increase Karma</button>
+      <button onclick="increaseStat('reputation')">Increase Reputation</button>
+    </div>
   </div>
+
 
   <!-- Background Music Mount -->
   <div id="backgroundMusic"></div>
@@ -498,22 +498,19 @@
       helpWindow.style.display = (helpWindow.style.display === 'none' || !helpWindow.style.display) ? 'flex' : 'none';
     }
 
-    // Dark Mode Toggle
-    document.addEventListener('DOMContentLoaded', () => {
-      const darkModeToggle = document.getElementById('darkModeToggle');
-      if (localStorage.getItem('theme') === 'dark') {
-        document.body.classList.add('dark-mode');
+    // Show/Hide Bestiary Window
+    function toggleBestiaryWindow() {
+      const bestiaryWindow = document.getElementById('bestiaryModal');
+      if (bestiaryWindow) {
+        bestiaryWindow.style.display = (bestiaryWindow.style.display === 'none' || !bestiaryWindow.style.display) ? 'flex' : 'none';
       }
-      darkModeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        if (document.body.classList.contains('dark-mode')) {
-          localStorage.setItem('theme', 'dark');
-          darkModeToggle.textContent = '☀️';
-        } else {
-          localStorage.setItem('theme', 'light');
-          darkModeToggle.textContent = '🌙';
-        }
-      });
+    }
+
+    // Keyboard Controls
+    document.addEventListener('keydown', (event) => {
+      if (event.key.toLowerCase() === 'y') {
+        toggleBestiaryWindow();
+      }
     });
 
     // Music Modal
@@ -523,6 +520,23 @@
       const closeMusicModalBtn = document.getElementById('closeMusicModal');
       openMusicBtn.addEventListener('click', () => (musicModal.style.display = 'flex'));
       closeMusicModalBtn.addEventListener('click', () => (musicModal.style.display = 'none'));
+    });
+
+    // Close all modals when Esc key is pressed
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeNpcPopup();
+        closeInventory();
+        closeStats();
+        closeAdminConsole();
+        document.getElementById('bestiaryModal').style.display = 'none';
+        closeMusicModal();
+        closeNpcAdminPopup();
+        closeChestPopup();
+        closeQuestLog();
+        closeStructureAdminPopup();
+        // Add other close functions as needed
+      }
     });
   </script>
 </body>

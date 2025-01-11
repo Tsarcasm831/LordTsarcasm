@@ -286,6 +286,7 @@ function init() {
     document.addEventListener('keydown', onDocumentKeyDown, false);
     canvas.addEventListener('mousedown', onDocumentMouseDown, false);
     canvas.addEventListener('mouseup', onDocumentMouseUp, false);
+    canvas.addEventListener('dblclick', function(event) { /* Do nothing */ }, false);
 }
 
 let mapInitialized = false;  

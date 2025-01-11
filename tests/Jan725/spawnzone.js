@@ -388,6 +388,17 @@ function addPlantsToTerrain() {
     const numElements = 3000; // Total number of natural elements
     const colliders = []; // Array to store collision objects
 
+    // Create a texture loader and load the bark texture
+    const textureLoader = new THREE.TextureLoader();
+    const barkTexture = textureLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/bark.webp');
+    barkTexture.wrapS = THREE.RepeatWrapping;
+    barkTexture.wrapT = THREE.RepeatWrapping;
+
+    // Load the leaf texture
+    const leafTexture = textureLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/leaf.webp');
+    leafTexture.wrapS = THREE.RepeatWrapping;
+    leafTexture.wrapT = THREE.RepeatWrapping;
+
     // Function to create a tree with separate trunk and foliage
     function createTree(scale = 1) {
         const treeGroup = new THREE.Group();
@@ -419,6 +430,7 @@ function addPlantsToTerrain() {
         const lean = (Math.random() - 0.5) * 0.2;
         const trunkGeometry = new THREE.CylinderGeometry(1.5 * scale, 2.5 * scale, 45 * scale, 8);
         const trunkMaterial = new THREE.MeshStandardMaterial({ 
+            map: barkTexture,
             color: new THREE.Color(0x4A2F1B).multiplyScalar(0.8 + Math.random() * 0.4),
             roughness: 0.9,
             metalness: 0.1
@@ -454,6 +466,7 @@ function addPlantsToTerrain() {
         const trunkHeight = (35 + Math.random() * 15) * scale;
         const trunkGeometry = new THREE.CylinderGeometry(3 * scale, 4 * scale, trunkHeight, 8);
         const trunkMaterial = new THREE.MeshStandardMaterial({ 
+            map: barkTexture,
             color: new THREE.Color(0x8B4513).multiplyScalar(0.7 + Math.random() * 0.6),
             roughness: 0.8,
             metalness: 0.2
@@ -489,6 +502,7 @@ function addPlantsToTerrain() {
         const trunkHeight = (45 + Math.random() * 15) * scale;
         const trunkGeometry = new THREE.CylinderGeometry(1.5 * scale, 2 * scale, trunkHeight, 8);
         const trunkMaterial = new THREE.MeshStandardMaterial({ 
+            map: barkTexture,
             color: new THREE.Color(0xE6E6E6).multiplyScalar(0.9 + Math.random() * 0.2),
             roughness: 0.7,
             metalness: 0.3
@@ -506,6 +520,7 @@ function addPlantsToTerrain() {
                 8
             );
             const foliageMaterial = new THREE.MeshStandardMaterial({
+                map: leafTexture,
                 color: new THREE.Color(0x98FB98).multiplyScalar(0.8 + Math.random() * 0.4),
                 roughness: 1.0,
                 metalness: 0.0
@@ -529,6 +544,7 @@ function addPlantsToTerrain() {
             const size = (3 + Math.random() * 2) * scale;
             const geometry = new THREE.SphereGeometry(size, 8, 8);
             const material = new THREE.MeshStandardMaterial({
+                map: leafTexture,
                 color: new THREE.Color(0x228B22).multiplyScalar(0.7 + Math.random() * 0.6),
                 roughness: 1.0,
                 metalness: 0.0

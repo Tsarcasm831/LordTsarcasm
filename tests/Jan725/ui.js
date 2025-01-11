@@ -130,7 +130,7 @@ function initializeAdminConsoleUI() {
 
 function openAdminConsoleUI() {
     const adminConsole = document.getElementById('adminConsole');
-    adminConsole.style.display = 'block';
+    adminConsole.classList.add('show');
     if (isAdminLoggedIn) {
         document.getElementById('adminLogin').style.display = 'none';
         document.getElementById('adminControls').style.display = 'block';
@@ -142,7 +142,7 @@ function openAdminConsoleUI() {
 
 function closeAdminConsoleUI() {
     const adminConsole = document.getElementById('adminConsole');
-    adminConsole.style.display = 'none';
+    adminConsole.classList.remove('show');
     isAdminLoggedIn = false;
     document.getElementById('adminControls').style.display = 'none';
     document.getElementById('adminLogin').style.display = 'block';
