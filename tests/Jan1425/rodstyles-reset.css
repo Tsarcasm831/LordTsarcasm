@@ -1,0 +1,20 @@
+/* rodstyles-reset.css */
+
+/* ======================= */
+/*       Reset Styles      */
+/* ======================= */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body, html { 
+    margin: 0; 
+    padding: 0; 
+    overflow: hidden; 
+    height: 100%; /* Ensure body takes full height */
+    font-family: Arial, sans-serif; /* Consistent font */
+    background-color: #121212; /* Dark background for better contrast */
+    color: #e0e0e0; /* Light text for readability */
+}

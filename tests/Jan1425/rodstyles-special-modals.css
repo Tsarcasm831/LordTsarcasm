@@ -1,0 +1,704 @@
+/****************************************/
+/*      rodstyles-special-modals.css    */
+/****************************************/
+
+/* ======================= */
+/*  Trait Selection Modal  */
+/* ======================= */
+#traitSelectionModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+#traitSelectionModal .modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border-radius: 5px;
+    width: 50%;
+    max-width: 600px;
+    max-height: 80%;
+    overflow-y: hidden;
+}
+
+.trait-option {
+    margin-bottom: 10px;
+}
+
+.trait-option input {
+    margin-right: 10px;
+}
+
+/* ======================= */
+/*        Admin Console    */
+/* ======================= */
+#adminConsole {
+    position: fixed;
+    inset: 0; /* shorthand for top:0, left:0, bottom:0, right:0 */
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+#adminConsole .modal-content {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    padding: 30px;
+    border-radius: 12px;
+    width: 80%;
+    max-width: 750px;
+    max-height: 85%;
+    overflow-y: hidden;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+/* Close Button for Admin Console */
+#adminConsole .close-button {
+    position: absolute;
+    top: 12px;
+    right: 20px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+#adminConsole .close-button:hover,
+#adminConsole .close-button:focus {
+    color: #FFD700;
+}
+
+/* Tab Navigation Styles */
+.admin-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.tab-button {
+    background-color: #444;
+    color: #e0e0e0;
+    border: none;
+    padding: 10px 24px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.2s, transform 0.1s;
+    min-width: 120px;
+    text-align: center;
+}
+
+.tab-button:hover {
+    background-color: #555;
+    transform: scale(1.05);
+}
+
+.tab-button.active {
+    background-color: #FFD700;
+    color: #2c2c2c;
+}
+
+/* Tab Content Styles */
+.admin-tab-content {
+    display: none; /* Hidden by default */
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.admin-tab-content.active {
+    display: block;
+    opacity: 1;
+}
+
+.admin-tab-content h3,
+.admin-tab-content h4 {
+    color: #FFD700;
+    margin-top: 0;
+}
+
+.admin-tab-content section {
+    margin-bottom: 16px;
+}
+
+/* Form Elements Styles */
+.admin-tab-content input[type="number"],
+.admin-tab-content input[type="password"],
+.admin-tab-content select,
+.admin-tab-content textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #3a3a3a;
+    color: #fff;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-tab-content input[type="number"]:focus,
+.admin-tab-content input[type="password"]:focus,
+.admin-tab-content select:focus,
+.admin-tab-content textarea:focus {
+    border-color: #FFD700;
+    box-shadow: 0 0 6px #FFD700;
+    outline: none;
+}
+
+/* Buttons Styles */
+.admin-tab-content button {
+    background-color: #FFD700;
+    color: #2c2c2c;
+    border: none;
+    padding: 10px 24px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.2s, transform 0.1s;
+    font-size: 16px;
+}
+
+.admin-tab-content button:hover {
+    background-color: #e6c200;
+    transform: scale(1.02);
+}
+
+/* Checkbox Labels */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.checkbox-label input {
+    margin-right: 8px;
+}
+
+/* Additional Admin Console Overrides */
+#adminConsole .modal-content {
+    background: linear-gradient(145deg, #2c2c2c, #333);
+    color: #e0e0e0;
+    padding: 40px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 85%;
+    overflow-y: hidden;
+    position: relative;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
+}
+
+#adminConsole .close-button {
+    position: absolute;
+    top: 12px;
+    right: 20px;
+    color: #ccc;
+    font-size: 30px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+#adminConsole .close-button:hover {
+    color: #FFD700;
+}
+
+.admin-tabs {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #555;
+    padding-bottom: 8px;
+    gap: 12px;
+}
+
+.tab-button {
+    background: #444;
+    color: #e0e0e0;
+    border: none;
+    padding: 10px 24px;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: background 0.3s, transform 0.2s;
+    min-width: 120px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.tab-button:hover {
+    background: #555;
+    transform: scale(1.05);
+}
+
+.tab-button.active {
+    background: #FFD700;
+    color: #2c2c2c;
+    border-bottom: 2px solid #FFD700;
+}
+
+.admin-tab-content {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, transform 0.3s;
+    transform: translateY(20px);
+}
+
+.admin-tab-content.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.admin-tab-content h3 {
+    margin-top: 0;
+    color: #FFD700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.admin-tab-content section {
+    margin-bottom: 20px;
+}
+
+.admin-tab-content h4 {
+    margin-bottom: 10px;
+    color: #FFD700;
+    font-weight: 600;
+}
+
+.admin-tab-content input[type="number"],
+.admin-tab-content input[type="password"],
+.admin-tab-content select,
+.admin-tab-content textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #666;
+    border-radius: 6px;
+    background: #3a3a3a;
+    color: #fff;
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.admin-tab-content input[type="number"]:focus,
+.admin-tab-content input[type="password"]:focus,
+.admin-tab-content select:focus,
+.admin-tab-content textarea:focus {
+    border-color: #FFD700;
+    box-shadow: 0 0 10px #FFD700;
+    outline: none;
+}
+
+.admin-tab-content button {
+    background: #FFD700;
+    color: #2c2c2c;
+    border: none;
+    padding: 12px 30px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.3s, transform 0.2s;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.admin-tab-content button:hover {
+    background: #e6c200;
+    transform: scale(1.05);
+}
+
+/* ======================= */
+/*       Help Window       */
+/* ======================= */
+#helpWindow {
+    position: fixed;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    z-index: 999;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(45, 45, 45, 0.9));
+    color: #e2e2e2;
+    width: 90%;
+    max-width: 900px;
+    max-height: 80vh;
+    padding: 25px 30px;
+    border-radius: 12px;
+    border: 2px dashed rgba(255, 40, 40, 0.8);
+    box-shadow: 
+        0 0 60px rgba(0, 0, 0, 0.9),
+        inset 0 0 15px rgba(255, 0, 0, 0.3);
+    backdrop-filter: blur(8px) brightness(0.9);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    font-family: var(--terminal-font, 'OCR A Std'), monospace;
+}
+
+#helpWindow .close-button {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    background-color: rgba(200, 0, 0, 0.85);
+    border: none;
+    color: #fff;
+    z-index: 1000;
+    font-size: 24px;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
+}
+
+/* ======================= */
+/*         Bestiary        */
+/* ======================= */
+#bestiaryModal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8);
+    align-items: center;
+    justify-content: center;
+}
+
+#bestiaryModal.show {
+    display: flex;
+}
+
+#bestiaryModal .modal-content {
+    background-color: #1A1A1A;
+    color: #e0e0e0;
+    margin: 5% auto;
+    padding: 30px;
+    border: 2px solid #FFD700;
+    width: 90%;
+    max-width: 1200px;
+    max-height: 90vh;
+    overflow-y: hidden;
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+}
+
+.bestiary-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Creature Cards */
+.creature-card {
+    border: 2px solid #555;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #292929;
+    transition: background 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+}
+
+.creature-card:hover {
+    background-color: #3a3a3a;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+}
+
+.creature-image {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+}
+
+.creature-info {
+    text-align: center;
+}
+
+.creature-info h3 {
+    margin: 0 0 10px 0;
+    color: #FFD700;
+    font-size: 1.5em;
+}
+
+.creature-info p {
+    margin: 0 0 15px 0;
+    color: #e0e0e0;
+    font-size: 1em;
+}
+
+.view-details-button {
+    padding: 10px 15px;
+    background-color: #8B0000;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 1em;
+}
+
+.view-details-button:hover {
+    background-color: #FF6347;
+    transform: scale(1.05);
+}
+
+/* Creature Details Modal */
+#creatureDetailsModal {
+    display: none;
+    position: fixed;
+    z-index: 1500;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    transition: opacity 0.3s ease;
+    align-items: center;
+    justify-content: center;
+}
+
+#creatureDetailsModal.show {
+    display: flex;
+    opacity: 1;
+}
+
+#creatureDetailsModal .modal-content {
+    background-color: #1A1A1A;
+    color: #e0e0e0;
+    margin: 5% auto;
+    padding: 30px;
+    border: 2px solid #FFD700;
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90vh;
+    overflow-y: hidden;
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+}
+
+.creature-detail-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.creature-detail-image {
+    flex: 1 1 300px;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+    transition: transform 0.3s ease-in-out;
+}
+
+.creature-detail-image:hover {
+    transform: scale(1.02);
+}
+
+.stats-container {
+    flex: 1 1 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.stat-item span {
+    flex: 0 0 60px;
+    font-weight: bold;
+    color: #FFD700;
+    font-size: 1.1em;
+    margin-right: 10px;
+}
+
+.stat-bar {
+    flex: 1;
+    background: #555;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: inset 0 0 5px #000;
+}
+
+.progress {
+    background: linear-gradient(90deg, #FFD700 0%, #FF8C00 100%);
+    height: 100%;
+    width: 0;
+    transition: width 1s ease-in-out;
+}
+
+.model-container {
+    width: 100%;
+    height: 400px;
+    margin-top: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+    background-color: #000;
+}
+
+/* ======================= */
+/*      NPC Admin Popup    */
+/* ======================= */
+#npcAdminPopup {
+    position: fixed;
+    width: var(--popup-width);
+    max-height: 80vh;
+    background: var(--popup-bg);
+    color: var(--popup-color);
+    padding: 20px;
+    border: var(--popup-border);
+    z-index: 1000;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow-y: hidden;
+    border-radius: var(--popup-border-radius);
+    box-shadow: var(--popup-box-shadow);
+    font-family: Arial, sans-serif;
+}
+
+#npcAdminPopup .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: transparent;
+    border: none;
+    color: var(--close-button-color);
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+#npcAdminPopup .close-button:hover {
+    color: var(--close-button-hover-color);
+}
+
+/* Input Fields, Text Areas, and Selects */
+#npcAdminPopup input,
+#npcAdminPopup textarea,
+#npcAdminPopup select {
+    width: 100%;
+    margin-bottom: 15px;
+    background-color: var(--input-bg);
+    color: var(--input-color);
+    border: var(--input-border);
+    padding: 8px 10px;
+    border-radius: var(--input-border-radius);
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+#npcAdminPopup input:focus,
+#npcAdminPopup textarea:focus,
+#npcAdminPopup select:focus {
+    border-color: #FFD700;
+    outline: none;
+    background-color: #444;
+}
+
+/* Labels */
+#npcAdminPopup label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: var(--label-color);
+}
+
+/* Button Styles */
+#npcAdminPopup button {
+    margin-right: 10px;
+    padding: 10px 15px;
+    background-color: var(--button-bg);
+    color: var(--button-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#npcAdminPopup button:hover {
+    background-color: var(--button-hover-bg);
+    transform: translateY(-2px);
+}
+
+#npcAdminPopup button:active {
+    transform: translateY(0);
+}
+
+/* Color Picker Styles */
+#npcAdminPopup input[type="color"] {
+    padding: 0;
+    height: 40px;
+    width: 100%;
+    cursor: pointer;
+    border: var(--input-border);
+    border-radius: var(--input-border-radius);
+    background: none;
+    transition: border-color 0.3s;
+}
+
+#npcAdminPopup input[type="color"]:focus {
+    border-color: #FFD700;
+}
+
+/* Field Groups */
+#npcAdminPopup .field-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Scrollbar Styling */
+#npcAdminPopup::-webkit-scrollbar {
+    width: 8px;
+}
+
+#npcAdminPopup::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 4px;
+}
+
+#npcAdminPopup::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+}

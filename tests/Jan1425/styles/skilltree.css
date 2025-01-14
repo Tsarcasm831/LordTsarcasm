@@ -1,0 +1,75 @@
+
+/* ======================= */
+/*        Skill Tree       */
+/* ======================= */
+
+/* Skill Tree Styles */
+#skillTree {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 20px;
+    border: 2px solid #aaa;
+    z-index: 100;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    overflow-y: hidden;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+}
+
+#skillTree h2 {
+    text-align: center;
+    color: #FFD700;
+    margin-top: 0;
+}
+
+#skillsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.skill {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.skill:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+}
+
+.skill.unavailable {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.skill.learned {
+    background: rgba(0, 255, 0, 0.5);
+    cursor: default;
+}
+
+.slot {
+    width: 64px;
+    height: 64px;
+    border: 2px solid #555;
+    margin: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    transition: background 0.2s;
+}
+
+.slot:hover {
+    background: rgba(255, 255, 255, 0.2);
+}

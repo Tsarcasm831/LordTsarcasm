@@ -1,0 +1,202 @@
+/* NPC Popup */
+#npcPopup {
+    position: absolute;
+    width: 400px;
+    height: auto;
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.9), rgba(10, 10, 10, 0.9));
+    color: #f9f9f9;
+    padding: 20px;
+    border: 2px solid #444;
+    z-index: 10;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 30px rgba(100, 100, 255, 0.6);
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    animation: popupFadeIn 0.5s forwards;
+}
+
+/* Popup Glow on Hover */
+#npcPopup:hover {
+    box-shadow: 0 0 25px rgba(100, 100, 255, 0.9), 0 0 35px rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%) scale(1.02);
+}
+
+/* Popup Fade-in Animation */
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -45%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Additional Styling for Text */
+#npcPopup h1, #npcPopup h2 {
+    color: #e0e0ff;
+    text-shadow: 0 0 10px rgba(100, 100, 255, 0.8);
+    font-family: 'Arial', sans-serif;
+}
+
+#npcPopup p {
+    color: #dcdcdc;
+    font-size: 1.1em;
+    line-height: 1.6;
+}
+
+/* ======================= */
+/*      NPC Admin Popup    */
+/* ======================= */
+
+
+/* NPC Admin Popup Styles */
+#npcAdminPopup {
+    position: fixed; /* Changed to fixed for better positioning */
+    width: var(--popup-width);
+    max-height: 80vh; /* Allow for overflow scrolling */
+    background: var(--popup-bg);
+    color: var(--popup-color);
+    padding: 20px;
+    border: var(--popup-border);
+    z-index: 1000; /* Increased z-index to ensure it appears above other elements */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow-y: hidden; /* Enable scrolling for taller content */
+    border-radius: var(--popup-border-radius);
+    box-shadow: var(--popup-box-shadow);
+    font-family: Arial, sans-serif; /* Added a default font */
+}
+
+/* Close Button */
+#npcAdminPopup .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: transparent;
+    border: none;
+    color: var(--close-button-color);
+    font-size: 20px; /* Increased size for better visibility */
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+#npcAdminPopup .close-button:hover {
+    color: var(--close-button-hover-color);
+}
+
+/* Input Fields, Text Areas, and Selects */
+#npcAdminPopup input,
+#npcAdminPopup textarea,
+#npcAdminPopup select {
+    width: 100%;
+    margin-bottom: 15px; /* Increased margin for better spacing */
+    background-color: var(--input-bg);
+    color: var(--input-color);
+    border: var(--input-border);
+    padding: 8px 10px; /* Increased padding for better usability */
+    border-radius: var(--input-border-radius);
+    font-size: 14px;
+    box-sizing: border-box; /* Ensure padding doesn't affect total width */
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+#npcAdminPopup input:focus,
+#npcAdminPopup textarea:focus,
+#npcAdminPopup select:focus {
+    border-color: #FFD700; /* Highlight border on focus */
+    outline: none; /* Remove default outline */
+    background-color: #444; /* Slightly lighter background on focus */
+}
+
+/* Labels */
+#npcAdminPopup label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px; /* Slightly increased font size for readability */
+    color: var(--label-color);
+}
+
+/* Button Styles */
+#npcAdminPopup button {
+    margin-right: 10px;
+    padding: 10px 15px; /* Increased padding for better click area */
+    background-color: var(--button-bg);
+    color: var(--button-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#npcAdminPopup button:hover {
+    background-color: var(--button-hover-bg);
+    transform: translateY(-2px); /* Subtle lift effect on hover */
+}
+
+#npcAdminPopup button:active {
+    transform: translateY(0); /* Remove lift effect on click */
+}
+
+/* Color Picker Styles */
+#npcAdminPopup input[type="color"] {
+    padding: 0;
+    height: 40px; /* Increased height for better usability */
+    width: 100%;
+    cursor: pointer;
+    border: var(--input-border);
+    border-radius: var(--input-border-radius);
+    background: none; /* Remove default background */
+    transition: border-color 0.3s;
+}
+
+#npcAdminPopup input[type="color"]:focus {
+    border-color: #FFD700; /* Highlight border on focus */
+}
+
+/* Field Groups */
+#npcAdminPopup .field-group {
+    margin-bottom: 20px; /* Increased margin for better separation */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Scrollbar Styling */
+#npcAdminPopup::-webkit-scrollbar {
+    width: 8px;
+}
+
+#npcAdminPopup::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 4px;
+}
+
+#npcAdminPopup::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 500px) {
+    #npcAdminPopup {
+        width: 90%;
+        padding: 15px; /* Reduced padding for smaller screens */
+    }
+
+    #npcAdminPopup button {
+        width: 100%; /* Make buttons full width on small screens */
+        margin-bottom: 10px; /* Add spacing between buttons */
+    }
+
+    #npcAdminPopup button:last-child {
+        margin-right: 0; /* Remove right margin for the last button */
+    }
+}
+
