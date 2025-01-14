@@ -473,7 +473,7 @@ function createFriendlyNPC(color = 0x00ff00, name = 'Friendly NPC', dialogue = '
 
 // Function to add diverse plants to the terrain with collision detection
 function addPlantsToTerrain() {
-    const numElements = 3000;
+    const numElements = 0;
     const colliders = [];
     
     // Grid-based spawning system
