@@ -1,17 +1,9 @@
 // bestiary.js
 document.addEventListener('DOMContentLoaded', () => {
     initializeBestiary();
+    initializeBestiaryUI();
     setupEventListeners();
 });
-
-
-function initializeBestiaryUI() {
-    // Add this to ensure rendering when opened
-    document.getElementById('openBestiary').addEventListener('click', () => {
-        openBestiary();
-        renderBestiary();
-    });
-}
 
 /**
  * Initializes the bestiary by loading all species data.
@@ -354,25 +346,40 @@ function initializeBestiary() {
     window.bestiary = speciesData;
 }
 
-
 /**
- * Sets up event listeners for bestiary interactions.
+ * Initializes the bestiary UI by setting up event listeners for bestiary interactions.
  */
-function setupEventListeners() {
-    const openBestiaryButton = document.getElementById('openBestiary');
-    const closeBestiaryButton = document.getElementById('closeBestiary');
-    const bestiaryModal = document.getElementById('bestiaryModal');
-
-    if (openBestiaryButton) {
-        openBestiaryButton.addEventListener('click', () => {
+function initializeBestiaryUI() {
+    // Handle both buttons that can open the bestiary
+    const openBestiaryBtn = document.getElementById('openBestiary');
+    const bestiaryBtn = document.getElementById('bestiaryButton');
+    
+    if (openBestiaryBtn) {
+        openBestiaryBtn.addEventListener('click', () => {
+            openBestiary();
+            renderBestiary();
+        });
+    }
+    
+    if (bestiaryBtn) {
+        bestiaryBtn.addEventListener('click', () => {
             openBestiary();
             renderBestiary();
         });
     }
 
-    if (closeBestiaryButton) {
-        closeBestiaryButton.addEventListener('click', closeBestiary);
+    // Handle close button
+    const closeBtn = document.getElementById('closeBestiary');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeBestiary);
     }
+}
+
+/**
+ * Sets up event listeners for bestiary interactions.
+ */
+function setupEventListeners() {
+    const bestiaryModal = document.getElementById('bestiaryModal');
 
     window.addEventListener('click', (event) => {
         if (event.target === bestiaryModal) {
@@ -389,7 +396,6 @@ function setupEventListeners() {
         }
     });
 }
-
 
 /**
  * Renders the bestiary content by listing all races.
@@ -437,46 +443,87 @@ function displayRaceDetails(creatureKey) {
     const creature = window.bestiary[creatureKey];
     if (!creature) return;
 
-    const detailsModal = document.getElementById('creatureDetailsModal');
-    const detailsContent = document.getElementById('creatureDetailsContent');
-
-    detailsContent.innerHTML = `
-        <div class="creature-detail-header">
-            <img src="${creature.highResImage.src}" alt="${creature.name}" class="creature-detail-image" loading="lazy">
-            <div class="stats-container">
-                ${generateStatsHTML(creature.stats)}
+    // Create or get the modal
+    let modal = document.querySelector(`.creature-details-modal[data-creature="${creatureKey}"]`);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'creature-details-modal';
+        modal.setAttribute('data-creature', creatureKey);
+        modal.setAttribute('aria-hidden', 'true');
+        
+        const content = `
+            <div class="modal-content">
+                <button class="close-button" onclick="closeCreatureDetails('${creatureKey}')">&times;</button>
+                <div class="left-column">
+                    <img src="${creature.highResImage.src}" alt="${creature.name}" class="creature-image">
+                    <div id="model-container-${creatureKey}" class="model-container"></div>
+                    <div class="basic-info">
+                        <h3>Basic Information</h3>
+                        <p>${creature.description}</p>
+                    </div>
+                </div>
+                <div class="right-column">
+                    <h2>${creature.name}</h2>
+                    <div class="details-section">
+                        <h3>Extended Description</h3>
+                        <p>${creature.extendedDescription}</p>
+                        
+                        <h3>History</h3>
+                        <p>${creature.history}</p>
+                        
+                        <h3>Abilities</h3>
+                        <p>${creature.abilities}</p>
+                        
+                        <h3>Culture</h3>
+                        <p>${creature.culture}</p>
+                        
+                        <h3>Stats</h3>
+                        <div class="stats-grid">
+                            ${Object.entries(creature.stats).map(([stat, value]) => `
+                                <div class="stat-item">
+                                    <div class="stat-name">${stat}</div>
+                                    <div class="stat-value">${value}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <h2>${creature.name}</h2>
-        <p>${creature.extendedDescription}</p>
-        <h3>History</h3>
-        <p>${creature.history}</p>
-        <h3>Abilities</h3>
-        <p>${creature.abilities}</p>
-        <h3>Culture</h3>
-        <p>${creature.culture}</p>
-        <div id="model-container-${creatureKey}" class="model-container"></div>
-    `;
-
-
-    detailsModal.classList.add('show');
-    detailsModal.setAttribute('aria-hidden', 'false');
-
-    // Close Race Details Modal
-    const closeDetailsButton = detailsModal.querySelector('.close-details');
-    closeDetailsButton.addEventListener('click', () => {
-        closeCreatureDetails(creatureKey);
-    });
-
-    // Close when clicking outside the modal content
-    detailsModal.addEventListener('click', (event) => {
-        if (event.target === detailsModal) {
-            closeCreatureDetails(creatureKey);
+        `;
+        
+        modal.innerHTML = content;
+        document.body.appendChild(modal);
+        
+        // Initialize 3D model if it's Avianos
+        if (creatureKey === 'avianos' && typeof initializeAvianosModel === 'function') {
+            setTimeout(() => initializeAvianosModel(`model-container-${creatureKey}`), 100);
         }
-    });
+    }
 
-    // Load 3D model
-    loadCreatureModel(creature.modelName, `model-container-${creatureKey}`);
+    // Show the modal
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeCreatureDetails(creatureKey) {
+    const modal = document.querySelector(`.creature-details-modal[data-creature="${creatureKey}"]`);
+    if (modal) {
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+
+        if (creatureKey) {
+            const modelContainer = document.getElementById(`model-container-${creatureKey}`);
+            if (modelContainer) {
+                modelContainer.innerHTML = '';
+            }
+        } else {
+            // If no creatureKey is provided, clear all model containers
+            const modelContainers = document.querySelectorAll('[id^="model-container-"]');
+            modelContainers.forEach(container => {
+                container.innerHTML = '';
+            });
+        }
+    }
 }
 
 /**
@@ -569,10 +616,12 @@ function loadCreatureModel(modelName, containerId) {
  * Populates and opens the bestiary modal.
  */
 function openBestiary() {
-    console.log('openBestiary() called');
     const bestiaryModal = document.getElementById('bestiaryModal');
+    if (!bestiaryModal) return;
+    
     populateBestiaryModal();
     bestiaryModal.classList.add('show');
+    bestiaryModal.style.display = 'flex';
     bestiaryModal.setAttribute('aria-hidden', 'false');
 }
 
@@ -581,7 +630,10 @@ function openBestiary() {
  */
 function closeBestiary() {
     const bestiaryModal = document.getElementById('bestiaryModal');
+    if (!bestiaryModal) return;
+    
     bestiaryModal.classList.remove('show');
+    bestiaryModal.style.display = 'none';
     bestiaryModal.setAttribute('aria-hidden', 'true');
 
     // Also close creature details if open
@@ -590,7 +642,6 @@ function closeBestiary() {
         closeCreatureDetails(); // Now handles undefined creatureKey
     }
 }
-
 
 /**
  * Populates the bestiary modal with all races.
@@ -604,20 +655,22 @@ function populateBestiaryModal() {
  * @param {string} creatureKey - The key of the creature to close details for.
  */
 function closeCreatureDetails(creatureKey) {
-    const detailsModal = document.getElementById('creatureDetailsModal');
-    detailsModal.classList.remove('show');
-    detailsModal.setAttribute('aria-hidden', 'true');
+    const modal = document.querySelector(`.creature-details-modal[data-creature="${creatureKey}"]`);
+    if (modal) {
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
 
-    if (creatureKey) {
-        const modelContainer = document.getElementById(`model-container-${creatureKey}`);
-        if (modelContainer) {
-            modelContainer.innerHTML = '';
+        if (creatureKey) {
+            const modelContainer = document.getElementById(`model-container-${creatureKey}`);
+            if (modelContainer) {
+                modelContainer.innerHTML = '';
+            }
+        } else {
+            // If no creatureKey is provided, clear all model containers
+            const modelContainers = document.querySelectorAll('[id^="model-container-"]');
+            modelContainers.forEach(container => {
+                container.innerHTML = '';
+            });
         }
-    } else {
-        // If no creatureKey is provided, clear all model containers
-        const modelContainers = document.querySelectorAll('[id^="model-container-"]');
-        modelContainers.forEach(container => {
-            container.innerHTML = '';
-        });
     }
 }

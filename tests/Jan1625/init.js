@@ -93,13 +93,20 @@ function addGroundPlane(scene, options = {}) {
             }
         );
 
-        material = new THREE.MeshLambertMaterial({ 
+        material = new THREE.MeshStandardMaterial({ 
             map: texture,
-            side: THREE.DoubleSide 
+            side: THREE.DoubleSide,
+            roughness: 0.8,
+            metalness: 0.2
         });
     } else {
         // Use a solid color material
-        material = new THREE.MeshLambertMaterial({ color: color, side: THREE.DoubleSide });
+        material = new THREE.MeshStandardMaterial({ 
+            color: color, 
+            side: THREE.DoubleSide,
+            roughness: 0.8,
+            metalness: 0.2
+        });
     }
 
     // Create the ground geometry
@@ -152,29 +159,39 @@ function init() {
     scene.add(ambientLight);
 
     // Configure directional light for shadows
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    directionalLight.position.set(100, 100, 50);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(2000, 3000, 1000);  // Moved much higher and further back
     directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
+    directionalLight.shadow.mapSize.width = 4096;  // High resolution for quality
+    directionalLight.shadow.mapSize.height = 4096;
     directionalLight.shadow.camera.near = 0.5;
-    directionalLight.shadow.camera.far = 500;
-    directionalLight.shadow.camera.left = -500;
-    directionalLight.shadow.camera.right = 500;
-    directionalLight.shadow.camera.top = 500;
-    directionalLight.shadow.camera.bottom = -500;
+    directionalLight.shadow.camera.far = 10000;  // Match ground plane size
+    directionalLight.shadow.camera.left = -5000;  // Half the ground plane size
+    directionalLight.shadow.camera.right = 5000;
+    directionalLight.shadow.camera.top = 5000;
+    directionalLight.shadow.camera.bottom = -5000;
     directionalLight.shadow.bias = -0.001;
+    
+    // Add a target at the center of the world
+    const lightTarget = new THREE.Object3D();
+    lightTarget.position.set(0, 0, 0);
+    scene.add(lightTarget);
+    directionalLight.target = lightTarget;
+    
     scene.add(directionalLight);
     addQuadrupeds();
 
-    
+    // Initialize the day/night cycle after lights are set up
+    if (typeof window.initDayNightCycle === 'function') {
+        window.initDayNightCycle();
+    }
 
     // Add the ground plane using the addGroundPlane function
     ground = addGroundPlane(scene, {
         size: 10000,
         textureURL: 'https://file.garden/Zy7B0LkdIVpGyzA1/ground.png', // Direct web URL
         rotation: { x: -Math.PI / 2, y: 0, z: 0 },
-        position: { x: 0, y: 0, z: 0 },
+        position: { x: 0, y: 0.1, z: 0 },  // Raised slightly above 0
         receiveShadow: true,
         name: 'ground',
         textureRepeat: { x: 100, y: 100 }
@@ -198,7 +215,8 @@ function init() {
     
     safeZoneGround = new THREE.Mesh(safeZoneGroundGeometry, safeZoneGroundMaterial);
     safeZoneGround.rotation.x = -Math.PI / 2;
-    safeZoneGround.position.y = 0.3;
+    safeZoneGround.position.y = 0.4;
+    safeZoneGround.receiveShadow = true;  
     scene.add(safeZoneGround);
 
     // Add the safe zone barrier
@@ -231,9 +249,6 @@ function init() {
 
     shrineGroup.position.set(0, 0.1, 0);
     scene.add(shrineGroup);
-
-    // Initialize day-night cycle
-    initDayNightCycle();
 
     addSky();
 
@@ -277,8 +292,23 @@ function init() {
         friendlies.push(npc);
     });
 
-    player = createHumanoid(0x0000ff);
-    player.position.y = 0;
+    player = createHumanoid(
+        0x0000ff,  // Blue color
+        'textures/enemies/humans.png',  // Use human texture as base
+        'plain',  // Simple pattern
+        1.8,  // Standard height
+        'muscular'  // Muscular body shape
+    );
+    player.position.y = 0.1;  // Raised slightly off the ground for better shadow casting
+    player.castShadow = true;
+    player.traverse(child => {
+        if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            applyPattern(child, 'plain');
+        }
+    });
+    applyBodyShape(player, 'muscular');  // Apply body shape
     scene.add(player);
     
 

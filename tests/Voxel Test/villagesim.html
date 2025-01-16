@@ -1,0 +1,2536 @@
+<html>
+<head>
+    <base href="https://imaginaryvillagesimulator.com">
+    <title>2D Village Simulator</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            user-select: none;
+        }
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
+            position: relative;
+            overflow-x: scroll;
+            overflow-y: hidden;
+        }
+        #ground {
+            position: absolute;
+            bottom: 0;
+            width: 2000px;
+            height: 50px;
+            background: #4CAF50;
+        }
+        .villager, .goblin {
+            position: absolute;
+            width: 30px;
+            height: 60px;
+            bottom: 50px;
+            z-index: 2;
+        }
+        .villager-body, .goblin-body {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.3s;
+        }
+        .head {
+            width: 20px;
+            height: 20px;
+            background-color: #FFA07A;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 5px;
+        }
+        .torso {
+            width: 20px;
+            height: 25px;
+            position: absolute;
+            top: 20px;
+            left: 5px;
+        }
+        .arm {
+            width: 8px;
+            height: 20px;
+            background-color: #FFA07A;
+            position: absolute;
+            top: 20px;
+        }
+        .left-arm {
+            left: -3px;
+        }
+        .right-arm {
+            right: -3px;
+        }
+        .leg {
+            width: 10px;
+            height: 20px;
+            background-color: #4169E1;
+            position: absolute;
+            bottom: 0;
+        }
+        .left-leg {
+            left: 5px;
+        }
+        .right-leg {
+            right: 5px;
+        }
+        .walking .left-leg {
+            animation: walk-left 0.5s infinite alternate;
+        }
+        .walking .right-leg {
+            animation: walk-right 0.5s infinite alternate;
+        }
+        @keyframes walk-left {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(30deg); }
+        }
+        @keyframes walk-right {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-30deg); }
+        }
+        .stats {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 10px;
+            color: white;
+            text-shadow: 1px 1px 1px black;
+            white-space: nowrap;
+        }
+        .stat-bar {
+            width: 30px;
+            height: 3px;
+            margin: 1px 0;
+        }
+        .health-bar { background-color: red; }
+        .thirst-bar { background-color: blue; }
+        .hunger-bar { background-color: green; }
+        .energy-bar { background-color: purple; }
+        .progress-bar {
+            width: 30px;
+            height: 3px;
+            background-color: yellow;
+            display: none;
+        }
+        .object {
+            position: absolute;
+            bottom: 50px;
+        }
+        #waterWell {
+            width: 120px;
+            height: 40px;
+            background-color: #4169E1;
+            left: 100px;
+        }
+        .cropPlot {
+            width: 30px;
+            height: 20px;
+            background-color: #8B4513;
+        }
+        .plant {
+            width: 20px;
+            height: 30px;
+            position: absolute;
+            bottom: 20px;
+            left: 5px;
+        }
+        .smallPlant {
+            background-color: #90EE90;
+            height: 15px;
+        }
+        .bigPlant {
+            background-color: #228B22;
+        }
+        .plant-timer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: white;
+            text-shadow: 1px 1px 1px black;
+        }
+        #storageHouse {
+            width: 120px; 
+            height: 60px;
+            background-color: #8B4513;
+            right: 370px;
+        }
+        #storageFood {
+            position: absolute;
+            top: -20px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            text-shadow: 1px 1px 1px black;
+        }
+        #sleepHouse {
+            width: 80px;
+            height: 80px;
+            background-color: #A52A2A;
+            right: 500px;
+        }
+        #clock {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            color: white;
+            text-shadow: 1px 1px 1px black;
+        }
+        #dayCounter {
+            position: fixed;
+            top: 40px;
+            left: 10px;
+            font-size: 20px;
+            color: white;
+            text-shadow: 1px 1px 1px black;
+        }
+        .action-text {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 10px;
+            color: white;
+            text-shadow: 1px 1px 1px black;
+        }
+        .carrying-plant {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: green;
+            position: absolute;
+            bottom: 35px;
+            right: -3px;
+        }
+        .sleep-particle {
+            position: absolute;
+            font-size: 12px;
+            color: white;
+            text-shadow: 1px 1px 1px black;
+            animation: float-up 2s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes float-up {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-20px) rotate(360deg); opacity: 0; }
+        }
+        .damage-text {
+            position: absolute;
+            font-size: 16px;
+            color: red;
+            text-shadow: 1px 1px 1px black;
+            animation: float-up-damage 2s linear;
+            pointer-events: none;
+        }
+        @keyframes float-up-damage {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-30px); opacity: 0; }
+        }
+        .dead {
+            height: 30px;
+        }
+        .dead .villager-body, .dead .goblin-body {
+            transform: rotate(90deg);
+        }
+        .dead .leg {
+            display: none;
+        }
+        #gameArea {
+            position: absolute;
+            width: 2000px;
+            height: 100%;
+        }
+        #villagerList {
+            position: fixed;
+            top: 70px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            max-height: 25%;
+            overflow-y: auto;
+        }
+        #villagerList h3 {
+            margin-top: 0;
+        }
+        .santa-hat, .santa-hat::before, .santa-hat::after, .santa-hat-ball {
+          display: none;
+        }
+        .christmas-tree {
+          position: absolute;
+          bottom: 50px;
+          left: 800px;
+          width: 80px;
+          height: 120px;
+          background: #FFFFFF;
+          border: 2px solid #CCCCCC;
+          z-index: 1;
+        }
+        .hospital-cross {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 40px;
+          height: 40px;
+        }
+        .hospital-cross::before,
+        .hospital-cross::after {
+          content: '';
+          position: absolute;
+          background: #FF0000;
+        }
+        .hospital-cross::before {
+          top: 50%;
+          left: 0;
+          right: 0;
+          height: 8px;
+          transform: translateY(-50%);
+        }
+        .hospital-cross::after {
+          left: 50%;
+          top: 0;
+          bottom: 0;
+          width: 8px;
+          transform: translateX(-50%);
+        }
+        .tree-top, .tree-lights, .tree-trunk, .gifts, .gift, .gift::before, .gift::after {
+          display: none;
+        }
+        .happy-face {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            animation: float-up 2s ease-out;
+            pointer-events: none;
+        }
+        @keyframes float-up {
+            0% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            100% { transform: translateX(-50%) translateY(-30px); opacity: 0; }
+        }
+        #volumeControl {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+        }
+        #speedControl {
+          position: fixed;
+          top: 10px;
+          right: 250px; 
+          background: rgba(0, 0, 0, 0.5);
+          padding: 10px;
+          border-radius: 5px;
+          color: white;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          z-index: 1000;
+        }
+        #speedSelect {
+          padding: 2px 5px;
+          border-radius: 3px;
+        }
+        #volumeSlider {
+            width: 100px;
+            cursor: pointer;
+        }
+        .bonfire {
+            position: absolute;
+            bottom: 50px;
+            left: 900px;
+            width: 60px;
+            height: 80px;
+            z-index: 1;
+        }
+        .logs {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 20px;
+            background: #643200;
+            border-radius: 5px;
+        }
+        .flames {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 60px;
+            animation: flicker 0.5s infinite alternate;
+        }
+        .flame {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 50px;
+            background: linear-gradient(to top, #ff4500, #ffa500);
+            border-radius: 50% 50% 20% 20%;
+        }
+        .inner-flame {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 15px;
+            height: 30px;
+            background: linear-gradient(to top, #ffff00, #ffa500);
+            border-radius: 50% 50% 20% 20%;
+        }
+        @keyframes flicker {
+            0% { transform: translateX(-50%) scaleY(1); }
+            25% { transform: translateX(-50%) scaleY(0.95); }
+            50% { transform: translateX(-50%) scaleY(1.05); }
+            75% { transform: translateX(-50%) scaleY(0.95); }
+            100% { transform: translateX(-50%) scaleY(1); }
+        }
+        #manaContainer {
+            position: fixed;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 200px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #manaBar {
+            width: 20px;
+            height: 200px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            position: relative;
+        }
+        #manaFill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top, #4169E1, #87CEEB);
+            border-radius: 2px;
+            transition: height 0.3s;
+        }
+        #manaCounter {
+            color: white;
+            text-shadow: 1px 1px 1px black;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        #miracleToolbar {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .miracle-button {
+            padding: 8px 15px;
+            border: 2px solid #4169E1;
+            border-radius: 5px;
+            background-color: rgba(65, 105, 225, 0.3);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .miracle-button:hover {
+            background-color: rgba(65, 105, 225, 0.5);
+        }
+        .miracle-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .miracle-cost {
+            font-size: 12px;
+            color: #87CEEB;
+        }
+        .food-ball {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            pointer-events: none;
+            transition: all 1s;
+            z-index: 1000;
+        }
+        .storm-cloud {
+            position: absolute;
+            height: 60px;
+            background: linear-gradient(to bottom, #b0c4de, #778899);
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(105,105,105,0.5);
+            top: 300px;
+            z-index: 1001;
+        }
+        .water-drop {
+            position: absolute;
+            width: 5px;
+            height: 8px;
+            background: linear-gradient(to bottom, #87CEFA, #00BFFF);
+            border-radius: 50%;
+            z-index: 1002;
+        }
+        .mana-gain {
+            position: absolute;
+            left: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: darkblue;
+            font-weight: bold;
+            pointer-events: none;
+            animation: float-up-mana 1s ease-out forwards;
+        }
+        @keyframes float-up-mana {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+        }
+        #forest {
+            position: absolute;
+            bottom: 50px;
+            right: 600px;
+            display: flex;
+            gap: 15px;
+        }
+        .forest-tree {
+            position: relative;
+            width: 40px;
+            height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .forest-tree-top {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 50px solid #0d5c0d;
+        }
+        .forest-tree-trunk {
+            width: 10px;
+            height: 10px;
+            background: #643200;
+            margin-top: -5px;
+        }
+        .carrying-wood {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: brown;
+            position: absolute;
+            bottom: 35px;
+            left: -5px;
+        }
+        .lightning-strike {
+          animation: lightning-flash 0.5s;
+        }
+        @keyframes lightning-flash {
+          0% {
+            filter: brightness(2);
+          }
+          100% {
+            filter: brightness(1);
+          }
+        }
+        #mine {
+          width: 110px;
+          height: 80px;
+          background-color: #696969;
+          position: absolute;
+          right: 250px;
+          bottom: 50px;
+        }
+        .mine-counter {
+          position: absolute;
+          top: -20px;
+          width: 100%;
+          text-align: center;
+          color: white;
+          text-shadow: 1px 1px 1px black;
+        }
+        .warrior-helmet {
+          position: absolute;
+          top: -5px;
+          left: 5px;
+          width: 20px;
+          height: 15px;
+          background-color: #808080;
+        }
+        .warrior-sword {
+          position: absolute;
+          width: 4px;
+          height: 25px;
+          background-color: #808080;
+          right: -3px;
+          top: 18px;
+          transform: rotate(-45deg);
+        }
+        .goblin-sword {
+          position: absolute;
+          width: 4px;
+          height: 25px;
+          background-color: brown;
+          right: -3px;
+          top: 18px;
+          transform: rotate(-45deg);
+        }
+    </style>
+</head>
+<body>
+    <div id="miracleToolbar">
+        <button class="miracle-button" id="createVillagerMiracle">
+            Create Villager
+            <span class="miracle-cost">25 mana</span>
+        </button>
+        <button class="miracle-button" id="createFoodMiracle">
+            Create Food
+            <span class="miracle-cost">50 mana</span>
+        </button>
+        <button class="miracle-button" id="createStormMiracle">
+            Storm
+            <span class="miracle-cost">10 mana</span>
+        </button>
+        <button class="miracle-button" id="resurrectDeadMiracle">
+            Resurrection
+            <span class="miracle-cost">100 mana</span>
+        </button>
+        <button class="miracle-button" id="createNightMiracle">
+            Miracle Night
+            <span class="miracle-cost">60 mana</span>
+        </button>
+        <button class="miracle-button" id="createWoodMiracle">
+            Miracle Wood
+            <span class="miracle-cost">50 mana</span>
+        </button>
+        <button class="miracle-button" id="createMeteorMiracle">
+            Miracle Meteor
+            <span class="miracle-cost">70 mana</span>
+        </button>
+        <button class="miracle-button" id="createHealMiracle">
+            Miracle Heal
+            <span class="miracle-cost">40 mana</span>
+        </button>
+        <button class="miracle-button" id="createHarvestMiracle">
+            Miracle Harvest
+            <span class="miracle-cost">90 mana</span>
+        </button>
+        <button class="miracle-button" id="createLightningMiracle">
+            Miracle Lightning
+            <span class="miracle-cost">40 mana</span>
+        </button>
+    </div>
+    <div id="gameCanvas">
+        <div id="speedControl">
+          <label for="speedSelect">Game Speed:</label>
+          <select id="speedSelect">
+            <option value="1">x1</option>
+            <option value="3">x3</option>
+            <option value="7">x7</option>
+          </select>
+        </div>
+        <div id="volumeControl">
+            <label for="volumeSlider">Volume:</label>
+            <input type="range" id="volumeSlider" min="1" max="100" value="100">
+            <span id="volumeValue">100%</span>
+        </div>
+        <div id="manaContainer">
+            <div id="manaBar">
+                <div id="manaFill"></div>
+            </div>
+            <div id="manaCounter">50/200</div>
+        </div>
+        <div id="gameArea">
+            <div id="ground"></div>
+            <div id="waterWell" class="object"></div>
+            <div id="storageHouse" class="object">
+                <div id="storageFood">Food: 10</div>
+            </div>
+            <div id="mine" class="object mine">
+              <div class="mine-counter">0/10</div>
+            </div>
+            <div id="sleepHouse" class="object">
+                <div id="sleepLimit" style="position: absolute; top: -15px; left: 0; width: 100%; text-align: center; color: #fff; text-shadow: 1px 1px 1px black;">
+                  Sleeping: 0/5
+                </div>
+                <div id="sleepWood" style="position: absolute; top: -30px; left: 0; width: 100%; text-align: center; color: #fff; text-shadow: 1px 1px 1px black;">
+                  Wood: 0/10
+                </div>
+                <div id="sleepLevel" style="position: absolute; top: -45px; left: 0; width: 100%; text-align: center; color: #fff; text-shadow: 1px 1px 1px black;">
+                  Level: 1
+                </div>
+            </div>
+            <div id="forest" class="object">
+                <div class="forest-tree">
+                    <div class="forest-tree-top"></div>
+                    <div class="forest-tree-trunk"></div>
+                </div>
+                <div class="forest-tree">
+                    <div class="forest-tree-top"></div>
+                    <div class="forest-tree-trunk"></div>
+                </div>
+                <div class="forest-tree">
+                    <div class="forest-tree-top"></div>
+                    <div class="forest-tree-trunk"></div>
+                </div>
+                <div class="forest-tree">
+                    <div class="forest-tree-top"></div>
+                    <div class="forest-tree-trunk"></div>
+                </div>
+                <div class="forest-tree">
+                    <div class="forest-tree-top"></div>
+                    <div class="forest-tree-trunk"></div>
+                </div>
+            </div>
+            <div id="christmas-tree" class="object">
+              <div class="hospital-cross"></div>
+            </div>
+            <script>const gameCanvas = document.getElementById('gameCanvas');
+const gameArea = document.getElementById('gameArea');
+const ground = document.getElementById('ground');
+const waterWell = document.getElementById('waterWell');
+const storageHouse = document.getElementById('storageHouse');
+const sleepHouse = document.getElementById('sleepHouse');
+const storageFood = document.getElementById('storageFood');
+const clock = document.getElementById('clock');
+const dayCounter = document.getElementById('dayCounter');
+let villagerListElement = document.getElementById('villagerList');
+const GAME_WIDTH = 2000;
+let villagers = [];
+let cropPlots = [];
+let gameTime = 6 * 60 * 60;
+let day = 1;
+let food = 10;
+let isVillagerListVisible = true;
+let mana = 50;
+let lastManaRegen = Date.now();
+let waterDrops = [];
+let stormActive = false;
+const forest = document.getElementById('forest');
+let wood = 0;
+let sleepHouseLevel = 1;
+let sleepLimit = 5;
+const maleNames = ['John', 'Michael', 'William', 'David', 'Richard', 'Joseph', 'Thomas', 'Charles', 'Christopher', 'Daniel'];
+const femaleNames = ['Mary', 'Patricia', 'Jennifer', 'Linda', 'Elizabeth', 'Barbara', 'Margaret', 'Susan', 'Dorothy', 'Lisa'];
+const skinColors = ["#FFDFC4", "#F0D5BE", "#D9B7A8", "#C69C8E", "#A87C6A", "#8D5A44", "#6D382C", "#4C2419", "#3E1E15", "#29110B"];
+const goblinSkinColors = ['#A8C686', '#8BA870', '#9DB17C', '#687D42', '#3C5227', '#7BAF51', '#6E8B49', '#93A756', '#5E6C34', '#4A5631'];
+const soundEffects = {
+  planting: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/planting.mp3'),
+  eating: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/eat.mp3'),
+  harvesting: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/harvesting.mp3'),
+  drinking: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/drink.mp3'),
+  sleeping: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/sleep.mp3'),
+  unwrapping: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/unwraping-finish.mp3'),
+  damage: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/damage.mp3'),
+  death: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/dead.mp3'),
+  birth: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/born.mp3'),
+  grab: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/grab.mp3'),
+  notEnoughMana: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/no-enough-mana.mp3'),
+  miracleLife: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/miracle-life.mp3'),
+  villagerAttack: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/villager-attack.mp3'),
+  goblinDeath: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/goblin-dead.mp3'),
+  goblinDamage: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/goblin-damage.mp3'),
+  goblinAttack: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/goblin-attack.mp3'),
+  miracleLightning: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/miracle-lightning.mp3'),
+  miracleWood: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/miracle-wood.mp3'),
+  goblinHorn: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/horn-goblin.mp3'),
+  miracleHarvest: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/miracle-harvest.mp3'),
+  miracleFireball: new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/miracle-fireball.mp3')
+};
+const backgroundMusic = new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/fireplace.mp3');
+backgroundMusic.loop = true;
+let globalVolume = 1.0;
+let gameSpeed = 1;
+function playSound(sound) {
+  if (sound) {
+    sound.volume = globalVolume;
+    sound.currentTime = 0;
+    sound.play().catch(error => {
+      console.log("Sound play failed:", error);
+    });
+  }
+}
+document.getElementById('volumeSlider').addEventListener('input', e => {
+  globalVolume = e.target.value / 100;
+  document.getElementById('volumeValue').textContent = e.target.value + '%';
+  Object.values(soundEffects).forEach(sound => {
+    sound.volume = globalVolume;
+  });
+  backgroundMusic.volume = globalVolume;
+});
+function getRandomName() {
+  const isMale = Math.random() < 0.5;
+  const names = isMale ? maleNames : femaleNames;
+  return names[Math.floor(Math.random() * names.length)];
+}
+function getRandomColor() {
+  return '#' + Math.floor(Math.random() * 16777215).toString(16);
+}
+function createVillager() {
+  const villager = document.createElement('div');
+  villager.className = 'villager';
+  const body = document.createElement('div');
+  body.className = 'villager-body';
+  const torsoColor = getRandomColor();
+  body.innerHTML = `
+                        <div class="head"></div>
+                        <div class="torso" style="background-color: ${torsoColor};"></div>
+                        <div class="arm left-arm"></div>
+                        <div class="arm right-arm"></div>
+                        <div class="leg left-leg"></div>
+                        <div class="leg right-leg"></div>
+                    `;
+  villager.appendChild(body);
+  const stats = document.createElement('div');
+  stats.className = 'stats';
+  stats.innerHTML = `
+                        <div class="action-text"></div>
+                        <div class="name-text"></div>
+                        <div class="age-text">Age: 0</div>
+                        <div class="stat-bar health-bar"></div>
+                        <div class="stat-bar thirst-bar"></div>
+                        <div class="stat-bar hunger-bar"></div>
+                        <div class="stat-bar energy-bar"></div>
+                        <div class="progress-bar"></div>
+                    `;
+  villager.appendChild(stats);
+  gameArea.appendChild(villager);
+  const villagerObj = {
+    element: villager,
+    x: Math.random() * (GAME_WIDTH - 30),
+    y: 0,
+    vx: 0,
+    vy: 0,
+    name: getRandomName(),
+    age: Math.floor(Math.random() * 21) + 20,
+    maxHealth: 100,
+    health: 100,
+    thirst: 100,
+    hunger: 100,
+    energy: 100,
+    action: null,
+    actionProgress: 0,
+    carrying: null,
+    lastProgressUpdate: Date.now(),
+    speedModifier: 1,
+    fallStartTime: 0,
+    isDead: false,
+    torsoColor: torsoColor,
+    isWarrior: false,
+    type: 'villager',
+    targetGoblin: null
+  };
+  stats.querySelector('.name-text').textContent = villagerObj.name;
+  playSound(soundEffects.birth);
+  setTimeout(() => {
+    const randomSkinColor = skinColors[Math.floor(Math.random() * skinColors.length)];
+    body.querySelector('.head').style.backgroundColor = randomSkinColor;
+    body.querySelectorAll('.arm').forEach(arm => {
+      arm.style.backgroundColor = randomSkinColor;
+    });
+  }, 10);
+  let isDragging = false;
+  let lastMouseX, lastMouseY;
+  let velocityX = 0,
+    velocityY = 0;
+  villager.addEventListener('mousedown', startDragging);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', stopDragging);
+  function startDragging(e) {
+    isDragging = true;
+    lastMouseX = e.clientX + gameCanvas.scrollLeft;
+    lastMouseY = e.clientY;
+    cancelAction(villagerObj);
+    villagerObj.action = 'being held';
+    updateActionText(villagerObj);
+    if (!villagerObj.isDead) {
+      playSound(soundEffects.grab);
+    }
+  }
+  function drag(e) {
+    if (isDragging) {
+      const currentMouseX = e.clientX + gameCanvas.scrollLeft;
+      const dx = currentMouseX - lastMouseX;
+      const dy = e.clientY - lastMouseY;
+      villagerObj.x += dx;
+      villagerObj.y -= dy;
+      velocityX = dx;
+      velocityY = -dy;
+      lastMouseX = currentMouseX;
+      lastMouseY = e.clientY;
+      updateVillagerPosition(villagerObj);
+    }
+  }
+  function stopDragging() {
+    if (isDragging) {
+      isDragging = false;
+      villagerObj.action = 'Falling';
+      villagerObj.vx = velocityX;
+      villagerObj.vy = velocityY;
+      villagerObj.fallStartTime = Date.now();
+      updateActionText(villagerObj);
+    }
+  }
+  return villagerObj;
+}
+function createCropPlot(x) {
+  const plot = document.createElement('div');
+  plot.className = 'cropPlot object';
+  plot.style.left = x + 'px';
+  gameArea.appendChild(plot);
+  return {
+    element: plot,
+    plant: null,
+    growthTimer: 0,
+    x: x
+  };
+}
+function updateVillager(villager) {
+  if (villager.action === 'Falling') {
+    const fallDuration = (Date.now() - villager.fallStartTime) / 1000;
+    villager.vy += 9.8 * fallDuration * (villager.isDead ? 5 : 1) * gameSpeed;
+    villager.y -= villager.vy;
+    villager.x += villager.vx;
+    if (villager.y <= 0) {
+      villager.y = 0;
+      if (!villager.isDead) {
+        const fallSpeed = Math.abs(villager.vy);
+        const damage = Math.floor(fallSpeed / 2);
+        if (damage > 0) {
+          applyDamage(villager, damage);
+        }
+      }
+      villager.action = null;
+      villager.vy = 0;
+      if (villager.isDead) {
+        villager.vx = 0;
+      } else {
+        villager.vx *= 0.5;
+      }
+      assignNextActionAfterFall(villager);
+    }
+  } else if (villager.action !== 'being held') {
+    villager.vy -= 0.1 * (villager.isDead ? 5 : 1);
+    villager.y += villager.vy;
+    if (villager.y < 0) {
+      villager.y = 0;
+      villager.vy = 0;
+    }
+    if (!villager.isDead && (!villager.element.querySelector('.progress-bar').style.display || villager.element.querySelector('.progress-bar').style.display === 'none')) {
+      villager.x += villager.vx;
+    } else {
+      villager.vx = 0;
+    }
+  }
+  updateVillagerPosition(villager);
+  if (!villager.isDead && villager.vx !== 0) {
+    villager.element.querySelector('.villager-body').classList.add('walking');
+  } else {
+    villager.element.querySelector('.villager-body').classList.remove('walking');
+  }
+  if (!villager.isDead) {
+    updateStats(villager);
+    checkNeeds(villager);
+    performAction(villager);
+    if (villager.action && villager.action !== 'store' && villager.action !== 'sleep' && villager.action !== 'being held' && villager.action !== 'Falling' && villager.action !== 'storeWood' && villager.action !== 'attack goblin' && Date.now() - villager.lastProgressUpdate > 3000) {
+      cancelAction(villager);
+    }
+    if (gameTime % 600 === 0) {
+      villager.speedModifier = 0.5 + Math.random() * 1.5;
+    }
+  }
+}
+function assignNextActionAfterFall(villager) {
+  if (villager.isDead) return;
+  for (const plot of cropPlots) {
+    if (Math.abs(villager.x - plot.x) < 30) {
+      if (!plot.plant) {
+        villager.action = 'plant';
+      } else if (plot.plant.classList.contains('smallPlant')) {
+        villager.action = 'watering plant';
+      } else if (plot.plant.classList.contains('bigPlant')) {
+        villager.action = 'harvest';
+      }
+      if (villager.action) return;
+    }
+  }
+  const hospital = document.querySelector('.christmas-tree');
+  const hospitalX = getElementX(hospital);
+  if (Math.abs(villager.x - hospitalX) < 40) {
+    villager.action = 'healing';
+    return;
+  }
+  const forestTrees = document.querySelectorAll('.forest-tree');
+  for (const tree of forestTrees) {
+    const treeX = getElementX(tree);
+    if (Math.abs(villager.x - treeX) < 30) {
+      villager.action = 'gather wood';
+      return;
+    }
+  }
+  const mine = document.getElementById('mine');
+  const mineX = getElementX(mine);
+  if (Math.abs(villager.x - mineX) < 50) {
+    villager.action = 'mine';
+    return;
+  }
+  const well = document.getElementById('waterWell');
+  const wellX = getElementX(well);
+  if (Math.abs(villager.x - wellX) < 60 && villager.thirst < 50) {
+    villager.action = 'drink';
+    return;
+  }
+  const storage = document.getElementById('storageHouse');
+  const storageX = getElementX(storage);
+  if (Math.abs(villager.x - storageX) < 40 && villager.hunger < 50 && food > 0) {
+    villager.action = 'eat';
+    return;
+  }
+  const sleepHouse = document.getElementById('sleepHouse');
+  const sleepHouseX = getElementX(sleepHouse);
+  if (Math.abs(villager.x - sleepHouseX) < 40 && villager.energy < 50 && getSleepingCount() < sleepLimit) {
+    villager.action = 'sleep';
+    return;
+  }
+}
+function getElementX(element) {
+  const gameAreaRect = gameArea.getBoundingClientRect();
+  const elementRect = element.getBoundingClientRect();
+  return elementRect.left - gameAreaRect.left;
+}
+function updateVillagerPosition(villager) {
+  villager.element.style.left = villager.x + 'px';
+  villager.element.style.bottom = 50 + villager.y + 'px';
+}
+function updateStats(character) {
+  const statBarWidth = 30;
+  if (!character.isDead) {
+    if (character.type === 'villager') {
+      if (character.action !== 'sleep' && character.action !== 'attack goblin') {
+        character.thirst -= 0.005 * character.speedModifier * gameSpeed;
+        character.hunger -= 0.0035 * character.speedModifier * gameSpeed;
+        character.energy -= 0.0008 * character.speedModifier * gameSpeed;
+      } else if (character.action === 'sleep') {
+        character.energy = Math.min(100, character.energy + 5 / 3600 * gameSpeed);
+      }
+    }
+  }
+  const stats = character.element.querySelector('.stats');
+  if (character.type === 'villager') {
+    stats.querySelector('.age-text').textContent = `Age: ${character.age}`;
+    stats.children[3].style.width = `${character.health / character.maxHealth * statBarWidth}px`;
+    stats.children[4].style.width = `${character.thirst * statBarWidth / 100}px`;
+    stats.children[5].style.width = `${character.hunger * statBarWidth / 100}px`;
+    stats.children[6].style.width = `${character.energy * statBarWidth / 100}px`;
+  } else if (character.type === 'goblin') {
+    stats.children[1].style.width = `${character.health / 100 * statBarWidth}px`;
+  }
+  updateActionText(character);
+}
+function updateActionText(character) {
+  const actionText = character.element.querySelector('.action-text');
+  actionText.textContent = character.isDead ? 'Dead' : character.action ? character.action.charAt(0).toUpperCase() + character.action.slice(1) : 'Idle';
+}
+function getSleepingCount() {
+  return villagers.filter(v => v.action === 'sleep' && !v.isDead).length;
+}
+function checkNeeds(villager) {
+  if (villager.isDead) return;
+  if (villager.isWarrior && goblins.length > 0 && villager.thirst >= 15 && villager.hunger >= 15 && villager.energy >= 15 && villager.action !== 'being held' && villager.action !== 'Falling' && villager.action !== 'attack goblin') {
+    const nearestGoblin = findNearestGoblin(villager);
+    if (nearestGoblin) {
+      villager.action = 'attack goblin';
+      villager.targetGoblin = nearestGoblin;
+      villager.attackGoblinStartTime = Date.now();
+      return;
+    }
+  }
+  if (gameTime % 10 === 0 && villager.action !== 'store' && villager.action !== 'sleep' && villager.action !== 'being held' && villager.action !== 'Falling' && villager.action !== 'storeWood' && villager.action !== 'attack goblin') {
+    const nearbyGoblin = findNearestGoblin(villager);
+    if (nearbyGoblin && Math.abs(nearbyGoblin.x - villager.x) < 50) {
+      villager.action = 'attack goblin';
+      villager.targetGoblin = nearbyGoblin;
+      villager.attackGoblinStartTime = Date.now();
+    } else {
+      if (villager.thirst < 50) {
+        villager.action = 'drink';
+      } else if (villager.hunger < 50 && food > 0) {
+        villager.action = 'eat';
+      } else if (villager.energy < 50) {
+        if (getSleepingCount() < sleepLimit) {
+          villager.action = 'sleep';
+        } else {
+          villager.action = 'idle';
+        }
+      } else if (!villager.action) {
+        if (Math.random() < 0.1) {
+          villager.action = 'plant';
+        } else if (Math.random() < 0.1) {
+          villager.action = 'harvest';
+        } else if (Math.random() < 0.1) {
+          villager.action = 'watering plant';
+        } else if (Math.random() < 0.15) {
+          villager.action = 'healing';
+        } else if (Math.random() < 0.07) {
+          villager.action = 'gather wood';
+        } else if (Math.random() < 0.07) {
+          villager.action = 'mine';
+        } else {
+          villager.action = Math.random() < 0.5 ? 'walk' : 'idle';
+        }
+      }
+    }
+  }
+}
+function findNearestGoblin(villager) {
+  let minDist = Infinity;
+  let nearestGoblin = null;
+  goblins.forEach(goblin => {
+    if (!goblin.isDead) {
+      const dist = Math.abs(goblin.x - villager.x);
+      if (dist < minDist) {
+        minDist = dist;
+        nearestGoblin = goblin;
+      }
+    }
+  });
+  return nearestGoblin;
+}
+function performAction(villager) {
+  if (villager.isDead) return;
+  switch (villager.action) {
+    case 'attack goblin':
+      if (Date.now() - villager.attackGoblinStartTime > 5000) {
+        villager.action = null;
+        villager.targetGoblin = null;
+        villager.actionProgress = 0;
+        break;
+      }
+      if (!villager.targetGoblin || villager.targetGoblin.isDead) {
+        villager.action = null;
+        villager.targetGoblin = null;
+      } else if (Math.abs(villager.x - villager.targetGoblin.x) < 30) {
+        updateActionProgress(villager, 100);
+        if (villager.actionProgress >= 100) {
+          let attackPower = villager.isWarrior ? 30 : 10;
+          applyDamage(villager.targetGoblin, attackPower);
+          if (villager.targetGoblin.x > villager.x) {
+            villager.targetGoblin.x += 10;
+          } else {
+            villager.targetGoblin.x -= 10;
+          }
+          villager.actionProgress = 0;
+          playSound(soundEffects.villagerAttack);
+        }
+      } else {
+        moveTowards(villager, villager.targetGoblin);
+      }
+      break;
+    case 'drink':
+      if (isNear(villager, waterWell)) {
+        updateActionProgress(villager, 100);
+        if (villager.actionProgress >= 100) {
+          villager.thirst = 100;
+          villager.action = null;
+          villager.actionProgress = 0;
+          playSound(soundEffects.drinking);
+        }
+      } else {
+        moveTowards(villager, waterWell);
+      }
+      break;
+    case 'eat':
+      if (isNear(villager, storageHouse)) {
+        updateActionProgress(villager, 100);
+        if (villager.actionProgress >= 100) {
+          villager.hunger = 100;
+          food--;
+          storageFood.textContent = `Food: ${food}`;
+          villager.action = null;
+          villager.actionProgress = 0;
+          playSound(soundEffects.eating);
+        }
+      } else {
+        moveTowards(villager, storageHouse);
+      }
+      break;
+    case 'sleep':
+      if (isNear(villager, sleepHouse)) {
+        updateActionProgress(villager, 8 * 60 * 60);
+        if (villager.actionProgress % 60 === 0) {
+          createSleepParticle(villager);
+        }
+        if (villager.actionProgress >= 8 * 60 * 60 || villager.energy >= 100) {
+          villager.action = null;
+          villager.actionProgress = 0;
+        }
+        if (villager.actionProgress === 1) {
+          playSound(soundEffects.sleeping);
+        }
+      } else {
+        moveTowards(villager, sleepHouse);
+      }
+      break;
+    case 'plant':
+      const emptyPlot = cropPlots.find(plot => !plot.plant);
+      if (emptyPlot && isNear(villager, emptyPlot.element)) {
+        updateActionProgress(villager, 100);
+        if (villager.actionProgress >= 100) {
+          const plant = document.createElement('div');
+          plant.className = 'plant smallPlant';
+          const timer = document.createElement('div');
+          timer.className = 'plant-timer';
+          plant.appendChild(timer);
+          emptyPlot.element.appendChild(plant);
+          emptyPlot.plant = plant;
+          emptyPlot.growthTimer = 12 * 60 * 60;
+          villager.action = null;
+          villager.actionProgress = 0;
+          playSound(soundEffects.planting);
+        }
+      } else if (emptyPlot) {
+        moveTowards(villager, emptyPlot.element);
+      } else {
+        villager.action = null;
+      }
+      break;
+    case 'harvest':
+      const readyPlot = cropPlots.find(plot => plot.plant && plot.plant.classList.contains('bigPlant'));
+      if (readyPlot && isNear(villager, readyPlot.element)) {
+        updateActionProgress(villager, 100);
+        if (villager.actionProgress >= 100) {
+          readyPlot.element.removeChild(readyPlot.plant);
+          readyPlot.plant = null;
+          villager.carrying = 'plant';
+          villager.action = 'store';
+          villager.actionProgress = 0;
+          const carryingPlant = document.createElement('div');
+          carryingPlant.className = 'carrying-plant';
+          villager.element.appendChild(carryingPlant);
+          playSound(soundEffects.harvesting);
+        }
+      } else if (readyPlot) {
+        moveTowards(villager, readyPlot.element);
+      } else {
+        villager.action = null;
+      }
+      break;
+    case 'store':
+      if (isNear(villager, storageHouse)) {
+        updateActionProgress(villager, 100);
+        if (villager.actionProgress >= 100) {
+          food += 3;
+          storageFood.textContent = `Food: ${food}`;
+          villager.carrying = null;
+          villager.element.removeChild(villager.element.querySelector('.carrying-plant'));
+          villager.action = null;
+          villager.actionProgress = 0;
+        }
+      } else {
+        moveTowards(villager, storageHouse);
+      }
+      break;
+    case 'healing':
+      const hospital = document.querySelector('.christmas-tree');
+      if (isNear(villager, hospital)) {
+        updateActionProgress(villager, 100);
+        if (villager.actionProgress >= 100) {
+          villager.action = null;
+          villager.actionProgress = 0;
+          villager.health = Math.min(villager.maxHealth, villager.health + 25);
+          if (Math.random() < 0.5) {
+            villager.thirst = Math.min(100, villager.thirst + 5);
+          } else {
+            villager.hunger = Math.min(100, villager.hunger + 2);
+          }
+          const happyFace = document.createElement('div');
+          happyFace.className = 'happy-face';
+          villager.element.appendChild(happyFace);
+          playSound(soundEffects.unwrapping);
+          setTimeout(() => {
+            if (happyFace.parentNode === villager.element) {
+              villager.element.removeChild(happyFace);
+            }
+          }, 2000);
+        }
+      } else {
+        moveTowards(villager, hospital);
+      }
+      break;
+    case 'walk':
+      villager.vx = (Math.random() < 0.5 ? -1 : 1) * gameSpeed;
+      if (villager.x < 0 || villager.x > GAME_WIDTH - 30) {
+        villager.vx *= -1;
+      }
+      if (Math.random() < 0.01) {
+        villager.action = null;
+      }
+      break;
+    case 'idle':
+      if (villager.element.querySelector('.carrying-plant')) {
+        villager.action = 'store';
+        break;
+      }
+      if (villager.element.querySelector('.carrying-wood')) {
+        villager.action = 'storeWood';
+        break;
+      }
+      const targetX = Math.random() * (GAME_WIDTH - 30);
+      if (Math.abs(villager.x - targetX) < 1) {
+        villager.vx = 0;
+      } else {
+        villager.vx = villager.x < targetX ? 1 * gameSpeed : -1 * gameSpeed;
+      }
+      if (Math.random() < 0.01) {
+        villager.action = null;
+      }
+      break;
+    case 'being held':
+    case 'Falling':
+      break;
+    case 'gather wood':
+      if (isNear(villager, forest)) {
+        updateActionProgress(villager, 200);
+        if (villager.actionProgress >= 200) {
+          villager.carrying = 'wood';
+          villager.action = 'storeWood';
+          villager.actionProgress = 0;
+          const carryingWood = document.createElement('div');
+          carryingWood.className = 'carrying-wood';
+          villager.element.appendChild(carryingWood);
+        }
+      } else {
+        moveTowards(villager, forest);
+      }
+      break;
+    case 'storeWood':
+      if (isNear(villager, sleepHouse)) {
+        updateActionProgress(villager, 100);
+        if (villager.actionProgress >= 100) {
+          wood++;
+          checkSleepHouseLevelUp();
+          updateSleepUI();
+          villager.carrying = null;
+          const carriedWood = villager.element.querySelector('.carrying-wood');
+          if (carriedWood) {
+            villager.element.removeChild(carriedWood);
+          }
+          villager.action = null;
+          villager.actionProgress = 0;
+        }
+      } else {
+        moveTowards(villager, sleepHouse);
+      }
+      break;
+    case 'mine':
+      if (isNear(villager, document.getElementById('mine'))) {
+        updateActionProgress(villager, 100);
+        if (villager.actionProgress >= 100) {
+          mineCounter++;
+          document.querySelector('.mine-counter').textContent = `${mineCounter}/10`;
+          villager.actionProgress = 0;
+          if (mineCounter >= 10) {
+            villager.maxHealth = 200;
+            villager.health = villager.maxHealth;
+            villager.isWarrior = true;
+            const helmet = document.createElement('div');
+            helmet.className = 'warrior-helmet';
+            villager.element.querySelector('.villager-body').appendChild(helmet);
+            const sword = document.createElement('div');
+            sword.className = 'warrior-sword';
+            villager.element.querySelector('.villager-body').appendChild(sword);
+            mineCounter = 0;
+            document.querySelector('.mine-counter').textContent = '0/10';
+          }
+          villager.action = null;
+        }
+      } else {
+        moveTowards(villager, document.getElementById('mine'));
+      }
+      break;
+    case 'watering plant':
+      const plotToWater = cropPlots.find(plot => plot.plant && plot.plant.classList.contains('smallPlant') && plot.growthTimer > 0);
+      if (plotToWater && isNear(villager, plotToWater.element)) {
+        updateActionProgress(villager, 100);
+        if (villager.actionProgress >= 100) {
+          plotToWater.growthTimer = Math.max(0, plotToWater.growthTimer - 3600);
+          const timer = plotToWater.plant.querySelector('.plant-timer');
+          if (plotToWater.growthTimer > 0) {
+            timer.textContent = Math.floor(plotToWater.growthTimer / 3600) + 'h ' + Math.floor(plotToWater.growthTimer % 3600 / 60) + 'm';
+          } else {
+            plotToWater.plant.classList.remove('smallPlant');
+            plotToWater.plant.classList.add('bigPlant');
+            timer.textContent = 'Ready';
+          }
+          villager.actionProgress = 0;
+          villager.action = null;
+        }
+      } else if (plotToWater) {
+        moveTowards(villager, plotToWater.element);
+      } else {
+        villager.action = null;
+      }
+      break;
+  }
+}
+function isNear(character, object) {
+  let targetX;
+  if (object.x !== undefined) {
+    targetX = object.x;
+  } else {
+    const objectRect = object.getBoundingClientRect();
+    targetX = objectRect.left + objectRect.width / 2 - gameArea.getBoundingClientRect().left;
+  }
+  if (object === waterWell) {
+    return Math.abs(character.x - (object.getBoundingClientRect().left + object.getBoundingClientRect().width / 2 - gameArea.getBoundingClientRect().left)) < 90;
+  }
+  return Math.abs(character.x - targetX) < 30;
+}
+function moveTowards(character, object) {
+  let targetX;
+  if (object.x !== undefined) {
+    targetX = object.x;
+  } else {
+    const objectRect = object.getBoundingClientRect();
+    targetX = objectRect.left + objectRect.width / 2 - gameArea.getBoundingClientRect().left;
+  }
+  if (character.x < targetX) {
+    character.vx = 1 * gameSpeed;
+  } else if (character.x > targetX) {
+    character.vx = -1 * gameSpeed;
+  } else {
+    character.vx = 0;
+  }
+}
+function updateActionProgress(character, maxProgress) {
+  character.actionProgress += gameSpeed;
+  character.lastProgressUpdate = Date.now();
+  const progressBar = character.element.querySelector('.progress-bar');
+  progressBar.style.display = 'block';
+  progressBar.style.width = `${character.actionProgress / maxProgress * 30}px`;
+  if (character.actionProgress >= maxProgress) {
+    progressBar.style.display = 'none';
+  }
+}
+function cancelAction(character) {
+  character.action = null;
+  character.actionProgress = 0;
+  const progressBar = character.element.querySelector('.progress-bar');
+  progressBar.style.display = 'none';
+}
+function createSleepParticle(villager) {
+  const particle = document.createElement('div');
+  particle.className = 'sleep-particle';
+  particle.textContent = 'Z';
+  particle.style.left = `${villager.x + Math.random() * 30}px`;
+  particle.style.bottom = `${100 + villager.y + Math.random() * 30}px`;
+  gameArea.appendChild(particle);
+  setTimeout(() => {
+    gameArea.removeChild(particle);
+  }, 2000);
+}
+function applyDamage(character, damage) {
+  if (character.isWarrior) {
+    damage = Math.floor(damage / 2);
+  }
+  character.health -= damage;
+  character.health = Math.max(0, character.health);
+  if (character.type === 'villager') {
+    const manaGained = damage * 0.1;
+    addMana(manaGained);
+    showManaGain(manaGained);
+  }
+  const damageText = document.createElement('div');
+  damageText.className = 'damage-text';
+  damageText.textContent = `-${damage}`;
+  damageText.style.left = `${character.x}px`;
+  damageText.style.bottom = `${100 + character.y}px`;
+  gameArea.appendChild(damageText);
+  setTimeout(() => {
+    if (damageText.parentNode === gameArea) {
+      gameArea.removeChild(damageText);
+    }
+  }, 2000);
+  if (character.type === 'goblin') {
+    playSound(soundEffects.goblinDamage);
+  } else {
+    playSound(soundEffects.damage);
+  }
+  if (character.health <= 0 && !character.isDead) {
+    if (character.type === 'villager') {
+      killVillager(character);
+    } else if (character.type === 'goblin') {
+      killGoblin(character);
+    }
+  }
+}
+function killVillager(villager) {
+  villager.isDead = true;
+  villager.element.classList.add('dead');
+  villager.health = 0;
+  villager.hunger = 0;
+  villager.thirst = 0;
+  villager.energy = 0;
+  villager.action = null;
+  updateActionText(villager);
+  updateStats(villager);
+  playSound(soundEffects.death);
+}
+function killGoblin(goblin) {
+  playSound(soundEffects.goblinDeath);
+  goblin.isDead = true;
+  goblin.element.classList.add('dead');
+  goblin.health = 0;
+  goblin.action = null;
+  setTimeout(() => {
+    gameArea.removeChild(goblin.element);
+    goblins.splice(goblins.indexOf(goblin), 1);
+  }, 2000);
+}
+function updateCropPlots() {
+  cropPlots.forEach(plot => {
+    if (plot.plant && plot.plant.classList.contains('smallPlant')) {
+      if (stormActive) {
+        plot.growthTimer -= 5 * gameSpeed;
+      } else {
+        plot.growthTimer -= gameSpeed;
+      }
+      const timer = plot.plant.querySelector('.plant-timer');
+      timer.textContent = Math.floor(plot.growthTimer / 3600) + 'h ' + Math.floor(plot.growthTimer % 3600 / 60) + 'm';
+      if (plot.growthTimer <= 0) {
+        plot.plant.classList.remove('smallPlant');
+        plot.plant.classList.add('bigPlant');
+        timer.textContent = 'Ready';
+      }
+    }
+  });
+}
+function updateTime() {
+  const clockElement = document.getElementById('clock');
+  const dayCounterElement = document.getElementById('dayCounter');
+  if (!clockElement || !dayCounterElement) return;
+  gameTime += gameSpeed;
+  const hours = Math.floor(gameTime / 3600) % 24;
+  const minutes = Math.floor(gameTime % 3600 / 60);
+  clockElement.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+  if (hours === 14 && minutes === 3) {
+    playSound(soundEffects.goblinHorn);
+  }
+  if (Math.floor(gameTime / (24 * 60 * 60)) > Math.floor((gameTime - gameSpeed) / (24 * 60 * 60))) {
+    day++;
+    dayCounterElement.textContent = `Day: ${day}`;
+    villagers.forEach(v => {
+      if (!v.isDead) {
+        v.age++;
+      }
+    });
+    for (let i = 0; i < sleepHouseLevel; i++) {
+      villagers.push(createVillager());
+    }
+    goblinsSpawnedToday = false;
+  }
+  const skyProgress = (hours * 60 + minutes) / (24 * 60);
+  const skyColor = getSkyColor(skyProgress);
+  gameCanvas.style.background = `linear-gradient(to bottom, ${skyColor}, #E0F6FF)`;
+  if (!goblinsSpawnedToday && hours === 14 && minutes === 5) {
+    spawnGoblins(2 * day);
+    goblinsSpawnedToday = true;
+  }
+}
+function getSkyColor(progress) {
+  if (progress < 0.25) {
+    return '#000033';
+  } else if (progress < 0.3) {
+    return '#FF6347';
+  } else if (progress < 0.7) {
+    return '#87CEEB';
+  } else if (progress < 0.75) {
+    return '#FF6347';
+  } else {
+    return '#000033';
+  }
+}
+function updateVillagerList() {
+  if (!villagerListElement || !isVillagerListVisible) return;
+  const aliveVillagers = villagers.filter(v => !v.isDead).sort((a, b) => b.age - a.age);
+  let listHTML = '<h3>Villagers: ' + aliveVillagers.length + '</h3>';
+  aliveVillagers.forEach(v => {
+    listHTML += `<div><span style="color:${v.torsoColor}">${v.name}</span> (${v.age}) - H:${Math.round(v.health)} T:${Math.round(v.thirst)} F:${Math.round(v.hunger)} E:${Math.round(v.energy)})</div>`;
+  });
+  villagerListElement.innerHTML = listHTML;
+}
+document.addEventListener('DOMContentLoaded', () => {
+  villagerListElement = document.getElementById('villagerList');
+  if (villagerListElement) {
+    setInterval(updateVillagerList, 1000);
+  }
+  setInterval(() => {
+    villagers.forEach(updateVillager);
+    goblins.forEach(updateGoblin);
+    updateCropPlots();
+    updateTime();
+    updateMana();
+    updateRaindrops();
+    updateSleepUI();
+    updateMeteors();
+    updateHealingOrbs();
+  }, 16);
+  setInterval(() => {
+    villagers.forEach(v => {
+      if (!v.isDead && (v.thirst < 1 || v.hunger < 1)) {
+        killVillager(v);
+      }
+    });
+  }, 1000);
+});
+for (let i = 0; i < 5; i++) {
+  villagers.push(createVillager());
+}
+for (let i = 0; i < 10; i++) {
+  cropPlots.push(createCropPlot(300 + i * 40));
+}
+function createBonfire() {
+  const bonfire = document.createElement('div');
+  bonfire.className = 'bonfire';
+  bonfire.innerHTML = `
+                        <div class="logs"></div>
+                        <div class="flames">
+                            <div class="flame"></div>
+                            <div class="inner-flame"></div>
+                        </div>
+                    `;
+  gameArea.appendChild(bonfire);
+}
+function createHospital() {
+  const hospital = document.createElement('div');
+  hospital.className = 'christmas-tree object';
+  const cross = document.createElement('div');
+  cross.className = 'hospital-cross';
+  hospital.appendChild(cross);
+  gameArea.appendChild(hospital);
+}
+createHospital();
+createBonfire();
+setTimeout(() => {
+  villagers.forEach(villager => {
+    villager.torsoColor = getRandomColor();
+    villager.element.querySelector('.torso').style.backgroundColor = villager.torsoColor;
+  });
+}, 5000);
+document.addEventListener('click', function () {
+  Object.values(soundEffects).forEach(sound => {
+    sound.load();
+  });
+  backgroundMusic.load();
+  backgroundMusic.play().catch(error => {
+    console.log("Background music play failed:", error);
+  });
+}, {
+  once: true
+});
+let healState = {
+  active: false,
+  charges: 0,
+  element: null
+};
+let healingOrbs = [];
+function createHealMiracle() {
+  if (mana < 40) {
+    playSound(soundEffects.notEnoughMana);
+  } else {
+    mana -= 40;
+    updateManaUI();
+    setTimeout(() => {
+      healState.active = true;
+      healState.charges = 2;
+      healState.element = document.createElement('div');
+      healState.element.style.position = 'fixed';
+      healState.element.style.width = '30px';
+      healState.element.style.height = '30px';
+      healState.element.style.backgroundColor = 'lightgreen';
+      healState.element.style.borderRadius = '50%';
+      healState.element.style.zIndex = '9999';
+      healState.element.style.pointerEvents = 'none';
+      healState.element.style.display = 'flex';
+      healState.element.style.alignItems = 'center';
+      healState.element.style.justifyContent = 'center';
+      healState.element.style.color = 'white';
+      healState.element.textContent = '2/2';
+      healState.element.id = 'healCursor';
+      document.body.appendChild(healState.element);
+      document.addEventListener('mousemove', updateHealCursor);
+      document.addEventListener('mousedown', onHealClick);
+    }, 1000);
+  }
+}
+let lightningState = {
+  active: false,
+  charges: 0,
+  element: null,
+  mouseDown: false
+};
+let cancelLightningText = null;
+function createLightningMiracle() {
+  if (mana < 40) {
+    playSound(soundEffects.notEnoughMana);
+  } else {
+    playSound(soundEffects.miracleLightning);
+    mana -= 40;
+    updateManaUI();
+    setTimeout(() => {
+      lightningState.active = true;
+      lightningState.charges = 100;
+      lightningState.element = document.createElement('div');
+      lightningState.element.style.position = 'fixed';
+      lightningState.element.style.zIndex = '9999';
+      lightningState.element.style.pointerEvents = 'none';
+      lightningState.element.style.color = 'white';
+      lightningState.element.textContent = '100/100';
+      lightningState.element.id = 'lightningCursor';
+      document.body.appendChild(lightningState.element);
+      document.addEventListener('mousemove', updateLightningCursor);
+      document.addEventListener('mousedown', onLightningMouseDown);
+      document.addEventListener('mouseup', onLightningMouseUp);
+      document.addEventListener('keydown', onLightningKeyDown);
+      setTimeout(() => {
+        if (lightningState.active) {
+          displayLightningCancelText();
+        }
+      }, 3000);
+    }, 1000);
+  }
+}
+function displayLightningCancelText() {
+  cancelLightningText = document.createElement('div');
+  cancelLightningText.style.position = 'fixed';
+  cancelLightningText.style.bottom = '20px';
+  cancelLightningText.style.left = '50%';
+  cancelLightningText.style.transform = 'translateX(-50%)';
+  cancelLightningText.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+  cancelLightningText.style.padding = '10px';
+  cancelLightningText.style.borderRadius = '5px';
+  cancelLightningText.style.color = 'white';
+  cancelLightningText.style.zIndex = '1000';
+  cancelLightningText.textContent = 'Press X to cancel miracle';
+  document.body.appendChild(cancelLightningText);
+}
+function onLightningKeyDown(event) {
+  if (event.key === 'x' || event.key === 'X') {
+    endLightningMode();
+  }
+}
+function updateLightningCursor(e) {
+  if (!lightningState.active) return;
+  lightningState.element.style.left = e.pageX + 15 + 'px';
+  lightningState.element.style.top = e.pageY - 15 + 'px';
+}
+function onLightningMouseDown(e) {
+  if (!lightningState.active || e.button !== 0) return;
+  lightningState.mouseDown = true;
+  lightningLoop();
+}
+function onLightningMouseUp(e) {
+  if (!lightningState.active || e.button !== 0) return;
+  lightningState.mouseDown = false;
+}
+function lightningLoop() {
+  if (!lightningState.active || !lightningState.mouseDown || lightningState.charges <= 0) {
+    return;
+  }
+  const mouseX = lightningState.element.getBoundingClientRect().left;
+  const mouseY = lightningState.element.getBoundingClientRect().top;
+  let aliveCharacters = villagers.concat(goblins).filter(c => !c.isDead);
+  aliveCharacters.sort((a, b) => distance(a, mouseX, mouseY) - distance(b, mouseX, mouseY));
+  for (let i = 0; i < Math.min(3, aliveCharacters.length); i++) {
+    const c = aliveCharacters[i];
+    drawLightning(mouseX, mouseY, c.x + 15, c.y + 80);
+    applyDamage(c, 3);
+    c.element.classList.add('lightning-strike');
+    setTimeout(() => {
+      c.element.classList.remove('lightning-strike');
+    }, 500);
+  }
+  lightningState.charges--;
+  lightningState.element.textContent = lightningState.charges + '/100';
+  if (lightningState.charges <= 0) {
+    endLightningMode();
+  } else {
+    setTimeout(lightningLoop, 100);
+  }
+}
+function distance(character, x, y) {
+  return Math.sqrt(Math.pow(character.x + 15 - x, 2) + Math.pow(character.y + 80 - y, 2));
+}
+function drawLightning(x1, y1, x2, y2) {
+  const lightning = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  const points = [];
+  points.push({
+    x: x1,
+    y: y1
+  });
+  const segments = 8;
+  const offsetAmount = 30;
+  for (let i = 1; i < segments; i++) {
+    const segmentPoint = {
+      x: x1 + (x2 - x1) * (i / segments) + (Math.random() - 0.5) * offsetAmount,
+      y: y1 + (y2 - y1) * (i / segments) + (Math.random() - 0.5) * offsetAmount
+    };
+    points.push(segmentPoint);
+  }
+  points.push({
+    x: x2,
+    y: y2
+  });
+  lightning.setAttribute('d', generateLightningPath(points));
+  lightning.style.stroke = 'white';
+  lightning.style.fill = 'none';
+  lightning.style.strokeWidth = '2px';
+  gameArea.appendChild(lightning);
+  setTimeout(() => {
+    if (lightning.parentNode) {
+      lightning.parentNode.removeChild(lightning);
+    }
+  }, 200);
+}
+function generateLightningPath(points) {
+  let path = `M${points[0].x},${points[0].y}`;
+  for (let i = 1; i < points.length; i++) {
+    path += ` L${points[i].x},${points[i].y}`;
+  }
+  return path;
+}
+function endLightningMode() {
+  lightningState.active = false;
+  if (lightningState.element && lightningState.element.parentNode) {
+    lightningState.element.parentNode.removeChild(lightningState.element);
+  }
+  lightningState.element = null;
+  lightningState.charges = 0;
+  document.removeEventListener('mousemove', updateLightningCursor);
+  document.removeEventListener('mousedown', onLightningMouseDown);
+  document.removeEventListener('mouseup', onLightningMouseUp);
+  document.removeEventListener('keydown', onLightningKeyDown);
+  if (cancelLightningText && cancelLightningText.parentNode) {
+    cancelLightningText.parentNode.removeChild(cancelLightningText);
+    cancelLightningText = null;
+  }
+}
+function createVillagerMiracle() {
+  if (mana >= 25) {
+    mana -= 25;
+    villagers.push(createVillager());
+    updateManaUI();
+  }
+}
+function createFoodMiracle() {
+  if (mana < 50) {
+    playSound(soundEffects.notEnoughMana);
+  } else {
+    playSound(new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/miracle-food.mp3'));
+    mana -= 50;
+    updateManaUI();
+    const foodBall = document.createElement('div');
+    foodBall.className = 'food-ball';
+    foodBall.style.left = '50%';
+    foodBall.style.top = '100px';
+    gameArea.appendChild(foodBall);
+    const storageRect = storageHouse.getBoundingClientRect();
+    const gameAreaRect = gameArea.getBoundingClientRect();
+    setTimeout(() => {
+      foodBall.style.left = storageRect.left - gameAreaRect.left + storageRect.width / 2 + 'px';
+      foodBall.style.top = storageRect.top - gameAreaRect.top + storageRect.height / 2 + 'px';
+      foodBall.style.opacity = '0';
+      setTimeout(() => {
+        food += 3 + 2 * sleepHouseLevel;
+        storageFood.textContent = `Food: ${food}`;
+        foodBall.remove();
+      }, 1000);
+    }, 50);
+  }
+}
+function createStormMiracle() {
+  if (mana < 10) {
+    playSound(soundEffects.notEnoughMana);
+  } else {
+    playSound(new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/miracle-storm.mp3'));
+    const stormBtn = document.getElementById('createStormMiracle');
+    stormBtn.disabled = true;
+    setTimeout(() => {
+      stormBtn.disabled = false;
+    }, 60000 / gameSpeed);
+    mana -= 10;
+    updateManaUI();
+    stormActive = true;
+    const cloud = document.createElement('div');
+    cloud.className = 'storm-cloud';
+    cloud.style.width = '450px';
+    cloud.style.left = '255px';
+    gameArea.appendChild(cloud);
+    setTimeout(() => {
+      if (cloud.parentNode === gameArea) {
+        gameArea.removeChild(cloud);
+      }
+      stormActive = false;
+    }, 60000 / gameSpeed);
+    let dropsCreated = 0;
+    const intervalTime = 60000 / 50 / gameSpeed;
+    const stormInterval = setInterval(() => {
+      dropsCreated++;
+      const drop = document.createElement('div');
+      drop.className = 'water-drop';
+      const offset = Math.random() * 450;
+      drop.style.left = 255 + offset + 'px';
+      drop.style.top = '360px';
+      gameArea.appendChild(drop);
+      waterDrops.push({
+        element: drop,
+        x: 255 + offset,
+        y: 360
+      });
+      if (dropsCreated >= 50) {
+        clearInterval(stormInterval);
+      }
+    }, intervalTime);
+  }
+}
+function resurrectDeadVillagers() {
+  if (mana < 100) {
+    playSound(soundEffects.notEnoughMana);
+  } else {
+    playSound(new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/resurection.mp3'));
+    mana -= 100;
+    villagers.forEach(v => {
+      if (v.isDead) {
+        v.isDead = false;
+        v.health = v.maxHealth / 2;
+        v.thirst = 50;
+        v.hunger = 50;
+        v.energy = 50;
+        v.element.classList.remove('dead');
+        updateActionText(v);
+        updateStats(v);
+      }
+    });
+    updateManaUI();
+  }
+}
+function createNightMiracle() {
+  if (mana < 60) {
+    playSound(soundEffects.notEnoughMana);
+  } else {
+    playSound(new Audio('https://file.garden/ZvNeJ8o8RW_wobQz/God%20game/miracle-night.mp3'));
+    mana -= 60;
+    updateManaUI();
+    villagers.forEach(v => {
+      if (!v.isDead) {
+        v.energy = 49;
+      }
+    });
+    gameTime = 23 * 3600 + 45 * 60;
+    updateTime();
+  }
+}
+function createWoodMiracle() {
+  if (mana < 50) {
+    playSound(soundEffects.notEnoughMana);
+  } else {
+    playSound(soundEffects.miracleWood);
+    mana -= 50;
+    wood += 3 + 2 * sleepHouseLevel;
+    updateWoodUI();
+  }
+}
+function updateManaUI() {
+  const manaFill = document.getElementById('manaFill');
+  const manaCounter = document.getElementById('manaCounter');
+  manaFill.style.height = `${mana / 200 * 100}%`;
+  manaCounter.textContent = `${Math.floor(mana)}/200`;
+}
+function updateMana() {
+  const aliveVillagers = villagers.filter(v => !v.isDead).length;
+  const now = Date.now();
+  const baseRegenInterval = 60000;
+  if (aliveVillagers === 0) {
+    if (now - lastManaRegen >= baseRegenInterval) {
+      mana = Math.min(200, mana + 1);
+      lastManaRegen = now;
+    }
+  } else {
+    const regenInterval = baseRegenInterval / (2 * aliveVillagers * gameSpeed);
+    if (now - lastManaRegen >= regenInterval) {
+      mana = Math.min(200, mana + 1);
+      lastManaRegen = now;
+    }
+  }
+  updateManaUI();
+}
+function addMana(amount) {
+  mana = Math.min(200, mana + amount);
+  updateManaUI();
+}
+function showManaGain(amount) {
+  if (amount <= 0) return;
+  const container = document.getElementById('manaContainer');
+  const manaGainDiv = document.createElement('div');
+  manaGainDiv.className = 'mana-gain';
+  manaGainDiv.textContent = '+' + amount.toFixed(1);
+  container.appendChild(manaGainDiv);
+  setTimeout(() => {
+    if (manaGainDiv.parentNode) {
+      manaGainDiv.parentNode.removeChild(manaGainDiv);
+    }
+  }, 1000);
+}
+function updateSleepUI() {
+  const sleepLimitEl = document.getElementById('sleepLimit');
+  if (!sleepLimitEl) return;
+  sleepLimitEl.textContent = `Sleeping: ${getSleepingCount()}/${sleepLimit}`;
+  document.getElementById('sleepWood').textContent = `Wood: ${wood}/${10 * sleepHouseLevel}`;
+}
+function checkSleepHouseLevelUp() {
+  const requiredWood = 10 * sleepHouseLevel;
+  if (wood >= requiredWood) {
+    wood -= requiredWood;
+    sleepHouseLevel++;
+    sleepLimit += 2;
+    const sleepHouse = document.getElementById('sleepHouse');
+    sleepHouse.style.height = 80 + (sleepHouseLevel - 1) * 20 + 'px';
+  }
+  updateWoodUI();
+}
+function updateWoodUI() {
+  document.getElementById('sleepLevel').textContent = `Level: ${sleepHouseLevel}`;
+  document.getElementById('sleepWood').textContent = `Wood: ${wood}/${10 * sleepHouseLevel}`;
+}
+function updateRaindrops() {
+  for (let i = waterDrops.length - 1; i >= 0; i--) {
+    const drop = waterDrops[i];
+    drop.y += 2 * gameSpeed;
+    drop.element.style.top = drop.y + 'px';
+    if (drop.y > 700) {
+      gameArea.removeChild(drop.element);
+      waterDrops.splice(i, 1);
+      continue;
+    }
+    const dropRect = drop.element.getBoundingClientRect();
+    for (let j = 0; j < cropPlots.length; j++) {
+      const plot = cropPlots[j];
+      if (plot.plant) {
+        const plantRect = plot.plant.getBoundingClientRect();
+        if (!(dropRect.right < plantRect.left || dropRect.left > plantRect.right || dropRect.bottom > plantRect.top || dropRect.top < plantRect.bottom)) {
+          if (plot.growthTimer > 0) {
+            plot.growthTimer = Math.max(0, plot.growthTimer - 3600);
+            const timer = plot.plant.querySelector('.plant-timer');
+            if (plot.growthTimer > 0) {
+              timer.textContent = Math.floor(plot.growthTimer / 3600) + 'h ' + Math.floor(plot.growthTimer % 3600 / 60) + 'm';
+            } else {
+              plot.plant.classList.remove('smallPlant');
+              plot.plant.classList.add('bigPlant');
+              timer.textContent = 'Ready';
+            }
+          }
+          gameArea.removeChild(drop.element);
+          waterDrops.splice(i, 1);
+          break;
+        }
+      }
+    }
+  }
+}
+document.getElementById('createHarvestMiracle').addEventListener('click', createHarvestMiracle);
+function createHarvestMiracle() {
+  if (mana < 90) {
+    playSound(soundEffects.notEnoughMana);
+  } else {
+    mana -= 90;
+    updateManaUI();
+    cropPlots.forEach(plot => {
+      if (!plot.plant) {
+        const plant = document.createElement('div');
+        plant.className = 'plant bigPlant';
+        const timer = document.createElement('div');
+        timer.className = 'plant-timer';
+        timer.textContent = 'Ready';
+        plant.appendChild(timer);
+        plot.element.appendChild(plant);
+        plot.plant = plant;
+      } else {
+        plot.plant.classList.remove('smallPlant');
+        plot.plant.classList.add('bigPlant');
+        plot.growthTimer = 0;
+        const timer = plot.plant.querySelector('.plant-timer');
+        timer.textContent = 'Ready';
+      }
+    });
+    playSound(soundEffects.miracleHarvest);
+  }
+}
+let meteorState = {
+  active: false,
+  charges: 0,
+  element: null
+};
+let meteors = [];
+function createMeteorMiracle() {
+  if (mana < 70) {
+    playSound(soundEffects.notEnoughMana);
+  } else {
+    playSound(soundEffects.miracleFireball);
+    mana -= 70;
+    updateManaUI();
+    setTimeout(() => {
+      meteorState.active = true;
+      meteorState.charges = 3;
+      meteorState.element = document.createElement('div');
+      meteorState.element.style.position = 'fixed';
+      meteorState.element.style.width = '30px';
+      meteorState.element.style.height = '30px';
+      meteorState.element.style.backgroundColor = 'orange';
+      meteorState.element.style.borderRadius = '50%';
+      meteorState.element.style.zIndex = '9999';
+      meteorState.element.style.pointerEvents = 'none';
+      meteorState.element.style.display = 'flex';
+      meteorState.element.style.alignItems = 'center';
+      meteorState.element.style.justifyContent = 'center';
+      meteorState.element.style.color = 'white';
+      meteorState.element.textContent = '3/3';
+      meteorState.element.id = 'meteorCursor';
+      document.body.appendChild(meteorState.element);
+      document.addEventListener('mousemove', updateMeteorCursor);
+      document.addEventListener('mousedown', onMeteorClick);
+    }, 1000);
+  }
+}
+document.getElementById('createMeteorMiracle').addEventListener('click', createMeteorMiracle);
+function updateMeteorCursor(e) {
+  if (!meteorState.active) return;
+  meteorState.element.style.left = e.pageX - 15 + 'px';
+  meteorState.element.style.top = e.pageY - 15 + 'px';
+}
+function onMeteorClick(e) {
+  if (!meteorState.active) return;
+  if (e.button === 0) {
+    spawnMeteor(e.pageX, e.pageY);
+    meteorState.charges--;
+    if (meteorState.charges <= 0) {
+      endMeteorMode();
+    } else {
+      meteorState.element.textContent = meteorState.charges + '/3';
+    }
+  }
+}
+function endMeteorMode() {
+  meteorState.active = false;
+  if (meteorState.element && meteorState.element.parentNode) {
+    meteorState.element.parentNode.removeChild(meteorState.element);
+  }
+  meteorState.element = null;
+  meteorState.charges = 0;
+  document.removeEventListener('mousemove', updateMeteorCursor);
+  document.removeEventListener('mousedown', onMeteorClick);
+}
+function spawnMeteor(pageX, pageY) {
+  const gameAreaRect = gameArea.getBoundingClientRect();
+  const newMeteor = document.createElement('div');
+  newMeteor.style.position = 'absolute';
+  newMeteor.style.width = '20px';
+  newMeteor.style.height = '20px';
+  newMeteor.style.backgroundColor = 'orange';
+  const x = pageX - gameAreaRect.left;
+  const y = gameAreaRect.bottom - pageY;
+  newMeteor.style.left = x + 'px';
+  newMeteor.style.bottom = y + 'px';
+  gameArea.appendChild(newMeteor);
+  meteors.push({
+    element: newMeteor,
+    x: x,
+    y: y,
+    vy: -5
+  });
+}
+function updateMeteors() {
+  for (let i = meteors.length - 1; i >= 0; i--) {
+    let meteor = meteors[i];
+    meteor.y += meteor.vy * gameSpeed;
+    meteor.element.style.bottom = meteor.y + 'px';
+    if (meteor.y <= 50) {
+      explodeMeteor(meteor);
+      gameArea.removeChild(meteor.element);
+      meteors.splice(i, 1);
+    }
+  }
+}
+function explodeMeteor(meteor) {
+  const radius = 50;
+  const characters = villagers.concat(goblins);
+  characters.forEach(c => {
+    let dist = Math.abs(c.x - meteor.x);
+    if (dist < radius && !c.isDead) {
+      applyDamage(c, 100);
+    }
+  });
+  const explosion = document.createElement('div');
+  explosion.style.position = 'absolute';
+  explosion.style.width = '100px';
+  explosion.style.height = '100px';
+  explosion.style.backgroundColor = 'orange';
+  explosion.style.borderRadius = '50%';
+  explosion.style.left = meteor.x - 50 + 'px';
+  explosion.style.bottom = meteor.y - 50 + 'px';
+  explosion.style.opacity = '0.8';
+  gameArea.appendChild(explosion);
+  let fadeTimer = 500;
+  let expandTimer = setInterval(() => {
+    let width = parseInt(explosion.style.width);
+    let height = parseInt(explosion.style.height);
+    explosion.style.width = width + 10 + 'px';
+    explosion.style.height = height + 10 + 'px';
+    explosion.style.left = parseInt(explosion.style.left) - 5 + 'px';
+    explosion.style.bottom = parseInt(explosion.style.bottom) - 5 + 'px';
+    explosion.style.opacity = parseFloat(explosion.style.opacity) - 0.05;
+    if (fadeTimer <= 0) {
+      clearInterval(expandTimer);
+      if (explosion.parentNode) {
+        explosion.parentNode.removeChild(explosion);
+      }
+    }
+    fadeTimer -= 50;
+  }, 50);
+}
+function updateHealCursor(e) {
+  if (!healState.active) return;
+  healState.element.style.left = e.pageX - 15 + 'px';
+  healState.element.style.top = e.pageY - 15 + 'px';
+}
+function onHealClick(e) {
+  if (!healState.active) return;
+  if (e.button === 0) {
+    spawnHealingOrb(e.pageX, e.pageY);
+    healState.charges--;
+    if (healState.charges <= 0) {
+      endHealMode();
+    } else {
+      healState.element.textContent = healState.charges + '/2';
+    }
+  }
+}
+function endHealMode() {
+  healState.active = false;
+  if (healState.element && healState.element.parentNode) {
+    healState.element.parentNode.removeChild(healState.element);
+  }
+  healState.element = null;
+  healState.charges = 0;
+  document.removeEventListener('mousemove', updateHealCursor);
+  document.removeEventListener('mousedown', onHealClick);
+}
+function spawnHealingOrb(pageX, pageY) {
+  const gameAreaRect = gameArea.getBoundingClientRect();
+  const newOrb = document.createElement('div');
+  newOrb.style.position = 'absolute';
+  newOrb.style.width = '20px';
+  newOrb.style.height = '20px';
+  newOrb.style.backgroundColor = 'lightgreen';
+  const x = pageX - gameAreaRect.left;
+  const y = gameAreaRect.bottom - pageY;
+  newOrb.style.left = x + 'px';
+  newOrb.style.bottom = y + 'px';
+  gameArea.appendChild(newOrb);
+  healingOrbs.push({
+    element: newOrb,
+    x: x,
+    y: y,
+    vy: -5
+  });
+}
+function updateHealingOrbs() {
+  for (let i = healingOrbs.length - 1; i >= 0; i--) {
+    let orb = healingOrbs[i];
+    orb.y += orb.vy * gameSpeed;
+    orb.element.style.bottom = orb.y + 'px';
+    if (orb.y <= 50) {
+      explodeHealingOrb(orb);
+      gameArea.removeChild(orb.element);
+      healingOrbs.splice(i, 1);
+    }
+  }
+}
+function explodeHealingOrb(orb) {
+  const radius = 50;
+  villagers.forEach(v => {
+    let dist = Math.abs(v.x - orb.x);
+    if (dist < radius && !v.isDead) {
+      v.health = Math.min(v.maxHealth, v.health + 100);
+      updateStats(v);
+    }
+  });
+  const explosion = document.createElement('div');
+  explosion.style.position = 'absolute';
+  explosion.style.width = '100px';
+  explosion.style.height = '100px';
+  explosion.style.backgroundColor = 'lightgreen';
+  explosion.style.borderRadius = '50%';
+  explosion.style.left = orb.x - 50 + 'px';
+  explosion.style.bottom = orb.y - 50 + 'px';
+  explosion.style.opacity = '0.8';
+  gameArea.appendChild(explosion);
+  let fadeTimer = 500;
+  let expandTimer = setInterval(() => {
+    let width = parseInt(explosion.style.width);
+    let height = parseInt(explosion.style.height);
+    explosion.style.width = width + 10 + 'px';
+    explosion.style.height = height + 10 + 'px';
+    explosion.style.left = parseInt(explosion.style.left) - 5 + 'px';
+    explosion.style.bottom = parseInt(explosion.style.bottom) - 5 + 'px';
+    explosion.style.opacity = parseFloat(explosion.style.opacity) - 0.05;
+    if (fadeTimer <= 0) {
+      clearInterval(expandTimer);
+      if (explosion.parentNode) {
+        explosion.parentNode.removeChild(explosion);
+      }
+    }
+    fadeTimer -= 50;
+  }, 50);
+}
+document.getElementById('createVillagerMiracle').addEventListener('click', () => {
+  if (mana < 25) {
+    playSound(soundEffects.notEnoughMana);
+  } else {
+    playSound(soundEffects.miracleLife);
+    createVillagerMiracle();
+  }
+});
+document.getElementById('createFoodMiracle').addEventListener('click', createFoodMiracle);
+document.getElementById('createStormMiracle').addEventListener('click', createStormMiracle);
+document.getElementById('resurrectDeadMiracle').addEventListener('click', resurrectDeadVillagers);
+document.getElementById('createNightMiracle').addEventListener('click', createNightMiracle);
+document.getElementById('createWoodMiracle').addEventListener('click', createWoodMiracle);
+document.getElementById('createHealMiracle').addEventListener('click', createHealMiracle);
+document.getElementById('createLightningMiracle').addEventListener('click', createLightningMiracle);
+let mineCounter = 0;
+let goblins = [];
+let goblinsSpawnedToday = false;
+function spawnGoblins(number) {
+  let spawned = 0;
+  function spawnNextGoblin() {
+    if (spawned < number) {
+      let goblin = createGoblin();
+      goblins.push(goblin);
+      spawned++;
+      if (spawned < number) {
+        let delay = 300 + Math.random() * (800 - 300);
+        setTimeout(spawnNextGoblin, delay);
+      }
+    }
+  }
+  spawnNextGoblin();
+}
+function createGoblin() {
+  const goblin = document.createElement('div');
+  goblin.className = 'goblin';
+  const body = document.createElement('div');
+  body.className = 'goblin-body';
+  body.innerHTML = `
+                        <div class="head"></div>
+                        <div class="torso"></div>
+                        <div class="arm left-arm"></div>
+                        <div class="arm right-arm"></div>
+                        <div class="leg left-leg"></div>
+                        <div class="leg right-leg"></div>
+                    `;
+  goblin.appendChild(body);
+  const stats = document.createElement('div');
+  stats.className = 'stats';
+  stats.innerHTML = `
+                        <div class="action-text"></div>
+                        <div class="stat-bar health-bar"></div>
+                        <div class="progress-bar"></div>
+                    `;
+  goblin.appendChild(stats);
+  gameArea.appendChild(goblin);
+  const goblinObj = {
+    element: goblin,
+    x: 0,
+    y: 0,
+    vx: 0,
+    vy: 0,
+    health: 100,
+    action: 'idle',
+    actionProgress: 0,
+    attackPower: 10,
+    targetVillager: null,
+    isDead: false,
+    type: 'goblin',
+    lastVillagerCheck: Date.now()
+  };
+  const skinColor = goblinSkinColors[Math.floor(Math.random() * goblinSkinColors.length)];
+  body.querySelector('.head').style.backgroundColor = skinColor;
+  body.querySelector('.torso').style.backgroundColor = 'darkgreen';
+  body.querySelectorAll('.arm').forEach(arm => arm.style.backgroundColor = skinColor);
+  const sword = document.createElement('div');
+  sword.className = 'goblin-sword';
+  body.appendChild(sword);
+  return goblinObj;
+}
+function updateGoblin(goblin) {
+  if (goblin.isDead) return;
+  switch (goblin.action) {
+    case 'idle':
+      if (Math.random() < 0.01) {
+        goblin.vx = Math.random() < 0.5 ? -1 : 1;
+      }
+      if (Math.random() < 0.01) {
+        goblin.vx = 0;
+      }
+      if (Date.now() - goblin.lastVillagerCheck > 3000) {
+        goblin.lastVillagerCheck = Date.now();
+        const nearbyVillager = findNearestVillagerForGoblin(goblin);
+        if (nearbyVillager) {
+          goblin.action = 'chase';
+          goblin.targetVillager = nearbyVillager;
+        }
+      }
+      break;
+    case 'chase':
+      if (Date.now() - goblin.lastVillagerCheck > 3000) {
+        goblin.lastVillagerCheck = Date.now();
+        goblin.targetVillager = findNearestVillagerForGoblin(goblin);
+      }
+      if (!goblin.targetVillager || goblin.targetVillager.isDead) {
+        goblin.action = 'idle';
+        goblin.targetVillager = null;
+      } else {
+        moveTowardsGoblin(goblin, goblin.targetVillager, gameSpeed);
+        if (isGoblinNearVillager(goblin, goblin.targetVillager)) {
+          goblin.action = 'attack';
+          goblin.actionProgress = 0;
+        }
+      }
+      break;
+    case 'attack':
+      goblin.vx = 0;
+      if (!goblin.targetVillager || goblin.targetVillager.isDead || Math.abs(goblin.x - goblin.targetVillager.x) > 30) {
+        goblin.action = 'chase';
+      } else {
+        updateGoblinActionProgress(goblin, 100);
+        if (goblin.actionProgress >= 100) {
+          applyDamage(goblin.targetVillager, goblin.attackPower);
+          if (goblin.targetVillager.x > goblin.x) {
+            goblin.targetVillager.x += 10;
+          } else {
+            goblin.targetVillager.x -= 10;
+          }
+          goblin.actionProgress = 0;
+          playSound(soundEffects.goblinAttack);
+        }
+      }
+      break;
+  }
+  goblin.x += goblin.vx;
+  if (goblin.x < 0) goblin.x = 0;
+  if (goblin.x > GAME_WIDTH - 30) goblin.x = GAME_WIDTH - 30;
+  updateGoblinPosition(goblin);
+  if (goblin.vx !== 0) {
+    goblin.element.querySelector('.goblin-body').classList.add('walking');
+  } else {
+    goblin.element.querySelector('.goblin-body').classList.remove('walking');
+  }
+  updateStats(goblin);
+}
+function updateGoblinPosition(goblin) {
+  goblin.element.style.left = goblin.x + 'px';
+  goblin.element.style.bottom = 50 + goblin.y + 'px';
+}
+function findNearestVillagerForGoblin(goblin) {
+  let minDist = Infinity;
+  let nearestVillager = null;
+  villagers.forEach(villager => {
+    if (!villager.isDead) {
+      const dist = Math.abs(villager.x - goblin.x);
+      if (dist < minDist) {
+        minDist = dist;
+        nearestVillager = villager;
+      }
+    }
+  });
+  return nearestVillager;
+}
+function moveTowardsGoblin(goblin, target, speed) {
+  if (goblin.x < target.x) {
+    goblin.vx = 1 * speed;
+  } else if (goblin.x > target.x) {
+    goblin.vx = -1 * speed;
+  } else {
+    goblin.vx = 0;
+  }
+}
+function isGoblinNearVillager(goblin, villager) {
+  return Math.abs(goblin.x - villager.x) < 30;
+}
+function updateGoblinActionProgress(goblin, maxProgress) {
+  goblin.actionProgress += gameSpeed;
+  const progressBar = goblin.element.querySelector('.progress-bar');
+  progressBar.style.display = 'block';
+  progressBar.style.width = `${goblin.actionProgress / maxProgress * 30}px`;
+  if (goblin.actionProgress >= maxProgress) {
+    progressBar.style.display = 'none';
+  }
+}
+sleepHouse.style.height = 80 + (sleepHouseLevel - 1) * 20 + 'px';
+document.getElementById('speedSelect').addEventListener('change', e => {
+  gameSpeed = parseInt(e.target.value);
+});</script>
+        </div>
+        <div id="clock">06:00</div>
+        <div id="dayCounter">Day: 1</div>
+        <div id="villagerList"></div>
+    </div>
+</body>
+</html>

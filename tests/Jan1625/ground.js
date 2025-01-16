@@ -17,14 +17,18 @@ function createGround(scene) {
     // Create material with the texture
     const groundMaterial = new THREE.MeshStandardMaterial({
         map: groundTexture,
-        roughness: 0.8,
-        metalness: 0.2
+        color: 0x555555,  // Darker base color
+        roughness: 0.8,   // More rough
+        metalness: 0.0,   // No metalness
+        side: THREE.DoubleSide,
+        shadowSide: THREE.DoubleSide,
     });
     
     // Create the ground mesh
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2; // Rotate to be horizontal
     ground.receiveShadow = true;
+    ground.castShadow = false;
     
     // Add to scene
     scene.add(ground);

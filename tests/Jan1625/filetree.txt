@@ -1,0 +1,30 @@
+Unused Files in Project:
+
+JavaScript Files:
+- alternate_world.js
+- characterSprite.js
+- chest.js
+- clothing.js
+- daynight.js
+- first.js
+- ground.js
+- hostilequadrupeds.js
+- mountains.js
+- neutralanimals.js
+- purplestructure.js
+- questLog.js
+- skilltree.js
+- teleport.js
+- traits.js
+- updatedisplays.js
+
+Style Files:
+- styles.css
+
+Other Files:
+- ground.png
+- package-lock.json
+- roadmap.md
+- server.js
+
+Note: Some of these files might be imported/used by other JavaScript files but are not directly referenced in index.html. A deeper analysis of JavaScript imports would be needed to determine truly unused files.

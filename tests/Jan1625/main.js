@@ -55,6 +55,22 @@ function animate() {
         destination = mouseDestination.clone();
     }
 
+    // Initialize grass system if not already initialized
+    if (!window.grassSystem && typeof GrassSystem !== 'undefined') {
+        window.grassSystem = new GrassSystem(scene, {
+            patchSize: 100,
+            bladesPerPatch: 50,
+            bladeHeight: 1,
+            bladeWidth: 0.1,
+            renderDistance: 2
+        });
+    }
+
+    // Update grass system if initialized
+    if (window.grassSystem) {
+        window.grassSystem.update(player.position);
+    }
+
     if (destination) {
         movePlayerTowardsDestination();
     } else {
@@ -520,7 +536,6 @@ function easeInOutSine(t) {
     return 0.5 * (1 - Math.cos(Math.PI * t));
 }
 
-// Create Humanoid Function
 function createHumanoid(color, texture, pattern, height, bodyShape) {
     const humanoidGroup = new THREE.Group();
     humanoidGroup.isHumanoid = true; // Flag to identify humanoids
@@ -544,10 +559,20 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         0x8b4513  // SaddleBrown
     ];
 
+    /**
+     * Selects a random color from the provided array.
+     * @param {Array} colorArray - Array of color hex values.
+     * @returns {Number} - Selected color hex value.
+     */
     function getRandomColor(colorArray) {
         return colorArray[Math.floor(Math.random() * colorArray.length)];
     }
 
+    /**
+     * Creates a MeshStandardMaterial with the given color.
+     * @param {Number} colorValue - Hex color value.
+     * @returns {THREE.MeshStandardMaterial} - Created material.
+     */
     function createMaterial(colorValue) {
         return new THREE.MeshStandardMaterial({
             color: colorValue,
@@ -557,6 +582,11 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         });
     }
 
+    /**
+     * Configures shadow properties for a mesh.
+     * @param {THREE.Mesh} mesh - The mesh to configure.
+     * @returns {THREE.Mesh} - Configured mesh.
+     */
     function configureShadows(mesh) {
         mesh.castShadow = true;
         mesh.receiveShadow = true;
@@ -568,139 +598,188 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     const selectedHairColor = getRandomColor(hairColors);
 
     // ----------------------------------------------------
-    // 2. TORSO
+    // 2. TORSO & SHOULDERS (LatheGeometry, more points)
     // ----------------------------------------------------
-    // Using LatheGeometry for a more human-like torso
+    //
+    // The points below define a more detailed silhouette:
+    // - Start narrower at the waist
+    // - Curve outward at the hips
+    // - Narrow up around the rib cage
+    // - Widen for the chest and shoulders
+    //
+    // You can tweak the x-values (horizontal radius) and y-values
+    // (vertical spacing) as needed.
+    //
     const torsoPoints = [
-        new THREE.Vector2(1.4, 0), // Waist
-        new THREE.Vector2(2.2, 2), // Stomach/abdomen
-        new THREE.Vector2(2.7, 4), // Chest
-        new THREE.Vector2(2.5, 6)  // Shoulders
+        new THREE.Vector2(1.3, 0),  // Start at waist
+        new THREE.Vector2(1.8, 3),  // Lower abdomen / hips
+        new THREE.Vector2(2.4, 5.5),// Rib cage
+        new THREE.Vector2(2.7, 7),  // Bust area
+        new THREE.Vector2(2.5, 9),  // Upper chest near shoulders
+        new THREE.Vector2(2.8, 10)  // Shoulder top
     ];
-    const torsoGeometry = new THREE.LatheGeometry(torsoPoints, 16);
+    const torsoGeometry = new THREE.LatheGeometry(torsoPoints, 24);
     const torsoMaterial = createMaterial(selectedSkinColor);
     const torso = configureShadows(new THREE.Mesh(torsoGeometry, torsoMaterial));
-    torso.position.set(0, 10, 0);
 
-    // --- NEW: Add a flat disk at the top to close the geometry ---
+    // ----------------------------------------------------
+    // 2.a. Adjust Torso Positioning
+    // ----------------------------------------------------
+    // Original Position: torso.position.set(0, 8, 0);
+    // Modification: Move torso down by 0.3 units (y decreases by 0.3)
+    torso.position.set(0, 4, 0); // 8 - 0.3 = 7.7
+
+    // Close the top of the Lathe
     {
-        // The top radius should match the last point's x-value (2.5)
-        const topRadius = torsoPoints[torsoPoints.length - 1].x; // = 2.5
-        const topSegments = 16;
+        const topRadius = torsoPoints[torsoPoints.length - 1].x; // ~2.8
+        const topSegments = 24;
         const topDiskGeom = new THREE.CircleGeometry(topRadius, topSegments);
         const topDisk = configureShadows(new THREE.Mesh(topDiskGeom, torsoMaterial));
-
-        // Orient the disk so it's horizontal (facing "down" to cover the hollow top)
         topDisk.rotation.x = -Math.PI / 2;
-
-        // Position it at the same y as the last lathe point (6), in the torso's local coordinates
         topDisk.position.set(0, torsoPoints[torsoPoints.length - 1].y, 0);
-
-        // Attach the disk to the torso so it moves with the torso
         torso.add(topDisk);
     }
 
-    // Slight chest geometry (pectorals) — these are part of the body, not clothing
-    const leftPectoralGeometry = new THREE.SphereGeometry(1.5, 32, 32);
-    const leftPectorals = configureShadows(new THREE.Mesh(leftPectoralGeometry, torsoMaterial));
-    leftPectorals.position.set(-1.5, 14, 1.5);
-    const rightPectoralGeometry = new THREE.SphereGeometry(1.5, 32, 32);
-    const rightPectorals = configureShadows(new THREE.Mesh(rightPectoralGeometry, torsoMaterial));
-    rightPectorals.position.set(1.5, 14, 1.5);
-    humanoidGroup.add(torso, leftPectorals, rightPectorals);
+    // Breasts
+    // More subtle approach: two spheres scaled a bit
+    const breastRadius = 1.2;
+    const leftBreastGeom = new THREE.SphereGeometry(breastRadius, 24, 24);
+    const leftBreast = configureShadows(new THREE.Mesh(leftBreastGeom, torsoMaterial));
+    leftBreast.position.set(-1.2, 12.5, 1.3);
+    leftBreast.scale.set(1, 0.9, 1.2);
+
+    const rightBreastGeom = new THREE.SphereGeometry(breastRadius, 24, 24);
+    const rightBreast = configureShadows(new THREE.Mesh(rightBreastGeom, torsoMaterial));
+    rightBreast.position.set(1.2, 12.5, 1.3);
+    rightBreast.scale.set(1, 0.9, 1.2);
+
+    humanoidGroup.add(torso, leftBreast, rightBreast);
 
     // ----------------------------------------------------
-    // 3. PELVIS
+    // 3. PELVIS (LatheGeometry for smooth hips)
     // ----------------------------------------------------
-    const pelvisGeometry = new THREE.CylinderGeometry(1.5, 2.5, 3, 16);
+    //
+    // We’ll define a quick shape from top to bottom of the pelvic area.
+    //
+    const pelvisPoints = [
+        new THREE.Vector2(2.1, 0),  // top (matching the waist where torso ends)
+        new THREE.Vector2(2.0, 1.5),// narrow near the crotch area
+        new THREE.Vector2(2.2, 3),  // slightly out near top of thighs
+    ];
+    const pelvisGeometry = new THREE.LatheGeometry(pelvisPoints, 24);
     const pelvisMaterial = createMaterial(selectedSkinColor);
     const pelvis = configureShadows(new THREE.Mesh(pelvisGeometry, pelvisMaterial));
-    pelvis.position.set(0, 9, 0);
+
+    pelvis.rotation.x = Math.PI; // Flip it upside-down to match orientation
+
+    // ----------------------------------------------------
+    // 3.a. Adjust Pelvis Positioning
+    // ----------------------------------------------------
+    // Original Position: pelvis.position.set(0, 5, 0);
+    // Modification: Move pelvis up by 0.3 units (y increases by 0.3)
+    pelvis.position.set(0, 9.3, 0); // 5 + 0.3 = 5.3
+
     humanoidGroup.add(pelvis);
 
     // ----------------------------------------------------
     // 4. NECK & HEAD
     // ----------------------------------------------------
     const neckJoint = configureShadows(
-        new THREE.Mesh(new THREE.SphereGeometry(1, 16, 16), createMaterial(selectedSkinColor))
+        new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 16), createMaterial(selectedSkinColor))
     );
-    neckJoint.position.set(0, 15.5, 0);
+    neckJoint.position.set(0, 18, 0);
 
-    const headGeometry = new THREE.SphereGeometry(1.5, 16, 16);
+    const headGeometry = new THREE.SphereGeometry(1.8, 32, 32);
     const headMaterial = createMaterial(selectedSkinColor);
     const head = configureShadows(new THREE.Mesh(headGeometry, headMaterial));
-    head.position.set(0, 17.5, 0);
+    head.position.set(0, 1.5, 0);
+    neckJoint.add(head);
 
-    // Hair
-    const hairGeometry = new THREE.SphereGeometry(1.55, 16, 16);
+    // Simple “hair helmet”
+    const hairGeometry = new THREE.SphereGeometry(1.9, 32, 32);
     const hairMaterial = createMaterial(selectedHairColor);
     const hair = configureShadows(new THREE.Mesh(hairGeometry, hairMaterial));
-    hair.scale.set(1, 0.7, 1);
+    hair.scale.set(1, 0.85, 1);
     hair.position.set(0, 0.3, 0);
     head.add(hair);
 
-    // Eyes
+    // Simple eyes
     const eyeGeometry = new THREE.SphereGeometry(0.15, 8, 8);
     const eyeMaterial = createMaterial(0x000000);
     const leftEye = configureShadows(new THREE.Mesh(eyeGeometry, eyeMaterial));
     const rightEye = configureShadows(new THREE.Mesh(eyeGeometry, eyeMaterial));
-    leftEye.position.set(-0.4, 0.1, 1.3);
-    rightEye.position.set(0.4, 0.1, 1.3);
+    leftEye.position.set(-0.45, 0.1, 1.2);
+    rightEye.position.set(0.45, 0.1, 1.2);
     head.add(leftEye, rightEye);
 
     // Nose
-    const noseGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.3, 8);
-    const nose = configureShadows(new THREE.Mesh(noseGeometry, torsoMaterial));
+    const noseGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.35, 8);
+    const nose = configureShadows(new THREE.Mesh(noseGeometry, headMaterial));
     nose.rotation.x = Math.PI / 2;
     nose.position.set(0, 0, 1.4);
     head.add(nose);
 
-    humanoidGroup.add(neckJoint, head);
+    // Place the neck + head above torso
+    humanoidGroup.add(neckJoint);
 
     // ----------------------------------------------------
-    // 5. ARMS
+    // 5. ARMS (LatheGeometry for upper arms/forearms)
     // ----------------------------------------------------
+    /**
+     * Creates an arm (left or right) with all its components.
+     * @param {String} side - 'left' or 'right'.
+     * @returns {THREE.Group} - Group representing the arm.
+     */
     function createArm(side) {
         const armRoot = new THREE.Group();
 
-        // Shoulder Joint
+        // Shoulder
         const shoulderJoint = configureShadows(
-            new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), createMaterial(selectedSkinColor))
+            new THREE.Mesh(new THREE.SphereGeometry(0.65, 16, 16), createMaterial(selectedSkinColor))
         );
-        shoulderJoint.position.set(0, 0, 0);
         armRoot.add(shoulderJoint);
 
-        // Upper Arm
-        const upperArmGeom = new THREE.CylinderGeometry(0.4, 0.5, 3, 8);
+        // Upper arm lathe points
+        const upperArmPoints = [
+            new THREE.Vector2(0.7, 0),
+            new THREE.Vector2(0.65, 2),
+            new THREE.Vector2(0.5, 4)
+        ];
+        const upperArmGeom = new THREE.LatheGeometry(upperArmPoints, 16);
         const upperArm = configureShadows(new THREE.Mesh(upperArmGeom, createMaterial(selectedSkinColor)));
-        upperArm.position.set(0, -1.5, 0);
+        upperArm.rotation.x = Math.PI / 2; 
         shoulderJoint.add(upperArm);
 
         // Elbow
         const elbowJoint = configureShadows(
-            new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 16), createMaterial(selectedSkinColor))
+            new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), createMaterial(selectedSkinColor))
         );
-        elbowJoint.position.set(0, -1.5, 0);
+        elbowJoint.position.set(0, 4, 0);
         upperArm.add(elbowJoint);
 
-        // Forearm
-        const forearmGeom = new THREE.CylinderGeometry(0.35, 0.45, 3, 8);
+        // Forearm lathe
+        const forearmPoints = [
+            new THREE.Vector2(0.45, 0),
+            new THREE.Vector2(0.4, 2),
+            new THREE.Vector2(0.35, 4)
+        ];
+        const forearmGeom = new THREE.LatheGeometry(forearmPoints, 16);
         const forearm = configureShadows(new THREE.Mesh(forearmGeom, createMaterial(selectedSkinColor)));
-        forearm.position.set(0, -1.5, 0);
+        forearm.rotation.x = Math.PI / 2; 
         elbowJoint.add(forearm);
 
         // Wrist
         const wristJoint = configureShadows(
             new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), createMaterial(selectedSkinColor))
         );
-        wristJoint.position.set(0, -1.5, 0);
+        wristJoint.position.set(0, 4, 0);
         forearm.add(wristJoint);
 
-        // Hand
+        // Hand (simple box or slightly extruded shape)
         const handGroup = new THREE.Group();
-        const palmGeom = new THREE.BoxGeometry(0.8, 0.3, 1);
+        const palmGeom = new THREE.BoxGeometry(0.8, 0.4, 1);
         const palm = configureShadows(new THREE.Mesh(palmGeom, createMaterial(selectedSkinColor)));
-        palm.position.set(0, -0.15, 0);
+        palm.position.set(0, -0.2, 0);
         handGroup.add(palm);
 
         // Fingers
@@ -712,7 +791,7 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
                 createMaterial(selectedSkinColor)
             ));
             finger.rotation.x = Math.PI / 2;
-            finger.position.set((i - 1.5) * 0.2, 0, 0.5);
+            finger.position.set((i - 1.5) * 0.2, 0, 0.55);
             handGroup.add(finger);
         }
         // Thumb
@@ -722,71 +801,107 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         ));
         thumb.rotation.z = Math.PI / 6;
         thumb.rotation.y = -Math.PI / 6;
-        thumb.position.set(0.4, 0, 0.2);
+        thumb.position.set(0.45, 0, 0.2);
         handGroup.add(thumb);
 
         wristJoint.add(handGroup);
 
-        // Position entire arm
-        armRoot.position.set(side === 'left' ? -3.5 : 3.5, 14, 0);
+        // ----------------------------------------------------
+        // 5.a. Adjust Arm Positioning and Swap Arms
+        // ----------------------------------------------------
+        // Original Position: armRoot.position.set(side === 'left' ? -2.8 : 2.8, 10.5, 0);
+        // Modification:
+        // - Swap arms: left arm becomes right and vice versa.
+        // - Move arms up by 0.3 units (y increases by 0.3)
+        const armXPosition = side === 'left' ? 2.8 : -2.8; // Swapped positions
+        const armYPosition = 10.5 + 0.3; // 10.5 + 0.3 = 10.8
+        armRoot.position.set(armXPosition, armYPosition, 0);
+
+        // Mirror the left arm’s Z rotation slightly for a more natural stance
+        if (side === 'left') {
+            armRoot.rotation.z = Math.PI / 12; 
+        } else {
+            armRoot.rotation.z = -Math.PI / 12; 
+        }
+
         return armRoot;
     }
 
-    const leftArm = createArm('left');
-    const rightArm = createArm('right');
+    // Create Arms with Swapped Positions
+    const leftArm = createArm('left');   // Actually positioned on the right
+    const rightArm = createArm('right'); // Actually positioned on the left
     humanoidGroup.add(leftArm, rightArm);
 
     // ----------------------------------------------------
-    // 6. LEGS
+    // 6. LEGS (LatheGeometry for thighs/calves)
     // ----------------------------------------------------
+    /**
+     * Creates a leg (left or right) with all its components.
+     * @param {String} side - 'left' or 'right'.
+     * @returns {THREE.Group} - Group representing the leg.
+     */
     function createLeg(side) {
         const legRoot = new THREE.Group();
-        const legOffsetY = 0.7;
 
         // Hip joint
         const hipJoint = configureShadows(
-            new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), createMaterial(selectedSkinColor))
+            new THREE.Mesh(new THREE.SphereGeometry(0.55, 16, 16), createMaterial(selectedSkinColor))
         );
-        hipJoint.position.set(0, legOffsetY, 0);
         legRoot.add(hipJoint);
 
-        // Upper Leg
-        const upperLegGeom = new THREE.CylinderGeometry(0.5, 0.6, 4, 8);
-        const upperLeg = configureShadows(new THREE.Mesh(upperLegGeom, createMaterial(selectedSkinColor)));
-        upperLeg.position.set(0, -2 + legOffsetY, 0);
-        hipJoint.add(upperLeg);
+        // Thigh lathe
+        const thighPoints = [
+            new THREE.Vector2(0.8, 0),   // top near pelvis
+            new THREE.Vector2(0.9, 2),   // mid-thigh
+            new THREE.Vector2(0.5, 4)    // near knee
+        ];
+        const thighGeom = new THREE.LatheGeometry(thighPoints, 16);
+        const thigh = configureShadows(new THREE.Mesh(thighGeom, createMaterial(selectedSkinColor)));
+        thigh.rotation.x = Math.PI / 2; 
+        hipJoint.add(thigh);
 
         // Knee joint
         const kneeJoint = configureShadows(
-            new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 16), createMaterial(selectedSkinColor))
+            new THREE.Mesh(new THREE.SphereGeometry(0.45, 16, 16), createMaterial(selectedSkinColor))
         );
-        kneeJoint.position.set(0, -2 + legOffsetY, 0);
-        upperLeg.add(kneeJoint);
+        kneeJoint.position.set(0, 4, 0);
+        thigh.add(kneeJoint);
 
-        // Lower Leg
-        const lowerLegGeom = new THREE.CylinderGeometry(0.45, 0.5, 4, 8);
-        const lowerLeg = configureShadows(new THREE.Mesh(lowerLegGeom, createMaterial(selectedSkinColor)));
-        lowerLeg.position.set(0, -2, 0);
-        kneeJoint.add(lowerLeg);
+        // Calf lathe
+        const calfPoints = [
+            new THREE.Vector2(0.45, 0), 
+            new THREE.Vector2(0.4, 2), 
+            new THREE.Vector2(0.35, 4)
+        ];
+        const calfGeom = new THREE.LatheGeometry(calfPoints, 16);
+        const calf = configureShadows(new THREE.Mesh(calfGeom, createMaterial(selectedSkinColor)));
+        calf.rotation.x = Math.PI / 2; 
+        kneeJoint.add(calf);
 
         // Ankle
         const ankleJoint = configureShadows(
             new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), createMaterial(selectedSkinColor))
         );
-        ankleJoint.position.set(0, -2, 0);
-        lowerLeg.add(ankleJoint);
+        ankleJoint.position.set(0, 4, 0);
+        calf.add(ankleJoint);
 
         // Foot
         const footGeom = new THREE.BoxGeometry(1, 0.5, 2);
         const foot = configureShadows(new THREE.Mesh(footGeom, createMaterial(selectedSkinColor)));
-        foot.position.set(0, -0.25, 1);
+        foot.position.set(0, 0, 1);
         ankleJoint.add(foot);
 
-        // Move entire leg group to the correct side
-        legRoot.position.set(side === 'left' ? -1.5 : 1.5, 7 + legOffsetY, 0);
+        // ----------------------------------------------------
+        // 6.a. Adjust Leg Positioning
+        // ----------------------------------------------------
+        // Original Position: legRoot.position.set(side === 'left' ? -1.3 : 1.3, 2.3, 0);
+        // Modification: Move legs up by 0.7 units (y increases by 0.7)
+        legRoot.position.set(side === 'left' ? -1.3 : 1.3, 5 + 0.7, 0); // 2.3 + 0.7 = 3.0
+
         return legRoot;
     }
 
+    // Create Legs
     const leftLeg = createLeg('left');
     const rightLeg = createLeg('right');
     humanoidGroup.add(leftLeg, rightLeg);
@@ -794,14 +909,14 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     // ----------------------------------------------------
     // 7. OPTIONAL: PUBIC HAIR
     // ----------------------------------------------------
-    const pubicHairGeom = new THREE.PlaneGeometry(2, 1);
+    const pubicHairGeom = new THREE.PlaneGeometry(1.8, 1);
     const pubicHairMat = new THREE.MeshLambertMaterial({ 
         color: selectedHairColor, 
         side: THREE.DoubleSide 
     });
     const pubicHair = configureShadows(new THREE.Mesh(pubicHairGeom, pubicHairMat));
     pubicHair.rotation.x = Math.PI / 2;
-    pubicHair.position.set(0, 7, 1);
+    pubicHair.position.set(0, 3.8, 1.1);
     humanoidGroup.add(pubicHair);
 
     // ----------------------------------------------------
@@ -849,62 +964,83 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     return humanoidGroup;
 }
 
+
 function animateHumanoid(humanoid, deltaTime) {
     if (!humanoid) return;
 
     if (humanoid.isMoving) {
         humanoid.animationTime += deltaTime * humanoid.animationSpeed * 3.5;
 
-        const legSwingAmplitude = 0.65;
-        const armSwingAmplitude = 0.55;
-        const kneeBendAmplitude = 1.1;
-        const footRollAmplitude = 0.35;
-        const torsoTwistAmplitude = 0.09;
-        const bodyBobAmplitude = 0.12;
-        const headBobAmplitude = 0.1;
-        const forwardLean = 0.15;
-        const breathingAmplitude = 0.02;
+        const legSwingAmplitude    = 0.65;
+        const armSwingAmplitude    = 0.55;
+        const kneeBendAmplitude    = 1.1;
+        const footRollAmplitude    = 0.35;
+        const torsoTwistAmplitude  = 0.09;
+        const bodyBobAmplitude     = 0.12;
+        const headBobAmplitude     = 0.1;
+        const forwardLean          = 0.15;
+        const breathingAmplitude   = 0.02;
 
-        const swing = Math.sin(humanoid.animationTime * humanoid.armSwingSpeed);
+        const swing     = Math.sin(humanoid.animationTime * humanoid.armSwingSpeed);
         const breathing = Math.sin(humanoid.animationTime * 0.5) * breathingAmplitude;
 
         // Arms
         if (humanoid.leftArm && humanoid.rightArm) {
             humanoid.leftArm.rotation.x = swing * armSwingAmplitude;
             humanoid.rightArm.rotation.x = -swing * armSwingAmplitude;
+
+            // Some minor outward rotation for a more natural swing
             humanoid.leftArm.rotation.z = -0.15 + 0.1 * Math.max(0, swing);
             humanoid.rightArm.rotation.z = 0.15 - 0.1 * Math.max(0, -swing);
         }
 
         // Legs
         if (humanoid.leftLeg && humanoid.rightLeg) {
+            // Thigh root rotation for forward/back
             humanoid.leftLeg.rotation.x = -swing * legSwingAmplitude;
             humanoid.rightLeg.rotation.x = swing * legSwingAmplitude;
 
-            humanoid.leftLeg.children[0]?.children[0]?.rotation.set(
-                Math.abs(swing) * kneeBendAmplitude, 0, 0
-            );
-            humanoid.rightLeg.children[0]?.children[0]?.rotation.set(
-                Math.abs(-swing) * kneeBendAmplitude, 0, 0
-            );
+            // Bend knees
+            // legRoot.children[0] -> hipJoint
+            // hipJoint.children[0] -> thigh
+            // thigh.children[0] -> kneeJoint
+            const leftKneeJoint  = humanoid.leftLeg.children[0]?.children[0]?.children[0];
+            const rightKneeJoint = humanoid.rightLeg.children[0]?.children[0]?.children[0];
+            if (leftKneeJoint) {
+                leftKneeJoint.rotation.x = Math.abs(swing) * kneeBendAmplitude;
+            }
+            if (rightKneeJoint) {
+                rightKneeJoint.rotation.x = Math.abs(-swing) * kneeBendAmplitude;
+            }
 
-            humanoid.leftLeg.children[0]?.children[0]?.children[0]?.children[0]?.rotation.set(
-                Math.max(0, swing) * footRollAmplitude, 0, 0
-            );
-            humanoid.rightLeg.children[0]?.children[0]?.children[0]?.children[0]?.rotation.set(
-                Math.max(0, -swing) * footRollAmplitude, 0, 0
-            );
+            // Foot roll
+            // kneeJoint.children[0] -> calf
+            // calf.children[0] -> ankleJoint
+            // ankleJoint.children[0] -> foot
+            const leftFoot = humanoid.leftLeg.children[0]
+                ?.children[0]?.children[0]?.children[0]?.children[0];
+            const rightFoot = humanoid.rightLeg.children[0]
+                ?.children[0]?.children[0]?.children[0]?.children[0];
+            if (leftFoot) {
+                leftFoot.rotation.x = Math.max(0, swing) * footRollAmplitude;
+            }
+            if (rightFoot) {
+                rightFoot.rotation.x = Math.max(0, -swing) * footRollAmplitude;
+            }
         }
 
-        // Body
+        // Body “bob” and forward lean
         if (humanoid.body) {
-            humanoid.body.position.y = 10 + Math.abs(swing) * bodyBobAmplitude + breathing;
+            humanoid.body.position.y = 6.7 + Math.abs(swing) * bodyBobAmplitude + breathing; // Updated base y=7.7
             humanoid.body.rotation.set(-forwardLean, swing * torsoTwistAmplitude, 0);
         }
 
-        // Head
+        // Head “bob” plus subtle breathing
         if (humanoid.head) {
-            humanoid.head.position.y = 18 + Math.abs(swing) * headBobAmplitude + breathing * 0.5;
+            // neckJoint is at y=18, head is offset by +1.5
+            // We'll do the final net effect on the entire neck
+            // so the head and neck move together
+            humanoid.head.parent.position.y = 18 + Math.abs(swing) * headBobAmplitude + breathing * 0.8;
             humanoid.head.rotation.x = swing * 0.06;
         }
     } else {
@@ -912,36 +1048,43 @@ function animateHumanoid(humanoid, deltaTime) {
     }
 }
 
+
 function resetHumanoidPose(humanoid) {
-    if (humanoid.leftArm) humanoid.leftArm.rotation.set(0, 0, -0.15);
-    if (humanoid.rightArm) humanoid.rightArm.rotation.set(0, 0, 0.15);
+    // Gently reset rotations/positions to default (standing still)
+    if (!humanoid) return;
+    humanoid.animationTime = 0;
 
-    if (humanoid.leftLeg) humanoid.leftLeg.rotation.set(0, 0, 0);
-    if (humanoid.rightLeg) humanoid.rightLeg.rotation.set(0, 0, 0);
+    // Arms
+    if (humanoid.leftArm) {
+        humanoid.leftArm.rotation.set(0, 0, Math.PI / 12); // Maintains the slight rotation from initial positioning
+    }
+    if (humanoid.rightArm) {
+        humanoid.rightArm.rotation.set(0, 0, -Math.PI / 12); // Maintains the slight rotation from initial positioning
+    }
 
-    humanoid.leftLeg?.children[0]?.children[0]?.rotation.set(0, 0, 0);
-    humanoid.rightLeg?.children[0]?.children[0]?.rotation.set(0, 0, 0);
+    // Legs
+    if (humanoid.leftLeg) {
+        humanoid.leftLeg.rotation.set(0, 0, 0);
+    }
+    if (humanoid.rightLeg) {
+        humanoid.rightLeg.rotation.set(0, 0, 0);
+    }
 
-    humanoid.leftLeg?.children[0]?.children[0]?.children[0]?.children[0]?.rotation.set(0, 0, 0);
-    humanoid.rightLeg?.children[0]?.children[0]?.children[0]?.children[0]?.rotation.set(0, 0, 0);
-
+    // Body
     if (humanoid.body) {
-        humanoid.body.position.y = 10;
+        humanoid.body.position.y = 6.7; // Updated base y-position
         humanoid.body.rotation.set(0, 0, 0);
     }
 
+    // Neck & Head
     if (humanoid.head) {
-        humanoid.head.position.y = 18;
+        // Put neck back to ~y=18
+        humanoid.head.parent.position.set(0, 18, 0);
         humanoid.head.rotation.set(0, 0, 0);
     }
-
-    humanoid.traverse((child) => {
-        if (child.name === 'Shorts' || child.name === 'Shirt') {
-            child.rotation.set(0, 0, 0);
-            child.updateMatrixWorld(true);
-        }
-    });
 }
+
+
 
 
 function createFriendlyNPC(color = 0x00ff00, name = 'Friendly NPC', dialogue = 'Hello!') {

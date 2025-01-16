@@ -1,5 +1,17 @@
 /* rodstyles-base.css */
 
+:root {
+    /* Z-index hierarchy */
+    --z-index-base: 1;
+    --z-index-game-canvas: 1;
+    --z-index-hotbar: 5;
+    --z-index-modals: 1000;
+    --z-index-music-modal: 1200;
+    --z-index-special-modals: 1500;
+    --z-index-admin-modal: 2000;
+    --z-index-tooltip: 10000;  /* Significantly increased to be above everything */
+}
+
 /* ======================================================= */
 /*         Base / Layout, Common Animations, Utilities     */
 /* ======================================================= */
@@ -31,7 +43,7 @@
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    z-index: 5;
+    z-index: var(--z-index-hotbar);
     background: rgba(0, 0, 0, 0.6);
     padding: 5px;
     border-radius: 10px;
@@ -279,17 +291,30 @@
 /*         Tooltip         */
 /* ======================= */
 .tooltip {
-    position: fixed;
-    background: rgba(0, 0, 0, 0.9);
+    position: absolute;
+    z-index: var(--z-index-tooltip) !important; /* Force highest z-index */
+    pointer-events: none;
+    background-color: rgba(0, 0, 0, 0.9);
     color: #fff;
-    padding: 10px;
+    padding: 8px;
     border-radius: 4px;
     font-size: 14px;
     max-width: 300px;
-    z-index: 10000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#entityTooltip {
+    position: fixed;
+    z-index: var(--z-index-tooltip) !important; /* Force highest z-index */
+    background-color: rgba(0, 0, 0, 0.9);
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 10px;
+    color: #fff;
+    font-size: 14px;
     pointer-events: none;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-    border: 1px solid #463714;
+    max-width: 300px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Rarity colors */

@@ -43,16 +43,27 @@ function initDayNightCycle() {
     }
 
     // Configure directional light for shadows
+    directionalLight.position.set(50, 100, 50); // Adjusted for better humanoid lighting
+    directionalLight.intensity = 1.0; // Balanced intensity
+    
+    // Increase ambient light for better visibility of humanoids
+    if (ambientLight) {
+        ambientLight.intensity = 0.4; // Increased ambient light for better visibility
+    }
+    
     directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
+    directionalLight.shadow.mapSize.width = 4096;
+    directionalLight.shadow.mapSize.height = 4096;
     directionalLight.shadow.camera.near = 1;
     directionalLight.shadow.camera.far = 500;
     directionalLight.shadow.camera.left = -50;
     directionalLight.shadow.camera.right = 50;
     directionalLight.shadow.camera.top = 50;
     directionalLight.shadow.camera.bottom = -50;
-    directionalLight.shadow.bias = -0.001;
+    directionalLight.shadow.bias = -0.00001; // Much smaller bias
+    directionalLight.shadow.normalBias = 0.005;
+    directionalLight.shadow.radius = 1.5;
+    directionalLight.shadow.darkness = 0.5; // Increased shadow darkness
 
     // Make sure ground/floor receives shadows
     const ground = scene.children.find(child => child.name === 'ground');

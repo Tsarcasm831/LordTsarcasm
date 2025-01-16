@@ -40,9 +40,9 @@ const enemyTypes = {
         color: 0x800080,
         texture: 'textures/enemies/behemoth.png',
         pattern: 'spiky',
-        height: 1.9,
-        bodyShape: 'tall',
-        damageRate: 3.5,
+        height: 2.4,
+        bodyShape: 'quadrupedal_heavy',
+        damageRate: 4.0,
         name: 'Behemoth'
     },
     'chiropteran': {
@@ -58,9 +58,9 @@ const enemyTypes = {
         color: 0x00ffff,
         texture: 'textures/enemies/dengar_charger.png',
         pattern: 'geometric',
-        height: 1.65,
-        bodyShape: 'slim',
-        damageRate: 3.0,
+        height: 1.8,
+        bodyShape: 'quadrupedal_agile',
+        damageRate: 3.5,
         name: 'Dengar Charger'
     },
     'kilrathi': {
@@ -151,7 +151,7 @@ function checkEnemiesInSafeZone() {
     if (now - lastCheckTime < 5000) return; // 5-second throttle
     lastCheckTime = now;
 
-    const safeZoneRadius = 600; // Radius of the safe zone
+    const safeZoneRadius = 1600; // Radius of the safe zone
 
     enemies.forEach((enemy) => {
         if (enemy.userData.isDead) return;
@@ -232,6 +232,76 @@ function spawnEntities() {
     }
 }
 
+// Function to create a quadrupedal creature
+function createQuadruped(color, texture, pattern, height, bodyShape) {
+    const body = new THREE.Group();
+
+    // Create main body
+    const torso = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 1, 3),
+        new THREE.MeshStandardMaterial({ color: color })
+    );
+    torso.position.y = height * 0.4;
+    body.add(torso);
+
+    // Create neck and head
+    const neck = new THREE.Mesh(
+        new THREE.BoxGeometry(0.8, 0.8, 1),
+        new THREE.MeshStandardMaterial({ color: color })
+    );
+    neck.position.set(0, height * 0.5, 1.5);
+    neck.rotation.x = -Math.PI / 6;
+    body.add(neck);
+
+    const head = new THREE.Mesh(
+        new THREE.BoxGeometry(1, 0.8, 1.2),
+        new THREE.MeshStandardMaterial({ color: color })
+    );
+    head.position.set(0, height * 0.6, 2);
+    body.add(head);
+
+    // Create legs
+    const legPositions = [
+        [-0.7, 0, 1],  // Front Left
+        [0.7, 0, 1],   // Front Right
+        [-0.7, 0, -1], // Back Left
+        [0.7, 0, -1]   // Back Right
+    ];
+
+    legPositions.forEach(pos => {
+        const leg = new THREE.Mesh(
+            new THREE.BoxGeometry(0.4, height * 0.8, 0.4),
+            new THREE.MeshStandardMaterial({ color: color })
+        );
+        leg.position.set(pos[0], height * 0.4, pos[2]);
+        body.add(leg);
+    });
+
+    // Apply body shape modifications
+    if (bodyShape === 'quadrupedal_heavy') {
+        torso.scale.set(1.5, 1.3, 1.3);
+        head.scale.set(1.3, 1.3, 1.3);
+        body.traverse(child => {
+            if (child.isMesh) {
+                child.material.roughness = 0.9;
+                child.material.metalness = 0.3;
+            }
+        });
+    } else if (bodyShape === 'quadrupedal_agile') {
+        torso.scale.set(0.9, 0.8, 1.2);
+        head.scale.set(0.8, 0.8, 1.1);
+        neck.scale.set(0.7, 1.2, 1);
+        body.traverse(child => {
+            if (child.isMesh) {
+                child.material.roughness = 0.5;
+                child.material.metalness = 0.2;
+            }
+        });
+    }
+
+    return body;
+}
+
 // Function to create an enemy
 function createEnemy(x, y, z, type) {
     if (!enemyTypes[type]) {
@@ -241,8 +311,13 @@ function createEnemy(x, y, z, type) {
 
     const { color, texture, pattern, height, bodyShape, damageRate, name } = enemyTypes[type];
 
-    // Create base humanoid
-    const enemy = createHumanoid(color, texture, pattern, height, bodyShape);
+    // Create base creature based on body shape
+    let enemy;
+    if (bodyShape === 'quadrupedal_heavy' || bodyShape === 'quadrupedal_agile') {
+        enemy = createQuadruped(color, texture, pattern, height, bodyShape);
+    } else {
+        enemy = createHumanoid(color, texture, pattern, height, bodyShape);
+    }
 
     // Helper functions for creating complex geometries
     const createTendril = (length, segments, radius, color, glowColor) => {
@@ -480,14 +555,13 @@ function createEnemy(x, y, z, type) {
             break;
             
         case 'behemoth':
-            // Colossal creature with imposing features
-            enemy.scale.set(1.8, 1.6, 1.8);
+            // Massive quadrupedal beast with armor plates and spikes
+            enemy.scale.set(2.0, 1.8, 2.0);
             
-            // Armored plates along the body
+            // Add armor plates along the back
             const platePositions = [
-                { pos: [0, 14, 1.2], scale: [4, 3, 0.3] },
-                { pos: [0, 11, 1.2], scale: [5, 3, 0.4] },
-                { pos: [0, 8, 1.2], scale: [4.5, 3, 0.3] }
+                { pos: [0, height * 0.6, 0.8], scale: [2.2, 0.3, 2.5] },
+                { pos: [0, height * 0.6, -0.8], scale: [2.2, 0.3, 2.5] }
             ];
             
             platePositions.forEach(({pos, scale}) => {
@@ -504,28 +578,27 @@ function createEnemy(x, y, z, type) {
                 enemy.add(plate);
             });
             
-            // Massive spikes along the back
-            const spikeCount = 6;
-            for (let i = 0; i < spikeCount; i++) {
+            // Add massive spikes along the spine
+            const spikePositions = [
+                { z: 1.2, scale: 1.2 },
+                { z: 0.4, scale: 1.4 },
+                { z: -0.4, scale: 1.4 },
+                { z: -1.2, scale: 1.2 }
+            ];
+            
+            spikePositions.forEach(({z, scale}) => {
                 const spike = new THREE.Mesh(
-                    new THREE.ConeGeometry(0.6, 3, 4),
+                    new THREE.ConeGeometry(0.3, 1.5, 4),
                     new THREE.MeshStandardMaterial({
                         color: 0x333333,
                         roughness: 1.0,
                         metalness: 0.2
                     })
                 );
-                spike.position.set(0, 16 - i * 1.5, 1.5);
-                spike.rotation.x = -Math.PI / 4;
+                spike.position.set(0, height * 0.8, z);
+                spike.scale.set(scale, scale, scale);
+                spike.rotation.x = Math.PI / 6;
                 enemy.add(spike);
-            }
-            
-            // Reinforced limbs
-            enemy.traverse(child => {
-                if (child.isMesh) {
-                    child.material.roughness = 1.0;
-                    child.material.metalness = 0.3;
-                }
             });
             break;
             
@@ -622,6 +695,68 @@ function createEnemy(x, y, z, type) {
                 }
             });
             break;
+            
+        case 'dengar_charger':
+            // Swift quadrupedal hunter
+            enemy.scale.set(1.2, 1.1, 1.4);
+            
+            // Add streamlined armor pieces
+            const armorPieces = [
+                { pos: [0, height * 0.5, 0], scale: [1.8, 0.2, 2.2] },
+                { pos: [0, height * 0.55, 1], scale: [1.2, 0.15, 1] }
+            ];
+            
+            armorPieces.forEach(({pos, scale}) => {
+                const armor = new THREE.Mesh(
+                    new THREE.BoxGeometry(1, 1, 1),
+                    new THREE.MeshStandardMaterial({
+                        color: 0x3399ff,
+                        metalness: 0.6,
+                        roughness: 0.4
+                    })
+                );
+                armor.position.set(...pos);
+                armor.scale.set(...scale);
+                enemy.add(armor);
+            });
+            
+            // Add fins along the sides for an aerodynamic look
+            [-1, 1].forEach(side => {
+                const fin = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.1, 0.8, 1.5),
+                    new THREE.MeshStandardMaterial({
+                        color: 0x3399ff,
+                        metalness: 0.7,
+                        roughness: 0.3
+                    })
+                );
+                fin.position.set(side * 0.8, height * 0.5, 0);
+                fin.rotation.z = side * Math.PI / 6;
+                enemy.add(fin);
+            });
+            
+            // Add sensor arrays on the head
+            const sensorPositions = [
+                { x: -0.3, z: 0.3 },
+                { x: 0.3, z: 0.3 },
+                { x: 0, z: 0.5 }
+            ];
+            
+            sensorPositions.forEach(({x, z}) => {
+                const sensor = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.15, 8, 8),
+                    new THREE.MeshStandardMaterial({
+                        color: 0x00ffff,
+                        emissive: 0x00ffff,
+                        emissiveIntensity: 0.5,
+                        metalness: 0.9,
+                        roughness: 0.2
+                    })
+                );
+                sensor.position.set(x, height * 0.6, z + 1.5);
+                enemy.add(sensor);
+            });
+            break;
     }
 
     // Set position
@@ -690,7 +825,7 @@ function maintainEnemyCount() {
     if (enemiesToSpawn <= 0) return;
 
     const enemyTypesKeys = Object.keys(enemyTypes);
-    const spawnBatchSize = Math.min(5, enemiesToSpawn); // Spawn max 5 enemies at once
+    const spawnBatchSize = Math.min(50, enemiesToSpawn); // Spawn max 50 enemies at once
 
     for (let i = 0; i < spawnBatchSize; i++) {
         let position = getRandomPositionOutsideTown(800, 2000);
@@ -1259,6 +1394,14 @@ function applyBodyShape(humanoid, bodyShape) {
         case 'round':
             // Modify geometry to appear rounder
             humanoid.scale.set(1.1, humanoid.scale.y, 1.1);
+            break;
+        case 'quadrupedal_heavy':
+            // Modify geometry to appear quadrupedal and heavy
+            humanoid.scale.set(1.5, humanoid.scale.y * 0.8, 1.5);
+            break;
+        case 'quadrupedal_agile':
+            // Modify geometry to appear quadrupedal and agile
+            humanoid.scale.set(1.2, humanoid.scale.y * 0.8, 1.2);
             break;
         default:
             // Default scaling

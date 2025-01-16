@@ -25,6 +25,35 @@ function getEntityWithName(object) {
     return null;
 }
 
+// Rarity color mapping
+const rarityColors = {
+    'Common': '#ffffff',     // White
+    'Uncommon': '#1eff00',   // Green
+    'Rare': '#0070dd',      // Blue
+    'Epic': '#a335ee',      // Purple
+    'Legendary': '#ff8000',  // Orange
+    'Mythic': '#ff0000'     // Red
+};
+
+// Function to format stat value
+function formatStatValue(key, value) {
+    if (typeof value === 'number') {
+        if (key.toLowerCase().includes('chance') || key.toLowerCase().includes('multiplier')) {
+            return `${value * 100}%`;
+        }
+        return `+${value}`;
+    }
+    return value;
+}
+
+// Function to format stat key
+function formatStatKey(key) {
+    return key
+        .replace(/([A-Z])/g, ' $1') // Add space before capital letters
+        .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
+        .replace(/([A-Z])\s([A-Z])/g, '$1$2'); // Remove space between consecutive capitals
+}
+
 // Function to handle mouse move and show tooltip for entities
 function onMouseMove(event) {
     const rect = renderer.domElement.getBoundingClientRect();
@@ -78,25 +107,45 @@ function onMouseMove(event) {
 
 // Function to handle tooltips for inventory items
 function onInventoryItemHover(event) {
-    const itemSlot = event.target; // The inventory slot being hovered over
-    const itemName = itemSlot.getAttribute('data-name');
-    const itemDescription = itemSlot.getAttribute('data-description');
-    const itemStats = itemSlot.getAttribute('data-stats');
-    const itemRarity = itemSlot.getAttribute('data-rarity');
+    const item = event.target.item;
+    if (!item) return;
 
-    if (itemName) {
-        entityTooltip.innerHTML = `
-            <strong>${itemName}</strong><br>
-            <em>${itemRarity || 'Common'}</em><br>
-            ${itemDescription || 'No description available.'}<br>
-            ${itemStats || 'No stats available.'}
-        `;
-        entityTooltip.style.left = `${event.clientX + 10}px`;
-        entityTooltip.style.top = `${event.clientY + 10}px`;
-        entityTooltip.style.display = 'block';
-    } else {
-        entityTooltip.style.display = 'none';
+    const rarityColor = rarityColors[item.rarity] || '#ffffff';
+    
+    let tooltipContent = `
+        <div style="color: ${rarityColor}; font-weight: bold; font-size: 16px;">${item.name}</div>
+        <div style="color: ${rarityColor}; font-style: italic;">${item.rarity}</div>
+        <div style="color: #cccccc; margin: 5px 0;">${item.description}</div>
+    `;
+
+    if (item.type) {
+        tooltipContent += `<div style="color: #888888;">${item.type}</div>`;
     }
+
+    if (item.stats) {
+        tooltipContent += '<div style="margin-top: 8px; border-top: 1px solid #444444; padding-top: 8px;">';
+        for (const [key, value] of Object.entries(item.stats)) {
+            tooltipContent += `
+                <div style="color: #aaaaaa;">
+                    ${formatStatKey(key)}: <span style="color: #00ff00">${formatStatValue(key, value)}</span>
+                </div>
+            `;
+        }
+        tooltipContent += '</div>';
+    }
+
+    if (item.value) {
+        tooltipContent += `
+            <div style="margin-top: 8px; border-top: 1px solid #444444; padding-top: 8px;">
+                <div style="color: #ffd700;">Value: ${item.value} gold</div>
+            </div>
+        `;
+    }
+
+    entityTooltip.innerHTML = tooltipContent;
+    entityTooltip.style.display = 'block';
+    entityTooltip.style.left = `${event.clientX + 10}px`;
+    entityTooltip.style.top = `${event.clientY + 10}px`;
 }
 
 // Add event listener for mouse move on inventory items

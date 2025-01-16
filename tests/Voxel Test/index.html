@@ -1,0 +1,858 @@
+<html><head><base href="."><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Voxel World with First Person Controls</title>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      canvas { width: 100vw; height: 100vh; display: block; }
+      #instructions {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        color: white;
+        font-family: Arial, sans-serif;
+        background: rgba(0,0,0,0.5);
+        padding: 10px;
+        border-radius: 5px;
+      }
+      #blockSelector {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.7);
+        padding: 15px;
+        border-radius: 8px;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+      }
+      
+      .block-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+      }
+      
+      .block-preview {
+        width: 35px;
+        height: 35px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        border: 2px solid transparent;
+        border-radius: 4px;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s;
+      }
+      
+      .block-preview:hover {
+        transform: scale(1.1);
+      }
+      
+      .selected {
+        border-color: white;
+        box-shadow: 0 0 10px rgba(255,255,255,0.5);
+      }
+      
+      .block-count {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        font-size: 12px;
+        color: white;
+        text-shadow: 1px 1px 1px black;
+      }
+      
+      #biomeIndicator {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        color: white;
+        font-family: Arial, sans-serif;
+        background: rgba(0,0,0,0.5);
+        padding: 10px;
+        border-radius: 5px;
+        text-align: right;
+      }
+      #fpsCounter {
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: white;
+        font-family: Arial, sans-serif;
+        background: rgba(0,0,0,0.5);
+        padding: 10px;
+        border-radius: 5px;
+      }
+      #inventory {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: Arial, sans-serif;
+        min-width: 120px;
+      }
+      
+      .inventory-block {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 5px;
+        padding: 5px;
+        border-radius: 4px;
+        background: rgba(255,255,255,0.1);
+      }
+      
+      .inventory-block-color {
+        width: 25px;
+        height: 25px;
+        border-radius: 4px;
+      }
+      
+      .inventory-block-count {
+        font-size: 14px;
+      }
+    </style>
+    </head>
+    <body>
+    <div id="instructions">
+      Controls:<br>
+      W,A,S,D - Move<br>
+      SPACE - Jump<br>
+      F - Toggle Fog Distance<br>
+      Mouse Wheel - Select Block<br>
+      Left Click - Place Block<br>
+      Right Click - Remove Block<br>
+      Click game to start - ESC to exit
+    </div>
+    <div id="blockSelector">
+      <div>Selected: <span id="currentBlock">None</span></div>
+      <div class="block-options">
+        <!-- Block previews will be populated dynamically -->
+      </div>
+    </div>
+    <div id="biomeIndicator">
+      <span id="currentBiome">Forest</span>
+    </div>
+    <div id="fpsCounter">FPS: 60</div>
+    <div id="inventory">
+      <!-- Inventory slots will be dynamically populated -->
+    </div>
+    <script type="module">import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.module.js';
+    const SHADOW_MAP_SIZE = 4096;
+    const fogDistances = [20, 40, 60];
+    let currentFogDistance = 0;
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87CEEB);
+    scene.fog = new THREE.Fog(0x87CEEB, 1, fogDistances[currentFogDistance]);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    const materials = {
+      green: new THREE.MeshPhongMaterial({
+        color: 0x2d5f1e
+      }),
+      darkGreen: new THREE.MeshPhongMaterial({
+        color: 0x1a3d12
+      }),
+      grey: new THREE.MeshPhongMaterial({
+        color: 0x808080
+      }),
+      brown: new THREE.MeshPhongMaterial({
+        color: 0xb5915f
+      }),
+      white: new THREE.MeshPhongMaterial({
+        color: 0xe3dac9
+      }),
+      water: new THREE.MeshPhongMaterial({
+        color: 0x0000ff,
+        transparent: true,
+        opacity: 0.5
+      }),
+      sand: new THREE.MeshPhongMaterial({
+        color: 0xE2C47D
+      })
+    };
+    Object.values(materials).forEach(material => {
+      material.receiveShadow = true;
+      material.castShadow = true;
+    });
+    let currentMaterialIndex = 0;
+    const materialTypes = ['green', 'darkGreen', 'grey', 'brown', 'white', 'water', 'sand'];
+    const blockNames = ['Grass (Light)', 'Grass (Dark)', 'Stone', 'Wood', 'Birch', 'Water', 'Sand'];
+    let playerVelocity = new THREE.Vector3();
+    let isOnGround = false;
+    const GRAVITY = 0.01;
+    const JUMP_FORCE = 0.2;
+    function updateBlockSelector() {
+      const blockOptionsEl = document.querySelector('.block-options');
+      blockOptionsEl.innerHTML = '';
+      for (const [material, count] of inventory.entries()) {
+        const preview = document.createElement('div');
+        preview.className = 'block-preview';
+        preview.style.backgroundColor = '#' + material.color.getHexString();
+        const countEl = document.createElement('div');
+        countEl.className = 'block-count';
+        countEl.textContent = count;
+        preview.appendChild(countEl);
+        const materialIndex = Object.values(materials).indexOf(material);
+        if (materialIndex === currentMaterialIndex) {
+          preview.classList.add('selected');
+        }
+        preview.addEventListener('click', () => {
+          currentMaterialIndex = materialIndex;
+          updateBlockSelector();
+        });
+        blockOptionsEl.appendChild(preview);
+      }
+      const currentMaterial = materials[materialTypes[currentMaterialIndex]];
+      if (currentMaterial && blockNames[currentMaterialIndex] && inventory.has(currentMaterial)) {
+        document.getElementById('currentBlock').textContent = `${blockNames[currentMaterialIndex]} (${inventory.get(currentMaterial) || 0})`;
+      } else {
+        document.getElementById('currentBlock').textContent = 'None';
+        currentMaterialIndex = -1;
+      }
+      const inventoryEl = document.getElementById('inventory');
+      inventoryEl.innerHTML = '<h3>Inventory</h3>';
+      for (const [material, count] of inventory.entries()) {
+        const blockDiv = document.createElement('div');
+        blockDiv.className = 'inventory-block';
+        const colorDiv = document.createElement('div');
+        colorDiv.className = 'inventory-block-color';
+        colorDiv.style.backgroundColor = '#' + material.color.getHexString();
+        const countDiv = document.createElement('div');
+        countDiv.className = 'inventory-block-count';
+        countDiv.textContent = `x${count}`;
+        blockDiv.appendChild(colorDiv);
+        blockDiv.appendChild(countDiv);
+        blockDiv.addEventListener('click', () => {
+          const materialIndex = Object.values(materials).indexOf(material);
+          currentMaterialIndex = materialIndex;
+          updateBlockSelector();
+        });
+        inventoryEl.appendChild(blockDiv);
+      }
+    }
+    const worldHeight = 3;
+    const voxels = new Set();
+    let structures = [];
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    function generateHeight(x, z) {
+      const scale = 0.1;
+      const waterLevel = Math.sin(x * scale * 0.5) * Math.cos(z * scale * 0.5) * 0.5;
+      const elevation = Math.sin(x * scale) * Math.cos(z * scale);
+      return Math.floor(elevation + waterLevel) + worldHeight;
+    }
+    function createVoxel(x, y, z, material) {
+      const voxel = new THREE.Mesh(geometry, material);
+      voxel.position.set(x, y, z);
+      voxel.userData.originalMaterial = material;
+      scene.add(voxel);
+      voxels.add(voxel);
+      voxel.castShadow = true;
+      voxel.receiveShadow = true;
+      if (material === materials.water) {
+        voxel.renderOrder = 1;
+      }
+      return voxel;
+    }
+    function createTree(x, z, baseHeight, biome) {
+      const treeType = biome.treeType;
+      const treeMaterials = biome.treeMaterials;
+      const chunkKey = getChunkKey(x, z);
+      const parentChunkVoxels = chunks.get(chunkKey);
+      if (!parentChunkVoxels) return;
+      if (x % chunkSize <= 2 || x % chunkSize >= chunkSize - 3 || z % chunkSize <= 2 || z % chunkSize >= chunkSize - 3) {
+        return;
+      }
+      switch (treeType) {
+        case 'oak':
+          createOakTree(x, z, baseHeight, treeMaterials, parentChunkVoxels);
+          break;
+        case 'birch':
+          createBirchTree(x, z, baseHeight, treeMaterials, parentChunkVoxels);
+          break;
+        case 'pine':
+          createPineTree(x, z, baseHeight, treeMaterials, parentChunkVoxels);
+          break;
+        case 'willow':
+          createWillowTree(x, z, baseHeight, treeMaterials, parentChunkVoxels);
+          break;
+      }
+    }
+    function createOakTree(x, z, baseHeight, materials, parentChunkVoxels) {
+      const treeHeight = 5;
+      const leafRadius = 2;
+      for (let y = baseHeight; y < baseHeight + treeHeight; y++) {
+        const voxel = createVoxel(x, y, z, materials.trunk);
+        if (chunks.get(getChunkKey(x, z))) {
+          chunks.get(getChunkKey(x, z)).add(voxel);
+        }
+      }
+      for (let lx = -leafRadius; lx <= leafRadius; lx++) {
+        for (let ly = 0; ly <= leafRadius; ly++) {
+          for (let lz = -leafRadius; lz <= leafRadius; lz++) {
+            if (Math.sqrt(lx * lx + ly * ly + lz * lz) <= leafRadius) {
+              const worldX = x + lx;
+              const worldZ = z + lz;
+              const leafChunkKey = getChunkKey(worldX, worldZ);
+              if (chunks.get(leafChunkKey)) {
+                const voxel = createVoxel(worldX, baseHeight + treeHeight - 1 + ly, worldZ, materials.leaves);
+                chunks.get(leafChunkKey).add(voxel);
+              }
+            }
+          }
+        }
+      }
+    }
+    function createBirchTree(x, z, baseHeight, materials, parentChunkVoxels) {
+      const height = 6 + Math.floor(Math.random() * 2);
+      for (let y = baseHeight; y < baseHeight + height; y++) {
+        createVoxel(x, y, z, materials.trunk);
+      }
+      const leafHeight = 3;
+      const leafRadius = 1;
+      for (let ly = 0; ly <= leafHeight; ly++) {
+        for (let lx = -leafRadius; lx <= leafRadius; lx++) {
+          for (let lz = -leafRadius; lz <= leafRadius; lz++) {
+            if (Math.random() > 0.3) {
+              createVoxel(x + lx, baseHeight + height - leafHeight + ly, z + lz, materials.leaves);
+            }
+          }
+        }
+      }
+    }
+    function createPineTree(x, z, baseHeight, materials, parentChunkVoxels) {
+      const isTall = Math.random() > 0.5;
+      const height = isTall ? 8 + Math.floor(Math.random() * 3) : 5 + Math.floor(Math.random() * 2);
+      for (let y = baseHeight; y < baseHeight + height; y++) {
+        createVoxel(x, y, z, materials.trunk);
+      }
+      if (isTall) {
+        for (let layer = 0; layer < 4; layer++) {
+          const layerRadius = 3 - layer;
+          const layerY = baseHeight + height - layer * 2 - 1;
+          for (let lx = -layerRadius; lx <= layerRadius; lx++) {
+            for (let lz = -layerRadius; lz <= layerRadius; lz++) {
+              if (Math.abs(lx) + Math.abs(lz) <= layerRadius + 1) {
+                createVoxel(x + lx, layerY, z + lz, materials.leaves);
+              }
+            }
+          }
+        }
+      } else {
+        for (let layer = 0; layer < 3; layer++) {
+          const layerRadius = 2 - layer;
+          const layerY = baseHeight + height - layer * 2 - 1;
+          for (let lx = -layerRadius; lx <= layerRadius; lx++) {
+            for (let lz = -layerRadius; lz <= layerRadius; lz++) {
+              if (Math.abs(lx) + Math.abs(lz) <= layerRadius) {
+                createVoxel(x + lx, layerY, z + lz, materials.leaves);
+              }
+            }
+          }
+        }
+      }
+    }
+    function createWillowTree(x, z, baseHeight, materials, parentChunkVoxels) {
+      const height = 6 + Math.floor(Math.random() * 2);
+      for (let y = baseHeight; y < baseHeight + height; y++) {
+        createVoxel(x, y, z, materials.trunk);
+      }
+      const leafRadius = 4;
+      for (let lx = -leafRadius; lx <= leafRadius; lx++) {
+        for (let lz = -leafRadius; lz <= leafRadius; lz++) {
+          if (Math.sqrt(lx * lx + lz * lz) <= leafRadius) {
+            const droop = Math.floor(Math.random() * 3);
+            const leafY = baseHeight + height - 1 - droop;
+            if (Math.random() > 0.3) {
+              createVoxel(x + lx, leafY, z + lz, materials.leaves);
+            }
+          }
+        }
+      }
+    }
+    const chunkSize = 20;
+    let loadDistance = 2;
+    const chunks = new Map();
+    function getChunkKey(x, z) {
+      const chunkX = Math.floor(x / chunkSize);
+      const chunkZ = Math.floor(z / chunkSize);
+      return `${chunkX},${chunkZ}`;
+    }
+    function isChunkLoaded(x, z) {
+      return chunks.has(getChunkKey(x, z));
+    }
+    function generateChunk(chunkX, chunkZ) {
+      const key = getChunkKey(chunkX * chunkSize, chunkZ * chunkSize);
+      chunks.set(key, new Set());
+      const biomeNoise = (Math.sin(chunkX * 0.3) + Math.cos(chunkZ * 0.3)) * 0.5;
+      let biome;
+      if (biomeNoise < 0.1) {
+        biome = BIOMES.FOREST;
+      } else if (biomeNoise < 0.1 + 0.25) {
+        biome = BIOMES.PLAINS;
+      } else if (biomeNoise < 0.1 + 0.25 + 0.25) {
+        biome = BIOMES.ALPINE;
+      } else {
+        biome = BIOMES.LAKESIDE;
+      }
+      for (let x = 0; x < chunkSize; x++) {
+        for (let z = 0; z < chunkSize; z++) {
+          const worldX = chunkX * chunkSize + x;
+          const worldZ = chunkZ * chunkSize + z;
+          const height = generateHeight(worldX, worldZ);
+          for (let y = 0; y < height; y++) {
+            const material = y === height - 1 ? biome.groundMaterial : materials.grey;
+            const voxel = new THREE.Mesh(geometry, material);
+            voxel.position.set(worldX, y, worldZ);
+            scene.add(voxel);
+            const chunkVoxels = chunks.get(getChunkKey(worldX, worldZ));
+            if (!chunkVoxels) {
+              chunks.set(getChunkKey(worldX, worldZ), new Set());
+            }
+            chunks.get(getChunkKey(worldX, worldZ)).add(voxel);
+            voxels.add(voxel);
+          }
+        }
+      }
+      const lakeChance = biome === BIOMES.LAKESIDE ? biome.lakeChance : 0.05;
+      if (Math.random() < lakeChance) {
+        const lakeX = chunkX * chunkSize + Math.floor(Math.random() * chunkSize);
+        const lakeZ = chunkZ * chunkSize + Math.floor(Math.random() * chunkSize);
+        const lakeSize = Math.floor(Math.random() * 8) + 3;
+        const lakeHeight = generateHeight(lakeX, lakeZ) - 1;
+        for (let x = -lakeSize; x <= lakeSize; x++) {
+          for (let z = -lakeSize; z <= lakeSize; z++) {
+            const worldX = lakeX + x;
+            const worldZ = lakeZ + z;
+            if (worldX >= chunkX * chunkSize && worldX < chunkX * chunkSize + chunkSize && worldZ >= chunkZ * chunkSize && worldZ < chunkZ * chunkSize + chunkSize) {
+              if (Math.sqrt(x * x + z * z) <= lakeSize) {
+                const existingVoxels = Array.from(chunks.get(getChunkKey(worldX, worldZ))).filter(v => v.position.x === worldX && v.position.z === worldZ && v.position.y >= lakeHeight);
+                existingVoxels.forEach(v => {
+                  scene.remove(v);
+                  chunks.get(getChunkKey(worldX, worldZ)).delete(v);
+                  voxels.delete(v);
+                });
+                const stoneVoxel = createVoxel(worldX, lakeHeight - 1, worldZ, materials.grey);
+                chunks.get(getChunkKey(worldX, worldZ)).add(stoneVoxel);
+                voxels.add(stoneVoxel);
+                const waterVoxel = createVoxel(worldX, lakeHeight, worldZ, materials.water);
+                waterVoxel.userData.natural = true;
+                chunks.get(getChunkKey(worldX, worldZ)).add(waterVoxel);
+                voxels.add(waterVoxel);
+                const isEdge = Math.abs(Math.sqrt(x * x + z * z) - lakeSize) < 1.5;
+                if (isEdge) {
+                  const sandVoxel = createVoxel(worldX, lakeHeight - 1, worldZ, materials.sand);
+                  chunks.get(getChunkKey(worldX, worldZ)).add(sandVoxel);
+                  voxels.add(sandVoxel);
+                }
+              }
+            }
+          }
+        }
+        for (let x = 0; x < chunkSize; x++) {
+          for (let z = 0; z < chunkSize; z++) {
+            const worldX = chunkX * chunkSize + x;
+            const worldZ = chunkZ * chunkSize + z;
+            const dx = worldX - lakeX;
+            const dz = worldZ - lakeZ;
+            const isInLake = Math.sqrt(dx * dx + dz * dz) <= lakeSize;
+            if (!isInLake && Math.random() < biome.treeChance) {
+              const height = generateHeight(worldX, worldZ);
+              createTree(worldX, worldZ, height, biome);
+            }
+          }
+        }
+      } else {
+        for (let x = 0; x < chunkSize; x++) {
+          for (let z = 0; z < chunkSize; z++) {
+            const worldX = chunkX * chunkSize + x;
+            const worldZ = chunkZ * chunkSize + z;
+            if (Math.random() < biome.treeChance) {
+              const height = generateHeight(worldX, worldZ);
+              createTree(worldX, worldZ, height, biome);
+            }
+          }
+        }
+      }
+      if (Math.random() < 0.01) {
+        if (structures.length > 0) {
+          const structure = structures[Math.floor(Math.random() * structures.length)];
+          const offsetX = chunkX * chunkSize;
+          const offsetZ = chunkZ * chunkSize;
+          structure.blocks.forEach(block => {
+            const relativeX = block.x - structure.blocks[0].x;
+            const relativeZ = block.z - structure.blocks[0].z;
+            const newX = offsetX + relativeX;
+            const newZ = offsetZ + relativeZ;
+            if (newX >= chunkX * chunkSize && newX < chunkX * chunkSize + chunkSize && newZ >= chunkZ * chunkSize && newZ < chunkZ * chunkSize + chunkSize) {
+              const voxel = createVoxel(newX, block.y, newZ, block.material);
+              chunks.get(getChunkKey(newX, newZ)).add(voxel);
+              voxels.add(voxel);
+            }
+          });
+        }
+      }
+    }
+    function unloadChunk(chunkX, chunkZ) {
+      const key = getChunkKey(chunkX * chunkSize, chunkZ * chunkSize);
+      const chunkVoxels = chunks.get(key);
+      if (chunkVoxels) {
+        for (const voxel of chunkVoxels) {
+          scene.remove(voxel);
+          voxels.delete(voxel);
+        }
+        chunks.delete(key);
+      }
+    }
+    const spawnHeight = generateHeight(0, 0) + 2;
+    camera.position.set(0, spawnHeight, 0);
+    const highlightGeometry = new THREE.BoxGeometry(1.01, 1.01, 1.01);
+    const highlightMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      transparent: true,
+      opacity: 0.5,
+      wireframe: true
+    });
+    const highlightBox = new THREE.Mesh(highlightGeometry, highlightMaterial);
+    scene.add(highlightBox);
+    highlightBox.visible = false;
+    window.removeEventListener('wheel', e => {
+      if (e.deltaY > 0) {
+        currentMaterialIndex = (currentMaterialIndex + 1) % materialTypes.length;
+      } else {
+        currentMaterialIndex = (currentMaterialIndex - 1 + materialTypes.length) % materialTypes.length;
+      }
+      updateBlockSelector();
+    });
+    window.addEventListener('wheel', e => {
+      const availableMaterials = Array.from(inventory.keys());
+      if (availableMaterials.length === 0) return;
+      const currentMaterial = materials[materialTypes[currentMaterialIndex]];
+      const currentIndex = availableMaterials.indexOf(currentMaterial);
+      let newIndex;
+      if (e.deltaY > 0) {
+        newIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % availableMaterials.length;
+      } else {
+        newIndex = currentIndex === -1 ? 0 : (currentIndex - 1 + availableMaterials.length) % availableMaterials.length;
+      }
+      currentMaterialIndex = materialTypes.indexOf(Object.entries(materials).find(([key, mat]) => mat === availableMaterials[newIndex])[0]);
+      updateBlockSelector();
+    });
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.mapSize.width = SHADOW_MAP_SIZE;
+    directionalLight.shadow.mapSize.height = SHADOW_MAP_SIZE;
+    directionalLight.shadow.camera.near = 0.5;
+    directionalLight.shadow.camera.far = 50;
+    directionalLight.shadow.camera.left = -30;
+    directionalLight.shadow.camera.right = 30;
+    directionalLight.shadow.camera.top = 30;
+    directionalLight.shadow.camera.bottom = -30;
+    directionalLight.position.set(5, 5, 5);
+    scene.add(directionalLight);
+    const moveSpeed = 0.2;
+    const keys = {};
+    window.addEventListener('keydown', e => {
+      keys[e.key.toLowerCase()] = true;
+      if (e.key.toLowerCase() === 'f') {
+        currentFogDistance = (currentFogDistance + 1) % fogDistances.length;
+        scene.fog = new THREE.Fog(0x87CEEB, 1, fogDistances[currentFogDistance]);
+      }
+    });
+    window.addEventListener('keyup', e => {
+      keys[e.key.toLowerCase()] = false;
+    });
+    renderer.domElement.addEventListener('mousedown', e => {
+      if (document.pointerLockElement === renderer.domElement) {
+        raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+        const intersects = raycaster.intersectObjects(Array.from(voxels));
+        if (intersects.length > 0) {
+          const intersection = intersects[0];
+          if (e.button === 2) {
+            if (intersection.object.material === materials.water && intersection.object.userData.natural) {
+              return;
+            }
+            const material = intersection.object.material;
+            if (!inventory.has(material)) {
+              inventory.set(material, 0);
+            }
+            inventory.set(material, inventory.get(material) + 1);
+            scene.remove(intersection.object);
+            voxels.delete(intersection.object);
+            for (const [key, chunkVoxels] of chunks.entries()) {
+              if (chunkVoxels.has(intersection.object)) {
+                chunkVoxels.delete(intersection.object);
+                break;
+              }
+            }
+            updateBlockSelector();
+          } else if (e.button === 0) {
+            const pos = intersection.object.position.clone();
+            const normal = intersection.face.normal;
+            pos.add(normal);
+            const currentMaterial = materials[materialTypes[currentMaterialIndex]];
+            if (currentMaterialIndex !== -1 && currentMaterial && inventory.has(currentMaterial) && inventory.get(currentMaterial) > 0) {
+              const newVoxel = createVoxel(pos.x, pos.y, pos.z, currentMaterial);
+              const chunkKey = getChunkKey(pos.x, pos.z);
+              const chunkVoxels = chunks.get(chunkKey);
+              if (chunkVoxels) {
+                chunkVoxels.add(newVoxel);
+              }
+              inventory.set(currentMaterial, inventory.get(currentMaterial) - 1);
+              if (inventory.get(currentMaterial) === 0) {
+                inventory.delete(currentMaterial);
+              }
+              updateBlockSelector();
+            }
+          }
+        }
+      }
+    });
+    renderer.domElement.addEventListener('contextmenu', e => e.preventDefault());
+    window.addEventListener('resize', () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      renderer.setSize(width, height);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    });
+    document.addEventListener('pointerlockchange', () => {
+      if (document.pointerLockElement !== renderer.domElement) {
+        Object.keys(keys).forEach(key => keys[key] = false);
+      }
+    });
+    function checkCollision(position) {
+      const chunkX = Math.floor(position.x / chunkSize);
+      const chunkZ = Math.floor(position.z / chunkSize);
+      const playerBox = new THREE.Box3().setFromCenterAndSize(position, new THREE.Vector3(0.5, 1.8, 0.5));
+      for (let x = -1; x <= 1; x++) {
+        for (let z = -1; z <= 1; z++) {
+          const key = getChunkKey((chunkX + x) * chunkSize, (chunkZ + z) * chunkSize);
+          const chunkVoxels = chunks.get(key);
+          if (chunkVoxels) {
+            for (const voxel of chunkVoxels) {
+              if (voxel.material === materials.water) continue;
+              const box = new THREE.Box3().setFromObject(voxel);
+              if (box.intersectsBox(playerBox)) {
+                return true;
+              }
+            }
+          }
+        }
+      }
+      return false;
+    }
+    function updatePlayer() {
+      if (!isOnGround) {
+        playerVelocity.y -= GRAVITY;
+        playerVelocity.y *= 0.99;
+      }
+      if (keys[' '] && isOnGround) {
+        playerVelocity.y = JUMP_FORCE;
+        isOnGround = false;
+      }
+      const newPosition = camera.position.clone();
+      newPosition.y += playerVelocity.y;
+      if (checkCollision(newPosition)) {
+        if (playerVelocity.y < 0) {
+          isOnGround = true;
+        }
+        playerVelocity.y = 0;
+      } else {
+        camera.position.y += playerVelocity.y;
+        isOnGround = false;
+      }
+    }
+    function updateCamera() {
+      if (document.pointerLockElement === renderer.domElement) {
+        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+        const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+        forward.y = 0;
+        forward.normalize();
+        right.normalize();
+        const moveVector = new THREE.Vector3();
+        if (keys['w']) moveVector.add(forward);
+        if (keys['s']) moveVector.sub(forward);
+        if (keys['a']) moveVector.sub(right);
+        if (keys['d']) moveVector.add(right);
+        if (moveVector.length() > 0) {
+          moveVector.normalize().multiplyScalar(moveSpeed);
+          const newPosition = camera.position.clone().add(moveVector);
+          const horizontalPosition = camera.position.clone();
+          horizontalPosition.x = newPosition.x;
+          horizontalPosition.z = newPosition.z;
+          if (!checkCollision(horizontalPosition)) {
+            camera.position.x = newPosition.x;
+            camera.position.z = newPosition.z;
+          }
+        }
+      }
+      const playerChunkX = Math.floor(camera.position.x / chunkSize);
+      const playerChunkZ = Math.floor(camera.position.z / chunkSize);
+      for (const key of chunks.keys()) {
+        const [chunkX, chunkZ] = key.split(',').map(Number);
+        const dx = Math.abs(chunkX - playerChunkX);
+        const dz = Math.abs(chunkZ - playerChunkZ);
+        if (dx > loadDistance || dz > loadDistance) {
+          unloadChunk(chunkX, chunkZ);
+        }
+      }
+      for (let x = -loadDistance; x <= loadDistance; x++) {
+        for (let z = -loadDistance; z <= loadDistance; z++) {
+          const chunkX = playerChunkX + x;
+          const chunkZ = playerChunkZ + z;
+          if (!isChunkLoaded(chunkX * chunkSize, chunkZ * chunkSize)) {
+            generateChunk(chunkX, chunkZ);
+            return;
+          }
+        }
+      }
+      const biomeNoise = (Math.sin(playerChunkX * 0.3) + Math.cos(playerChunkZ * 0.3)) * 0.5;
+      let currentBiome;
+      if (biomeNoise < 0.1) {
+        currentBiome = BIOMES.FOREST;
+      } else if (biomeNoise < 0.1 + 0.25) {
+        currentBiome = BIOMES.PLAINS;
+      } else if (biomeNoise < 0.1 + 0.25 + 0.25) {
+        currentBiome = BIOMES.ALPINE;
+      } else {
+        currentBiome = BIOMES.LAKESIDE;
+      }
+      document.getElementById('currentBiome').innerHTML = currentBiome.name;
+    }
+    function updateHighlight() {
+      if (document.pointerLockElement === renderer.domElement) {
+        raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+        const intersects = raycaster.intersectObjects(Array.from(voxels));
+        if (intersects.length > 0) {
+          const intersect = intersects[0];
+          highlightBox.position.copy(intersect.object.position);
+          highlightBox.visible = true;
+        } else {
+          highlightBox.visible = false;
+        }
+      } else {
+        highlightBox.visible = false;
+      }
+    }
+    let mouseX = 0,
+      mouseY = 0;
+    let targetRotationX = 0,
+      targetRotationY = 0;
+    renderer.domElement.addEventListener('mousemove', e => {
+      if (document.pointerLockElement === renderer.domElement) {
+        mouseX = e.movementX * 0.002;
+        mouseY = e.movementY * 0.002;
+        targetRotationY -= mouseX;
+        targetRotationX -= mouseY;
+        targetRotationX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, targetRotationX));
+        camera.rotation.order = 'YXZ';
+        camera.rotation.x = targetRotationX;
+        camera.rotation.y = targetRotationY;
+      }
+    });
+    renderer.domElement.addEventListener('click', () => {
+      renderer.domElement.requestPointerLock();
+    });
+    let frameCount = 0;
+    let lastTime = performance.now();
+    let fps = 60;
+    function animate() {
+      requestAnimationFrame(animate);
+      frameCount++;
+      const currentTime = performance.now();
+      if (currentTime - lastTime >= 1000) {
+        fps = frameCount;
+        frameCount = 0;
+        lastTime = currentTime;
+        document.getElementById('fpsCounter').textContent = `FPS: ${fps}`;
+      }
+      if (!scene || !camera || !renderer) {
+        console.error('Rendering components not initialized');
+        return;
+      }
+      updateCamera();
+      updateHighlight();
+      updatePlayer();
+      if (scene.fog) {
+        scene.fog.far = fogDistances[currentFogDistance];
+      }
+      renderer.render(scene, camera);
+    }
+    const BIOMES = {
+      FOREST: {
+        name: 'Forest',
+        treeChance: 0.02,
+        rarity: 0.1,
+        groundMaterial: materials.green,
+        treeMaterials: {
+          trunk: materials.brown,
+          leaves: materials.green
+        },
+        treeType: 'oak'
+      },
+      PLAINS: {
+        name: 'Plains',
+        treeChance: 0.02,
+        rarity: 0.25,
+        groundMaterial: materials.green,
+        treeMaterials: {
+          trunk: materials.white,
+          leaves: materials.green
+        },
+        treeType: 'birch'
+      },
+      ALPINE: {
+        name: 'Alpine Forest',
+        treeChance: 0.04,
+        rarity: 0.25,
+        groundMaterial: materials.darkGreen,
+        treeMaterials: {
+          trunk: materials.brown,
+          leaves: materials.darkGreen
+        },
+        treeType: 'pine'
+      },
+      LAKESIDE: {
+        name: 'Lakeside',
+        treeChance: 0.02,
+        rarity: 0.4,
+        groundMaterial: materials.green,
+        treeMaterials: {
+          trunk: materials.brown,
+          leaves: materials.green
+        },
+        treeType: 'willow',
+        lakeChance: 0.3
+      }
+    };
+    const LAKE_CHANCE = 0.05;
+    const startChunks = 2;
+    for (let x = -startChunks; x <= startChunks; x++) {
+      for (let z = -startChunks; z <= startChunks; z++) {
+        generateChunk(x, z);
+      }
+    }
+    const inventory = new Map();
+    updateBlockSelector();
+    animate();</script>
+    </body></html>
