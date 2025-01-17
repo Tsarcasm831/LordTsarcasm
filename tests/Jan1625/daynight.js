@@ -7,14 +7,14 @@ let cycleStartOffset = 0; // Start at the beginning of the day
 // Day-night cycle colors
 const DAY_SKY_COLOR = 0x87ceeb;    // Light blue
 const NIGHT_SKY_COLOR = 0x000033;   // Dark blue
-const DAY_LIGHT_INTENSITY = 0.8;    // Slightly reduced for better shadow contrast
+const DAY_LIGHT_INTENSITY = 0.6;    // Reduced for more dramatic shadows
 const NIGHT_LIGHT_INTENSITY = 0.2;  // Dim moonlight
-const DAY_AMBIENT_INTENSITY = 0.3;  // Reduced for better shadow definition
+const DAY_AMBIENT_INTENSITY = 0.2;  // Reduced for more contrast
 const NIGHT_AMBIENT_INTENSITY = 0.1; // Dim ambient during night
 
 // Shadow properties
-const SHADOW_OPACITY_DAY = 0.5;     // Increased shadow opacity for better visibility
-const SHADOW_OPACITY_NIGHT = 0.8;   // Darker shadows at night
+const SHADOW_OPACITY_DAY = 0.8;     // Increased shadow opacity for better visibility
+const SHADOW_OPACITY_NIGHT = 0.9;   // Darker shadows at night
 
 // Character behavior constants
 const CHARACTER_DAY_SPEED = 1.0;    // Normal movement speed during day
@@ -36,17 +36,17 @@ function initDayNightCycle() {
         return;
     }
 
-    // Enable shadow mapping
+    // Enable shadow mapping with higher quality settings
     if (renderer) {
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     }
 
-    // Configure directional light for shadows
-    directionalLight.position.set(50, 100, 50); // Adjusted for better humanoid lighting
+    // Configure directional light for dramatic shadows
+    directionalLight.position.set(-50, 100, 50); // Light from left side for better shading
     directionalLight.intensity = 1.0; // Balanced intensity
     
-    // Increase ambient light for better visibility of humanoids
+    // Reduced ambient for more contrast
     if (ambientLight) {
         ambientLight.intensity = 0.4; // Increased ambient light for better visibility
     }
@@ -63,7 +63,7 @@ function initDayNightCycle() {
     directionalLight.shadow.bias = -0.00001; // Much smaller bias
     directionalLight.shadow.normalBias = 0.005;
     directionalLight.shadow.radius = 1.5;
-    directionalLight.shadow.darkness = 0.5; // Increased shadow darkness
+    directionalLight.shadow.darkness = 0.7; // Darker shadows
 
     // Make sure ground/floor receives shadows
     const ground = scene.children.find(child => child.name === 'ground');

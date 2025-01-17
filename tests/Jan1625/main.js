@@ -574,8 +574,25 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
      * @returns {THREE.MeshStandardMaterial} - Created material.
      */
     function createMaterial(colorValue) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';
+
+        for (let y = 0; y < canvas.height; y += 8) {
+            for (let x = (y / 8) % 2 === 0 ? 0 : 4; x < canvas.width; x += 8) {
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        const bumpMap = new THREE.CanvasTexture(canvas);
         return new THREE.MeshStandardMaterial({
             color: colorValue,
+            bumpMap: bumpMap,
+            bumpScale: 0.1,
             roughness: 0.7,
             metalness: 0.0,
             side: THREE.DoubleSide
@@ -600,34 +617,21 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     // ----------------------------------------------------
     // 2. TORSO & SHOULDERS (LatheGeometry, more points)
     // ----------------------------------------------------
-    //
-    // The points below define a more detailed silhouette:
-    // - Start narrower at the waist
-    // - Curve outward at the hips
-    // - Narrow up around the rib cage
-    // - Widen for the chest and shoulders
-    //
-    // You can tweak the x-values (horizontal radius) and y-values
-    // (vertical spacing) as needed.
-    //
     const torsoPoints = [
-        new THREE.Vector2(1.3, 0),  // Start at waist
-        new THREE.Vector2(1.8, 3),  // Lower abdomen / hips
-        new THREE.Vector2(2.4, 5.5),// Rib cage
-        new THREE.Vector2(2.7, 7),  // Bust area
-        new THREE.Vector2(2.5, 9),  // Upper chest near shoulders
-        new THREE.Vector2(2.8, 10)  // Shoulder top
+        new THREE.Vector2(1.3, 0),   // Start at waist
+        new THREE.Vector2(1.8, 3),   // Lower abdomen / hips
+        new THREE.Vector2(2.4, 5.5), // Rib cage
+        new THREE.Vector2(2.7, 7),   // Bust area
+        new THREE.Vector2(2.5, 9),   // Upper chest near shoulders
+        new THREE.Vector2(2.8, 10)   // Shoulder top
     ];
     const torsoGeometry = new THREE.LatheGeometry(torsoPoints, 24);
     const torsoMaterial = createMaterial(selectedSkinColor);
     const torso = configureShadows(new THREE.Mesh(torsoGeometry, torsoMaterial));
 
-    // ----------------------------------------------------
-    // 2.a. Adjust Torso Positioning
-    // ----------------------------------------------------
-    // Original Position: torso.position.set(0, 8, 0);
-    // Modification: Move torso down by 0.3 units (y decreases by 0.3)
-    torso.position.set(0, 4, 0); // 8 - 0.3 = 7.7
+    // Move torso downward slightly
+    torso.position.set(0, 17, 0);
+    torso.rotation.x = Math.PI;  // Rotate 180 degrees to flip it right-side up
 
     // Close the top of the Lathe
     {
@@ -641,7 +645,6 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     }
 
     // Breasts
-    // More subtle approach: two spheres scaled a bit
     const breastRadius = 1.2;
     const leftBreastGeom = new THREE.SphereGeometry(breastRadius, 24, 24);
     const leftBreast = configureShadows(new THREE.Mesh(leftBreastGeom, torsoMaterial));
@@ -658,27 +661,20 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     // ----------------------------------------------------
     // 3. PELVIS (LatheGeometry for smooth hips)
     // ----------------------------------------------------
-    //
-    // We’ll define a quick shape from top to bottom of the pelvic area.
-    //
     const pelvisPoints = [
-        new THREE.Vector2(2.1, 0),  // top (matching the waist where torso ends)
-        new THREE.Vector2(2.0, 1.5),// narrow near the crotch area
-        new THREE.Vector2(2.2, 3),  // slightly out near top of thighs
+        new THREE.Vector2(2.1, 0),   // top (matching the waist where torso ends)
+        new THREE.Vector2(2.0, 1.5), // narrow near the crotch area
+        new THREE.Vector2(2.2, 3)    // slightly out near top of thighs
     ];
     const pelvisGeometry = new THREE.LatheGeometry(pelvisPoints, 24);
     const pelvisMaterial = createMaterial(selectedSkinColor);
     const pelvis = configureShadows(new THREE.Mesh(pelvisGeometry, pelvisMaterial));
 
-    pelvis.rotation.x = Math.PI; // Flip it upside-down to match orientation
+    // REMOVE the flip that made the torso upside-down:
+    // pelvis.rotation.x = Math.PI; // <— This line was removed
 
-    // ----------------------------------------------------
-    // 3.a. Adjust Pelvis Positioning
-    // ----------------------------------------------------
-    // Original Position: pelvis.position.set(0, 5, 0);
-    // Modification: Move pelvis up by 0.3 units (y increases by 0.3)
-    pelvis.position.set(0, 9.3, 0); // 5 + 0.3 = 5.3
-
+    // Slightly move the pelvis upward
+    pelvis.position.set(0, 9.3, 0);
     humanoidGroup.add(pelvis);
 
     // ----------------------------------------------------
@@ -695,7 +691,7 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     head.position.set(0, 1.5, 0);
     neckJoint.add(head);
 
-    // Simple “hair helmet”
+    // Simple "hair helmet"
     const hairGeometry = new THREE.SphereGeometry(1.9, 32, 32);
     const hairMaterial = createMaterial(selectedHairColor);
     const hair = configureShadows(new THREE.Mesh(hairGeometry, hairMaterial));
@@ -703,7 +699,7 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     hair.position.set(0, 0.3, 0);
     head.add(hair);
 
-    // Simple eyes
+    // Eyes
     const eyeGeometry = new THREE.SphereGeometry(0.15, 8, 8);
     const eyeMaterial = createMaterial(0x000000);
     const leftEye = configureShadows(new THREE.Mesh(eyeGeometry, eyeMaterial));
@@ -719,27 +715,19 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     nose.position.set(0, 0, 1.4);
     head.add(nose);
 
-    // Place the neck + head above torso
     humanoidGroup.add(neckJoint);
 
     // ----------------------------------------------------
     // 5. ARMS (LatheGeometry for upper arms/forearms)
     // ----------------------------------------------------
-    /**
-     * Creates an arm (left or right) with all its components.
-     * @param {String} side - 'left' or 'right'.
-     * @returns {THREE.Group} - Group representing the arm.
-     */
     function createArm(side) {
         const armRoot = new THREE.Group();
 
-        // Shoulder
         const shoulderJoint = configureShadows(
             new THREE.Mesh(new THREE.SphereGeometry(0.65, 16, 16), createMaterial(selectedSkinColor))
         );
         armRoot.add(shoulderJoint);
 
-        // Upper arm lathe points
         const upperArmPoints = [
             new THREE.Vector2(0.7, 0),
             new THREE.Vector2(0.65, 2),
@@ -750,14 +738,12 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         upperArm.rotation.x = Math.PI / 2; 
         shoulderJoint.add(upperArm);
 
-        // Elbow
         const elbowJoint = configureShadows(
             new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), createMaterial(selectedSkinColor))
         );
         elbowJoint.position.set(0, 4, 0);
         upperArm.add(elbowJoint);
 
-        // Forearm lathe
         const forearmPoints = [
             new THREE.Vector2(0.45, 0),
             new THREE.Vector2(0.4, 2),
@@ -768,14 +754,13 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         forearm.rotation.x = Math.PI / 2; 
         elbowJoint.add(forearm);
 
-        // Wrist
         const wristJoint = configureShadows(
             new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), createMaterial(selectedSkinColor))
         );
         wristJoint.position.set(0, 4, 0);
         forearm.add(wristJoint);
 
-        // Hand (simple box or slightly extruded shape)
+        // Hand
         const handGroup = new THREE.Group();
         const palmGeom = new THREE.BoxGeometry(0.8, 0.4, 1);
         const palm = configureShadows(new THREE.Mesh(palmGeom, createMaterial(selectedSkinColor)));
@@ -806,18 +791,12 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
 
         wristJoint.add(handGroup);
 
-        // ----------------------------------------------------
-        // 5.a. Adjust Arm Positioning and Swap Arms
-        // ----------------------------------------------------
-        // Original Position: armRoot.position.set(side === 'left' ? -2.8 : 2.8, 10.5, 0);
-        // Modification:
-        // - Swap arms: left arm becomes right and vice versa.
-        // - Move arms up by 0.3 units (y increases by 0.3)
-        const armXPosition = side === 'left' ? 2.8 : -2.8; // Swapped positions
-        const armYPosition = 10.5 + 0.3; // 10.5 + 0.3 = 10.8
+        // Position & Swap
+        const armXPosition = side === 'left' ? 2.8 : -2.8; 
+        const armYPosition = 10.5 + 2.5; // arms moved up by 2.5
         armRoot.position.set(armXPosition, armYPosition, 0);
 
-        // Mirror the left arm’s Z rotation slightly for a more natural stance
+        // Subtle outward rotation
         if (side === 'left') {
             armRoot.rotation.z = Math.PI / 12; 
         } else {
@@ -827,19 +806,17 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         return armRoot;
     }
 
-    // Create Arms with Swapped Positions
-    const leftArm = createArm('left');   // Actually positioned on the right
-    const rightArm = createArm('right'); // Actually positioned on the left
+    const leftArm = createArm('left');   // Actually on the right side
+    const rightArm = createArm('right'); // Actually on the left side
     humanoidGroup.add(leftArm, rightArm);
+
+    // Set the initial rotation of the left arm to 90 degrees counterclockwise and the right arm to 90 degrees clockwise
+    leftArm.rotation.set(0, 0, Math.PI);
+    rightArm.rotation.set(0, 0, -Math.PI);
 
     // ----------------------------------------------------
     // 6. LEGS (LatheGeometry for thighs/calves)
     // ----------------------------------------------------
-    /**
-     * Creates a leg (left or right) with all its components.
-     * @param {String} side - 'left' or 'right'.
-     * @returns {THREE.Group} - Group representing the leg.
-     */
     function createLeg(side) {
         const legRoot = new THREE.Group();
 
@@ -849,28 +826,28 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         );
         legRoot.add(hipJoint);
 
-        // Thigh lathe
+        // Thigh
         const thighPoints = [
-            new THREE.Vector2(0.8, 0),   // top near pelvis
-            new THREE.Vector2(0.9, 2),   // mid-thigh
-            new THREE.Vector2(0.5, 4)    // near knee
+            new THREE.Vector2(0.8, 0),
+            new THREE.Vector2(0.9, 2),
+            new THREE.Vector2(0.5, 4)
         ];
         const thighGeom = new THREE.LatheGeometry(thighPoints, 16);
         const thigh = configureShadows(new THREE.Mesh(thighGeom, createMaterial(selectedSkinColor)));
         thigh.rotation.x = Math.PI / 2; 
         hipJoint.add(thigh);
 
-        // Knee joint
+        // Knee
         const kneeJoint = configureShadows(
             new THREE.Mesh(new THREE.SphereGeometry(0.45, 16, 16), createMaterial(selectedSkinColor))
         );
         kneeJoint.position.set(0, 4, 0);
         thigh.add(kneeJoint);
 
-        // Calf lathe
+        // Calf
         const calfPoints = [
-            new THREE.Vector2(0.45, 0), 
-            new THREE.Vector2(0.4, 2), 
+            new THREE.Vector2(0.45, 0),
+            new THREE.Vector2(0.4, 2),
             new THREE.Vector2(0.35, 4)
         ];
         const calfGeom = new THREE.LatheGeometry(calfPoints, 16);
@@ -891,17 +868,13 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         foot.position.set(0, 0, 1);
         ankleJoint.add(foot);
 
-        // ----------------------------------------------------
-        // 6.a. Adjust Leg Positioning
-        // ----------------------------------------------------
-        // Original Position: legRoot.position.set(side === 'left' ? -1.3 : 1.3, 2.3, 0);
-        // Modification: Move legs up by 0.7 units (y increases by 0.7)
-        legRoot.position.set(side === 'left' ? -1.3 : 1.3, 5 + 0.7, 0); // 2.3 + 0.7 = 3.0
+        // Legs moved up an additional 1.0
+        // Previously was y = 3.0; now it's 4.0
+        legRoot.position.set(side === 'left' ? -1.3 : 1.3, 7.0, 0);
 
         return legRoot;
     }
 
-    // Create Legs
     const leftLeg = createLeg('left');
     const rightLeg = createLeg('right');
     humanoidGroup.add(leftLeg, rightLeg);
@@ -971,10 +944,11 @@ function animateHumanoid(humanoid, deltaTime) {
     if (humanoid.isMoving) {
         humanoid.animationTime += deltaTime * humanoid.animationSpeed * 3.5;
 
-        const legSwingAmplitude    = 0.65;
+        // Straight legs => set these to zero
+        const legSwingAmplitude    = 0.0; 
         const armSwingAmplitude    = 0.55;
-        const kneeBendAmplitude    = 1.1;
-        const footRollAmplitude    = 0.35;
+        const kneeBendAmplitude    = 0.0;
+        const footRollAmplitude    = 0.0;
         const torsoTwistAmplitude  = 0.09;
         const bodyBobAmplitude     = 0.12;
         const headBobAmplitude     = 0.1;
@@ -984,62 +958,27 @@ function animateHumanoid(humanoid, deltaTime) {
         const swing     = Math.sin(humanoid.animationTime * humanoid.armSwingSpeed);
         const breathing = Math.sin(humanoid.animationTime * 0.5) * breathingAmplitude;
 
-        // Arms
+        // Arms swing
         if (humanoid.leftArm && humanoid.rightArm) {
             humanoid.leftArm.rotation.x = swing * armSwingAmplitude;
             humanoid.rightArm.rotation.x = -swing * armSwingAmplitude;
 
-            // Some minor outward rotation for a more natural swing
             humanoid.leftArm.rotation.z = -0.15 + 0.1 * Math.max(0, swing);
             humanoid.rightArm.rotation.z = 0.15 - 0.1 * Math.max(0, -swing);
         }
 
-        // Legs
-        if (humanoid.leftLeg && humanoid.rightLeg) {
-            // Thigh root rotation for forward/back
-            humanoid.leftLeg.rotation.x = -swing * legSwingAmplitude;
-            humanoid.rightLeg.rotation.x = swing * legSwingAmplitude;
+        // Legs remain straight — so we do nothing for leg swinging.
 
-            // Bend knees
-            // legRoot.children[0] -> hipJoint
-            // hipJoint.children[0] -> thigh
-            // thigh.children[0] -> kneeJoint
-            const leftKneeJoint  = humanoid.leftLeg.children[0]?.children[0]?.children[0];
-            const rightKneeJoint = humanoid.rightLeg.children[0]?.children[0]?.children[0];
-            if (leftKneeJoint) {
-                leftKneeJoint.rotation.x = Math.abs(swing) * kneeBendAmplitude;
-            }
-            if (rightKneeJoint) {
-                rightKneeJoint.rotation.x = Math.abs(-swing) * kneeBendAmplitude;
-            }
-
-            // Foot roll
-            // kneeJoint.children[0] -> calf
-            // calf.children[0] -> ankleJoint
-            // ankleJoint.children[0] -> foot
-            const leftFoot = humanoid.leftLeg.children[0]
-                ?.children[0]?.children[0]?.children[0]?.children[0];
-            const rightFoot = humanoid.rightLeg.children[0]
-                ?.children[0]?.children[0]?.children[0]?.children[0];
-            if (leftFoot) {
-                leftFoot.rotation.x = Math.max(0, swing) * footRollAmplitude;
-            }
-            if (rightFoot) {
-                rightFoot.rotation.x = Math.max(0, -swing) * footRollAmplitude;
-            }
-        }
-
-        // Body “bob” and forward lean
+        // Body bob and forward lean
         if (humanoid.body) {
-            humanoid.body.position.y = 6.7 + Math.abs(swing) * bodyBobAmplitude + breathing; // Updated base y=7.7
-            humanoid.body.rotation.set(-forwardLean, swing * torsoTwistAmplitude, 0);
+            humanoid.body.position.y = 17 + Math.abs(swing) * bodyBobAmplitude + breathing;
+            humanoid.body.rotation.x = Math.PI - forwardLean;
+            humanoid.body.rotation.y = swing * torsoTwistAmplitude;
+            humanoid.body.rotation.z = 0;
         }
 
-        // Head “bob” plus subtle breathing
+        // Head bob
         if (humanoid.head) {
-            // neckJoint is at y=18, head is offset by +1.5
-            // We'll do the final net effect on the entire neck
-            // so the head and neck move together
             humanoid.head.parent.position.y = 18 + Math.abs(swing) * headBobAmplitude + breathing * 0.8;
             humanoid.head.rotation.x = swing * 0.06;
         }
@@ -1050,39 +989,34 @@ function animateHumanoid(humanoid, deltaTime) {
 
 
 function resetHumanoidPose(humanoid) {
-    // Gently reset rotations/positions to default (standing still)
     if (!humanoid) return;
     humanoid.animationTime = 0;
 
     // Arms
     if (humanoid.leftArm) {
-        humanoid.leftArm.rotation.set(0, 0, Math.PI / 12); // Maintains the slight rotation from initial positioning
+        humanoid.leftArm.rotation.set(0, 0, Math.PI / 2);
     }
     if (humanoid.rightArm) {
-        humanoid.rightArm.rotation.set(0, 0, -Math.PI / 12); // Maintains the slight rotation from initial positioning
+        humanoid.rightArm.rotation.set(0, 0, -Math.PI / 2);
     }
 
-    // Legs
-    if (humanoid.leftLeg) {
-        humanoid.leftLeg.rotation.set(0, 0, 0);
-    }
-    if (humanoid.rightLeg) {
-        humanoid.rightLeg.rotation.set(0, 0, 0);
-    }
-
+    // Legs stay straight — no need to reset rotations to any bend.
     // Body
     if (humanoid.body) {
-        humanoid.body.position.y = 6.7; // Updated base y-position
-        humanoid.body.rotation.set(0, 0, 0);
+        humanoid.body.position.y = 17; 
+        humanoid.body.rotation.x = Math.PI;
+        humanoid.body.rotation.y = 0;
+        humanoid.body.rotation.z = 0;
     }
 
     // Neck & Head
     if (humanoid.head) {
-        // Put neck back to ~y=18
         humanoid.head.parent.position.set(0, 18, 0);
         humanoid.head.rotation.set(0, 0, 0);
     }
 }
+
+
 
 
 
