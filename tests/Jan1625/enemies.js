@@ -1108,6 +1108,24 @@ function lootEnemy(enemy) {
     lootProgress = 0;
     currentLootingEnemy = enemy;
     document.getElementById('lootBarContainer').style.display = 'block';
+
+    // When looting is complete, remove the corpse and spawn a new enemy
+    enemy.userData.onLootComplete = () => {
+        // Remove the enemy from the scene and array
+        scene.remove(enemy);
+        const index = enemies.indexOf(enemy);
+        if (index > -1) {
+            enemies.splice(index, 1);
+        }
+
+        // Spawn a new enemy
+        const enemyTypesKeys = Object.keys(enemyTypes);
+        let position = getRandomPositionOutsideTown(800, 2000);
+        let type = enemyTypesKeys[Math.floor(Math.random() * enemyTypesKeys.length)];
+        let newEnemy = createEnemy(position.x, 0, position.z, type);
+        enemies.push(newEnemy);
+        scene.add(newEnemy);
+    };
 }
 
 function updateLooting(delta) {
@@ -1119,6 +1137,7 @@ function updateLooting(delta) {
             isLooting = false;
             document.getElementById('lootBarContainer').style.display = 'none';
             openLootPopup();
+            currentLootingEnemy.userData.onLootComplete();
         }
     }
 }

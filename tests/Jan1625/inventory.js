@@ -6,7 +6,35 @@ function addItemToInventory(item) {
         window.playerInventory = [];
     }
     console.log('Adding item to inventory:', item);
-    window.playerInventory.push(item);
+
+    // Try to find an existing stack of the same item type that's not full
+    const existingStack = window.playerInventory.find(existingItem => 
+        existingItem.name === item.name && 
+        existingItem.type === item.type && 
+        (!existingItem.quantity || existingItem.quantity < 100)
+    );
+
+    if (existingStack) {
+        // If we found an existing stack that's not full, increment its quantity
+        existingStack.quantity = (existingStack.quantity || 1) + (item.quantity || 1);
+        if (existingStack.quantity > 100) {
+            // If we would exceed 100, create a new stack with the remainder
+            const remainder = {
+                ...item,
+                quantity: existingStack.quantity - 100
+            };
+            existingStack.quantity = 100;
+            window.playerInventory.push(remainder);
+        }
+    } else {
+        // If no existing stack found or all stacks are full, create a new stack
+        const newItem = {
+            ...item,
+            quantity: item.quantity || 1
+        };
+        window.playerInventory.push(newItem);
+    }
+
     console.log('Current inventory:', window.playerInventory);
     updateInventoryDisplay();
 }
@@ -65,11 +93,12 @@ function updateInventoryDisplay() {
         filteredItems.forEach(item => {
             const slot = document.createElement('div');
             slot.classList.add('inventory-slot');
-            slot.innerText = item.name;
+            slot.innerText = item.name + (item.quantity > 1 ? ` (${item.quantity})` : '');
             slot.setAttribute('data-name', item.name);
             slot.setAttribute('data-description', item.description || 'No description');
             slot.setAttribute('data-type', item.type || 'misc');
             slot.setAttribute('data-rarity', item.rarity || 'Common');
+            slot.setAttribute('data-quantity', item.quantity || 1);
             grid.appendChild(slot);
         });
 

@@ -36,6 +36,15 @@ function renderMinimap() {
         updateMinimapDimensions();
     }
 
+    // Store the original ambient light intensity
+    const originalAmbientLight = scene.children.find(child => child instanceof THREE.AmbientLight);
+    const originalIntensity = originalAmbientLight ? originalAmbientLight.intensity : 0;
+
+    // Temporarily increase ambient light intensity for minimap
+    if (originalAmbientLight) {
+        originalAmbientLight.intensity = 1.5; // Increased brightness for minimap
+    }
+
     minimapCamera.position.x = player.position.x;
     minimapCamera.position.z = player.position.z;
 
@@ -43,6 +52,11 @@ function renderMinimap() {
     renderer.setScissor(minimapX, canvasRect.height - minimapY - mapHeight, mapWidth, mapHeight);
     renderer.setScissorTest(true);
     renderer.render(scene, minimapCamera);
+
+    // Restore original ambient light intensity
+    if (originalAmbientLight) {
+        originalAmbientLight.intensity = originalIntensity;
+    }
 }
 
 function animate() {
@@ -81,6 +95,11 @@ function animate() {
     animateHumanoid(player, delta);
     moveEnemies(delta);
     animateDeadEnemies(delta);
+    
+    // Update falling trees
+    if (window.updateFallingTrees) {
+        updateFallingTrees(delta);
+    }
 
     // Check for floor collision
     checkFloorCollision(player.position);
@@ -392,6 +411,15 @@ function renderMinimap() {
         updateMinimapDimensions();
     }
 
+    // Store the original ambient light intensity
+    const originalAmbientLight = scene.children.find(child => child instanceof THREE.AmbientLight);
+    const originalIntensity = originalAmbientLight ? originalAmbientLight.intensity : 0;
+
+    // Temporarily increase ambient light intensity for minimap
+    if (originalAmbientLight) {
+        originalAmbientLight.intensity = 1.5; // Increased brightness for minimap
+    }
+
     minimapCamera.position.x = player.position.x;
     minimapCamera.position.z = player.position.z;
 
@@ -399,6 +427,11 @@ function renderMinimap() {
     renderer.setScissor(minimapX, canvasRect.height - minimapY - mapHeight, mapWidth, mapHeight);
     renderer.setScissorTest(true);
     renderer.render(scene, minimapCamera);
+
+    // Restore original ambient light intensity
+    if (originalAmbientLight) {
+        originalAmbientLight.intensity = originalIntensity;
+    }
 }
 
 // Control minimap and fullscreen map rendering
@@ -569,33 +602,91 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
     }
 
     /**
-     * Creates a MeshStandardMaterial with the given color.
+     * Creates a MeshStandardMaterial with enhanced shading and textures.
      * @param {Number} colorValue - Hex color value.
      * @returns {THREE.MeshStandardMaterial} - Created material.
      */
     function createMaterial(colorValue) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 64;
-        canvas.height = 64;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#FFFFFF';
-
-        for (let y = 0; y < canvas.height; y += 8) {
-            for (let x = (y / 8) % 2 === 0 ? 0 : 4; x < canvas.width; x += 8) {
-                ctx.beginPath();
-                ctx.arc(x, y, 4, 0, Math.PI * 2);
-                ctx.fill();
+        // Create normal map for 3D surface detail
+        const normalCanvas = document.createElement('canvas');
+        normalCanvas.width = 256;
+        normalCanvas.height = 256;
+        const normalCtx = normalCanvas.getContext('2d');
+        
+        // Create a more complex normal map pattern
+        normalCtx.fillStyle = '#808080'; // Neutral normal map base
+        normalCtx.fillRect(0, 0, 256, 256);
+        
+        // Add some surface variation
+        for (let y = 0; y < normalCanvas.height; y += 4) {
+            for (let x = 0; x < normalCanvas.width; x += 4) {
+                const noise = Math.random() * 30 + 100;
+                normalCtx.fillStyle = `rgb(${noise},${noise},255)`;
+                normalCtx.fillRect(x, y, 4, 4);
             }
         }
 
-        const bumpMap = new THREE.CanvasTexture(canvas);
+        // Create roughness map for surface texture
+        const roughnessCanvas = document.createElement('canvas');
+        roughnessCanvas.width = 256;
+        roughnessCanvas.height = 256;
+        const roughnessCtx = roughnessCanvas.getContext('2d');
+        
+        // Create a subtle texture pattern
+        roughnessCtx.fillStyle = '#FFFFFF';
+        roughnessCtx.fillRect(0, 0, 256, 256);
+        
+        for (let y = 0; y < roughnessCanvas.height; y += 8) {
+            for (let x = 0; x < roughnessCanvas.width; x += 8) {
+                const roughness = Math.random() * 0.3 + 0.5;
+                roughnessCtx.fillStyle = `rgb(${roughness * 255},${roughness * 255},${roughness * 255})`;
+                roughnessCtx.fillRect(x, y, 8, 8);
+            }
+        }
+
+        // Create ambient occlusion map
+        const aoCanvas = document.createElement('canvas');
+        aoCanvas.width = 256;
+        aoCanvas.height = 256;
+        const aoCtx = aoCanvas.getContext('2d');
+        
+        // Create subtle ambient occlusion
+        aoCtx.fillStyle = '#FFFFFF';
+        aoCtx.fillRect(0, 0, 256, 256);
+        
+        for (let y = 0; y < aoCanvas.height; y += 16) {
+            for (let x = 0; x < aoCanvas.width; x += 16) {
+                const ao = Math.random() * 0.2 + 0.8;
+                aoCtx.fillStyle = `rgb(${ao * 255},${ao * 255},${ao * 255})`;
+                aoCtx.fillRect(x, y, 16, 16);
+            }
+        }
+
+        // Create and configure textures
+        const normalMap = new THREE.CanvasTexture(normalCanvas);
+        const roughnessMap = new THREE.CanvasTexture(roughnessCanvas);
+        const aoMap = new THREE.CanvasTexture(aoCanvas);
+
+        // Configure texture settings
+        [normalMap, roughnessMap, aoMap].forEach(map => {
+            map.wrapS = THREE.RepeatWrapping;
+            map.wrapT = THREE.RepeatWrapping;
+            map.repeat.set(2, 2);
+        });
+
+        // Create enhanced material
         return new THREE.MeshStandardMaterial({
             color: colorValue,
-            bumpMap: bumpMap,
-            bumpScale: 0.1,
+            normalMap: normalMap,
+            normalScale: new THREE.Vector2(0.5, 0.5),
+            roughnessMap: roughnessMap,
             roughness: 0.7,
-            metalness: 0.0,
-            side: THREE.DoubleSide
+            metalness: 0.1,
+            aoMap: aoMap,
+            aoMapIntensity: 0.5,
+            envMapIntensity: 1.0,
+            side: THREE.DoubleSide,
+            flatShading: false
         });
     }
 
@@ -735,7 +826,7 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         ];
         const upperArmGeom = new THREE.LatheGeometry(upperArmPoints, 16);
         const upperArm = configureShadows(new THREE.Mesh(upperArmGeom, createMaterial(selectedSkinColor)));
-        upperArm.rotation.x = Math.PI / 2; 
+        upperArm.rotation.x = -Math.PI/2;  // Make arm point outward horizontally
         shoulderJoint.add(upperArm);
 
         const elbowJoint = configureShadows(
@@ -751,7 +842,7 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         ];
         const forearmGeom = new THREE.LatheGeometry(forearmPoints, 16);
         const forearm = configureShadows(new THREE.Mesh(forearmGeom, createMaterial(selectedSkinColor)));
-        forearm.rotation.x = Math.PI / 2; 
+        forearm.rotation.x = -Math.PI/2;  // Make forearm point outward horizontally
         elbowJoint.add(forearm);
 
         const wristJoint = configureShadows(
@@ -792,27 +883,31 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         wristJoint.add(handGroup);
 
         // Position & Swap
-        const armXPosition = side === 'left' ? 2.8 : -2.8; 
+        const armXPosition = side === 'left' ? -2.8 : 2.8; 
         const armYPosition = 10.5 + 2.5; // arms moved up by 2.5
         armRoot.position.set(armXPosition, armYPosition, 0);
 
         // Subtle outward rotation
         if (side === 'left') {
-            armRoot.rotation.z = Math.PI / 12; 
+            armRoot.rotation.z = -Math.PI/12;  // Slight outward angle
         } else {
-            armRoot.rotation.z = -Math.PI / 12; 
+            armRoot.rotation.z = Math.PI/12;   // Slight outward angle
         }
 
         return armRoot;
     }
 
-    const leftArm = createArm('left');   // Actually on the right side
-    const rightArm = createArm('right'); // Actually on the left side
+    const leftArm = createArm('left');   // Now correctly on the left side
+    const rightArm = createArm('right'); // Now correctly on the right side
     humanoidGroup.add(leftArm, rightArm);
 
+    // No additional rotations needed since arms are properly oriented in createArm
+    // leftArm.rotation.set(0, 0, 0);  
+    // rightArm.rotation.set(0, 0, 0); 
+
     // Set the initial rotation of the left arm to 90 degrees counterclockwise and the right arm to 90 degrees clockwise
-    leftArm.rotation.set(0, 0, Math.PI);
-    rightArm.rotation.set(0, 0, -Math.PI);
+    // leftArm.rotation.set(0, 0, Math.PI);
+    // rightArm.rotation.set(0, 0, -Math.PI);
 
     // ----------------------------------------------------
     // 6. LEGS (LatheGeometry for thighs/calves)
@@ -834,7 +929,7 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         ];
         const thighGeom = new THREE.LatheGeometry(thighPoints, 16);
         const thigh = configureShadows(new THREE.Mesh(thighGeom, createMaterial(selectedSkinColor)));
-        thigh.rotation.x = Math.PI / 2; 
+        thigh.rotation.x = -Math.PI/2; // Rotate to point down
         hipJoint.add(thigh);
 
         // Knee
@@ -852,7 +947,7 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         ];
         const calfGeom = new THREE.LatheGeometry(calfPoints, 16);
         const calf = configureShadows(new THREE.Mesh(calfGeom, createMaterial(selectedSkinColor)));
-        calf.rotation.x = Math.PI / 2; 
+        calf.rotation.x = -Math.PI/2; // Rotate to point down
         kneeJoint.add(calf);
 
         // Ankle
@@ -865,13 +960,16 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
         // Foot
         const footGeom = new THREE.BoxGeometry(1, 0.5, 2);
         const foot = configureShadows(new THREE.Mesh(footGeom, createMaterial(selectedSkinColor)));
-        foot.position.set(0, 0, 1);
+        foot.position.set(0, -0.25, 0.5);
+        foot.rotation.x = Math.PI/2; // Rotate foot to point forward
         ankleJoint.add(foot);
 
-        // Legs moved up an additional 1.0
-        // Previously was y = 3.0; now it's 4.0
+        // Position legs
         legRoot.position.set(side === 'left' ? -1.3 : 1.3, 7.0, 0);
-
+        
+        // Rotate the entire leg to point forward and down
+        legRoot.rotation.x = -Math.PI/2; // Changed from Math.PI/2 to -Math.PI/2
+        
         return legRoot;
     }
 
@@ -941,14 +1039,12 @@ function createHumanoid(color, texture, pattern, height, bodyShape) {
 function animateHumanoid(humanoid, deltaTime) {
     if (!humanoid) return;
 
-    if (humanoid.isMoving) {
-        humanoid.animationTime += deltaTime * humanoid.animationSpeed * 3.5;
+    // Always update animation time for breathing
+    humanoid.animationTime += deltaTime * humanoid.animationSpeed;
 
-        // Straight legs => set these to zero
-        const legSwingAmplitude    = 0.0; 
+    if (humanoid.isMoving) {
+        // Walking animation
         const armSwingAmplitude    = 0.55;
-        const kneeBendAmplitude    = 0.0;
-        const footRollAmplitude    = 0.0;
         const torsoTwistAmplitude  = 0.09;
         const bodyBobAmplitude     = 0.12;
         const headBobAmplitude     = 0.1;
@@ -960,14 +1056,14 @@ function animateHumanoid(humanoid, deltaTime) {
 
         // Arms swing
         if (humanoid.leftArm && humanoid.rightArm) {
-            humanoid.leftArm.rotation.x = swing * armSwingAmplitude;
-            humanoid.rightArm.rotation.x = -swing * armSwingAmplitude;
+            // Forward/backward swing
+            humanoid.leftArm.rotation.x = -Math.PI/2 + swing * armSwingAmplitude;
+            humanoid.rightArm.rotation.x = -Math.PI/2 - swing * armSwingAmplitude;
 
-            humanoid.leftArm.rotation.z = -0.15 + 0.1 * Math.max(0, swing);
-            humanoid.rightArm.rotation.z = 0.15 - 0.1 * Math.max(0, -swing);
+            // Keep slight outward angle
+            humanoid.leftArm.rotation.z = -Math.PI/12;
+            humanoid.rightArm.rotation.z = Math.PI/12;
         }
-
-        // Legs remain straight — so we do nothing for leg swinging.
 
         // Body bob and forward lean
         if (humanoid.body) {
@@ -982,44 +1078,99 @@ function animateHumanoid(humanoid, deltaTime) {
             humanoid.head.parent.position.y = 18 + Math.abs(swing) * headBobAmplitude + breathing * 0.8;
             humanoid.head.rotation.x = swing * 0.06;
         }
+    } else if (window.isGathering && humanoid === player) {
+        // Chopping animation
+        const strikePhase = window.strikeProgress / 0.3; // Normalize to 0-1
+        const chopArmAngle = -Math.PI * 0.7; // Base angle for chopping
+        const chopSwingRange = Math.PI * 0.6; // How far the arms swing
+        const breathing = Math.sin(humanoid.animationTime * 0.5) * 0.02;
+
+        if (strikePhase < 0.3) {
+            // Wind up phase - raise arms back
+            const windupProgress = strikePhase / 0.3;
+            if (humanoid.leftArm && humanoid.rightArm) {
+                // Both arms swing back together
+                humanoid.leftArm.rotation.x = chopArmAngle - chopSwingRange * windupProgress;
+                humanoid.rightArm.rotation.x = chopArmAngle - chopSwingRange * windupProgress;
+                
+                // Arms come together
+                humanoid.leftArm.rotation.z = -Math.PI/24;
+                humanoid.rightArm.rotation.z = Math.PI/24;
+            }
+            
+            // Lean back slightly
+            if (humanoid.body) {
+                humanoid.body.rotation.x = Math.PI + 0.2 * windupProgress;
+                humanoid.body.position.y = 17 + breathing;
+            }
+        } else if (strikePhase < 1) {
+            // Strike phase - swing arms forward
+            const strikeProgress = (strikePhase - 0.3) / 0.7;
+            if (humanoid.leftArm && humanoid.rightArm) {
+                // Both arms swing forward together
+                const swingAngle = chopArmAngle - chopSwingRange + chopSwingRange * 1.2 * strikeProgress;
+                humanoid.leftArm.rotation.x = swingAngle;
+                humanoid.rightArm.rotation.x = swingAngle;
+                
+                // Keep arms together
+                humanoid.leftArm.rotation.z = -Math.PI/24;
+                humanoid.rightArm.rotation.z = Math.PI/24;
+            }
+            
+            // Lean forward during strike
+            if (humanoid.body) {
+                humanoid.body.rotation.x = Math.PI + 0.2 - 0.4 * strikeProgress;
+                humanoid.body.position.y = 17 + breathing;
+            }
+        } else {
+            // Reset pose between strikes but keep arms ready
+            if (humanoid.leftArm && humanoid.rightArm) {
+                humanoid.leftArm.rotation.x = chopArmAngle;
+                humanoid.rightArm.rotation.x = chopArmAngle;
+                humanoid.leftArm.rotation.z = -Math.PI/24;
+                humanoid.rightArm.rotation.z = Math.PI/24;
+            }
+            
+            if (humanoid.body) {
+                humanoid.body.rotation.x = Math.PI;
+                humanoid.body.position.y = 17 + breathing;
+            }
+        }
+        
+        // Head always looks down during gathering
+        if (humanoid.head) {
+            humanoid.head.parent.position.y = 18 + breathing * 0.8;
+            humanoid.head.rotation.x = 0.3;
+        }
     } else {
         resetHumanoidPose(humanoid);
     }
 }
 
-
 function resetHumanoidPose(humanoid) {
     if (!humanoid) return;
     humanoid.animationTime = 0;
 
-    // Arms
-    if (humanoid.leftArm) {
-        humanoid.leftArm.rotation.set(0, 0, Math.PI / 2);
-    }
-    if (humanoid.rightArm) {
-        humanoid.rightArm.rotation.set(0, 0, -Math.PI / 2);
-    }
-
-    // Legs stay straight — no need to reset rotations to any bend.
     // Body
     if (humanoid.body) {
-        humanoid.body.position.y = 17; 
-        humanoid.body.rotation.x = Math.PI;
-        humanoid.body.rotation.y = 0;
-        humanoid.body.rotation.z = 0;
+        humanoid.body.position.y = 17;
+        humanoid.body.rotation.set(Math.PI, 0, 0);
     }
 
-    // Neck & Head
+    // Head
     if (humanoid.head) {
-        humanoid.head.parent.position.set(0, 18, 0);
         humanoid.head.rotation.set(0, 0, 0);
+        humanoid.head.parent.position.y = 18;
+    }
+
+    // Arms - keep them horizontal with slight outward angle
+    if (humanoid.leftArm) {
+        humanoid.leftArm.rotation.set(-Math.PI/2, 0, -Math.PI/12);
+    }
+    if (humanoid.rightArm) {
+        humanoid.rightArm.rotation.set(-Math.PI/2, 0, Math.PI/12);
     }
 }
-
-
-
-
-
 
 function createFriendlyNPC(color = 0x00ff00, name = 'Friendly NPC', dialogue = 'Hello!') {
     const npc = createHumanoid(color);

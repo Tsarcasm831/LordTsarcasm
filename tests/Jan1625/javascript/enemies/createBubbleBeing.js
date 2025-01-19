@@ -11,7 +11,7 @@ export function createBubbleBeing(x, y, z) {
     // NOTE: the texture key in enemyTypes was 'textures/enemies/vyraxus.png' 
     // but that seems possibly a placeholder. Replace with your actual Bubble Being texture if needed:
     const texture    = 'textures/enemies/vyraxus.png'; 
-    const pattern    = 'plain';
+    const pattern    = 'translucent';
     const height     = 1.4;
     const bodyShape  = 'round';
     const damageRate = 2.0;
@@ -22,6 +22,22 @@ export function createBubbleBeing(x, y, z) {
 
     // 2) Because it's "bubble" shaped, we can scale or add a spherical overlay
     enemy.scale.set(0.9, 0.9, 0.9); // slightly smaller than average
+
+    // Add translucent properties for bubble effect
+    enemy.traverse(child => {
+        if (child.isMesh && child.material) {
+            // Create a new material preserving the original color
+            const originalColor = child.material.color;
+            child.material = new THREE.MeshPhysicalMaterial({
+                color: originalColor,
+                transparent: true,
+                opacity: 0.85,
+                roughness: 0.2,
+                transmission: 0.2,
+                thickness: 0.5
+            });
+        }
+    });
 
     // 3) Position & userData
     enemy.position.set(x, y, z);

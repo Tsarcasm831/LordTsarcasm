@@ -42,10 +42,11 @@ export function createAvianos(x, y, z) {
             roughness: 0.3,
             metalness: 0.4,
             emissive: new THREE.Color(0x1E90FF),
-            emissiveIntensity: 0.3
+            emissiveIntensity: 0.3,
+            clearcoat: 0.5,
+            clearcoatRoughness: 0.3
         });
         const wing = new THREE.Mesh(geometry, material);
-        wing.castShadow = true;
         return wing;
     }
 
@@ -134,6 +135,21 @@ export function createAvianos(x, y, z) {
     enemy.traverse(child => {
         if (child.isMesh) {
             applyPattern(child, pattern);
+        }
+    });
+
+    // Add feather properties to the base mesh
+    enemy.traverse(child => {
+        if (child.isMesh && child.material) {
+            // Create a new material preserving the original color
+            const originalColor = child.material.color;
+            child.material = new THREE.MeshPhysicalMaterial({
+                color: originalColor,
+                clearcoat: 0.3,
+                clearcoatRoughness: 0.2,
+                roughness: 0.4,
+                metalness: 0.2
+            });
         }
     });
 

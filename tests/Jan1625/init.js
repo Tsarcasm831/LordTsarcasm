@@ -55,7 +55,94 @@ function addSky() {
 }
 
 function addGroundPlane(scene, options = {}) {
-    // Destructure options with default values
+    const loadingMessages = [
+        "Calibrating reality matrices...",
+        "Teaching trees to grow...",
+        "Convincing clouds to float...",
+        "Negotiating with virtual squirrels...",
+        "Applying laws of physics (most of them)...",
+        "Generating random randomness...",
+        "Calculating meaning of life...",
+        "Brewing digital coffee...",
+        "Tuning gravity settings...",
+        "Organizing chaos particles...",
+        "Planting virtual grass seeds...",
+        "Synchronizing parallel universes...",
+        "Charging mana crystals...",
+        "Summoning ancient pixels...",
+        "Polishing invisible surfaces...",
+        "Reticulating splines..."
+    ];
+
+    let currentMessageIndex = 0;
+    const startTime = Date.now();
+    const minLoadTime = 10000; // 10 seconds minimum loading time
+    let currentProgress = 0;
+    let loadingInterval;
+
+    // Function to update loading progress
+    function updateLoadingProgress() {
+        const progressBar = document.querySelector('.loading-progress');
+        if (progressBar) {
+            // Calculate target progress based on time elapsed
+            const elapsedTime = Date.now() - startTime;
+            const targetProgress = Math.min(95, (elapsedTime / minLoadTime) * 100);
+            
+            // Smoothly interpolate current progress towards target
+            if (currentProgress < targetProgress) {
+                currentProgress = Math.min(currentProgress + 1, targetProgress);
+                progressBar.style.transform = `translateX(${currentProgress}%)`;
+            }
+        }
+    }
+
+    // Start progress animation
+    loadingInterval = setInterval(updateLoadingProgress, 50);
+
+    // Function to update loading message
+    function updateLoadingMessage() {
+        const loadingMessage = document.getElementById('loadingMessage');
+        if (loadingMessage) {
+            loadingMessage.classList.add('fade');
+            setTimeout(() => {
+                loadingMessage.textContent = loadingMessages[currentMessageIndex];
+                loadingMessage.classList.remove('fade');
+                currentMessageIndex = (currentMessageIndex + 1) % loadingMessages.length;
+                
+                // Add a small jump in progress when message changes
+                currentProgress = Math.min(currentProgress + 5, 95);
+                const progressBar = document.querySelector('.loading-progress');
+                if (progressBar) {
+                    progressBar.style.transform = `translateX(${currentProgress}%)`;
+                }
+            }, 300);
+        }
+    }
+
+    // Start cycling through messages
+    const messageInterval = setInterval(updateLoadingMessage, 2000);
+
+    // Function to complete loading animation
+    function completeLoading() {
+        clearInterval(loadingInterval);
+        clearInterval(messageInterval);
+        
+        const progressBar = document.querySelector('.loading-progress');
+        if (progressBar) {
+            progressBar.style.transform = 'translateX(100%)';
+        }
+        
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (loadingScreen) {
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 500);
+            }, 500);
+        }
+    }
+
     const {
         size = 10000,          // Size of the ground plane
         color = 0x228B22,     // Default color: ForestGreen
@@ -70,7 +157,6 @@ function addGroundPlane(scene, options = {}) {
     let material;
 
     if (textureURL) {
-        // If a texture URL is provided, load and apply the texture
         const textureLoader = new THREE.TextureLoader();
         console.log('Attempting to load texture from:', textureURL);
         
@@ -84,12 +170,30 @@ function addGroundPlane(scene, options = {}) {
                 texture.encoding = THREE.sRGBEncoding;
                 texture.anisotropy = 16;
                 console.log('Ground texture loaded successfully');
+                
+                // Calculate remaining time to meet minimum load time
+                const elapsedTime = Date.now() - startTime;
+                const remainingTime = Math.max(0, minLoadTime - elapsedTime);
+                
+                // Complete loading after minimum time has passed
+                setTimeout(completeLoading, remainingTime);
             },
             undefined,
             (error) => {
                 console.error('Error loading ground texture:', error);
-                // Fallback to brown color on error
-                material.color.setHex(0x8B4513);
+                // Still wait for minimum time even on error
+                const elapsedTime = Date.now() - startTime;
+                const remainingTime = Math.max(0, minLoadTime - elapsedTime);
+                
+                setTimeout(() => {
+                    clearInterval(loadingInterval);
+                    clearInterval(messageInterval);
+                    const loadingScreen = document.getElementById('loadingScreen');
+                    if (loadingScreen) {
+                        loadingScreen.style.display = 'none';
+                    }
+                    material.color.setHex(0x8B4513);
+                }, remainingTime);
             }
         );
 
@@ -100,7 +204,6 @@ function addGroundPlane(scene, options = {}) {
             metalness: 0.2
         });
     } else {
-        // Use a solid color material
         material = new THREE.MeshStandardMaterial({ 
             color: color, 
             side: THREE.DoubleSide,
@@ -109,32 +212,26 @@ function addGroundPlane(scene, options = {}) {
         });
     }
 
-    // Create the ground geometry
     const geometry = new THREE.PlaneGeometry(size, size);
     const ground = new THREE.Mesh(geometry, material);
     ground.name = name;
 
-    // Apply rotation to make the plane horizontal
     ground.rotation.x = rotation.x;
     ground.rotation.y = rotation.y;
     ground.rotation.z = rotation.z;
 
-    // Position the ground in the scene
     ground.position.set(position.x, position.y, position.z);
 
-    // Enable shadow receiving if needed
     ground.receiveShadow = receiveShadow;
 
-    // Add the ground to the scene
     scene.add(ground);
 
     console.log('Ground plane added to the scene.');
 
-    return ground; // Return the ground mesh in case further modifications are needed
+    return ground; 
 }
 
 function init() {
-    // Disable right-click context menu
     document.addEventListener('contextmenu', function(event) {
         event.preventDefault();
     }, false);
@@ -145,7 +242,6 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.autoClear = false;
 
-    // Enable shadow mapping in the renderer
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -158,21 +254,19 @@ function init() {
     const ambientLight = new THREE.AmbientLight(0x404040);
     scene.add(ambientLight);
 
-    // Configure directional light for shadows
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(2000, 3000, 1000);  // Moved much higher and further back
+    directionalLight.position.set(2000, 3000, 1000);  
     directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 4096;  // High resolution for quality
+    directionalLight.shadow.mapSize.width = 4096;  
     directionalLight.shadow.mapSize.height = 4096;
     directionalLight.shadow.camera.near = 0.5;
-    directionalLight.shadow.camera.far = 10000;  // Match ground plane size
-    directionalLight.shadow.camera.left = -5000;  // Half the ground plane size
+    directionalLight.shadow.camera.far = 10000;  
+    directionalLight.shadow.camera.left = -5000;  
     directionalLight.shadow.camera.right = 5000;
     directionalLight.shadow.camera.top = 5000;
     directionalLight.shadow.camera.bottom = -5000;
     directionalLight.shadow.bias = -0.001;
     
-    // Add a target at the center of the world
     const lightTarget = new THREE.Object3D();
     lightTarget.position.set(0, 0, 0);
     scene.add(lightTarget);
@@ -181,31 +275,27 @@ function init() {
     scene.add(directionalLight);
     addQuadrupeds();
 
-    // Initialize the day/night cycle after lights are set up
     if (typeof window.initDayNightCycle === 'function') {
         window.initDayNightCycle();
     }
 
-    // Add the ground plane using the addGroundPlane function
     ground = addGroundPlane(scene, {
         size: 10000,
-        textureURL: 'https://file.garden/Zy7B0LkdIVpGyzA1/ground.png', // Direct web URL
+        textureURL: 'https://file.garden/Zy7B0LkdIVpGyzA1/ground.png', 
         rotation: { x: -Math.PI / 2, y: 0, z: 0 },
-        position: { x: 0, y: 0.1, z: 0 },  // Raised slightly above 0
+        position: { x: 0, y: 0.1, z: 0 },  
         receiveShadow: true,
         name: 'ground',
         textureRepeat: { x: 100, y: 100 }
     });
 
-    // Add the safe zone ground
     const safeZoneGroundGeometry = new THREE.PlaneGeometry(1200, 1200);
     
-    // Load and configure the texture
     const textureLoader = new THREE.TextureLoader();
     const safeZoneTexture = textureLoader.load('https://file.garden/Zy7B0LkdIVpGyzA1/concrete.webp');
     safeZoneTexture.wrapS = THREE.RepeatWrapping;
     safeZoneTexture.wrapT = THREE.RepeatWrapping;
-    safeZoneTexture.repeat.set(50, 50); // Adjust repeat to match the scale
+    safeZoneTexture.repeat.set(50, 50); 
     
     const safeZoneGroundMaterial = new THREE.MeshStandardMaterial({
         map: safeZoneTexture,
@@ -219,7 +309,6 @@ function init() {
     safeZoneGround.receiveShadow = true;  
     scene.add(safeZoneGround);
 
-    // Add the safe zone barrier
     const safeZoneBarrierGeometry = new THREE.BoxGeometry(1200, 50, 1200);
     const safeZoneBarrierMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
     const safeZoneBarrier = new THREE.Mesh(safeZoneBarrierGeometry, safeZoneBarrierMaterial);
@@ -253,18 +342,16 @@ function init() {
     addSky();
 
     const structurePositions = [
-        // Row 1 (z = 200)
         { x: -200, z: 200 },
         { x: 0, z: 200 },
         { x: 200, z: 200 },
-        // Row 2 (z = -200)
         { x: -200, z: -200 },
         { x: 0, z: -200 },
         { x: 200, z: -200 },
     ];
     
     structurePositions.forEach(pos => {
-        const structure = createBuilding(Math.floor(Math.random() * 5) + 1); // Random building type 1-5
+        const structure = createBuilding(Math.floor(Math.random() * 5) + 1); 
         structure.position.set(pos.x, 0, pos.z);
         scene.add(structure);
         if (structure.userData && structure.userData.walls) {
@@ -272,7 +359,6 @@ function init() {
         }
         structures.push(structure);
 
-        // Usage example
         const npcInfo = getRandomNPC();
         if (npcInfo) {
             console.log(npcInfo);
@@ -280,35 +366,43 @@ function init() {
             console.log("No more unique NPCs left to select.");
         }
 
-        // Create the NPC with the selected data
         const npc = createFriendlyNPC(0x00ff00, npcInfo.name, npcInfo.dialogue);
 
-        // Position the NPC at the structure's position
         npc.position.copy(structure.position);
         npc.rotation.y = Math.PI;
 
-        // Add the NPC to the scene and friendlies array
         scene.add(npc);
         friendlies.push(npc);
     });
 
     player = createHumanoid(
-        0x0000ff,  // Blue color
-        'textures/enemies/humans.png',  // Use human texture as base
-        'plain',  // Simple pattern
-        1.8,  // Standard height
-        'muscular'  // Muscular body shape
+        0x0000ff,  
+        'https://file.garden/Zy7B0LkdIVpGyzA1/human_texture.jpg',  
+        'plain',  
+        1.8,  
+        'muscular'  
     );
-    player.position.y = 0.1;  // Raised slightly off the ground for better shadow casting
+    player.position.y = 0.1;  
     player.castShadow = true;
     player.traverse(child => {
         if (child.isMesh) {
             child.castShadow = true;
             child.receiveShadow = true;
+            
+            if (child.material) {
+                const oldMaterial = child.material;
+                child.material = new THREE.MeshStandardMaterial({
+                    map: oldMaterial.map,
+                    color: oldMaterial.color,
+                    roughness: 0.7,
+                    metalness: 0.3
+                });
+            }
+            
             applyPattern(child, 'plain');
         }
     });
-    applyBodyShape(player, 'muscular');  // Apply body shape
+    applyBodyShape(player, 'muscular');  
     scene.add(player);
     
 
@@ -328,15 +422,13 @@ function initMap() {
     mapRenderer.setSize(window.innerWidth, window.innerHeight);
     mapScene = new THREE.Scene();
 
-    // Orthographic camera for 2D map
     const aspect = window.innerWidth / window.innerHeight;
-    const d = 5000; // Adjust based on your game world's size
+    const d = 5000; 
     mapCamera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 10000);
-    mapCamera.position.set(0, 1000, 0); // High above the game world
-    mapCamera.up.set(0, 0, -1); // Adjust to match the game world's orientation
+    mapCamera.position.set(0, 1000, 0); 
+    mapCamera.up.set(0, 0, -1); 
     mapCamera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    // Add similar lighting to the main scene
     const ambientLight = new THREE.AmbientLight(0x404040);
     mapScene.add(ambientLight);
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
