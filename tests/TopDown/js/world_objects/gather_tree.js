@@ -7,15 +7,10 @@ export class GatherTree {
     this.maxHealth = options.health || 8;
     this.health = this.maxHealth;
     this.interactable = true;
-    this.swingPhase = Math.random() * Math.PI * 2;
     this.type = type;
     this.harvestCount = options.harvestCount || 1;
     this.baseColor = options.baseColor || '#8B4513';
     this.leafColor = options.leafColor || '#2d5a27';
-  }
-
-  update(deltaTime) {
-    this.swingPhase += deltaTime * (options.swingSpeed || 0.5);
   }
 
   checkClick(worldX, worldY) {

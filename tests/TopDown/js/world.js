@@ -535,16 +535,49 @@ export class World {
       concreteHeight
     ));
 
-    // Add trees with variety
-    for(let i = 0; i < 100; i++) {
+    // Add trees with variety and proper placement checks
+    let treesPlaced = 0;
+    let attempts = 0;
+    const maxAttempts = 5000;
+    
+    while (treesPlaced < 900 && attempts < maxAttempts) {
       const x = Math.random() * this.playAreaWidth;
       const y = Math.random() * this.playAreaHeight;
+      attempts++;
+      
+      // Get tile coordinates
+      const tileX = Math.floor(x / this.tileSize);
+      const tileY = Math.floor(y / this.tileSize);
+      
+      // Skip if invalid tile coordinates or water tile
+      if (!this.tiles[tileY] || !this.tiles[tileY][tileX]) continue;
+      if (this.tiles[tileY][tileX] === 'water') continue;
+      if (this.tiles[tileY][tileX] === 'concrete') continue;
       
       // Skip if too close to player house or concrete platform
       if (Math.abs(x - playerHouse.x) < 300 && Math.abs(y - playerHouse.y) < 300) continue;
       if (x > concreteX && x < concreteX + concreteWidth && 
           y > concreteY && y < concreteY + concreteHeight) continue;
 
+      // Check for collision with existing objects
+      let canPlaceTree = true;
+      for (const obj of objects) {
+        if (!obj) continue;
+        const dx = x - obj.x;
+        const dy = y - obj.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // Skip if too close to any existing object
+        const minDistance = (obj.width || 32) / 1.5; // Use default size if width not defined
+        if (distance < minDistance) {
+          canPlaceTree = false;
+          break;
+        }
+      }
+      
+      if (!canPlaceTree) continue;
+
+      // Place tree if all checks pass
       const treeType = Math.random();
       if (treeType < 0.3) {
         objects.push(new PineTree(x, y));
@@ -555,7 +588,9 @@ export class World {
       } else {
         objects.push(new DeadTree(x, y));
       }
+      treesPlaced++;
     }
+
     // Add rocks
     for (let i = 0; i < 30; i++) {
       objects.push(new Rock(
