@@ -18,6 +18,15 @@ export class Inventory {
     // Add stack quantities tracking
     this.stackQuantities = new Array(24).fill(0);
 
+    // Initialize tooltip
+    this.tooltip = document.getElementById('item-tooltip');
+    if (!this.tooltip) {
+      this.tooltip = document.createElement('div');
+      this.tooltip.id = 'item-tooltip';
+      document.body.appendChild(this.tooltip);
+    }
+    this.tooltip.style.opacity = '0';
+
     // Add test items after a short delay to ensure icons are cached
     setTimeout(() => {
       this.addItem(ITEMS.wood);
@@ -35,8 +44,30 @@ export class Inventory {
       const slot = document.createElement('div');
       slot.className = 'inventory-slot';
       slot.dataset.index = i;
+      this.attachSlotEventListeners(slot);
       container.appendChild(slot);
     }
+  }
+
+  attachSlotEventListeners(slot) {
+    slot.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      const index = parseInt(e.currentTarget.dataset.index);
+      if (this.slots[index]) {
+        this.dropItem(index);
+      }
+    });
+    
+    slot.addEventListener('mouseenter', (e) => {
+      const index = parseInt(e.currentTarget.dataset.index);
+      if (this.slots[index]) {
+        this.showTooltip(index, e.clientX, e.clientY);
+      }
+    });
+    
+    slot.addEventListener('mouseleave', () => {
+      this.hideTooltip();
+    });
   }
 
   setupEventListeners() {
@@ -44,20 +75,10 @@ export class Inventory {
       this.toggleInventory()
     );
     
-    document.querySelectorAll('.inventory-slot').forEach(slot => {
-      slot.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        this.dropItem(parseInt(e.target.dataset.index));
-      });
-      
-      slot.addEventListener('mouseenter', (e) => {
-        const index = parseInt(e.target.dataset.index);
-        this.showTooltip(index, e.clientX, e.clientY);
-      });
-      
-      slot.addEventListener('mouseleave', () => 
-        this.hideTooltip()
-      );
+    // Add event listeners to hotbar slots
+    const hotbarSlots = document.querySelectorAll('#hotbar .inventory-slot');
+    hotbarSlots.forEach(slot => {
+      this.attachSlotEventListeners(slot);
     });
   }
 
@@ -65,13 +86,32 @@ export class Inventory {
     const item = specificItem || this.slots[index];
     if (!item) return;
     
-    const tooltip = document.getElementById('item-tooltip');
-    tooltip.style.left = `${x + 12}px`;
-    tooltip.style.top = `${y + 12}px`;
-    tooltip.innerHTML = `
+    // Calculate position to keep tooltip on screen
+    const tooltipWidth = 200; // Approximate width
+    const tooltipHeight = 150; // Approximate height
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    
+    let left = x + 15;
+    let top = y + 15;
+    
+    // Adjust if tooltip would go off screen
+    if (left + tooltipWidth > windowWidth) {
+      left = x - tooltipWidth - 5;
+    }
+    if (top + tooltipHeight > windowHeight) {
+      top = y - tooltipHeight - 5;
+    }
+    
+    this.tooltip.style.left = `${left}px`;
+    this.tooltip.style.top = `${top}px`;
+    
+    const quantity = index >= 0 ? this.stackQuantities[index] : 0;
+    this.tooltip.innerHTML = `
       <div class="tooltip-header">
         ${item.icon} 
         <h4>${item.name}</h4>
+        ${quantity > 1 ? `<span class="tooltip-quantity">x${quantity}</span>` : ''}
       </div>
       <div class="tooltip-body">
         <div>Type: ${item.type}</div>
@@ -82,11 +122,13 @@ export class Inventory {
         ${item.miningPower ? `<div>Mining Power: +${item.miningPower}</div>` : ''}
       </div>
     `;
-    tooltip.style.opacity = '1';
+    this.tooltip.style.opacity = '1';
   }
 
   hideTooltip() {
-    document.getElementById('item-tooltip').style.opacity = '0';
+    if (this.tooltip) {
+      this.tooltip.style.opacity = '0';
+    }
   }
 
   dropItem(index) {
@@ -149,28 +191,34 @@ export class Inventory {
   }
 
   updateUI() {
-    const inventorySlots = document.querySelectorAll('.inventory-slot');
-    
-    this.slots.forEach((item, index) => {
-      const slot = inventorySlots[index];
+    // Update both hotbar and inventory slots
+    const allSlots = document.querySelectorAll('.inventory-slot');
+    allSlots.forEach(slot => {
+      const index = parseInt(slot.dataset.index);
+      const item = this.slots[index];
+      
+      // Clear existing content
       slot.innerHTML = '';
+      slot.className = 'inventory-slot';
       
       if (item) {
-        // Parse SVG properly
         const parser = new DOMParser();
         const svgDoc = parser.parseFromString(item.icon, 'image/svg+xml');
         const svgElement = svgDoc.documentElement;
         slot.appendChild(svgElement);
-
-        // Add stack count with improved visibility
+        
         if (item.stackable && this.stackQuantities[index] > 1) {
           const stackCount = document.createElement('div');
           stackCount.className = 'stack-count';
           stackCount.textContent = this.stackQuantities[index];
           slot.appendChild(stackCount);
         }
+        
+        slot.classList.add('has-item');
       }
     });
+
+    this.updateStats();
   }
 
   toggleInventory() {

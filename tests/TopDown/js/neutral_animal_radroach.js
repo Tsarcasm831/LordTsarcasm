@@ -16,6 +16,15 @@ export class Radroach {
     ];
   }
 
+  getTooltipContent() {
+    return {
+      icon: '<svg viewBox="0 0 32 32" width="24" height="24"><path fill="#654321" d="M16 8c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm2 12h-4v-2h4v2z"/></svg>',
+      title: 'Radroach',
+      type: 'Mutated Insect',
+      description: `A mutated insect with a tough shell\nHP: ${this.currentHp}/${this.hp}`
+    };
+  }
+
   update(deltaTime) {
     this.animationPhase += deltaTime * 4;
   }

@@ -180,6 +180,20 @@ export class InventoryView {
           slot.appendChild(stackCount);
         }
       }
+      
+      // Add tooltip event listeners
+      slot.addEventListener('mouseenter', (e) => {
+        const slotIndex = parseInt(e.currentTarget.dataset.index);
+        const item = this.inventory.slots[slotIndex];
+        if (item) {
+          this.inventory.showTooltip(slotIndex, e.clientX, e.clientY);
+        }
+      });
+      
+      slot.addEventListener('mouseleave', () => {
+        this.inventory.hideTooltip();
+      });
+      
       container.appendChild(slot);
     }
   }

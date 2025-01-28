@@ -1,6 +1,7 @@
 <html>
 <head>
-  <title>Stardew Web</title>
+  <title>ROD TopDown</title>
+  <link rel="icon" type="image/png" href="https://file.garden/Zy7B0LkdIVpGyzA1/icon.png">
   <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="/styles.css">
@@ -20,6 +21,29 @@
       top: 0;
       left: 0;
     }
+
+    #house-interior-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #house-interior-overlay.active {
+      display: flex;
+    }
+
+    #houseInteriorCanvas {
+      background: #fff;
+      border: 2px solid #333;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
   </style>
 </head>
 <body>
@@ -28,6 +52,20 @@
   <!-- Game UI -->
   <div id="ui-container">
     <canvas id="minimap" style="position: fixed; top: 20px; right: 20px; width: 200px; height: 150px; border: 2px solid #555; background: rgba(0,0,0,0.7);"></canvas>
+    
+    <div id="item-tooltip">
+      <div class="tooltip-header">
+        <div class="tooltip-icon"></div>
+        <h4></h4>
+      </div>
+      <div class="tooltip-body">
+        <div class="tooltip-type"></div>
+        <div class="tooltip-health"></div>
+        <div class="tooltip-desc"></div>
+      </div>
+    </div>
+
+    <div id="interaction-message" style="position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 10px; border-radius: 5px; font-family: 'Press Start 2P'; font-size: 12px; opacity: 0; transition: opacity 0.3s;"></div>
     
     <div class="status-bar">
       <div class="status-item">
@@ -229,9 +267,18 @@
 
   <!-- Effects -->
   <div id="particle-container"></div>
-  <div id="interaction-message"></div>
-  <div id="item-tooltip"></div>
+  
+  <!-- House Interior Overlay -->
+  <div id="house-interior-overlay" class="modal">
+    <div class="modal-content">
+      <h2>House Interior</h2>
+      <div class="house-interior-container">
+        <canvas id="house-interior-canvas" width="600" height="400"></canvas>
+      </div>
+      <button class="close-btn"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
 
-  <script type="module" src="/js/game.js"></script>
+  <script type="module" src="js/game.js"></script>
 </body>
 </html>

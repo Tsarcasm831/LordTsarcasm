@@ -20,7 +20,13 @@ export class Rat {
   }
 
   checkClick(worldX, worldY) {
-    if (worldX > this.x - this.width/2 && 
+    const isHovering = worldX > this.x - this.width/2 && 
+        worldX < this.x + this.width/2 &&
+        worldY > this.y - this.height/2 && 
+        worldY < this.y + this.height/2;
+
+    if (isHovering && 
+        worldX > this.x - this.width/2 && 
         worldX < this.x + this.width/2 &&
         worldY > this.y - this.height/2 && 
         worldY < this.y + this.height/2) {
@@ -142,6 +148,17 @@ export class Rat {
       const modal = document.getElementById('combat-modal');
       modal.classList.remove('active');
     }, 2000);
+  }
+
+  getTooltipContent() {
+    return {
+      icon: `<svg viewBox="0 0 32 32" width="24" height="24">
+        <path fill="#888" d="M16 8c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm2 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"/>
+      </svg>`,
+      title: 'Rat',
+      type: 'Creature - Wasteland Vermin',
+      description: 'A common wasteland creature. Known for its quick bites and agile movements.'
+    };
   }
 
   render(ctx) {
