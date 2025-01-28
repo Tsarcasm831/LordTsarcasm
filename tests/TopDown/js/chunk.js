@@ -429,60 +429,51 @@ export class World {
     }
   }
 
-  render(ctx) {
-    const renderStartX = Math.floor(this.camera.x / this.tileSize) - 1;
-    const renderStartY = Math.floor(this.camera.y / this.tileSize) - 1;
-    const renderEndX = Math.ceil((this.camera.x + this.camera.width) / this.tileSize) + 1;
-    const renderEndY = Math.ceil((this.camera.y + this.camera.height) / this.tileSize) + 1;
+  isInViewport(obj, camera) {
+    const margin = 100; // Add a small margin to prevent pop-in
+    return obj.x + obj.width / 2 + margin >= camera.x &&
+           obj.x - obj.width / 2 - margin <= camera.x + camera.width &&
+           obj.y + obj.height / 2 + margin >= camera.y &&
+           obj.y - obj.height / 2 - margin <= camera.y + camera.height;
+  }
 
-    // Draw cached background
-    ctx.drawImage(
-      this.optimizedTiles,
-      renderStartX * this.tileSize,
-      renderStartY * this.tileSize,
-      (renderEndX - renderStartX) * this.tileSize,
-      (renderEndY - renderStartY) * this.tileSize,
-      renderStartX * this.tileSize,
-      renderStartY * this.tileSize,
-      (renderEndX - renderStartX) * this.tileSize,
-      (renderEndY - renderStartY) * this.tileSize
-    );
+  render(ctx, camera) {
+    // Only update visible tiles
+    const startX = Math.max(0, Math.floor(camera.x / this.tileSize));
+    const startY = Math.max(0, Math.floor(camera.y / this.tileSize));
+    const endX = Math.min(Math.ceil(this.playAreaWidth / this.tileSize), Math.ceil((camera.x + camera.width) / this.tileSize));
+    const endY = Math.min(Math.ceil(this.playAreaHeight / this.tileSize), Math.ceil((camera.y + camera.height) / this.tileSize));
 
-    // Enhanced water animation with irrigation effects
-    const now = Date.now();
-    const waterTiles = [];
-    for (let y = renderStartY; y < renderEndY; y++) {
-      for (let x = renderStartX; x < renderEndX; x++) {
-        if (this.tiles[y]?.[x] === 'water') {
-          // Pulsing green-blue color with irrigation effect
-          ctx.fillStyle = `hsla(${180 + Math.sin(now*0.002 + x + y)*60}, 70%, 50%, ${0.5 + Math.sin(now*0.001)*0.2})`;
-          ctx.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
-
-          // Irrigation grid pattern
-          ctx.strokeStyle = `rgba(144, 238, 144, ${0.3 + Math.sin(now*0.005)*0.2})`;
-          ctx.lineWidth = 1;
-          ctx.strokeRect(
-            x * this.tileSize + 2,
-            y * this.tileSize + 2,
-            this.tileSize - 4,
-            this.tileSize - 4
+    // Render visible tiles
+    for (let y = startY; y < endY; y++) {
+      for (let x = startX; x < endX; x++) {
+        const tile = this.tiles[y][x];
+        if (tile) {
+          const screenX = x * this.tileSize - camera.x;
+          const screenY = y * this.tileSize - camera.y;
+          ctx.drawImage(
+            this.optimizedTiles,
+            x * this.tileSize,
+            y * this.tileSize,
+            this.tileSize,
+            this.tileSize,
+            screenX,
+            screenY,
+            this.tileSize,
+            this.tileSize
           );
-
-          // Sparkling irrigation effect
-          if (Math.random() < 0.02) {
-            ctx.fillStyle = `rgba(144, 238, 144, ${0.5 + Math.random()*0.5})`;
-            ctx.beginPath();
-            ctx.arc(
-              x * this.tileSize + Math.random() * this.tileSize,
-              y * this.tileSize + Math.random() * this.tileSize,
-              2 + Math.random() * 3, 0, Math.PI * 2
-            );
-            ctx.fill();
-          }
         }
       }
     }
-    this.renderObjects(ctx);
+
+    // Render only visible objects
+    for (const obj of this.objects) {
+      if (this.isInViewport(obj, camera)) {
+        const screenX = obj.x - camera.x;
+        const screenY = obj.y - camera.y;
+        obj.render(ctx, screenX, screenY);
+      }
+    }
   }
 
   generateWorldObjects() {
@@ -637,42 +628,12 @@ export class World {
     return objects;
   }
 
-  renderObjects(ctx) {
+  renderObjects(ctx, camera) {
     this.objects.forEach(obj => {
-      if (obj instanceof PineTree) {
-        obj.render(ctx);
-      } else if (obj instanceof LootableContainer) {
-        obj.render(ctx);
-      } else if (obj instanceof WoodenWall) {
-        obj.render(ctx);
-      } else if (obj instanceof BrokenCar) {
-        obj.render(ctx);
-      } else if (obj instanceof House) {
-        obj.render(ctx);
-      } else if (obj instanceof Rock) {
-        obj.render(ctx);
-      } else if (obj.type === 'tree') {
-        ctx.fillStyle = '#555555';
-        ctx.beginPath();
-        ctx.arc(obj.x, obj.y, 20, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (obj.type === 'stone') {
-        ctx.fillStyle = '#444444';
-        ctx.beginPath();
-        ctx.arc(obj.x, obj.y, 15, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (obj instanceof CopperOre) {
-        obj.render(ctx);
-      } else if (obj instanceof IronOre) {
-        obj.render(ctx);
-      } else if (obj instanceof TinOre) {
-        obj.render(ctx);
-      } else if (obj instanceof FirTree) {
-        obj.render(ctx);
-      } else if (obj instanceof MapleTree) {
-        obj.render(ctx);
-      } else if (obj instanceof DeadTree) {
-        obj.render(ctx);
+      if (this.isInViewport(obj, camera)) {
+        const screenX = obj.x - camera.x;
+        const screenY = obj.y - camera.y;
+        obj.render(ctx, screenX, screenY);
       }
     });
   }

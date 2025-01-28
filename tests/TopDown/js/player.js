@@ -21,6 +21,10 @@ export class Player {
     this.swingIntensity = 0;
     this.footOffset = 0;
     this.lastMovement = performance.now();
+    
+    // Add house interior state
+    this.isInHouse = false;
+    this.houseInteriorBounds = null;
   }
 
   handleKeyDown(e) {
@@ -71,9 +75,14 @@ export class Player {
     this.x += moveX * this.speed * deltaTime;
     this.y += moveY * this.speed * deltaTime;
 
-    // Keep player within bounds
-    this.x = Math.max(0, Math.min(this.playAreaWidth - this.width, this.x));
-    this.y = Math.max(0, Math.min(this.playAreaHeight - this.height, this.y));
+    // Keep player within bounds based on current environment
+    if (this.isInHouse && this.houseInteriorBounds) {
+      this.x = Math.max(0, Math.min(this.houseInteriorBounds.width - this.width, this.x));
+      this.y = Math.max(0, Math.min(this.houseInteriorBounds.height - this.height, this.y));
+    } else {
+      this.x = Math.max(0, Math.min(this.playAreaWidth - this.width, this.x));
+      this.y = Math.max(0, Math.min(this.playAreaHeight - this.height, this.y));
+    }
     
     // Update animation states
     const now = performance.now();

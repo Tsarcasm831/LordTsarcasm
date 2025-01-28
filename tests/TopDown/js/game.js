@@ -1,7 +1,7 @@
 // game.js (Corrected / Comprehensive)
 
 import { Player } from './player.js';
-import { World } from './world.js';
+import { World } from './chunk.js';
 import { Inventory } from './inventory.js';
 import { TimeSystem } from './timeSystem.js';
 import { CraftingSystem } from './crafting.js';
@@ -27,6 +27,7 @@ import { DeadTree } from './world_objects/tree_dead.js';
 import { MapleTree } from './world_objects/tree_maple.js';
 import { EquippedGear } from './equipped_gear.js';
 import { InventoryView } from './inventory_view.js';
+import { OverworldMap } from './world_objects/large_map.js';
 
 const PLAY_AREA_WIDTH = 10240;
 const PLAY_AREA_HEIGHT = 7680;
@@ -37,19 +38,56 @@ export class Game {
   setupHoverEvents() {
     console.log('Setting up hover events');
     
-    this.canvas.addEventListener('mousemove', (e) => {
+    // Add throttling function
+    const throttle = (func, limit) => {
+      let inThrottle;
+      return function(...args) {
+        if (!inThrottle) {
+          func.apply(this, args);
+          inThrottle = true;
+          setTimeout(() => inThrottle = false, limit);
+        }
+      }
+    }
+    
+    // Create spatial hash grid for faster object lookup
+    this.spatialGrid = {
+      cellSize: 100,
+      cells: new Map(),
+      
+      getCell(x, y) {
+        const cellX = Math.floor(x / this.cellSize);
+        const cellY = Math.floor(y / this.cellSize);
+        return `${cellX},${cellY}`;
+      },
+      
+      add(obj) {
+        const cell = this.getCell(obj.x, obj.y);
+        if (!this.cells.has(cell)) {
+          this.cells.set(cell, new Set());
+        }
+        this.cells.get(cell).add(obj);
+      },
+      
+      getNearby(x, y) {
+        const cell = this.getCell(x, y);
+        return this.cells.get(cell) || new Set();
+      }
+    };
+    
+    // Update spatial grid when objects move
+    this.world.objects.forEach(obj => {
+      this.spatialGrid.add(obj);
+    });
+
+    const handleMouseMove = throttle((e) => {
       const rect = this.canvas.getBoundingClientRect();
       const worldX = (e.clientX - rect.left) * (this.canvas.width / rect.width) + this.camera.x;
       const worldY = (e.clientY - rect.top) * (this.canvas.height / rect.height) + this.camera.y;
 
-      console.log('Mouse position:', {
-        clientX: e.clientX,
-        clientY: e.clientY,
-        worldX,
-        worldY
-      });
-
-      const hoveredObject = this.world.objects.find(obj => {
+      // Only check nearby objects using spatial grid
+      const nearbyObjects = this.spatialGrid.getNearby(worldX, worldY);
+      const hoveredObject = Array.from(nearbyObjects).find(obj => {
         if (obj instanceof PineTree || 
             obj instanceof FirTree || 
             obj instanceof MapleTree || 
@@ -62,28 +100,23 @@ export class Game {
             obj instanceof Radroach) {
           const halfWidth = obj.width / 2;
           const halfHeight = obj.height / 2;
-          const isHovered = worldX >= obj.x - halfWidth && 
-                          worldX <= obj.x + halfWidth && 
-                          worldY >= obj.y - halfHeight && 
-                          worldY <= obj.y + halfHeight;
-          
-          if (isHovered) {
-            console.log('Hovering over:', obj);
-          }
-          return isHovered;
+          return worldX >= obj.x - halfWidth && 
+                 worldX <= obj.x + halfWidth && 
+                 worldY >= obj.y - halfHeight && 
+                 worldY <= obj.y + halfHeight;
         }
         return false;
       });
 
       if (hoveredObject !== this.hoveredObject) {
-        console.log('Hovered object changed:', hoveredObject);
         this.hoveredObject = hoveredObject;
         this.updateObjectTooltip(e.clientX, e.clientY);
       } else if (hoveredObject) {
-        // Update tooltip position even if the hovered object hasn't changed
         this.updateObjectTooltip(e.clientX, e.clientY);
       }
-    });
+    }, 16); // Throttle to roughly 60fps
+
+    this.canvas.addEventListener('mousemove', handleMouseMove);
 
     this.canvas.addEventListener('mouseleave', () => {
       console.log('Mouse left canvas');
@@ -96,6 +129,20 @@ export class Game {
     game = this;
     this.canvas = document.getElementById('gameCanvas');
     this.ctx = this.canvas.getContext('2d');
+    
+    // Create offscreen canvas for double buffering
+    this.offscreenCanvas = document.createElement('canvas');
+    this.offscreenCtx = this.offscreenCanvas.getContext('2d');
+    
+    // Frame timing variables
+    this.lastTime = 0;
+    this.frameCount = 0;
+    this.lastFpsUpdate = 0;
+    this.currentFps = 0;
+    this.targetFps = 60;
+    this.frameInterval = 1000 / this.targetFps;
+    this.accumulatedTime = 0;
+    
     this.handleResize();
 
     // Initialize tooltip element
@@ -107,6 +154,28 @@ export class Game {
     // Main world & player
     this.world = new World(32, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
     this.player = new Player(5120, 3840, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
+    this.overworldMap = new OverworldMap(this.world, this.player);
+
+    // Setup house exit handler
+    const overlay = document.getElementById('house-interior-overlay');
+    if (overlay) {
+      const closeBtn = overlay.querySelector('.close-btn');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          // Restore player to world position
+          if (this.player.isInHouse) {
+            this.player.x = this.player.worldX;
+            this.player.y = this.player.worldY;
+            this.player.isInHouse = false;
+            this.player.houseInteriorBounds = null;
+            
+            // Hide overlay
+            overlay.style.display = 'none';
+            overlay.classList.remove('active');
+          }
+        });
+      }
+    }
 
     // Inventory, gear, UI
     this.inventory = new Inventory(this);
@@ -164,11 +233,18 @@ export class Game {
   }
 
   handleResize() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    
+    // Update both main and offscreen canvas
+    this.canvas.width = width;
+    this.canvas.height = height;
+    this.offscreenCanvas.width = width;
+    this.offscreenCanvas.height = height;
+    
     if (this.camera) {
-      this.camera.width = this.canvas.width;
-      this.camera.height = this.canvas.height;
+      this.camera.width = width;
+      this.camera.height = height;
     }
   }
 
@@ -262,22 +338,22 @@ export class Game {
       const worldY = e.clientY - rect.top + this.camera.y;
 
       // Debug output
-      console.log('Click detected:', {
-        clientX: e.clientX,
-        clientY: e.clientY,
-        worldX,
-        worldY,
-        cameraX: this.camera.x,
-        cameraY: this.camera.y
-      });
+      // console.log('Click detected:', {
+      //   clientX: e.clientX,
+      //   clientY: e.clientY,
+      //   worldX,
+      //   worldY,
+      //   cameraX: this.camera.x,
+      //   cameraY: this.camera.y
+      // });
 
       // 1) Check if user clicked on a house door bounding box
       const houses = this.world.objects.filter(obj => obj instanceof House);
-      console.log('Houses found:', houses.length);
+      // console.log('Houses found:', houses.length);
 
       const houseClicked = houses.find(obj => obj.checkDoorClick(worldX, worldY));
       if (houseClicked) {
-        console.log('Door clicked! Showing house interior...');
+        // console.log('Door clicked! Showing house interior...');
         const overlay = document.getElementById('house-interior-overlay');
         if (!overlay) {
           console.error('House interior overlay element not found!');
@@ -299,8 +375,36 @@ export class Game {
         // Set up canvas and show overlay
         canvas.width = 600;
         canvas.height = 400;
-        this.houseInterior.render(ctx);
+        
+        // Move player to house interior canvas
+        const houseInteriorPlayer = {
+          x: canvas.width / 2,  // Center of house interior
+          y: canvas.height - 100,  // Near the bottom of the interior
+          width: this.player.width,
+          height: this.player.height
+        };
+        
+        // Store the player's world position to restore it later
+        this.player.worldX = this.player.x;
+        this.player.worldY = this.player.y;
+        
+        // Update player position and state for house interior
+        this.player.x = houseInteriorPlayer.x;
+        this.player.y = houseInteriorPlayer.y;
+        this.player.isInHouse = true;
+        this.player.houseInteriorBounds = {
+          width: canvas.width,
+          height: canvas.height
+        };
+        
+        // Show the overlay
+        overlay.style.display = 'block';
         overlay.classList.add('active');
+        
+        // Initial render of house interior
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this.houseInterior.render(ctx);
+        this.player.render(ctx);
         return; // Prevent other click handlers from firing
       }
 
@@ -686,31 +790,41 @@ export class Game {
 
   // Main update
   update(deltaTime) {
-    this.player.update(deltaTime);
-    this.timeSystem.update(deltaTime);
-    this.world.update(deltaTime);
-    this.npc.update(deltaTime);
-    this.rat.update(deltaTime);
-    this.radroach.update(deltaTime);
-
-    this.updateCamera();
-    this.handleWallCollisions();
-
+    // Skip updates if tab is not visible
+    if (document.hidden) {
+      return;
+    }
+    
+    // Update game state
     if (this.interactionCooldown > 0) {
       this.interactionCooldown -= deltaTime;
     }
 
-    // If the interior overlay is open, we update houseInterior
-    const overlay = document.getElementById('house-interior-overlay');
-    if (overlay && overlay.classList.contains('active')) {
-      const interiorCanvas = document.getElementById('houseInteriorCanvas');
-      if (interiorCanvas) {
-        const ictx = interiorCanvas.getContext('2d');
-        if (ictx) {
-          this.houseInterior.update(deltaTime);
-        }
-      }
+    this.timeSystem.update(deltaTime);
+    this.player.update(deltaTime);
+    this.updateCamera();
+    this.handleWallCollisions();
+
+    // Update NPCs and creatures with distance-based culling
+    const playerX = this.player.x;
+    const playerY = this.player.y;
+    const updateRadius = 1000; // Only update entities within 1000 pixels of player
+
+    if (this.npc && this.isInRange(this.npc, playerX, playerY, updateRadius)) {
+      this.npc.update(deltaTime);
     }
+    if (this.rat && this.isInRange(this.rat, playerX, playerY, updateRadius)) {
+      this.rat.update(deltaTime);
+    }
+    if (this.radroach && this.isInRange(this.radroach, playerX, playerY, updateRadius)) {
+      this.radroach.update(deltaTime);
+    }
+  }
+
+  isInRange(entity, playerX, playerY, radius) {
+    const dx = entity.x - playerX;
+    const dy = entity.y - playerY;
+    return (dx * dx + dy * dy) <= radius * radius;
   }
 
   updateCamera() {
@@ -752,46 +866,62 @@ export class Game {
 
   // Main render
   render() {
+    // Render to offscreen canvas
+    this.offscreenCtx.clearRect(0, 0, this.offscreenCanvas.width, this.offscreenCanvas.height);
+    
+    // Only render main world if player is not in house
+    if (!this.player.isInHouse) {
+      // 1) Draw world behind
+      this.offscreenCtx.save();
+      this.offscreenCtx.translate(-this.camera.x, -this.camera.y);
+      this.world.render(this.offscreenCtx);
+      this.player.render(this.offscreenCtx);
+      this.npc.render(this.offscreenCtx);
+      this.rat.render(this.offscreenCtx);
+      this.radroach.render(this.offscreenCtx);
+      this.offscreenCtx.restore();
+
+      // 2) Day/Night overlay with optimized gradient
+      const tint = this.timeSystem.getDayNightTint();
+      const playerX = this.player.x - this.camera.x + this.player.width / 2;
+      const playerY = this.player.y - this.camera.y + this.player.height / 2;
+      
+      // Cache gradient if tint hasn't changed
+      if (!this.lastTint || 
+          this.lastTint.darkness !== tint.darkness || 
+          this.lastTint.radius !== tint.radius) {
+        this.gradientCache = this.offscreenCtx.createRadialGradient(
+          playerX, playerY, 0,
+          playerX, playerY, tint.radius
+        );
+        this.gradientCache.addColorStop(0, `rgba(0,0,0,${tint.darkness * 0.3})`);
+        this.gradientCache.addColorStop(1, `rgba(0,0,0,${tint.darkness})`);
+        this.lastTint = tint;
+      }
+      
+      this.offscreenCtx.fillStyle = this.gradientCache;
+      this.offscreenCtx.fillRect(0, 0, this.offscreenCanvas.width, this.offscreenCanvas.height);
+
+      // 3) Minimap & hotbar
+      this.drawMinimap();
+      this.renderHotbar();
+    }
+
+    // Copy offscreen canvas to main canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.drawImage(this.offscreenCanvas, 0, 0);
 
-    // 1) Draw world behind
-    this.ctx.save();
-    this.ctx.translate(-this.camera.x, -this.camera.y);
-    this.world.render(this.ctx);
-    this.player.render(this.ctx);
-    this.npc.render(this.ctx);
-    this.rat.render(this.ctx);
-    this.radroach.render(this.ctx);
-    this.ctx.restore();
-
-    // 2) Day/Night overlay
-    const tint = this.timeSystem.getDayNightTint();
-    const playerX = this.player.x - this.camera.x + this.player.width / 2;
-    const playerY = this.player.y - this.camera.y + this.player.height / 2;
-    const gradient = this.ctx.createRadialGradient(
-      playerX, playerY, 0,
-      playerX, playerY, tint.radius
-    );
-    gradient.addColorStop(0, `rgba(0,0,0,${tint.darkness * 0.3})`);
-    gradient.addColorStop(1, `rgba(0,0,0,${tint.darkness})`);
-    this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-    this.ctx.fillStyle = `hsla(220, 50%, ${tint.lightness}%, ${tint.alpha})`;
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-    // 3) Minimap & hotbar
-    this.drawMinimap();
-    this.renderHotbar();
-
-    // 4) If overlay is active, draw interior on second canvas
-    const overlay = document.getElementById('house-interior-overlay');
-    if (overlay && overlay.classList.contains('active')) {
-      const interiorCanvas = document.getElementById('houseInteriorCanvas');
-      if (interiorCanvas) {
-        const ictx = interiorCanvas.getContext('2d');
-        if (ictx) {
-          this.houseInterior.render(ictx);
+    // If in house interior, render player in the house canvas
+    if (this.player.isInHouse) {
+      const canvas = document.getElementById('house-interior-canvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          this.houseInterior.render(ctx);
+          
+          // Render player in house interior
+          this.player.render(ctx);
         }
       }
     }
@@ -1012,12 +1142,6 @@ export class Game {
   }
 
   updateObjectTooltip(clientX, clientY) {
-    console.log('Updating tooltip:', {
-      hoveredObject: this.hoveredObject,
-      clientX,
-      clientY
-    });
-
     const tooltip = document.getElementById('item-tooltip');
     if (!tooltip) {
       console.error('Tooltip element not found in updateObjectTooltip!');
@@ -1029,48 +1153,49 @@ export class Game {
       return;
     }
 
-    const tooltipContent = this.hoveredObject.getTooltipContent();
-    console.log('Tooltip content:', tooltipContent);
+    try {
+      const tooltipContent = this.hoveredObject.getTooltipContent?.();
+      if (!tooltipContent) {
+        console.warn('No tooltip content returned from object');
+        tooltip.style.opacity = '0';
+        return;
+      }
 
-    if (!tooltipContent) {
-      console.warn('No tooltip content returned from object');
-      tooltip.style.opacity = '0';
-      return;
+      tooltip.innerHTML = `
+        <div class="tooltip-header">
+          ${tooltipContent.icon || ''}
+          <h4>${tooltipContent.title}</h4>
+        </div>
+        <div class="tooltip-body">
+          <div class="tooltip-type">${tooltipContent.type}</div>
+          ${tooltipContent.health ? `<div class="tooltip-health">Health: ${tooltipContent.health}</div>` : ''}
+          <div class="tooltip-desc">${tooltipContent.description}</div>
+          ${tooltipContent.extraInfo ? `<div class="tooltip-extra">${tooltipContent.extraInfo}</div>` : ''}
+        </div>
+      `;
+
+      // Position tooltip
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const tooltipRect = tooltip.getBoundingClientRect();
+      
+      let left = clientX + 15;
+      let top = clientY + 15;
+
+      // Keep tooltip within viewport
+      if (left + tooltipRect.width > viewportWidth) {
+        left = clientX - tooltipRect.width - 15;
+      }
+      if (top + tooltipRect.height > viewportHeight) {
+        top = clientY - tooltipRect.height - 15;
+      }
+
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+      tooltip.style.opacity = '1';
+    } catch (error) {
+      console.error('Error updating tooltip:', error);
     }
-
-    tooltip.innerHTML = `
-      <div class="tooltip-header">
-        ${tooltipContent.icon || ''}
-        <h4>${tooltipContent.title}</h4>
-      </div>
-      <div class="tooltip-body">
-        <div class="tooltip-type">${tooltipContent.type}</div>
-        ${tooltipContent.health ? `<div class="tooltip-health">Health: ${tooltipContent.health}</div>` : ''}
-        <div class="tooltip-desc">${tooltipContent.description}</div>
-        ${tooltipContent.extraInfo ? `<div class="tooltip-extra">${tooltipContent.extraInfo}</div>` : ''}
-      </div>
-    `;
-
-    // Position tooltip
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const tooltipRect = tooltip.getBoundingClientRect();
-    
-    let left = clientX + 15;
-    let top = clientY + 15;
-
-    // Keep tooltip within viewport
-    if (left + tooltipRect.width > viewportWidth) {
-      left = clientX - tooltipRect.width - 15;
-    }
-    if (top + tooltipRect.height > viewportHeight) {
-      top = clientY - tooltipRect.height - 15;
-    }
-
-    tooltip.style.left = `${left}px`;
-    tooltip.style.top = `${top}px`;
-    tooltip.style.opacity = '1';
-    console.log('Tooltip positioned at:', { left, top });
   }
 
   // Item icon caching
@@ -1099,15 +1224,32 @@ export class Game {
     });
   }
 
-  // Main game loop
+  // Main game loop with fixed timestep
   gameLoop(currentTime = 0) {
-    const deltaTime = (currentTime - this.lastTime) / 1000;
-    this.lastTime = currentTime;
+    // Calculate delta time and fps
+    const deltaTime = Math.min((currentTime - this.lastTime) / 1000, 0.1); // Cap at 100ms
+    this.accumulatedTime += deltaTime * 1000; // Convert to ms
+    
+    this.frameCount++;
+    if (currentTime - this.lastFpsUpdate >= 1000) {
+      this.currentFps = this.frameCount;
+      this.frameCount = 0;
+      this.lastFpsUpdate = currentTime;
+    }
 
-    this.update(deltaTime);
+    // Fixed timestep update
+    while (this.accumulatedTime >= this.frameInterval) {
+      this.update(this.frameInterval / 1000);
+      this.accumulatedTime -= this.frameInterval;
+    }
+
     this.render();
 
-    requestAnimationFrame((t) => this.gameLoop(t));
+    // Update timing
+    this.lastTime = currentTime;
+
+    // Request next frame with vsync
+    requestAnimationFrame((timestamp) => this.gameLoop(timestamp));
   }
 }
 

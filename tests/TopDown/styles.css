@@ -930,31 +930,45 @@
 }
 
 /* House Interior Overlay */
-#house-interior-overlay .modal-content {
-  width: 700px;
-  height: 500px;
-  display: flex;
-  flex-direction: column;
+#house-interior-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  z-index: 1000;
+  justify-content: center;
   align-items: center;
 }
 
-#house-interior-overlay h2 {
-  color: #deb887;
-  font-family: 'Press Start 2P', cursive;
-  margin-bottom: 20px;
-  text-align: center;
+#house-interior-overlay.active {
+  display: flex;
 }
 
 .house-interior-container {
-  width: 600px;
-  height: 400px;
+  background: linear-gradient(to bottom right, #38281d, #2b1e15);
+  padding: 20px;
+  border-radius: 8px;
+  position: relative;
   border: 4px solid #5a432c;
-  border-radius: 4px;
-  overflow: hidden;
-  background: #2b1e15;
+  box-shadow: 0 0 30px rgba(0,0,0,0.5),
+              inset 0 0 15px rgba(139,69,19,0.3);
+}
+
+.house-interior-container h2 {
+  color: #deb887;
+  text-align: center;
+  margin: 0 0 20px 0;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 24px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
 #house-interior-canvas {
-  width: 100%;
-  height: 100%;
+  border: 2px solid #5a432c;
+  border-radius: 4px;
+  background: #2b1e15;
+  image-rendering: pixelated;
 }

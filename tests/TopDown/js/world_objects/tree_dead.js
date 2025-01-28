@@ -7,6 +7,11 @@ export class DeadTree {
       this.health = 4;
       this.interactable = true;
       this.type = 'dead';
+      this.tooltipContent = {
+        title: 'Dead Tree',
+        type: 'Tree',
+        description: 'A withered tree\nCan be chopped for wood'
+      };
       
       // Load the tree image
       this.image = new Image();
@@ -43,5 +48,9 @@ export class DeadTree {
              worldX < this.x + this.width/2 &&
              worldY > this.y - this.height/2 && 
              worldY < this.y + this.height/2;
+    }
+
+    getTooltipContent() {
+      return this.tooltipContent;
     }
   }

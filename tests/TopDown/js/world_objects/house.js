@@ -80,17 +80,17 @@ export class House {
     const { offsetX, offsetY, width, height } = this.doorBounds;
     
     // Debug output
-    console.log('Door click check:', {
-      worldX, worldY,
-      localX, localY,
-      doorBounds: this.doorBounds,
-      isInside: (
-        localX >= offsetX &&
-        localX <= offsetX + width &&
-        localY >= offsetY &&
-        localY <= offsetY + height
-      )
-    });
+    // console.log('Door click check:', {
+    //   worldX, worldY,
+    //   localX, localY,
+    //   doorBounds: this.doorBounds,
+    //   isInside: (
+    //     localX >= offsetX &&
+    //     localX <= offsetX + width &&
+    //     localY >= offsetY &&
+    //     localY <= offsetY + height
+    //   )
+    // });
 
     return (
       localX >= offsetX &&

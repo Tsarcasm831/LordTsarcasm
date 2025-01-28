@@ -9,6 +9,11 @@ export class Rock {
     this.miningPhase = 0;
     this.type = 'stone';
     this.health = 2;
+    this.tooltipContent = {
+      title: 'Stone Rock',
+      type: 'Stone',
+      description: 'A solid mineral deposit\nCan be mined for stone resources'
+    };
     
     // Generate main rock shape points
     this.points = [
@@ -166,6 +171,10 @@ export class Rock {
     }
 
     ctx.restore();
+  }
+
+  getTooltipContent() {
+    return this.tooltipContent;
   }
 
   // Helper function for quadratic curve point calculation
