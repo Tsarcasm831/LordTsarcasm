@@ -1,0 +1,237 @@
+<html>
+<head>
+  <title>Stardew Web</title>
+  <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    #gameCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+  
+  <!-- Game UI -->
+  <div id="ui-container">
+    <canvas id="minimap" style="position: fixed; top: 20px; right: 20px; width: 200px; height: 150px; border: 2px solid #555; background: rgba(0,0,0,0.7);"></canvas>
+    
+    <div class="status-bar">
+      <div class="status-item">
+        <span><i class="fas fa-clock"></i></span>
+        <span id="time-value">12:00 PM</span>
+      </div>
+      <div class="status-item">
+        <span><i class="fas fa-bolt"></i></span>
+        <span id="energy-value">100</span>
+      </div>
+      <div class="status-item">
+        <span><i class="fas fa-heart"></i></span>
+        <span id="health-value">100</span>
+      </div>
+      <button id="rest-button">Rest (50g)</button>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div id="inventory-modal" class="modal">
+    <div class="modal-content">
+      <h2>Inventory</h2>
+      <div class="category-filter">
+        <button class="category-btn active" data-category="all">All</button>
+        <button class="category-btn" data-category="resource">Resources</button>
+        <button class="category-btn" data-category="tool">Tools</button>
+        <button class="category-btn" data-category="building">Buildings</button>
+      </div>
+      <div class="inventory-scroll">
+        <div class="inventory-grid" id="inventory-modal-slots"></div>
+      </div>
+      
+      <!-- Add stats panel -->
+      <div class="stats-panel">
+        <h3 class="stats-header">Player Stats</h3>
+        <div class="stat-row">
+          <span class="stat-label">Movement Speed:</span>
+          <span class="stat-value" id="stat-speed">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Light Radius:</span>
+          <span class="stat-value" id="stat-light">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Mining Power:</span>
+          <span class="stat-value" id="stat-mining">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Attack Damage:</span>
+          <span class="stat-value" id="stat-attack">0</span>
+        </div>
+      </div>
+      
+      <button class="close-btn"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
+  
+
+  <div id="crafting-menu" class="modal">
+    <div class="modal-content">
+      <div class="crafting-container">
+        <h2>Resources</h2>
+        <div class="resource-grid" id="resource-grid"></div>
+      </div>
+      
+      <div class="crafting-container">
+        <h2>Recipes</h2>
+        <div class="recipe-list" id="recipe-list"></div>
+      </div>
+      
+      <button class="close-btn"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
+  <div id="quest-log" class="quest-log">
+    <h3>Active Quests</h3>
+    <div class="quest-entries"></div>
+  </div>
+
+  <div id="loot-modal" class="modal">
+    <div class="modal-content">
+      <h2>Container Contents</h2>
+      <div class="loot-scroll">
+        <div class="loot-slots"></div>
+      </div>
+      <div class="loot-instruction">Click items to loot them</div>
+    </div>
+  </div>
+
+  <div id="npc-dialog" class="modal">
+    <div class="modal-content">
+      <button class="close-btn"><i class="fas fa-times"></i></button>
+      <div class="dialog-text"></div>
+      <button class="next-btn">Next</button>
+    </div>
+  </div>
+
+  <div id="death-modal" class="modal">
+    <div class="modal-content" style="background: #4a0000; border-color: #ff5555">
+      <h2 style="color: #ff5555">YOU HAVE DIED</h2>
+      <p style="color: white">The darkness consumes you...</p>
+      <button id="reset-button" 
+              style="background: #ff5555; border-color: #ff8888; margin-top: 20px">
+        Restart Game
+      </button>
+    </div>
+  </div>
+
+  <!-- Combat Modal -->
+  <div id="combat-modal" class="modal">
+    <div class="modal-content">
+      <button class="close-btn"><i class="fas fa-times"></i></button>
+      <div class="combat-header">
+        <h2>Combat with <span id="enemy-name">Rat</span></h2>
+        <div class="health-bars">
+          <div class="health-bar">
+            <label>Enemy HP:</label>
+            <div class="bar">
+              <div id="enemy-hp-bar" class="bar-fill" style="width: 100%"></div>
+            </div>
+            <span id="enemy-hp-text">100/100</span>
+          </div>
+          <div class="health-bar">
+            <label>Your HP:</label>
+            <div class="bar">
+              <div id="player-hp-bar" class="bar-fill" style="width: 100%"></div>
+            </div>
+            <span id="player-hp-text">100/100</span>
+          </div>
+        </div>
+      </div>
+      <div class="combat-actions">
+        <div id="combat-log"></div>
+        <div id="combat-buttons"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add new Equipped Gear Modal -->
+  <div id="equipped-gear-modal" class="modal">
+    <div class="modal-content">
+      <h2>Equipped Gear</h2>
+      <div class="gear-grid">
+        <div class="gear-slot" data-slot="head">
+          <div class="gear-label">Head</div>
+          <div class="gear-item"></div>
+        </div>
+        <div class="gear-slot" data-slot="neck">
+          <div class="gear-label">Neck</div>
+          <div class="gear-item"></div>
+        </div>
+        <div class="gear-slot" data-slot="shoulders">
+          <div class="gear-label">Shoulders</div>
+          <div class="gear-item"></div>
+        </div>
+        <div class="gear-slot" data-slot="chest">
+          <div class="gear-label">Chest</div>
+          <div class="gear-item"></div>
+        </div>
+        <div class="gear-slot" data-slot="mainHand">
+          <div class="gear-label">Main Hand</div>
+          <div class="gear-item"></div>
+        </div>
+        <div class="gear-slot" data-slot="offHand">
+          <div class="gear-label">Off Hand</div>
+          <div class="gear-item"></div>
+        </div>
+        <div class="gear-slot" data-slot="belt">
+          <div class="gear-label">Belt</div>
+          <div class="gear-item"></div>
+        </div>
+        <div class="gear-slot" data-slot="gloves">
+          <div class="gear-label">Gloves</div>
+          <div class="gear-item"></div>
+        </div>
+        <div class="gear-slot" data-slot="shoes">
+          <div class="gear-label">Shoes</div>
+          <div class="gear-item"></div>
+        </div>
+      </div>
+      <div class="gear-stats">
+        <div class="stat-row">
+          <span class="stat-label">Defense:</span>
+          <span class="stat-value" id="defense-value">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Attack Power:</span>
+          <span class="stat-value" id="attack-value">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Mining Power:</span>
+          <span class="stat-value" id="mining-power-value">0</span>
+        </div>
+      </div>
+      <button class="close-btn"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
+  <!-- Effects -->
+  <div id="particle-container"></div>
+  <div id="interaction-message"></div>
+  <div id="item-tooltip"></div>
+
+  <script type="module" src="/js/game.js"></script>
+</body>
+</html>
