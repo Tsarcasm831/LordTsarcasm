@@ -134,17 +134,53 @@ export class World {
       const patternCanvas = document.createElement('canvas');
       patternCanvas.width = patternCanvas.height = 16;
       const ctx = patternCanvas.getContext('2d');
+
+      const waterImg = new Image();
+      const radWaterImg = new Image();
+      let pattern = null;
+      let transitionProgress = 0;
+      let transitionDirection = 1;
+      const transitionSpeed = 0.005;
+
+      const updatePattern = () => {
+        ctx.clearRect(0, 0, 16, 16);
+        
+        // Draw first image
+        ctx.globalAlpha = 1 - transitionProgress;
+        ctx.drawImage(waterImg, 0, 0, 16, 16);
+        
+        // Draw second image
+        ctx.globalAlpha = transitionProgress;
+        ctx.drawImage(radWaterImg, 0, 0, 16, 16);
+        
+        ctx.globalAlpha = 1;
+        
+        // Update transition
+        transitionProgress += transitionSpeed * transitionDirection;
+        if (transitionProgress >= 1) {
+          transitionProgress = 1;
+          transitionDirection = -1;
+        } else if (transitionProgress <= 0) {
+          transitionProgress = 0;
+          transitionDirection = 1;
+        }
+        
+        pattern = ctx.createPattern(patternCanvas, 'repeat');
+        requestAnimationFrame(updatePattern);
+      };
+
+      // Load images
+      waterImg.onload = () => {
+        if (radWaterImg.complete) updatePattern();
+      };
+      radWaterImg.onload = () => {
+        if (waterImg.complete) updatePattern();
+      };
       
-      // Water animation base
-      ctx.fillStyle = '#444444';
-      ctx.fillRect(0, 0, 16, 16);
-      ctx.fillStyle = 'rgba(255,255,255,0.2)';
-      ctx.beginPath();
-      ctx.moveTo(0, 8);
-      ctx.bezierCurveTo(4, 4, 12, 12, 16, 8);
-      ctx.stroke();
-      
-      return ctx.createPattern(patternCanvas, 'repeat');
+      waterImg.src = 'https://file.garden/Zy7B0LkdIVpGyzA1/water.webp';
+      radWaterImg.src = 'https://file.garden/Zy7B0LkdIVpGyzA1/rad_water.webp';
+
+      return () => pattern;
     }
 
     function createSandPattern() {
@@ -245,17 +281,53 @@ export class World {
       const patternCanvas = document.createElement('canvas');
       patternCanvas.width = patternCanvas.height = 16;
       const ctx = patternCanvas.getContext('2d');
+
+      const waterImg = new Image();
+      const radWaterImg = new Image();
+      let pattern = null;
+      let transitionProgress = 0;
+      let transitionDirection = 1;
+      const transitionSpeed = 0.005;
+
+      const updatePattern = () => {
+        ctx.clearRect(0, 0, 16, 16);
+        
+        // Draw first image
+        ctx.globalAlpha = 1 - transitionProgress;
+        ctx.drawImage(waterImg, 0, 0, 16, 16);
+        
+        // Draw second image
+        ctx.globalAlpha = transitionProgress;
+        ctx.drawImage(radWaterImg, 0, 0, 16, 16);
+        
+        ctx.globalAlpha = 1;
+        
+        // Update transition
+        transitionProgress += transitionSpeed * transitionDirection;
+        if (transitionProgress >= 1) {
+          transitionProgress = 1;
+          transitionDirection = -1;
+        } else if (transitionProgress <= 0) {
+          transitionProgress = 0;
+          transitionDirection = 1;
+        }
+        
+        pattern = ctx.createPattern(patternCanvas, 'repeat');
+        requestAnimationFrame(updatePattern);
+      };
+
+      // Load images
+      waterImg.onload = () => {
+        if (radWaterImg.complete) updatePattern();
+      };
+      radWaterImg.onload = () => {
+        if (waterImg.complete) updatePattern();
+      };
       
-      // Water animation base
-      ctx.fillStyle = '#444444';
-      ctx.fillRect(0, 0, 16, 16);
-      ctx.fillStyle = 'rgba(255,255,255,0.2)';
-      ctx.beginPath();
-      ctx.moveTo(0, 8);
-      ctx.bezierCurveTo(4, 4, 12, 12, 16, 8);
-      ctx.stroke();
-      
-      return ctx.createPattern(patternCanvas, 'repeat');
+      waterImg.src = 'https://file.garden/Zy7B0LkdIVpGyzA1/water.webp';
+      radWaterImg.src = 'https://file.garden/Zy7B0LkdIVpGyzA1/rad_water.webp';
+
+      return () => pattern;
     }
 
     function createSandPattern() {
@@ -370,17 +442,53 @@ export class World {
       const patternCanvas = document.createElement('canvas');
       patternCanvas.width = patternCanvas.height = 16;
       const ctx = patternCanvas.getContext('2d');
+
+      const waterImg = new Image();
+      const radWaterImg = new Image();
+      let pattern = null;
+      let transitionProgress = 0;
+      let transitionDirection = 1;
+      const transitionSpeed = 0.005;
+
+      const updatePattern = () => {
+        ctx.clearRect(0, 0, 16, 16);
+        
+        // Draw first image
+        ctx.globalAlpha = 1 - transitionProgress;
+        ctx.drawImage(waterImg, 0, 0, 16, 16);
+        
+        // Draw second image
+        ctx.globalAlpha = transitionProgress;
+        ctx.drawImage(radWaterImg, 0, 0, 16, 16);
+        
+        ctx.globalAlpha = 1;
+        
+        // Update transition
+        transitionProgress += transitionSpeed * transitionDirection;
+        if (transitionProgress >= 1) {
+          transitionProgress = 1;
+          transitionDirection = -1;
+        } else if (transitionProgress <= 0) {
+          transitionProgress = 0;
+          transitionDirection = 1;
+        }
+        
+        pattern = ctx.createPattern(patternCanvas, 'repeat');
+        requestAnimationFrame(updatePattern);
+      };
+
+      // Load images
+      waterImg.onload = () => {
+        if (radWaterImg.complete) updatePattern();
+      };
+      radWaterImg.onload = () => {
+        if (waterImg.complete) updatePattern();
+      };
       
-      // Water animation base
-      ctx.fillStyle = '#444444';
-      ctx.fillRect(0, 0, 16, 16);
-      ctx.fillStyle = 'rgba(255,255,255,0.2)';
-      ctx.beginPath();
-      ctx.moveTo(0, 8);
-      ctx.bezierCurveTo(4, 4, 12, 12, 16, 8);
-      ctx.stroke();
-      
-      return ctx.createPattern(patternCanvas, 'repeat');
+      waterImg.src = 'https://file.garden/Zy7B0LkdIVpGyzA1/water.webp';
+      radWaterImg.src = 'https://file.garden/Zy7B0LkdIVpGyzA1/rad_water.webp';
+
+      return () => pattern;
     }
 
     function createSandPattern() {
@@ -426,53 +534,6 @@ export class World {
       ctx.stroke();
       
       return ctx.createPattern(patternCanvas, 'repeat');
-    }
-  }
-
-  isInViewport(obj, camera) {
-    const margin = 100; // Add a small margin to prevent pop-in
-    return obj.x + obj.width / 2 + margin >= camera.x &&
-           obj.x - obj.width / 2 - margin <= camera.x + camera.width &&
-           obj.y + obj.height / 2 + margin >= camera.y &&
-           obj.y - obj.height / 2 - margin <= camera.y + camera.height;
-  }
-
-  render(ctx, camera) {
-    // Only update visible tiles
-    const startX = Math.max(0, Math.floor(camera.x / this.tileSize));
-    const startY = Math.max(0, Math.floor(camera.y / this.tileSize));
-    const endX = Math.min(Math.ceil(this.playAreaWidth / this.tileSize), Math.ceil((camera.x + camera.width) / this.tileSize));
-    const endY = Math.min(Math.ceil(this.playAreaHeight / this.tileSize), Math.ceil((camera.y + camera.height) / this.tileSize));
-
-    // Render visible tiles
-    for (let y = startY; y < endY; y++) {
-      for (let x = startX; x < endX; x++) {
-        const tile = this.tiles[y][x];
-        if (tile) {
-          const screenX = x * this.tileSize - camera.x;
-          const screenY = y * this.tileSize - camera.y;
-          ctx.drawImage(
-            this.optimizedTiles,
-            x * this.tileSize,
-            y * this.tileSize,
-            this.tileSize,
-            this.tileSize,
-            screenX,
-            screenY,
-            this.tileSize,
-            this.tileSize
-          );
-        }
-      }
-    }
-
-    // Render only visible objects
-    for (const obj of this.objects) {
-      if (this.isInViewport(obj, camera)) {
-        const screenX = obj.x - camera.x;
-        const screenY = obj.y - camera.y;
-        obj.render(ctx, screenX, screenY);
-      }
     }
   }
 
@@ -571,9 +632,23 @@ export class World {
       // Place tree if all checks pass
       const treeType = Math.random();
       if (treeType < 0.3) {
-        objects.push(new PineTree(x, y));
+        // Create a grove of 4 pine trees in a small cluster
+        const groveRadius = 40; // Radius for the grove
+        for (let j = 0; j < 4; j++) {
+          const angle = (Math.PI * 2 * j) / 4; // Evenly space trees in a circle
+          const offsetX = Math.cos(angle) * groveRadius;
+          const offsetY = Math.sin(angle) * groveRadius;
+          objects.push(new PineTree(x + offsetX, y + offsetY));
+        }
       } else if (treeType < 0.6) {
-        objects.push(new FirTree(x, y));
+        // Create a grove of 4 fir trees in a small cluster
+        const groveRadius = 40; // Radius for the grove
+        for (let j = 0; j < 4; j++) {
+          const angle = (Math.PI * 2 * j) / 4; // Evenly space trees in a circle
+          const offsetX = Math.cos(angle) * groveRadius;
+          const offsetY = Math.sin(angle) * groveRadius;
+          objects.push(new FirTree(x + offsetX, y + offsetY));
+        }
       } else if (treeType < 0.9) {
         objects.push(new MapleTree(x, y));
       } else {
@@ -626,6 +701,53 @@ export class World {
       ));
     }
     return objects;
+  }
+
+  isInViewport(obj, camera) {
+    const margin = 100; // Add a small margin to prevent pop-in
+    return obj.x + obj.width / 2 + margin >= camera.x &&
+           obj.x - obj.width / 2 - margin <= camera.x + camera.width &&
+           obj.y + obj.height / 2 + margin >= camera.y &&
+           obj.y - obj.height / 2 - margin <= camera.y + camera.height;
+  }
+
+  render(ctx, camera) {
+    // Only update visible tiles
+    const startX = Math.max(0, Math.floor(camera.x / this.tileSize));
+    const startY = Math.max(0, Math.floor(camera.y / this.tileSize));
+    const endX = Math.min(Math.ceil(this.playAreaWidth / this.tileSize), Math.ceil((camera.x + camera.width) / this.tileSize));
+    const endY = Math.min(Math.ceil(this.playAreaHeight / this.tileSize), Math.ceil((camera.y + camera.height) / this.tileSize));
+
+    // Render visible tiles
+    for (let y = startY; y < endY; y++) {
+      for (let x = startX; x < endX; x++) {
+        const tile = this.tiles[y][x];
+        if (tile) {
+          const screenX = x * this.tileSize;
+          const screenY = y * this.tileSize;
+          ctx.drawImage(
+            this.optimizedTiles,
+            screenX,
+            screenY,
+            this.tileSize,
+            this.tileSize,
+            screenX,
+            screenY,
+            this.tileSize,
+            this.tileSize
+          );
+        }
+      }
+    }
+
+    // Render only visible objects
+    for (const obj of this.objects) {
+      if (this.isInViewport(obj, camera)) {
+        const screenX = obj.x - camera.x;
+        const screenY = obj.y - camera.y;
+        obj.render(ctx, screenX, screenY);
+      }
+    }
   }
 
   renderObjects(ctx, camera) {

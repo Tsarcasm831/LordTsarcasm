@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1277,6 +1276,13 @@
             });
         });
     </script>
+    <div class="music-controls">
+        <button class="control-button" onclick="previousTrack()">Rewind</button>
+        <button class="control-button play-pause" onclick="togglePlayPause()">Play/Pause</button>
+        <button class="control-button" onclick="nextTrack()">Fast Forward</button>
+        <button class="control-button" onclick="toggleMute()">Mute</button>
+        <input type="range" class="volume-slider" min="0" max="100" value="100">
+    </div>
 </body>
 
 </html>

@@ -1,0 +1,125 @@
+/* House Interior Modal Styling */
+#house-interior-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(20, 12, 8, 0.95);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#house-interior-overlay.active {
+  display: flex;
+}
+
+#house-interior-overlay .modal-content {
+  position: relative;
+  width: 90vw;
+  height: 90vh;
+  max-width: 1200px;
+  max-height: 800px;
+  background: linear-gradient(to bottom, #2c1810, #1a0f0a);
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 3px solid #8B4513;
+  border-radius: 12px;
+  box-shadow: 
+    0 0 50px rgba(0, 0, 0, 0.8),
+    inset 0 0 20px rgba(139, 69, 19, 0.2);
+  margin: auto;
+}
+
+#house-interior-overlay .house-interior-container {
+  width: 100%;
+  height: calc(100% - 60px);  /* Account for title */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background: #2b1e15;
+  border: 2px solid #8B4513;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+#house-interior-overlay canvas {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  margin: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  border: 3px solid #5a432c;
+  border-radius: 4px;
+  background: #2b1e15;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+#house-interior-overlay h2 {
+  color: #deb887;
+  text-align: center;
+  margin: 0 0 20px 0;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 24px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  letter-spacing: 2px;
+}
+
+/* Close Button */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 32px;
+  height: 32px;
+  background: #3c2416;
+  border: 2px solid #8B4513;
+  border-radius: 50%;
+  color: #DEB887;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 1001;
+}
+
+.close-btn:hover {
+  background: #4d2e1c;
+  transform: rotate(90deg);
+  border-color: #DEB887;
+}
+
+.close-btn i {
+  font-size: 16px;
+  transition: color 0.2s ease;
+}
+
+.close-btn:hover i {
+  color: #fff;
+}
+
+/* Animation Classes */
+.modal.fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.modal.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

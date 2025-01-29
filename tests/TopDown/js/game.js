@@ -28,6 +28,7 @@ import { MapleTree } from './world_objects/tree_maple.js';
 import { EquippedGear } from './equipped_gear.js';
 import { InventoryView } from './inventory_view.js';
 import { OverworldMap } from './world_objects/large_map.js';
+import { CollisionSystem } from './collision.js';
 
 const PLAY_AREA_WIDTH = 10240;
 const PLAY_AREA_HEIGHT = 7680;
@@ -36,8 +37,6 @@ let game;
 
 export class Game {
   setupHoverEvents() {
-    console.log('Setting up hover events');
-    
     // Add throttling function
     const throttle = (func, limit) => {
       let inThrottle;
@@ -82,8 +81,8 @@ export class Game {
 
     const handleMouseMove = throttle((e) => {
       const rect = this.canvas.getBoundingClientRect();
-      const worldX = (e.clientX - rect.left) * (this.canvas.width / rect.width) + this.camera.x;
-      const worldY = (e.clientY - rect.top) * (this.canvas.height / rect.height) + this.camera.y;
+      const worldX = (e.clientX - rect.left) * (this.canvas.width / rect.width) + (this.camera && this.camera.x ? this.camera.x : 0);
+      const worldY = (e.clientY - rect.top) * (this.canvas.height / rect.height) + (this.camera && this.camera.y ? this.camera.y : 0);
 
       // Only check nearby objects using spatial grid
       const nearbyObjects = this.spatialGrid.getNearby(worldX, worldY);
@@ -119,7 +118,6 @@ export class Game {
     this.canvas.addEventListener('mousemove', handleMouseMove);
 
     this.canvas.addEventListener('mouseleave', () => {
-      console.log('Mouse left canvas');
       this.hoveredObject = null;
       this.updateObjectTooltip();
     });
@@ -169,6 +167,16 @@ export class Game {
             this.player.isInHouse = false;
             this.player.houseInteriorBounds = null;
             
+            // Immediately set camera to the correct position
+            if (this.camera) {
+              this.camera.x = this.player.x + this.player.width / 2 - this.camera.width / 2;
+              this.camera.y = this.player.y + this.player.height / 2 - this.camera.height / 2;
+              
+              // Clamp camera position
+              this.camera.x = Math.max(0, Math.min(PLAY_AREA_WIDTH - this.camera.width, this.camera.x));
+              this.camera.y = Math.max(0, Math.min(PLAY_AREA_HEIGHT - this.camera.height, this.camera.y));
+            }
+            
             // Hide overlay
             overlay.style.display = 'none';
             overlay.classList.remove('active');
@@ -197,6 +205,14 @@ export class Game {
       width: this.canvas.width,
       height: this.canvas.height
     };
+    
+    // Set initial camera position centered on player
+    this.camera.x = this.player.x + this.player.width / 2 - this.camera.width / 2;
+    this.camera.y = this.player.y + this.player.height / 2 - this.camera.height / 2;
+    
+    // Clamp initial camera position
+    this.camera.x = Math.max(0, Math.min(PLAY_AREA_WIDTH - this.camera.width, this.camera.x));
+    this.camera.y = Math.max(0, Math.min(PLAY_AREA_HEIGHT - this.camera.height, this.camera.y));
 
     this.setupHoverEvents();
 
@@ -334,8 +350,8 @@ export class Game {
     // Main canvas click: check house door, enemy, container, etc.
     this.canvas.addEventListener('click', (e) => {
       const rect = this.canvas.getBoundingClientRect();
-      const worldX = e.clientX - rect.left + this.camera.x;
-      const worldY = e.clientY - rect.top + this.camera.y;
+      const worldX = e.clientX - rect.left + (this.camera ? this.camera.x : 0);
+      const worldY = e.clientY - rect.top + (this.camera ? this.camera.y : 0);
 
       // Debug output
       // console.log('Click detected:', {
@@ -438,8 +454,8 @@ export class Game {
     // NPC, Rat, Radroach
     this.canvas.addEventListener('click', (e) => {
       const rect = this.canvas.getBoundingClientRect();
-      const worldX = e.clientX - rect.left + this.camera.x;
-      const worldY = e.clientY - rect.top + this.camera.y;
+      const worldX = e.clientX - rect.left + (this.camera ? this.camera.x : 0);
+      const worldY = e.clientY - rect.top + (this.camera ? this.camera.y : 0);
 
       if (this.npc.checkClick(worldX, worldY)) {
         this.showNPCDialog();
@@ -518,18 +534,23 @@ export class Game {
   showContainerLoot(container) {
     const lootModal = document.getElementById('loot-modal');
     const slots = lootModal.querySelector('.loot-slots');
+    const lootAllBtn = document.getElementById('loot-all-btn');
     slots.innerHTML = '';
     container.isOpen = true;
 
+    // Update slots display
     container.contents.forEach((item, index) => {
       const slot = document.createElement('div');
       slot.className = 'loot-slot';
-      slot.innerHTML = item.icon;
+      slot.innerHTML = `
+        <div class="item-icon">${item.icon}</div>
+        <div class="item-name">${item.name}</div>
+      `;
       slot.addEventListener('click', () => {
         if (this.inventory.addItem(item)) {
           container.contents.splice(index, 1);
           this.showContainerLoot(container);
-          if (container.contents.length === 0) {
+          if (container.contents.length === 0 && !(container instanceof BrokenCar)) {
             this.world.objects = this.world.objects.filter(c => c !== container);
             lootModal.classList.remove('active');
           }
@@ -537,6 +558,32 @@ export class Game {
       });
       slots.appendChild(slot);
     });
+
+    // Set up Loot All button
+    lootAllBtn.onclick = () => {
+      const successfullyLooted = [];
+      container.contents.forEach((item, index) => {
+        if (this.inventory.addItem(item)) {
+          successfullyLooted.push(index);
+        }
+      });
+      
+      // Remove looted items in reverse order to maintain correct indices
+      successfullyLooted.reverse().forEach(index => {
+        container.contents.splice(index, 1);
+      });
+      
+      // Update display
+      if (container.contents.length === 0) {
+        if (!(container instanceof BrokenCar)) {
+          this.world.objects = this.world.objects.filter(c => c !== container);
+        }
+        lootModal.classList.remove('active');
+      } else {
+        this.showContainerLoot(container);
+      }
+    };
+
     lootModal.classList.add('active');
   }
 
@@ -710,20 +757,11 @@ export class Game {
   }
 
   restPlayer() {
-    // Example of spending gold to rest
-    const goldElement = document.getElementById('gold-value');
-    if (!goldElement) return; // if gold-value doesn't exist
-
-    const currentGold = parseInt(goldElement.textContent) || 0;
-    if (this.playerHouse && currentGold >= 50) {
-      // Advance time
-      this.timeSystem.minutes = 360;
-      // Refill energy
-      document.getElementById('energy-value').textContent = 100;
-      // Subtract gold
-      goldElement.textContent = currentGold - 50;
-      this.showMessage('Restored energy!');
-    }
+    // Toggle between day and night
+    this.timeSystem.toggleDayNight();
+    const currentHour = this.timeSystem.minutes / 60;
+    const timeOfDay = currentHour >= 6 && currentHour < 18 ? 'day' : 'night';
+    this.showMessage(`Changed to ${timeOfDay}time!`);
   }
 
   // NPC Dialogue
@@ -828,40 +866,30 @@ export class Game {
   }
 
   updateCamera() {
-    const targetX = this.player.x + this.player.width / 2 - this.camera.width / 2;
-    const targetY = this.player.y + this.player.height / 2 - this.camera.height / 2;
+    const targetX = this.player.x + this.player.width / 2 - (this.camera && this.camera.width ? this.camera.width : 0) / 2;
+    const targetY = this.player.y + this.player.height / 2 - (this.camera && this.camera.height ? this.camera.height : 0) / 2;
 
     // smooth camera movement
-    this.camera.x += (targetX - this.camera.x) * 0.1;
-    this.camera.y += (targetY - this.camera.y) * 0.1;
+    if (this.camera) {
+      this.camera.x += (targetX - this.camera.x) * 0.1;
+      this.camera.y += (targetY - this.camera.y) * 0.1;
 
-    // clamp
-    this.camera.x = Math.max(0, Math.min(PLAY_AREA_WIDTH - this.camera.width, this.camera.x));
-    this.camera.y = Math.max(0, Math.min(PLAY_AREA_HEIGHT - this.camera.height, this.camera.y));
+      // clamp
+      this.camera.x = Math.max(0, Math.min(PLAY_AREA_WIDTH - (this.camera && this.camera.width ? this.camera.width : 0), this.camera.x));
+      this.camera.y = Math.max(0, Math.min(PLAY_AREA_HEIGHT - (this.camera && this.camera.height ? this.camera.height : 0), this.camera.y));
+    }
   }
 
   handleWallCollisions() {
     const collidableObjects = this.world.objects.filter(
-      obj => obj instanceof WoodenWall || obj instanceof House
+      obj => obj instanceof WoodenWall || 
+             obj instanceof House ||
+             obj instanceof PineTree ||
+             obj instanceof FirTree ||
+             obj instanceof MapleTree ||
+             obj instanceof DeadTree
     );
-    collidableObjects.forEach(obj => {
-      if (obj.checkCollision(this.player.x, this.player.y, this.player.width, this.player.height)) {
-        const dx = (this.player.x + this.player.width / 2) - obj.x;
-        const dy = (this.player.y + this.player.height / 2) - obj.y;
-        const combinedHalfWidths = (this.player.width + obj.width) / 2;
-        const combinedHalfHeights = (this.player.height + obj.height) / 2;
-
-        if (Math.abs(dx) < combinedHalfWidths && Math.abs(dy) < combinedHalfHeights) {
-          const overlapX = combinedHalfWidths - Math.abs(dx);
-          const overlapY = combinedHalfHeights - Math.abs(dy);
-          if (overlapX >= overlapY) {
-            this.player.y += dy > 0 ? overlapY : -overlapY;
-          } else {
-            this.player.x += dx > 0 ? overlapX : -overlapX;
-          }
-        }
-      }
-    });
+    CollisionSystem.handleCollisions(this.player, collidableObjects);
   }
 
   // Main render
@@ -873,8 +901,8 @@ export class Game {
     if (!this.player.isInHouse) {
       // 1) Draw world behind
       this.offscreenCtx.save();
-      this.offscreenCtx.translate(-this.camera.x, -this.camera.y);
-      this.world.render(this.offscreenCtx);
+      this.offscreenCtx.translate(-(this.camera && this.camera.x ? this.camera.x : 0), -(this.camera && this.camera.y ? this.camera.y : 0));
+      this.world.render(this.offscreenCtx, this.camera);
       this.player.render(this.offscreenCtx);
       this.npc.render(this.offscreenCtx);
       this.rat.render(this.offscreenCtx);
@@ -883,8 +911,8 @@ export class Game {
 
       // 2) Day/Night overlay with optimized gradient
       const tint = this.timeSystem.getDayNightTint();
-      const playerX = this.player.x - this.camera.x + this.player.width / 2;
-      const playerY = this.player.y - this.camera.y + this.player.height / 2;
+      const playerX = this.player.x - (this.camera && this.camera.x ? this.camera.x : 0) + this.player.width / 2;
+      const playerY = this.player.y - (this.camera && this.camera.y ? this.camera.y : 0) + this.player.height / 2;
       
       // Cache gradient if tint hasn't changed
       if (!this.lastTint || 
@@ -984,36 +1012,60 @@ export class Game {
     const minimap = document.getElementById('minimap');
     const ctx = minimap.getContext('2d');
     
+    // Set the actual canvas dimensions
     minimap.width = 200;
     minimap.height = 150;
+    
+    // Clear the minimap
     ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
     ctx.fillRect(0, 0, minimap.width, minimap.height);
 
+    // Draw the world minimap
     ctx.drawImage(
       this.world.minimapCanvas,
       0, 0, this.world.minimapCanvas.width, this.world.minimapCanvas.height,
       0, 0, minimap.width, minimap.height
     );
 
-    const scaleX = minimap.width / this.world.tileSize;
-    const scaleY = minimap.height / this.world.tileSize;
+    // Calculate proper scaling factors
+    const scaleX = minimap.width / this.world.playAreaWidth;
+    const scaleY = minimap.height / this.world.playAreaHeight;
 
     // Player dot
     ctx.fillStyle = '#ff5555';
-    ctx.fillRect(
-      this.player.x * scaleX - 2,
-      this.player.y * scaleY - 2,
-      4, 4
+    ctx.beginPath();
+    ctx.arc(
+      this.player.x * scaleX,
+      this.player.y * scaleY,
+      3, 0, Math.PI * 2
     );
+    ctx.fill();
 
-    // Camera box
-    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-    ctx.strokeRect(
-      this.camera.x * scaleX,
-      this.camera.y * scaleY,
-      this.camera.width * scaleX,
-      this.camera.height * scaleY
-    );
+    // Camera box with improved visibility
+    if (this.camera) {
+      // Outer glow
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = '#ffffff';
+      ctx.shadowBlur = 6;
+      ctx.strokeRect(
+        this.camera.x * scaleX,
+        this.camera.y * scaleY,
+        this.camera.width * scaleX,
+        this.camera.height * scaleY
+      );
+      
+      // Inner line
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(
+        this.camera.x * scaleX,
+        this.camera.y * scaleY,
+        this.camera.width * scaleX,
+        this.camera.height * scaleY
+      );
+    }
   }
 
   setupDeathHandling() {
@@ -1036,8 +1088,8 @@ export class Game {
   setupTreeGathering() {
     this.canvas.addEventListener('click', (e) => {
       const rect = this.canvas.getBoundingClientRect();
-      const worldX = e.clientX - rect.left + this.camera.x;
-      const worldY = e.clientY - rect.top + this.camera.y;
+      const worldX = e.clientX - rect.left + (this.camera ? this.camera.x : 0);
+      const worldY = e.clientY - rect.top + (this.camera ? this.camera.y : 0);
 
       // Find a clicked tree
       const clickedTree = this.world.objects.find(obj =>
@@ -1077,8 +1129,8 @@ export class Game {
     for (let i = 0; i < 5; i++) {
       const particle = document.createElement('div');
       particle.className = 'particle';
-      particle.style.left = `${x - this.camera.x}px`;
-      particle.style.top = `${y - this.camera.y}px`;
+      particle.style.left = `${x}px`;
+      particle.style.top = `${y}px`;
       particle.style.background = '#8B4513';
       particle.style.width = particle.style.height = `${Math.random() * 4 + 2}px`;
       particle.style.transform = `translate(
@@ -1093,8 +1145,8 @@ export class Game {
   setupOreGathering() {
     this.canvas.addEventListener('click', (e) => {
       const rect = this.canvas.getBoundingClientRect();
-      const worldX = e.clientX - rect.left + this.camera.x;
-      const worldY = e.clientY - rect.top + this.camera.y;
+      const worldX = e.clientX - rect.left + (this.camera ? this.camera.x : 0);
+      const worldY = e.clientY - rect.top + (this.camera ? this.camera.y : 0);
 
       // check ore
       const clickedOre = this.world.objects.find(obj =>
@@ -1128,8 +1180,8 @@ export class Game {
     for (let i = 0; i < 5; i++) {
       const particle = document.createElement('div');
       particle.className = 'particle';
-      particle.style.left = `${x - this.camera.x}px`;
-      particle.style.top = `${y - this.camera.y}px`;
+      particle.style.left = `${x}px`;
+      particle.style.top = `${y}px`;
       particle.style.background = '#808080';
       particle.style.width = particle.style.height = `${Math.random() * 4 + 2}px`;
       particle.style.transform = `translate(

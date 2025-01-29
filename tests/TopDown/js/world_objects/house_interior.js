@@ -1,8 +1,8 @@
 // house_interior.js (Updated)
 export class HouseInterior {
   constructor() {
-    this.width = 600;  // match your interior canvas size
-    this.height = 400;
+    this.width = 320;  // Base resolution width
+    this.height = 180; // Base resolution height (16:9 aspect ratio)
     this.lightPhase = 0;
     this.curtainSway = 0;
     this.clockPhase = 0;
@@ -14,61 +14,93 @@ export class HouseInterior {
     this.clockPhase += deltaTime * 0.1;
   }
 
-  // Renders onto the interior overlay canvas
   render(ctx) {
     if (!ctx) {
       console.error('No context provided for house interior rendering!');
       return;
     }
 
-    // Clear the interior canvas
-    ctx.clearRect(0, 0, this.width, this.height);
+    // Get canvas dimensions and calculate scale
+    const canvas = ctx.canvas;
+    const scale = Math.min(
+      (canvas.width - 100) / this.width,  // Add padding
+      (canvas.height - 100) / this.height
+    );
 
-    // Move the origin to the center so old code can remain similar
+    // Calculate centered position with padding
+    const scaledWidth = this.width * scale;
+    const scaledHeight = this.height * scale;
+    const viewX = Math.floor((canvas.width - scaledWidth) / 2);
+    const viewY = Math.floor((canvas.height - scaledHeight) / 2);
+
+    // Clear the entire canvas with background color
+    ctx.fillStyle = '#2b1e15';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Apply transformations
     ctx.save();
-    ctx.translate(this.width / 2, this.height / 2);
+    ctx.translate(viewX, viewY);
+    ctx.scale(scale, scale);
 
-    // Wooden floor
-    for (let i = -300; i < 300; i += 40) {
-      for (let j = -200; j < 200; j += 40) {
+    // Set background
+    ctx.fillStyle = '#3c2416';
+    ctx.fillRect(0, 0, this.width, this.height);
+
+    // Draw wooden floor pattern
+    const tileSize = 20;
+    for (let x = 0; x < this.width; x += tileSize) {
+      for (let y = 0; y < this.height; y += tileSize) {
         ctx.fillStyle = `hsl(30, 50%, ${25 + Math.random() * 5}%)`;
-        ctx.fillRect(i, j, 38, 38);
+        ctx.fillRect(x, y, tileSize - 1, tileSize - 1);
       }
     }
 
-    // Walls
+    // Draw walls
     ctx.fillStyle = '#deb887';
-    ctx.fillRect(-300, -200, 600, 50);  // Top wall
-    ctx.fillRect(-300, 150, 600, 50);   // Bottom wall
-    ctx.fillRect(-300, -200, 50, 400);  // Left wall
-    ctx.fillRect(250, -200, 50, 400);   // Right wall
+    const wallThickness = 20;
+    
+    // Top and bottom walls
+    ctx.fillRect(0, 0, this.width, wallThickness);
+    ctx.fillRect(0, this.height - wallThickness, this.width, wallThickness);
+    
+    // Left and right walls
+    ctx.fillRect(0, 0, wallThickness, this.height);
+    ctx.fillRect(this.width - wallThickness, 0, wallThickness, this.height);
 
-    // Window
-    ctx.fillStyle = '#87ceeb';  // Sky blue
-    ctx.fillRect(100, -150, 100, 100);
+    // Draw window
+    const windowSize = 40;
+    ctx.fillStyle = '#87ceeb';
+    ctx.fillRect(this.width - 80, 30, windowSize, windowSize);
     
     // Window frame
-    ctx.strokeStyle = '#8b4513';  // Saddle brown
-    ctx.lineWidth = 10;
-    ctx.strokeRect(100, -150, 100, 100);
+    ctx.strokeStyle = '#8b4513';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(this.width - 80, 30, windowSize, windowSize);
 
-    // Bed
-    ctx.fillStyle = '#8b4513';  // Dark wood
-    ctx.fillRect(-250, -150, 120, 200);  // Bed frame
-    ctx.fillStyle = '#f0e68c';  // Khaki
-    ctx.fillRect(-240, -140, 100, 180);  // Mattress
-    ctx.fillStyle = '#fff';     // White
-    ctx.fillRect(-240, -140, 100, 60);   // Pillow
-
-    // Table
+    // Draw bed
+    const bedWidth = 60;
+    const bedHeight = 80;
     ctx.fillStyle = '#8b4513';
-    ctx.fillRect(50, 0, 100, 100);
+    ctx.fillRect(30, 30, bedWidth, bedHeight);
+    
+    // Mattress
+    ctx.fillStyle = '#f0e68c';
+    ctx.fillRect(35, 35, bedWidth - 10, bedHeight - 10);
+    
+    // Pillow
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(35, 35, bedWidth - 10, 20);
 
-    // Chair
+    // Draw table
+    const tableSize = 40;
+    ctx.fillStyle = '#8b4513';
+    ctx.fillRect(this.width/2 - tableSize/2, this.height/2 - tableSize/2, tableSize, tableSize);
+
+    // Draw chair
+    const chairSize = 20;
     ctx.fillStyle = '#a0522d';
-    ctx.fillRect(170, 20, 40, 40);
+    ctx.fillRect(this.width/2 + tableSize/2 + 10, this.height/2 - chairSize/2, chairSize, chairSize);
 
-    // Restore context
     ctx.restore();
   }
 }

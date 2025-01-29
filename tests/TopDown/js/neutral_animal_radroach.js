@@ -14,6 +14,10 @@ export class Radroach {
       { name: 'Shell Bash', power: 25, accuracy: 75 },
       { name: 'Scuttle', power: 5, accuracy: 100 }
     ];
+
+    // Load the sprite image
+    this.sprite = new Image();
+    this.sprite.src = 'https://file.garden/Zy7B0LkdIVpGyzA1/rad_roach.png';
   }
 
   getTooltipContent() {
@@ -187,72 +191,20 @@ export class Radroach {
   }
 
   render(ctx) {
+    if (!this.sprite.complete) return; // Don't render if image hasn't loaded yet
+    
     ctx.save();
     ctx.translate(this.x, this.y);
     
-    // Shell/carapace
-    ctx.fillStyle = '#463E3F';
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 15, 10, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Shell pattern
-    ctx.strokeStyle = '#2E2827';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(-10, -5);
-    ctx.lineTo(10, -5);
-    ctx.moveTo(-8, 0);
-    ctx.lineTo(8, 0);
-    ctx.moveTo(-6, 5);
-    ctx.lineTo(6, 5);
-    ctx.stroke();
-
-    // Legs (animated)
-    ctx.strokeStyle = '#463E3F';
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 3; i++) {
-      const legOffset = (i - 1) * 8;
-      // Left legs
-      ctx.beginPath();
-      ctx.moveTo(-12, legOffset);
-      ctx.lineTo(-18 + Math.sin(this.animationPhase + i) * 3, 
-                 legOffset + Math.cos(this.animationPhase + i) * 2);
-      ctx.stroke();
-      // Right legs
-      ctx.beginPath();
-      ctx.moveTo(12, legOffset);
-      ctx.lineTo(18 + Math.sin(this.animationPhase + i + Math.PI) * 3, 
-                 legOffset + Math.cos(this.animationPhase + i + Math.PI) * 2);
-      ctx.stroke();
-    }
-
-    // Antennae
-    ctx.beginPath();
-    ctx.moveTo(-5, -8);
-    ctx.lineTo(-8 + Math.sin(this.animationPhase) * 2, -12);
-    ctx.moveTo(5, -8);
-    ctx.lineTo(8 + Math.sin(this.animationPhase + Math.PI) * 2, -12);
-    ctx.stroke();
-
-    // Mandibles
-    ctx.fillStyle = '#2E2827';
-    ctx.beginPath();
-    ctx.moveTo(-4, -6);
-    ctx.lineTo(-6, -4 + Math.sin(this.animationPhase) * 0.5);
-    ctx.lineTo(-4, -2);
-    ctx.moveTo(4, -6);
-    ctx.lineTo(6, -4 + Math.sin(this.animationPhase + Math.PI) * 0.5);
-    ctx.lineTo(4, -2);
-    ctx.fill();
-
-    // Eyes
-    ctx.fillStyle = '#1A1A1A';
-    ctx.beginPath();
-    ctx.arc(-3, -5, 2, 0, Math.PI * 2);
-    ctx.arc(3, -5, 2, 0, Math.PI * 2);
-    ctx.fill();
-
+    // Draw the sprite centered on the position
+    ctx.drawImage(
+      this.sprite,
+      -this.width / 2,
+      -this.height / 2,
+      this.width,
+      this.height
+    );
+    
     ctx.restore();
   }
 }

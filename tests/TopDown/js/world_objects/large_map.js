@@ -22,6 +22,13 @@ export class OverworldMap {
         
         // Bind key event
         this.bindEvents();
+        
+        // Constants for room transition
+        this.TRANSITION_DURATION = 500; // milliseconds
+        this.isTransitioning = false;
+        this.transitionDirection = null;
+        this.transitionStartTime = null;
+        this.previousRoomCanvas = null;
     }
     
     bindEvents() {
@@ -70,6 +77,9 @@ export class OverworldMap {
         this.ctx.beginPath();
         this.ctx.arc(8 * this.tileSize + this.tileSize/2, 8 * this.tileSize + this.tileSize/2, 4, 0, Math.PI * 2);
         this.ctx.fill();
+        
+        // Check room boundaries
+        this.checkRoomBoundaries();
     }
     
     drawTile(worldX, worldY, screenX, screenY) {
@@ -126,5 +136,117 @@ export class OverworldMap {
         if (obj.constructor.name.includes('House')) return '#8b4513';
         if (obj.constructor.name.includes('Container')) return '#ffd700';
         return '#000000';
+    }
+    
+    handleRoomTransition(direction) {
+        if (this.isTransitioning) return;
+        
+        // Save current room state to canvas
+        this.previousRoomCanvas = document.createElement('canvas');
+        this.previousRoomCanvas.width = this.mapCanvas.width;
+        this.previousRoomCanvas.height = this.mapCanvas.height;
+        const ctx = this.previousRoomCanvas.getContext('2d');
+        ctx.drawImage(this.mapCanvas, 0, 0);
+        
+        // Start transition
+        this.isTransitioning = true;
+        this.transitionDirection = direction;
+        this.transitionStartTime = Date.now();
+        
+        // Update room position based on direction
+        switch(direction) {
+            case 'left':
+                this.world.roomPosition.x--;
+                break;
+            case 'right':
+                this.world.roomPosition.x++;
+                break;
+            case 'up':
+                this.world.roomPosition.y++;
+                break;
+            case 'down':
+                this.world.roomPosition.y--;
+                break;
+        }
+        
+        // Load new room
+        this.world.loadRoom();
+    }
+    
+    renderRoomTransition() {
+        if (!this.isTransitioning) return;
+        
+        const elapsed = Date.now() - this.transitionStartTime;
+        const progress = Math.min(elapsed / this.TRANSITION_DURATION, 1);
+        
+        // Create transition canvas
+        const transitionCanvas = document.createElement('canvas');
+        transitionCanvas.width = this.mapCanvas.width;
+        transitionCanvas.height = this.mapCanvas.height;
+        const ctx = transitionCanvas.getContext('2d');
+        
+        // Calculate transition offset
+        let offsetX = 0;
+        let offsetY = 0;
+        
+        switch(this.transitionDirection) {
+            case 'left':
+                offsetX = progress * this.mapCanvas.width;
+                break;
+            case 'right':
+                offsetX = -progress * this.mapCanvas.width;
+                break;
+            case 'up':
+                offsetY = -progress * this.mapCanvas.height;
+                break;
+            case 'down':
+                offsetY = progress * this.mapCanvas.height;
+                break;
+        }
+        
+        // Draw previous room
+        ctx.drawImage(this.previousRoomCanvas, offsetX, offsetY);
+        
+        // Draw current room
+        ctx.drawImage(this.mapCanvas, 
+            offsetX + (this.transitionDirection === 'left' ? -this.mapCanvas.width : 
+                      this.transitionDirection === 'right' ? this.mapCanvas.width : 0),
+            offsetY + (this.transitionDirection === 'up' ? this.mapCanvas.height : 
+                      this.transitionDirection === 'down' ? -this.mapCanvas.height : 0));
+        
+        // Update map canvas with transition
+        this.ctx.clearRect(0, 0, this.mapCanvas.width, this.mapCanvas.height);
+        this.ctx.drawImage(transitionCanvas, 0, 0);
+        
+        // End transition if complete
+        if (progress === 1) {
+            this.isTransitioning = false;
+            this.transitionDirection = null;
+            this.transitionStartTime = null;
+            this.previousRoomCanvas = null;
+        }
+    }
+    
+    checkRoomBoundaries() {
+        const margin = 2; // Distance from edge to trigger transition
+        
+        if (this.player.x < -this.world.roomWidth/2 + margin) {
+            this.handleRoomTransition('left');
+            this.player.x = this.world.roomWidth/2 - margin;
+        } else if (this.player.x > this.world.roomWidth/2 - margin) {
+            this.handleRoomTransition('right');
+            this.player.x = -this.world.roomWidth/2 + margin;
+        }
+        
+        if (this.player.y < -this.world.roomDepth/2 + margin) {
+            this.handleRoomTransition('down');
+            this.player.y = this.world.roomDepth/2 - margin;
+        } else if (this.player.y > this.world.roomDepth/2 - margin) {
+            this.handleRoomTransition('up');
+            this.player.y = -this.world.roomDepth/2 + margin;
+        }
+        
+        // Render room transition
+        this.renderRoomTransition();
     }
 }

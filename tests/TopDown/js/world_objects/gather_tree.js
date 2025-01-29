@@ -1,3 +1,5 @@
+import { CollisionSystem } from '../collision.js';
+
 export class GatherTree {
   constructor(x, y, type, options = {}) {
     this.x = x;
@@ -7,6 +9,7 @@ export class GatherTree {
     this.maxHealth = options.health || 8;
     this.health = this.maxHealth;
     this.interactable = true;
+    this.collidable = true;
     this.type = type;
     this.harvestCount = options.harvestCount || 1;
     this.baseColor = options.baseColor || '#8B4513';
@@ -82,5 +85,13 @@ export class GatherTree {
       health: this.health,
       description: this.description || 'A gatherable tree'
     };
+  }
+
+  checkCollision(px, py, pWidth, pHeight) {
+    return CollisionSystem.checkRectangleCollision(
+      px, py, pWidth, pHeight,
+      this.x - this.width / 2, this.y - this.height / 2,
+      this.width, this.height
+    );
   }
 }

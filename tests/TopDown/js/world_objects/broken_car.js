@@ -1,16 +1,35 @@
 import { ITEMS } from '../items.js';
 
 export class BrokenCar {
+  // Static property to hold the image, ensuring it's loaded only once
+  static image = new Image();
+  static isImageLoaded = false;
+
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.width = 80;
-    this.height = 40;
+    
+    // Set dimensions based on the image size or desired size
+    this.width = 80; // Adjust if necessary
+    this.height = 40; // Adjust if necessary
+
     this.interactable = true;
     this.contents = this.generateLoot();
     this.isOpen = false;
     this.swingPhase = Math.random() * Math.PI * 2;
     this.smokePhase = 0;
+
+    // Load the image if not already loaded
+    if (!BrokenCar.isImageLoaded) {
+      BrokenCar.image.src = 'https://file.garden/Zy7B0LkdIVpGyzA1/broken_car.png';
+      BrokenCar.image.onload = () => {
+        BrokenCar.isImageLoaded = true;
+        console.log('Broken car image loaded successfully.');
+      };
+      BrokenCar.image.onerror = () => {
+        console.error('Failed to load broken car image.');
+      };
+    }
   }
 
   generateLoot() {
@@ -31,50 +50,38 @@ export class BrokenCar {
   }
 
   checkClick(worldX, worldY) {
-    return worldX > this.x - this.width/2 && 
-           worldX < this.x + this.width/2 &&
-           worldY > this.y - this.height/2 && 
-           worldY < this.y + this.height/2;
+    return worldX > this.x - this.width / 2 && 
+           worldX < this.x + this.width / 2 &&
+           worldY > this.y - this.height / 2 && 
+           worldY < this.y + this.height / 2;
   }
 
   render(ctx) {
     ctx.save();
     ctx.translate(this.x, this.y);
-    
-    // Car body with rust animation
-    ctx.fillStyle = '#8B4513';
-    ctx.fillRect(-40, -20, 80, 40);
-    
-    // Rust texture
-    ctx.fillStyle = `rgba(92,64,51,${0.5 + Math.sin(this.swingPhase)*0.2})`;
-    ctx.beginPath();
-    for(let i = 0; i < 20; i++) {
-      ctx.rect(
-        -40 + Math.random() * 80,
-        -20 + Math.random() * 40,
-        5 + Math.random() * 10,
-        2 + Math.random() * 5
+
+    // Draw the broken car image if loaded
+    if (BrokenCar.isImageLoaded) {
+      ctx.drawImage(
+        BrokenCar.image,
+        -this.width / 2,
+        -this.height / 2,
+        this.width,
+        this.height
       );
+    } else {
+      // Fallback: Draw a placeholder if the image isn't loaded yet
+      ctx.fillStyle = '#8B4513';
+      ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+      ctx.fillStyle = '#FF0000';
+      ctx.fillText('Car', -10, 0);
     }
-    ctx.fill();
 
-    // Wheels with suspension effect
-    ctx.fillStyle = '#333';
-    [-30, 30].forEach(pos => {
-      ctx.beginPath();
-      ctx.arc(pos, 15 + Math.sin(this.smokePhase)*2, 10, 0, Math.PI*2);
-      ctx.fill();
-    });
-
-    // Broken windows
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.fillRect(-30, -15, 60, 10);
-    
-    // Smoke effect
+    // Optional: Add smoke effect
     if (!this.isOpen) {
-      ctx.fillStyle = `rgba(50,50,50,${0.3 + Math.sin(this.smokePhase)*0.2})`;
+      ctx.fillStyle = `rgba(50, 50, 50, ${0.3 + Math.sin(this.smokePhase) * 0.2})`;
       ctx.beginPath();
-      ctx.arc(0, -30, 8 + Math.sin(this.smokePhase)*4, 0, Math.PI*2);
+      ctx.arc(0, -this.height / 2 - 10, 8 + Math.sin(this.smokePhase) * 4, 0, Math.PI * 2);
       ctx.fill();
     }
 

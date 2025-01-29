@@ -1,57 +1,67 @@
 import { GatherTree } from './gather_tree.js';
+import { TextureCache } from '../utils/texture_cache.js';
 
 export class FirTree extends GatherTree {
+  static TEXTURE_URL = 'https://file.garden/Zy7B0LkdIVpGyzA1/fir_tree.png';
+  
   constructor(x, y) {
-    super(x, y, 'fir', {
-      width: 65,
-      height: 170,
-      health: 10,
-      baseColor: '#3d2208',
-      leafColor: '#2d693a'
+    super(x, y - 25, 'fir', {
+      width: 45,
+      height: 50,
+      health: 12,
+      baseColor: '#3E2723',
+      leafColor: '#1B5E20'
     });
-    this.treeType = 'Evergreen';
-    this.description = 'Source of sturdy timber';
-    
-    // Load the foliage texture
-    this.foliageTexture = new Image();
-    this.foliageTexture.crossOrigin = "anonymous"; // Add CORS header
-    this.foliageTexture.onload = () => {
-      console.log('Fir tree texture loaded successfully');
-    };
-    this.foliageTexture.onerror = (err) => {
-      console.error('Failed to load fir tree texture:', err);
-    };
-    this.foliageTexture.src = 'https://file.garden/Zy7B0LkdIVpGyzA1/fir_needles.webp';
+    this.treeType = 'Coniferous';
+    this.description = 'Tall fir tree';
+    this.collidable = true;
+
+    // Initialize texture
+    this.textureLoaded = false;
+    this.initTexture();
+  }
+
+  async initTexture() {
+    try {
+      const textureCache = TextureCache.getInstance();
+      this.foliageTexture = await textureCache.loadTexture(FirTree.TEXTURE_URL);
+      this.textureLoaded = true;
+    } catch (err) {
+      console.error('Failed to load fir tree texture. Using fallback rendering.');
+      this.textureLoaded = false;
+    }
+  }
+
+  render(ctx) {
+    if (this.textureLoaded && this.foliageTexture) {
+      this.renderCanopy(ctx);
+    } else {
+      this.renderTrunk(ctx);
+      this.renderCanopy(ctx);
+    }
   }
 
   renderCanopy(ctx) {
     ctx.save();
     ctx.translate(this.x, this.y);
     
-    // Ground shadow
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 25, 10, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Draw the foliage texture if loaded
-    if (this.foliageTexture.complete) {
-      // console.log('Drawing fir tree texture');
+    if (this.textureLoaded && this.foliageTexture) {
+      // Use the loaded texture for the entire tree
       const width = 60;
       const height = 120;
-      ctx.drawImage(this.foliageTexture, -width/2, -height - 15, width, height);
+      ctx.drawImage(this.foliageTexture, -width/2, -height + 10, width, height);
     } else {
-      console.log('Fir tree texture not yet loaded');
-      // Fallback to a simple green triangle if image isn't loaded
-      ctx.fillStyle = '#2d693a';
+      // Fallback rendering if texture fails to load
+      ctx.fillStyle = this.leafColor;
+      // Draw a simple triangle for the fir tree
       ctx.beginPath();
       ctx.moveTo(-30, -15);
-      ctx.lineTo(30, -15);
       ctx.lineTo(0, -135);
+      ctx.lineTo(30, -15);
       ctx.closePath();
       ctx.fill();
     }
-
+    
     ctx.restore();
   }
 }
