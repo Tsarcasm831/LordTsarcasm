@@ -1,4 +1,6 @@
-export class InventoryView {
+// InventoryView.js
+
+export class InventoryView { 
   constructor(inventory, equippedGear) {
     this.inventory = inventory;
     this.equippedGear = equippedGear;
@@ -95,6 +97,7 @@ export class InventoryView {
                 <button class="iv-category-btn" data-category="resource">Resources</button>
                 <button class="iv-category-btn" data-category="tool">Tools</button>
                 <button class="iv-category-btn" data-category="building">Buildings</button>
+                <!-- Add more category buttons if needed -->
               </div>
               <div class="iv-inventory-scroll">
                 <div class="iv-inventory-grid" id="iv-inventory-slots"></div>
@@ -131,7 +134,7 @@ export class InventoryView {
 
           // Tell the inventory which category is selected, then update
           this.inventory.updateCategoryFilter(btn.dataset.category);
-          this.updateInventoryGrid();
+          this.inventory.updateInventoryGrid();
         });
       });
 
@@ -177,7 +180,7 @@ export class InventoryView {
    */
   updateUI() {
     this.updateEquipmentGrid();
-    this.updateInventoryGrid();
+    this.inventory.updateInventoryGrid();
     this.updateStats();
   }
 
@@ -196,66 +199,16 @@ export class InventoryView {
       slot.classList.remove('iv-equipped');
 
       if (gearItem) {
-        // Insert the item’s SVG icon
-        const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(gearItem.icon, 'image/svg+xml');
-        const svgElement = svgDoc.documentElement;
-        itemContainer.appendChild(svgElement);
+        // Insert the item’s image icon
+        const img = document.createElement('img');
+        img.src = gearItem.icon;
+        img.alt = gearItem.name;
+        img.className = 'iv-gear-icon';
+        itemContainer.appendChild(img);
 
         slot.classList.add('iv-equipped');
       }
     });
-  }
-
-  /**
-   * Renders the inventory slots.
-   * Respects any category filter set in the Inventory object.
-   */
-  updateInventoryGrid() {
-    const container = document.getElementById('iv-inventory-slots');
-    if (!container) return;
-    container.innerHTML = '';
-
-    // We'll show up to 24 slots (or however many you want).
-    const totalSlots = 24;
-
-    for (let i = 0; i < totalSlots; i++) {
-      const slot = document.createElement('div');
-      slot.className = 'iv-inventory-slot';
-      slot.dataset.index = i;
-
-      const item = this.inventory.slots[i];
-      if (item) {
-        // Insert the item’s SVG icon
-        const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(item.icon, 'image/svg+xml');
-        const svgElement = svgDoc.documentElement;
-        slot.appendChild(svgElement);
-
-        // Show stack count if stackable
-        if (item.stackable && this.inventory.stackQuantities[i] > 1) {
-          const stackCount = document.createElement('div');
-          stackCount.className = 'iv-stack-count';
-          stackCount.textContent = this.inventory.stackQuantities[i];
-          slot.appendChild(stackCount);
-        }
-      }
-
-      // Tooltip for each slot on hover
-      slot.addEventListener('mouseenter', (e) => {
-        const slotIndex = parseInt(e.currentTarget.dataset.index, 10);
-        const hoveredItem = this.inventory.slots[slotIndex];
-        if (hoveredItem) {
-          this.inventory.showTooltip(slotIndex, e.clientX, e.clientY);
-        }
-      });
-
-      slot.addEventListener('mouseleave', () => {
-        this.inventory.hideTooltip();
-      });
-
-      container.appendChild(slot);
-    }
   }
 
   /**

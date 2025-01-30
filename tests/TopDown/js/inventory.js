@@ -1,3 +1,5 @@
+// Inventory.js
+
 import { ITEMS } from './items.js';
 
 export class Inventory {
@@ -5,15 +7,16 @@ export class Inventory {
     this.game = game; 
     this.slots = new Array(24).fill(null); 
     this.selectedSlot = 0;
-    this.createInventoryModalUI();
     this.categories = {
       all: 'All Items',
       resource: 'Resources',
       tool: 'Tools',
-      building: 'Buildings'
+      building: 'Buildings',
+      component: 'Components',
+      material: 'Materials',
+      armor: 'Armor'
     };
     this.currentCategory = 'all';
-    this.setupEventListeners();
 
     // Add stack quantities tracking
     this.stackQuantities = new Array(24).fill(0);
@@ -29,65 +32,42 @@ export class Inventory {
 
     // Add test items after a short delay to ensure icons are cached
     setTimeout(() => {
-      this.addItem(ITEMS.wood);
-      this.addItem(ITEMS.stone);
-      this.addItem(ITEMS.axe);
-      this.addItem(ITEMS.copper);
-      this.addItem(ITEMS.iron_ore);
-      this.addItem(ITEMS.engine_part);
+      this.addItem(ITEMS.bronze_bar);
+      this.addItem(ITEMS.rotten_log);
+      this.addItem(ITEMS.cloth_chest);
+      this.addItem(ITEMS.pine_log);
+      this.addItem(ITEMS.fir_log);
+      this.addItem(ITEMS.maple_log);
+      this.addItem(ITEMS.birch_log);
+      this.addItem(ITEMS.copper_ore);
+      this.addItem(ITEMS.copper_bar);
     }, 100);
   }
 
-  createInventoryModalUI() {
-    const container = document.getElementById('inventory-modal-slots');
-    for (let i = 0; i < 24; i++) {
-      const slot = document.createElement('div');
-      slot.className = 'inventory-slot';
-      slot.dataset.index = i;
-      this.attachSlotEventListeners(slot);
-      container.appendChild(slot);
-    }
-  }
-
-  attachSlotEventListeners(slot) {
-    slot.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      const index = parseInt(e.currentTarget.dataset.index);
-      if (this.slots[index]) {
-        this.dropItem(index);
-      }
-    });
-    
-    slot.addEventListener('mouseenter', (e) => {
-      const index = parseInt(e.currentTarget.dataset.index);
-      if (this.slots[index]) {
-        this.showTooltip(index, e.clientX, e.clientY);
-      }
-    });
-    
-    slot.addEventListener('mouseleave', () => {
-      this.hideTooltip();
-    });
-  }
-
+  /**
+   * Sets up event listeners for existing DOM elements.
+   */
   setupEventListeners() {
-    document.querySelector('.close-btn').addEventListener('click', () => 
-      this.toggleInventory()
-    );
-    
-    // Add event listeners to hotbar slots
-    const hotbarSlots = document.querySelectorAll('#hotbar .inventory-slot');
-    hotbarSlots.forEach(slot => {
-      this.attachSlotEventListeners(slot);
-    });
+    // Note: InventoryView handles category button events and close button events
+    // Therefore, no need to attach them here
+
+    // Attach event listeners to inventory slots
+    this.updateInventoryGrid();
   }
 
+  /**
+   * Shows tooltip for a given item.
+   * @param {number} index - Index of the item in the inventory slots. Use -1 for equipped gear.
+   * @param {number} x - X-coordinate for tooltip positioning.
+   * @param {number} y - Y-coordinate for tooltip positioning.
+   * @param {Object} specificItem - Specific item object (used for equipped gear).
+   */
   showTooltip(index, x, y, specificItem = null) {
     const item = specificItem || this.slots[index];
     if (!item) return;
     
     // Calculate position to keep tooltip on screen
-    const tooltipWidth = 200; // Approximate width
+    const tooltipWidth = 220; // Match max-width in CSS
     const tooltipHeight = 150; // Approximate height
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
@@ -106,39 +86,50 @@ export class Inventory {
     this.tooltip.style.left = `${left}px`;
     this.tooltip.style.top = `${top}px`;
     
-    const quantity = index >= 0 ? this.stackQuantities[index] : 0;
+    const quantity = (index >= 0 && this.slots[index]?.stackable) ? this.stackQuantities[index] : 0;
     this.tooltip.innerHTML = `
       <div class="tooltip-header">
-        ${item.icon} 
+        <img src="${item.icon}" alt="${item.name}" class="tooltip-icon">
         <h4>${item.name}</h4>
-        ${quantity > 1 ? `<span class="tooltip-quantity">x${quantity}</span>` : ''}
+        ${item.stackable && quantity > 1 ? `<span class="tooltip-quantity">x${quantity}</span>` : ''}
       </div>
       <div class="tooltip-body">
-        <div>Type: ${item.type}</div>
-        ${item.description ? `<div>${item.description}</div>` : ''}
+        <div>Type: ${this.categories[item.type] || item.type}</div>
+        ${item.description ? `<div>${item.description.replace(/\n/g, '<br>')}</div>` : ''}
         ${item.durability ? `<div>Durability: ${item.durability}</div>` : ''}
         ${item.defense ? `<div>Defense: +${item.defense}</div>` : ''}
         ${item.attack ? `<div>Attack: +${item.attack}</div>` : ''}
         ${item.miningPower ? `<div>Mining Power: +${item.miningPower}</div>` : ''}
       </div>
     `;
-    this.tooltip.style.opacity = '1';
+    this.tooltip.classList.add('iv-show');
   }
 
+  /**
+   * Hides the tooltip.
+   */
   hideTooltip() {
     if (this.tooltip) {
-      this.tooltip.style.opacity = '0';
+      this.tooltip.classList.remove('iv-show');
     }
   }
 
+  /**
+   * Drops an item from a specific slot.
+   * @param {number} index - Index of the slot.
+   */
   dropItem(index) {
     if (this.slots[index]) {
-      this.slots[index] = null;
-      this.stackQuantities[index] = 0;
-      this.updateUI();
+      this.removeItem(index);
+      this.updateInventoryGrid();
     }
   }
 
+  /**
+   * Adds an item to the inventory.
+   * @param {Object} item - Item object to add.
+   * @returns {boolean} - True if added successfully, false otherwise.
+   */
   addItem(item) {
     // Handle stackable items
     if (item.stackable) {
@@ -149,7 +140,7 @@ export class Inventory {
       if (existingSlotIndex !== -1) {
         // Increase stack quantity
         this.stackQuantities[existingSlotIndex]++;
-        this.updateUI();
+        this.updateInventoryGrid();
         return true;
       }
     }
@@ -159,12 +150,17 @@ export class Inventory {
     if (emptySlot !== -1) {
       this.slots[emptySlot] = item;
       this.stackQuantities[emptySlot] = 1;
-      this.updateUI();
+      this.updateInventoryGrid();
       return true;
     }
     return false;
   }
 
+  /**
+   * Removes an item from a specific slot.
+   * @param {number} index - Index of the slot.
+   * @returns {Object|null} - The removed item or null if slot was empty.
+   */
   removeItem(index) {
     if (this.slots[index]) {
       const item = this.slots[index];
@@ -174,12 +170,17 @@ export class Inventory {
         this.slots[index] = null;
         this.stackQuantities[index] = 0;
       }
-      this.updateUI();
+      this.updateInventoryGrid();
       return item;
     }
     return null;
   }
 
+  /**
+   * Gets the total count of a specific item in the inventory.
+   * @param {string} itemName - Name of the item.
+   * @returns {number} - Total count.
+   */
   getItemCount(itemName) {
     let total = 0;
     this.slots.forEach((slot, index) => {
@@ -190,66 +191,107 @@ export class Inventory {
     return total;
   }
 
-  updateUI() {
-    // Update both hotbar and inventory slots
-    const allSlots = document.querySelectorAll('.inventory-slot');
-    allSlots.forEach(slot => {
-      const index = parseInt(slot.dataset.index);
-      const item = this.slots[index];
-      
-      // Clear existing content
-      slot.innerHTML = '';
-      slot.className = 'inventory-slot';
-      
+  /**
+   * Updates the inventory grid UI based on current slots and category filter.
+   */
+  updateInventoryGrid() {
+    const container = document.getElementById('iv-inventory-slots');
+    if (!container) return;
+    container.innerHTML = '';
+
+    // We'll show up to 24 slots
+    const totalSlots = 24;
+
+    for (let i = 0; i < totalSlots; i++) {
+      const slot = document.createElement('div');
+      slot.className = 'iv-inventory-slot';
+      slot.dataset.index = i;
+
+      const item = this.slots[i];
       if (item) {
-        const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(item.icon, 'image/svg+xml');
-        const svgElement = svgDoc.documentElement;
-        slot.appendChild(svgElement);
-        
-        if (item.stackable && this.stackQuantities[index] > 1) {
-          const stackCount = document.createElement('div');
-          stackCount.className = 'stack-count';
-          stackCount.textContent = this.stackQuantities[index];
-          slot.appendChild(stackCount);
+        // Check category filter
+        if (this.currentCategory !== 'all' && item.type !== this.currentCategory) {
+          slot.classList.add('iv-hidden');
+        } else {
+          slot.classList.remove('iv-hidden');
+          
+          // Insert the item’s image icon
+          const img = document.createElement('img');
+          img.src = item.icon;
+          img.alt = item.name;
+          img.className = 'iv-item-icon';
+          slot.appendChild(img);
+
+          // Show stack count if stackable
+          if (item.stackable && this.stackQuantities[i] > 1) {
+            const stackCount = document.createElement('div');
+            stackCount.className = 'iv-stack-count';
+            stackCount.textContent = this.stackQuantities[i];
+            slot.appendChild(stackCount);
+          }
+
+          slot.classList.add('iv-has-item');
         }
-        
-        slot.classList.add('has-item');
       }
-    });
+
+      // Tooltip for each slot on hover
+      slot.addEventListener('mouseenter', (e) => {
+        const slotIndex = parseInt(e.currentTarget.dataset.index, 10);
+        const hoveredItem = this.slots[slotIndex];
+        if (hoveredItem && (this.currentCategory === 'all' || hoveredItem.type === this.currentCategory)) {
+          this.showTooltip(slotIndex, e.clientX, e.clientY);
+        }
+      });
+
+      slot.addEventListener('mouseleave', () => {
+        this.hideTooltip();
+      });
+
+      // Right-click to drop item
+      slot.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const index = parseInt(e.currentTarget.dataset.index, 10);
+        if (this.slots[index]) {
+          this.dropItem(index);
+        }
+      });
+
+      container.appendChild(slot);
+    }
 
     this.updateStats();
   }
 
+  /**
+   * Toggles the inventory modal.
+   */
   toggleInventory() {
-    const modal = document.getElementById('inventory-modal');
-    modal.classList.toggle('active');
+    const modal = document.getElementById('inventory-view-modal');
+    if (!modal) return;
+
+    modal.classList.toggle('iv-active');
     
-    if (modal.classList.contains('active')) {
-      this.updateStats();
+    if (modal.classList.contains('iv-active')) {
+      this.updateInventoryGrid();
+      // Assuming you have a method to update stats elsewhere
     }
   }
 
+  /**
+   * Updates the current category filter and refreshes the inventory grid.
+   * @param {string} category - The category to filter by.
+   */
   updateCategoryFilter(category) {
     this.currentCategory = category;
-    this.updateUI();
+    this.updateInventoryGrid();
   }
 
+  /**
+   * Updates character stats based on equipped gear and inventory.
+   */
   updateStats() {
-    const activeTools = this.slots.filter(item => 
-      item?.type === 'tool' && item.durability > 0
-    );
-
-    const miningBonus = activeTools.reduce((acc, tool) => 
-      acc + (tool.name.includes('Pickaxe') ? 25 : 0), 0);
-
-    document.getElementById('stat-speed').textContent = 
-      `${this.game.player.speed}px/s`;
-    document.getElementById('stat-light').textContent = 
-      `${Math.round(this.game.timeSystem.getDayNightTint().radius)}px`;
-    document.getElementById('stat-mining').textContent = 
-      `+${miningBonus}% Efficiency`;
-    document.getElementById('stat-attack').textContent = 
-      activeTools.some(t => t.name === 'Axe') ? '150%' : '100%';
+    // This method can be expanded based on your game's logic
+    // For demonstration, we'll just log the stats
+    // You might want to interact with InventoryView's updateStats instead
   }
 }

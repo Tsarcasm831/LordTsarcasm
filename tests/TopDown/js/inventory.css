@@ -2,7 +2,7 @@
  *           INVENTORY MODAL
  ********************************************/
 
-.iv-modal {
+ .iv-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -142,7 +142,7 @@
   transform: translateY(-2px);
 }
 
-.iv-gear-slot.equipped .iv-gear-item {
+.iv-gear-slot.iv-equipped .iv-gear-item {
   background: rgba(255, 255, 255, 0.2);
   border-color: #deb887;
   box-shadow: 0 0 6px rgba(222, 184, 135, 0.5);
@@ -166,9 +166,10 @@
   justify-content: center;
 }
 
-.iv-gear-item svg {
+.iv-gear-item img.iv-gear-icon {
   width: 32px;
   height: 32px;
+  object-fit: contain;
 }
 
 /********************************************
@@ -290,14 +291,15 @@
   transform: scale(1.05);
 }
 
-.iv-inventory-slot.selected {
+.iv-inventory-slot.iv-selected {
   border-color: #ffd700;
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
 }
 
-.iv-inventory-slot svg {
+.iv-inventory-slot img.iv-item-icon {
   width: 32px;
   height: 32px;
+  object-fit: contain;
 }
 
 .iv-stack-count {
@@ -348,6 +350,20 @@
   margin: 0;
   font-size: 1rem;
   color: #deb887;
+}
+
+#item-tooltip .tooltip-header img.tooltip-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+#item-tooltip .tooltip-quantity {
+  background: rgba(0,0,0,0.5);
+  color: #ffd700;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 0.7rem;
 }
 
 #item-tooltip .tooltip-body {
